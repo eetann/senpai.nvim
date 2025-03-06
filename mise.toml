@@ -1,0 +1,23 @@
+# mise watch test
+[tasks.test]
+run = "nvim --headless --noplugin -u ./scripts/test/minimal_init.lua -c 'lua MiniTest.run()'"
+sources = ["lua/**/*.lua", "tests/**/*"]
+outputs = []
+
+[tasks.generate-doc]
+run = "nvim --headless --noplugin -u ./scripts/doc/minimal_init.lua -c 'luafile ./scripts/doc/generate.lua' -c 'qa!'"
+
+[tasks.launch]
+run = "nvim --noplugin -u ./scripts/test/minimal_init.lua -c 'lua require(\"senpai\").setup()'"
+
+[tasks.launch-tmux]
+run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run launch'"
+
+[tasks.demo]
+run = "nvim --noplugin -u ./scripts/test/minimal_init.lua -c 'luafile ./tests/open_buffers.lua'"
+
+[tasks.demo-tmux]
+run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run demo'"
+
+[env]
+COMMIT_MESSAGE_ENGLISH = 1
