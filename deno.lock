@@ -1,0 +1,158 @@
+{
+  "version": "4",
+  "specifiers": {
+    "jsr:@core/unknownutil@4": "4.3.0",
+    "jsr:@core/unknownutil@^3.17.2": "3.18.1",
+    "jsr:@core/unknownutil@^3.18.0": "3.18.1",
+    "jsr:@denops/core@7": "7.0.1",
+    "jsr:@denops/std@7": "7.5.0",
+    "jsr:@denops/vim-channel-command@^4.0.2": "4.0.2",
+    "jsr:@lambdalisue/errorutil@^1.1.0": "1.1.1",
+    "jsr:@lambdalisue/indexer@1": "1.0.0",
+    "jsr:@lambdalisue/messagepack-rpc@^2.4.0": "2.4.0",
+    "jsr:@lambdalisue/messagepack@^1.0.1": "1.0.1",
+    "jsr:@lambdalisue/reservator@^1.0.1": "1.0.1",
+    "jsr:@lambdalisue/streamtools@1": "1.0.1",
+    "jsr:@lambdalisue/workerio@^4.0.1": "4.0.1",
+    "jsr:@milly/async-signal@1": "1.0.1",
+    "jsr:@std/async@^1.0.1": "1.0.11",
+    "jsr:@std/bytes@0.221": "0.221.0",
+    "jsr:@std/cli@^1.0.1": "1.0.14",
+    "jsr:@std/path@^1.0.2": "1.0.8",
+    "jsr:@std/semver@^1.0.1": "1.0.4",
+    "npm:@streamparser/json@^0.0.21": "0.0.21",
+    "npm:msgpackr@^1.10.1": "1.11.2"
+  },
+  "jsr": {
+    "@core/unknownutil@3.18.1": {
+      "integrity": "6aaa108b623ff971d062dd345da7ca03b97f61ae3d29c8677bff14fec11f0d76"
+    },
+    "@core/unknownutil@4.3.0": {
+      "integrity": "538a3687ffa81028e91d148818047df219663d0da671d906cecd165581ae55cc"
+    },
+    "@denops/core@7.0.1": {
+      "integrity": "ede39eec60de6d5bf0fbc0337d3e420a9689cc48afea8c71752e6c0fb630bde0"
+    },
+    "@denops/std@7.5.0": {
+      "integrity": "22d41172f1f5c91265a5555c1aecd63263176c6c65b4fb7c2b1a585ecb79a554",
+      "dependencies": [
+        "jsr:@denops/core"
+      ]
+    },
+    "@denops/vim-channel-command@4.0.2": {
+      "integrity": "8f574f9beb2fa766dd97e189cf4a4405c07f62443a766f0b8c37796c974cf772",
+      "dependencies": [
+        "jsr:@lambdalisue/indexer",
+        "jsr:@lambdalisue/reservator",
+        "jsr:@lambdalisue/streamtools",
+        "npm:@streamparser/json"
+      ]
+    },
+    "@lambdalisue/errorutil@1.1.1": {
+      "integrity": "d0234a8a510da52f130c44698643b7f420f332ef2ffce1451415925b14f5f63f",
+      "dependencies": [
+        "jsr:@core/unknownutil@^3.18.0"
+      ]
+    },
+    "@lambdalisue/indexer@1.0.0": {
+      "integrity": "f1dbbca13a0cb3b8d87533f3ac807ba2881107e28a7eb7eb85ac1b1c5d6a5c42"
+    },
+    "@lambdalisue/messagepack@1.0.1": {
+      "integrity": "e35888d9ac295826f24234f10f7ef660c890b506eb09fac1f7509798e94c525a",
+      "dependencies": [
+        "jsr:@std/bytes",
+        "npm:msgpackr"
+      ]
+    },
+    "@lambdalisue/messagepack-rpc@2.4.0": {
+      "integrity": "51b9aabe1ce88c3309e12fa834f2a8340ffcd0611f53ea012d28c8f9328ea7d2",
+      "dependencies": [
+        "jsr:@core/unknownutil@^3.17.2",
+        "jsr:@lambdalisue/indexer",
+        "jsr:@lambdalisue/messagepack",
+        "jsr:@lambdalisue/reservator",
+        "jsr:@lambdalisue/streamtools"
+      ]
+    },
+    "@lambdalisue/reservator@1.0.1": {
+      "integrity": "daf9189747c5cb2ad49e42ad3c65ec367684e1765ebb856a0ad6d754b3e650c4"
+    },
+    "@lambdalisue/streamtools@1.0.1": {
+      "integrity": "8bc2fdeefa7131911b19b53dc5eb9c10c68ed4bf9e9de8bd5ed0c27f83953516",
+      "dependencies": [
+        "jsr:@std/bytes"
+      ]
+    },
+    "@lambdalisue/workerio@4.0.1": {
+      "integrity": "415899635e6d5e53ca0ed25c6ff18670cd3f9c00c8051dce9bc0b37a76507144"
+    },
+    "@milly/async-signal@1.0.1": {
+      "integrity": "80a9641a2005974d392c8e3e330bcb33072c3d20fbf699c7c6452b0d5aa50a12"
+    },
+    "@std/async@1.0.11": {
+      "integrity": "eee0d3405275506638a9c8efaa849cf0d35873120c69b7caa1309c9a9e5b6f85"
+    },
+    "@std/bytes@0.221.0": {
+      "integrity": "64a047011cf833890a4a2ab7293ac55a1b4f5a050624ebc6a0159c357de91966"
+    },
+    "@std/cli@1.0.14": {
+      "integrity": "b09ee9921cd476c0e08185ed2bfce682d45ecf4654f26c31b4aa244a2c5c024e"
+    },
+    "@std/path@1.0.8": {
+      "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
+    },
+    "@std/semver@1.0.4": {
+      "integrity": "a62af791917d8fd6c48d6ebbb872f83fad3fc6671ffadbbd39ea229c2d34d175"
+    }
+  },
+  "npm": {
+    "@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.3": {
+      "integrity": "sha512-QZHtlVgbAdy2zAqNA9Gu1UpIuI8Xvsd1v8ic6B2pZmeFnFcMWiPLfWXh7TVw4eGEZ/C9TH281KwhVoeQUKbyjw=="
+    },
+    "@msgpackr-extract/msgpackr-extract-darwin-x64@3.0.3": {
+      "integrity": "sha512-mdzd3AVzYKuUmiWOQ8GNhl64/IoFGol569zNRdkLReh6LRLHOXxU4U8eq0JwaD8iFHdVGqSy4IjFL4reoWCDFw=="
+    },
+    "@msgpackr-extract/msgpackr-extract-linux-arm64@3.0.3": {
+      "integrity": "sha512-YxQL+ax0XqBJDZiKimS2XQaf+2wDGVa1enVRGzEvLLVFeqa5kx2bWbtcSXgsxjQB7nRqqIGFIcLteF/sHeVtQg=="
+    },
+    "@msgpackr-extract/msgpackr-extract-linux-arm@3.0.3": {
+      "integrity": "sha512-fg0uy/dG/nZEXfYilKoRe7yALaNmHoYeIoJuJ7KJ+YyU2bvY8vPv27f7UKhGRpY6euFYqEVhxCFZgAUNQBM3nw=="
+    },
+    "@msgpackr-extract/msgpackr-extract-linux-x64@3.0.3": {
+      "integrity": "sha512-cvwNfbP07pKUfq1uH+S6KJ7dT9K8WOE4ZiAcsrSes+UY55E/0jLYc+vq+DO7jlmqRb5zAggExKm0H7O/CBaesg=="
+    },
+    "@msgpackr-extract/msgpackr-extract-win32-x64@3.0.3": {
+      "integrity": "sha512-x0fWaQtYp4E6sktbsdAqnehxDgEc/VwM7uLsRCYWaiGu0ykYdZPiS8zCWdnjHwyiumousxfBm4SO31eXqwEZhQ=="
+    },
+    "@streamparser/json@0.0.21": {
+      "integrity": "sha512-v+49JBiG1kmc/9Ug79Lz9wyKaRocBgCnpRaLpdy7p0d3ICKtOAfc/H/Epa1j3F6YdnzjnZKKrnJ8xnh/v1P8Aw=="
+    },
+    "detect-libc@2.0.3": {
+      "integrity": "sha512-bwy0MGW55bG41VqxxypOsdSdGqLwXPI/focwgTYCFMbdUiBAxLg9CFzG08sz2aqzknwiX7Hkl0bQENjg8iLByw=="
+    },
+    "msgpackr-extract@3.0.3": {
+      "integrity": "sha512-P0efT1C9jIdVRefqjzOQ9Xml57zpOXnIuS+csaB4MdZbTdmGDLo8XhzBG1N7aO11gKDDkJvBLULeFTo46wwreA==",
+      "dependencies": [
+        "@msgpackr-extract/msgpackr-extract-darwin-arm64",
+        "@msgpackr-extract/msgpackr-extract-darwin-x64",
+        "@msgpackr-extract/msgpackr-extract-linux-arm",
+        "@msgpackr-extract/msgpackr-extract-linux-arm64",
+        "@msgpackr-extract/msgpackr-extract-linux-x64",
+        "@msgpackr-extract/msgpackr-extract-win32-x64",
+        "node-gyp-build-optional-packages"
+      ]
+    },
+    "msgpackr@1.11.2": {
+      "integrity": "sha512-F9UngXRlPyWCDEASDpTf6c9uNhGPTqnTeLVt7bN+bU1eajoR/8V9ys2BRaV5C/e5ihE6sJ9uPIKaYt6bFuO32g==",
+      "dependencies": [
+        "msgpackr-extract"
+      ]
+    },
+    "node-gyp-build-optional-packages@5.2.2": {
+      "integrity": "sha512-s+w+rBWnpTMwSFbaE0UXsRlg7hU4FjekKU4eyAih5T8nJuNZT1nNsskXpxmeqSK9UzkBl6UgRlnKc8hz8IEqOw==",
+      "dependencies": [
+        "detect-libc"
+      ]
+    }
+  }
+}

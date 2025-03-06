@@ -14,7 +14,7 @@ run = "nvim --noplugin -u ./scripts/test/minimal_init.lua -c 'lua require(\"senp
 run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run launch'"
 
 [tasks.demo]
-run = "nvim --noplugin -u ./scripts/test/minimal_init.lua -c 'luafile ./tests/open_buffers.lua'"
+run = "nvim --noplugin -u ./scripts/test/minimal_init.lua"
 
 [tasks.demo-tmux]
 run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run demo'"

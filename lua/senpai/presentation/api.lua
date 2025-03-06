@@ -1,7 +1,7 @@
 local M = {}
 
 M.hello = function()
-  vim.print("hello")
+  vim.cmd('echo denops#request("senpai", "hello", [])')
 end
 
 return M
