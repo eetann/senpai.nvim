@@ -1,12 +1,16 @@
-vim.opt.rtp:append(".")
+vim.env.LAZY_STDPATH = ".repro"
+load(
+  vim.fn.system(
+    "curl -s https://raw.githubusercontent.com/folke/lazy.nvim/main/bootstrap.lua"
+  )
+)()
 
-local minidoc_dir = "deps/mini.test"
-local is_not_a_directory = vim.fn.isdirectory(minidoc_dir) == 0
-if is_not_a_directory then
-	vim.fn.system({ "mkdir", "-p", minidoc_dir })
-	vim.fn.system({ "git", "clone", "https://github.com/echasnovski/mini.doc", minidoc_dir })
-end
+local plugins = {
+  { "echasnovski/mini.doc", opts = {} },
+}
 
-vim.opt.rtp:append(minidoc_dir)
-
-require("mini.doc").setup()
+vim.o.loadplugins = true
+require("lazy").setup({
+  spec = plugins,
+  change_detection = { enabled = false },
+})
