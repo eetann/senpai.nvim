@@ -1,11 +1,15 @@
 import { createTool } from "npm:@mastra/core";
-import { z } from "npm:zod";
+import {
+  IGitDiff,
+  inputSchema,
+  outputSchema,
+} from "../usecase/shared/IGitDiff.ts";
 
-export const gitDiff = createTool({
+export const GitDiff: IGitDiff = createTool({
   id: "git-diff",
   description: "get code diffs",
-  inputSchema: undefined,
-  outputSchema: z.string(),
+  inputSchema,
+  outputSchema,
   execute: async () => {
     const command = new Deno.Command("git", {
       args: ["diff"],
@@ -18,4 +22,3 @@ export const gitDiff = createTool({
     return new TextDecoder().decode(stdout);
   },
 });
-

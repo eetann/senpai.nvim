@@ -1,13 +1,13 @@
 import { z } from "npm:zod";
 import { Step, Workflow } from "npm:@mastra/core/workflows";
-import { gitDiff } from "../infra/gitDiff.ts";
 import {
   CommitMessageAgent,
   CommitMessageSchema,
 } from "../domain/commitMessage.ts";
 import { openai } from "npm:@ai-sdk/openai";
+import { IGitDiff } from "./shared/IGitDiff.ts";
 
-export async function generateCommitMessage() {
+export async function generateCommitMessage(gitDiff: IGitDiff) {
   const workflow = new Workflow({
     name: "commit-message-workflow",
   }).step(gitDiff).then(
@@ -21,7 +21,6 @@ export async function generateCommitMessage() {
           throw new Error("diff data not found");
         }
         const agent = new CommitMessageAgent(openai("gpt-4o"));
-        // commitMessageのフォーマットにここで調整します。
         const prompt = `please generate based on the following:\n${diff}`;
         const response = await agent.generate([{
           role: "user",
@@ -39,4 +38,3 @@ export async function generateCommitMessage() {
   }
   return {};
 }
-
