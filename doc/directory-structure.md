@@ -6,14 +6,14 @@
 ├── denops/senpai/ # エージェントのメインロジック
 │   ├── domain/
 │   ├── usecase/
-│   ├── infrastructure/
+│   ├── infra/
 │   ├── presentation/
 │   └── main.ts
 │
 ├── lua/senpai # neovimのプラグイン
 │   ├── domain/
 │   ├── usecase/
-│   ├── infrastructure/
+│   ├── infra/
 │   ├── presentation/
 │   └── init.lua
 │
@@ -27,5 +27,5 @@
 - **srcディレクトリ**:
   - **domain**: ドメインロジックをTypeScriptで表現。
   - **usecase**: アプリケーションロジックを実装。
-  - **infrastructure**: データアクセス・外部サービスを抽象化。
+  - **infra**: データアクセス・外部サービスを抽象化。
   - **presentation**: ユーザーインターフェースの実装。
