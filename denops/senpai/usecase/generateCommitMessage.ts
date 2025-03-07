@@ -7,7 +7,9 @@ import {
 import { openai } from "npm:@ai-sdk/openai";
 import { IGitDiff } from "./shared/IGitDiff.ts";
 
-export async function generateCommitMessage(gitDiff: IGitDiff) {
+export async function generateCommitMessage(
+  gitDiff: IGitDiff,
+): Promise<string> {
   const workflow = new Workflow({
     name: "commit-message-workflow",
   }).step(gitDiff).then(
@@ -33,8 +35,17 @@ export async function generateCommitMessage(gitDiff: IGitDiff) {
   const { start } = workflow.createRun();
   const response = await start();
   const lastStep = response.results["generate step"];
-  if (lastStep.status === "success") {
-    return lastStep.output;
+  if (lastStep.status !== "success") {
+    return "";
   }
-  return {};
+  const output: z.infer<typeof CommitMessageSchema> = lastStep.output;
+  let message = output.type;
+  if (output.scope) {
+    message += `(${output.scope})`;
+  }
+  if (output.isBreakingChange) {
+    message += "!";
+  }
+  message += `: ${output.subject}\n${output.body}`;
+  return message;
 }
