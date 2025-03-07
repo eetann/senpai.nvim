@@ -1,7 +1,8 @@
 local M = {}
 
 M.hello = function()
-  vim.fn["denops#request"]("senpai", "hello", {})
+  local response = vim.fn["denops#request"]("senpai", "hello", {})
+  vim.notify(response)
 end
 
 return M
