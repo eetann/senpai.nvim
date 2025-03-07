@@ -17,6 +17,11 @@ local subcmd_tbl = {
       require("senpai.presentation.api").hello()
     end,
   },
+  commitMessage = {
+    impl = function()
+      require("senpai.presentation.api").generate_commit_message()
+    end,
+  },
 }
 
 ---@param opts table :h lua-guide-commands-create
