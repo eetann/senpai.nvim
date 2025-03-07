@@ -10,10 +10,16 @@
 
 層の呼び方は次のとおり。
 
-- インフラ層: infrastructure
 - プレゼンテーション層: presentation
+- インフラ層: infrastructure
 - ユースケース層: usecase
 - ドメイン層: domain
+
+それぞれの層で呼び出せる層は次のとおりです。
+- presentation: 全部
+- infrastructure: usecaseかdomainで定義したインターフェース
+- usecase: domainのみ
+- domain: 無し
 
 ### 値オブジェクト
 
