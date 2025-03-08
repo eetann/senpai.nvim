@@ -5,21 +5,17 @@
 ---@toc
 ---@text
 
-local senpai = require("senpai.presentation.api")
-
-senpai.config = {
-  word = "Hello!",
-}
+local senpai = {}
 
 ---@tag senpai-setup
 ---@toc_entry Setup
----@text
---- No setup argument is required.
----
-senpai.setup = function(args)
-  senpai.config = vim.tbl_deep_extend("force", senpai.config, args or {})
+
+---@param opts? senpai.Config
+senpai.setup = function(opts)
+  require("senpai.config").setup(opts)
   -- require("senpai.presentation.highlight").set_highlights()
   -- require("senpai.presentation.autocmd").set_autocmds()
+  senpai.api = require("senpai.presentation.api")
   require("senpai.presentation.command")
 end
 

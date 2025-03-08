@@ -8,16 +8,16 @@ outputs = []
 run = "nvim --headless --noplugin -u ./scripts/doc/minimal_init.lua -c 'luafile ./scripts/doc/generate.lua' -c 'qa!'"
 
 [tasks.launch]
-run = "nvim --noplugin -u ./scripts/test/minimal_init.lua -c 'lua require(\"senpai\").setup()'"
+run = "nvim --noplugin -u ./scripts/test/minimal_init.lua"
 
 [tasks.launch-tmux]
 run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run launch'"
 
-[tasks.demo]
-run = "nvim --noplugin -u ./scripts/test/minimal_init.lua"
-
-[tasks.demo-tmux]
-run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run demo'"
+# [tasks.demo]
+# run = "nvim --noplugin -u ./scripts/test/minimal_init.lua"
+#
+# [tasks.demo-tmux]
+# run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run demo'"
 
 [env]
 COMMIT_MESSAGE_ENGLISH = 1
