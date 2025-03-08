@@ -10,5 +10,7 @@ hooks.write_pre = function(lines)
 end
 MiniDoc.generate({
   "lua/senpai/init.lua",
+  "lua/senpai/config.lua",
+  "lua/senpai/presentation/api.lua",
   "lua/senpai/presentation/command.lua",
 }, "doc/senpai.txt", { hooks = hooks })

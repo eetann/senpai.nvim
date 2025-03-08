@@ -3,6 +3,9 @@
 ---@text
 --- Commands ~
 --- `:Senpai {subcommand}`
+---
+--- `:Senpai commitMessage
+---   detail -> |senpai-write-commit-message|
 
 ---@class Senpai.Subcommand
 ---@field impl fun(args:string[], opts: table) The comand implementation

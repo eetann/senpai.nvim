@@ -37,6 +37,9 @@ function M.generate_commit_message()
   return response
 end
 
+---@tag senpai-write-commit-message
+---@text
+--- AI write conventional commit message of commitizen convention format.
 function M.write_commit_message()
   local commit_message = M.generate_commit_message()
   if not commit_message then

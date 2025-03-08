@@ -14,7 +14,9 @@
 ---@field anthropic AnthropicProvider
 
 ---@tag senpai-config
+---@toc_entry Config
 ---@text
+--- test
 ---
 ---@class senpai.Config
 ---@field provider? provider
@@ -33,7 +35,7 @@ local options
 ---@class senpai.Config.mod: senpai.Config
 local M = {}
 
----@param opts? senpai.Config
+---@param opts? senpai.Config config table. See |senpai-config|
 function M.setup(opts)
   opts = opts or {}
   options = vim.tbl_deep_extend("force", default_config, opts)

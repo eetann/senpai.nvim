@@ -1,4 +1,9 @@
+M	senpai.txt	/*M*
+M.setup()	senpai.txt	/*M.setup()*
 senpai	senpai.txt	/*senpai*
 senpai-commands	senpai.txt	/*senpai-commands*
+senpai-config	senpai.txt	/*senpai-config*
 senpai-setup	senpai.txt	/*senpai-setup*
 senpai-table-of-contents	senpai.txt	/*senpai-table-of-contents*
+senpai-write-commit-message	senpai.txt	/*senpai-write-commit-message*
+senpai.setup()	senpai.txt	/*senpai.setup()*
