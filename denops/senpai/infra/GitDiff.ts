@@ -12,7 +12,7 @@ export const GitDiff: IGitDiff = createTool({
   outputSchema,
   execute: async () => {
     const command = new Deno.Command("git", {
-      args: ["diff"],
+      args: ["diff", "--staged"],
     });
     const { code, stdout, stderr } = await command.output();
     if (code !== 0) {
