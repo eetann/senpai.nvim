@@ -54,6 +54,6 @@ export async function generateCommitMessage(
   if (output.isBreakingChange) {
     message += "!";
   }
-  message += `: ${output.subject}\n${output.body}`;
+  message += `: ${output.subject}\n\n${output.body}`;
   return message;
 }
