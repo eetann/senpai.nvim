@@ -19,7 +19,7 @@ local subcmd_tbl = {
   },
   commitMessage = {
     impl = function()
-      require("senpai.presentation.api").generate_commit_message()
+      require("senpai.presentation.api").write_commit_message()
     end,
   },
 }
