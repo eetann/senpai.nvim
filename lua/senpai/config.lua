@@ -30,6 +30,7 @@ local default_config = {
 ---@type senpai.Config
 local options
 
+---@class senpai.Config.mod: senpai.Config
 local M = {}
 
 ---@param opts? senpai.Config
@@ -41,4 +42,8 @@ function M.setup(opts)
   end
 end
 
-return M
+return setmetatable(M, {
+  __index = function(_, k)
+    return options[k]
+  end,
+})

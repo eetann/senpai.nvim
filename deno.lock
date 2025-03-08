@@ -4,6 +4,7 @@
     "jsr:@core/unknownutil@4": "4.3.0",
     "jsr:@core/unknownutil@^3.17.2": "3.18.1",
     "jsr:@core/unknownutil@^3.18.0": "3.18.1",
+    "jsr:@core/unknownutil@^4.3.0": "4.3.0",
     "jsr:@denops/core@7": "7.0.1",
     "jsr:@denops/std@7": "7.5.0",
     "jsr:@denops/vim-channel-command@^4.0.2": "4.0.2",
