@@ -12,20 +12,20 @@ export class GenerateCommitMessageUseCase {
     private gitDiff: IGitDiff,
   ) {}
 
-  async execute(): Promise<string> {
-    const workflow = this.createWorkflow(this.gitDiff);
+  async execute(language: string): Promise<string> {
+    const workflow = this.createWorkflow(language);
     const response = await this.runWorkflow(workflow);
     if (response) {
       return this.formatCommitMessage(response);
     }
-    return "";
+    return "diff not found";
   }
 
-  private createWorkflow(gitDiff: IGitDiff) {
+  private createWorkflow(language: string) {
     return new Workflow({
       name: "commit-message-workflow",
     })
-      .step(gitDiff)
+      .step(this.gitDiff)
       .then(
         new Step({
           id: this.lastStepId,
@@ -36,7 +36,7 @@ export class GenerateCommitMessageUseCase {
             if (!diff) {
               throw new Error("diff data not found");
             }
-            const agent = new CommitMessageAgent(this.model);
+            const agent = new CommitMessageAgent(this.model, language);
             const prompt = `please generate based on the following:\n${diff}`;
             const response = await agent.generate(
               [

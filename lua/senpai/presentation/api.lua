@@ -19,29 +19,36 @@ end
 
 function M.hello()
   local provider = Config.provider
-  local provider_opts = Config.providers["openai"]
+  local provider_opts = Config.providers[provider]
   wait_for_setup()
   local response = vim.fn["denops#request"]("senpai", "hello", {})
   vim.notify(response)
 end
 
-function M.generate_commit_message()
-  local provider = Config.provider
-  local provider_config = Config.providers["openai"]
+---@tag senpai-generate-commit-message
+---@param language? string
+---@return string
+function M.generate_commit_message(language)
+  local lang = language and language or Config.get_commit_message_language()
   wait_for_setup()
-  local response = vim.fn["denops#request"](
-    "senpai",
-    "generateCommitMessage",
-    { provider, provider_config }
-  )
+  local response = vim.fn["denops#request"]("senpai", "generateCommitMessage", {
+    {
+      provider = Config.provider,
+      provider_config = Config.providers[Config.provider],
+      language = lang,
+    },
+  })
   return response
 end
 
 ---@tag senpai-write-commit-message
 ---@text
 --- AI write conventional commit message of commitizen convention format.
-function M.write_commit_message()
-  local commit_message = M.generate_commit_message()
+---@param language? string
+---@return nil
+function M.write_commit_message(language)
+  local lang = language and language or Config.get_commit_message_language()
+  local commit_message = M.generate_commit_message(lang)
   if not commit_message then
     vim.notify("[senpai] write_commit_message failed")
     return

@@ -12,6 +12,15 @@
 ---@field complete? fun(subcmd_arg_lead: string): string[] (optional) Command completions callback, taking the lead of the subcommand's arguments
 ---@private
 
+local function get_complete(subcmd_arg_lead, args)
+  return vim
+    .iter(args)
+    :filter(function(arg)
+      return arg:find(subcmd_arg_lead) ~= nil
+    end)
+    :totable()
+end
+
 ---@type table<string, Senpai.Subcommand>
 ---@private
 local subcmd_tbl = {
@@ -21,8 +30,18 @@ local subcmd_tbl = {
     end,
   },
   commitMessage = {
-    impl = function()
-      require("senpai.presentation.api").write_commit_message()
+    impl = function(args)
+      require("senpai.presentation.api").write_commit_message(args[1])
+    end,
+    complete = function(subcmd_arg_lead)
+      local args = {
+        "English",
+        "Japanese",
+        "Spanish",
+        "Chinese",
+        "Japanese(ツンデレ風)",
+      }
+      return get_complete(subcmd_arg_lead, args)
     end,
   },
 }

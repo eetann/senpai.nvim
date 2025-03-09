@@ -5,6 +5,7 @@
 ---@class senpai.Config
 ---@field provider? provider
 ---@field providers? senpai.Config.providers see |senpai-config-providers|
+---@field commit_message? senpai.Config.commit_message
 ---
 ---@eval return require("senpai.config")._format_default()
 
@@ -24,6 +25,10 @@
 ---@class senpai.Config.providers.AnthropicProvider
 ---@field model ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")
 
+---@tag senpai-config-commit-message
+---@class senpai.Config.commit_message
+---@field language string|(fun(): string)
+
 ---@private
 ---@type senpai.Config
 local default_config = {
@@ -32,10 +37,13 @@ local default_config = {
     openai = { model = "gpt-4o" },
     anthropic = { model = "claude-3-7-sonnet-20250219" },
   },
+  commit_message = {
+    language = "English",
+  },
 }
 
----@type senpai.Config
 ---@private
+---@type senpai.Config
 local options
 
 ---@nodoc
@@ -60,6 +68,15 @@ function M._format_default()
   end
   table.insert(lines, "<")
   return lines
+end
+
+---@return string
+function M.get_commit_message_language()
+  local language = options.commit_message.language
+  if type(language) == "function" then
+    return language()
+  end
+  return language
 end
 
 return setmetatable(M, {
