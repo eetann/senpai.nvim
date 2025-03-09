@@ -65,7 +65,9 @@ function M.setup(opts)
   opts = opts or {}
   options = vim.tbl_deep_extend("force", default_config, opts)
   if options.provider == "openai" and not vim.env.OPENAI_API_KEY then
-    vim.notify("[senpai]: OPENAI_API_KEY is not set", vim.log.levels.WARN)
+    vim.schedule(function()
+      vim.notify("[senpai]: OPENAI_API_KEY is not set", vim.log.levels.WARN)
+    end)
   end
 end
 
