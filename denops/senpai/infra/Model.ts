@@ -1,5 +1,4 @@
-import { openai } from "npm:@ai-sdk/openai";
-import { is, PredicateType } from "jsr:@core/unknownutil@^4.3.0";
+import { openai, is, PredicateType } from "../deps.ts";
 
 export const isProviderConfig = is.ObjectOf({
   model: is.String,

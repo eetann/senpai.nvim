@@ -1,11 +1,9 @@
-import { z } from "npm:zod";
-import { Step, Workflow } from "npm:@mastra/core/workflows";
+import { z, Step, Workflow, LanguageModel } from "../deps.ts";
 import {
   CommitMessageAgent,
   CommitMessageSchema,
 } from "../domain/commitMessage.ts";
 import { IGitDiff } from "./shared/IGitDiff.ts";
-import { LanguageModel } from "npm:@mastra/core";
 
 export class GenerateCommitMessageUseCase {
   private lastStepId = "generate-step";

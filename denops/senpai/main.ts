@@ -1,4 +1,4 @@
-import type { Entrypoint } from "jsr:@denops/std@^7.0.0";
+import type { Entrypoint } from "./deps.ts";
 import { weatherAgent } from "./weather.ts";
 import { generateCommitMessage } from "./presentation/generateCommitMessage.ts";
 

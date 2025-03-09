@@ -1,5 +1,4 @@
-import { Tool } from "npm:@mastra/core";
-import { z } from "npm:zod";
+import { Tool, z } from "../../deps.ts";
 
 export const inputSchema = undefined;
 export const outputSchema = z.string();
