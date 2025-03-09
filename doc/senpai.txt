@@ -13,62 +13,56 @@ Table of Contents                                  *senpai-table-of-contents*
                                                                 *senpai.setup()*
                              `senpai.setup`({opts})
 Parameters ~
-{opts} `(optional)` `(senpai.Config)`
+{opts} `(optional)` `(senpai.Config)` see |senpai-config|
 
 
 ==============================================================================
 ------------------------------------------------------------------------------
-Class ~
-{OpenAIProvider}
-Fields ~
-{model} "`(gpt)`-4o" | "gpt-4o-mini"
-
-------------------------------------------------------------------------------
-Class ~
-{AnthropicProvider}
-Fields ~
-{model} "`(claude)`-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022"
-
-------------------------------------------------------------------------------
-Class ~
-{senpai.Provider}
-Fields ~
-{model} `(string)`
-
-------------------------------------------------------------------------------
-Class ~
-{senpai.Providers}
-Fields ~
-{openai} `(OpenAIProvider)`
-{anthropic} `(AnthropicProvider)`
-
-------------------------------------------------------------------------------
                                                                  *senpai-config*
-                                `default_config`
-
-test
-
 Class ~
 {senpai.Config}
 Fields ~
 {provider} `(optional)` "`(openai)`"
-{providers} `(optional)` `(senpai.Providers)`
+{providers} `(optional)` `(senpai.Config.providers)` see |senpai-config-providers|
 
+Default values:
+>lua
+  {
+    provider = "openai",
+    providers = {
+      anthropic = {
+        model = "claude-3-7-sonnet-20250219"
+      },
+      openai = {
+        model = "gpt-4o"
+      }
+    }
+  }
+<
 ------------------------------------------------------------------------------
-Type ~
-`(senpai.Config)`
-
-------------------------------------------------------------------------------
-                                                                             *M*
-                                      `M`
+                                                       *senpai-config-providers*
 Class ~
-{senpai.Config.mod:} senpai.Config
+{senpai.Config.providers}
+Fields ~
+{openai} `(senpai.Config.providers.OpenAIProvider)`
+  see |senpai-config-providers-openaiprovider|
+
+{anthropic} `(senpai.Config.providers.AnthropicProvider)`
+  see |senpai-config-providers-anthropicprovider|
 
 ------------------------------------------------------------------------------
-                                                                     *M.setup()*
-                               `M.setup`({opts})
-Parameters ~
-{opts} `(optional)` `(senpai.Config)` config table. See |senpai-config|
+                                        *senpai-config-providers-openaiprovider*
+Class ~
+{senpai.Config.providers.OpenAIProvider}
+Fields ~
+{model} `("gpt-4o" | "gpt-4o-mini")`
+
+------------------------------------------------------------------------------
+                                     *senpai-config-providers-anthropicprovider*
+Class ~
+{senpai.Config.providers.AnthropicProvider}
+Fields ~
+{model} `("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")`
 
 
 ==============================================================================

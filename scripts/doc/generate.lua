@@ -8,6 +8,10 @@ hooks.write_pre = function(lines)
   table.remove(lines, 1)
   return lines
 end
+hooks.sections["@nodoc"] = function(s)
+  s.parent:clear_lines()
+end
+
 MiniDoc.generate({
   "lua/senpai/init.lua",
   "lua/senpai/config.lua",

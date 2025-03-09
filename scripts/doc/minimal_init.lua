@@ -7,6 +7,13 @@ load(
 
 local plugins = {
   { "echasnovski/mini.doc", opts = {} },
+  {
+    dir = vim.uv.cwd(),
+    dependencies = {
+      "vim-denops/denops.vim",
+    },
+    opts = {},
+  },
 }
 
 vim.o.loadplugins = true

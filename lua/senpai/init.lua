@@ -10,7 +10,7 @@ local senpai = {}
 ---@tag senpai-setup
 ---@toc_entry Setup
 
----@param opts? senpai.Config
+---@param opts? senpai.Config see |senpai-config|
 senpai.setup = function(opts)
   require("senpai.config").setup(opts)
   -- require("senpai.presentation.highlight").set_highlights()

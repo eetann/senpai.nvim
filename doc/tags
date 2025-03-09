@@ -1,8 +1,9 @@
-M	senpai.txt	/*M*
-M.setup()	senpai.txt	/*M.setup()*
 senpai	senpai.txt	/*senpai*
 senpai-commands	senpai.txt	/*senpai-commands*
 senpai-config	senpai.txt	/*senpai-config*
+senpai-config-providers	senpai.txt	/*senpai-config-providers*
+senpai-config-providers-anthropicprovider	senpai.txt	/*senpai-config-providers-anthropicprovider*
+senpai-config-providers-openaiprovider	senpai.txt	/*senpai-config-providers-openaiprovider*
 senpai-setup	senpai.txt	/*senpai-setup*
 senpai-table-of-contents	senpai.txt	/*senpai-table-of-contents*
 senpai-write-commit-message	senpai.txt	/*senpai-write-commit-message*
