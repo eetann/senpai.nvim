@@ -1,4 +1,4 @@
----@alias provider "openai"
+---@alias provider "openai" | "openrouter"
 
 ---@tag senpai-config
 ---@toc_entry Config
@@ -17,6 +17,9 @@
 ---
 ---@field anthropic senpai.Config.providers.AnthropicProvider
 ---   see |senpai-config-providers-anthropicprovider|
+---
+---@field openrouter senpai.Config.providers.OpenRouterProvider
+---   see |senpai-config-providers-openrouterprovider|
 
 ---@tag senpai-config-providers-openaiprovider
 ---@class senpai.Config.providers.OpenAIProvider
@@ -25,6 +28,14 @@
 ---@tag senpai-config-providers-anthropicprovider
 ---@class senpai.Config.providers.AnthropicProvider
 ---@field model ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")
+
+---@tag senpai-config-providers-openrouterprovider
+---@class senpai.Config.providers.OpenRouterProvider
+---@field model string
+---   You can get a list of models with the following command.
+---   >sh
+---   curl https://openrouter.ai/api/v1/models | jq '.data[].id'
+--- <
 
 ---@tag senpai-config-commit-message
 ---@class senpai.Config.commit_message
@@ -45,6 +56,7 @@ local default_config = {
   providers = {
     openai = { model = "gpt-4o" },
     anthropic = { model = "claude-3-7-sonnet-20250219" },
+    openrouter = { model = "deepseek/deepseek-r1:free" },
   },
   commit_message = {
     language = "English",
@@ -67,6 +79,11 @@ function M.setup(opts)
   if options.provider == "openai" and not vim.env.OPENAI_API_KEY then
     vim.schedule(function()
       vim.notify("[senpai]: OPENAI_API_KEY is not set", vim.log.levels.WARN)
+    end)
+  end
+  if options.provider == "openrouter" and not vim.env.OPENROUTER_API_KEY then
+    vim.schedule(function()
+      vim.notify("[senpai]: OPENROUTER_API_KEY is not set", vim.log.levels.WARN)
     end)
   end
 end
