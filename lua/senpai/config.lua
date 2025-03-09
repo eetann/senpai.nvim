@@ -6,6 +6,7 @@
 ---@field provider? provider
 ---@field providers? senpai.Config.providers see |senpai-config-providers|
 ---@field commit_message? senpai.Config.commit_message
+---   see |senpai-config-commit-message|
 ---
 ---@eval return require("senpai.config")._format_default()
 
@@ -27,7 +28,15 @@
 
 ---@tag senpai-config-commit-message
 ---@class senpai.Config.commit_message
----@field language string|(fun(): string)
+---@field language string|(fun(): string) Supports languages that AI knows
+---   It doesn't have to be strictly natural language,
+---   since the prompt is as follows
+---   >typescript
+---    `subject and body should be written in ${language}.`
+--- <
+---   That means the AI can write it in a tsundere style as well.
+---   Like this.
+---     `:Senpai commitMessage English(Tsundere)`
 
 ---@private
 ---@type senpai.Config

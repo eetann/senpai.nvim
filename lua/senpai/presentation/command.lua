@@ -4,7 +4,7 @@
 --- Commands ~
 --- `:Senpai {subcommand}`
 ---
---- `:Senpai commitMessage
+--- `:Senpai commitMessage (language)`
 ---   detail -> |senpai-write-commit-message|
 
 ---@class Senpai.Subcommand

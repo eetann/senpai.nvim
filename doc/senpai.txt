@@ -24,10 +24,15 @@ Class ~
 Fields ~
 {provider} `(optional)` "`(openai)`"
 {providers} `(optional)` `(senpai.Config.providers)` see |senpai-config-providers|
+{commit_message} `(optional)` `(senpai.Config.commit_message)`
+  see |senpai-config-commit-message|
 
 Default values:
 >lua
   {
+    commit_message = {
+      language = "English"
+    },
     provider = "openai",
     providers = {
       anthropic = {
@@ -64,13 +69,46 @@ Class ~
 Fields ~
 {model} `("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")`
 
+------------------------------------------------------------------------------
+                                                  *senpai-config-commit-message*
+Class ~
+{senpai.Config.commit_message}
+Fields ~
+{language} `(string|(fun(): string))` Supports languages that AI knows
+  It doesn't have to be strictly natural language,
+  since the prompt is as follows
+  >typescript
+   `subject and body should be written in ${language}.`
+<
+  That means the AI can write it in a tsundere style as well.
+  Like this.
+    `:Senpai commitMessage English(Tsundere)`
+
+------------------------------------------------------------------------------
+                                               *M.get_commit_message_language()*
+                       `M.get_commit_message_language`()
+Return ~
+`(string)`
+
 
 ==============================================================================
 ------------------------------------------------------------------------------
+                                                *senpai-generate-commit-message*
+                    `M.generate_commit_message`({language})
+Parameters ~
+{language} `(optional)` `(string)`
+Return ~
+`(string)`
+
+------------------------------------------------------------------------------
                                                    *senpai-write-commit-message*
-                           `M.write_commit_message`()
+                      `M.write_commit_message`({language})
 
 AI write conventional commit message of commitizen convention format.
+Parameters ~
+{language} `(optional)` `(string)`
+Return ~
+`(nil)`
 
 
 ==============================================================================
@@ -80,7 +118,7 @@ AI write conventional commit message of commitizen convention format.
 Commands ~
 `:Senpai {subcommand}`
 
-`:Senpai commitMessage
+`:Senpai commitMessage (language)`
   detail -> |senpai-write-commit-message|
 
 
