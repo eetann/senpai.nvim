@@ -21,3 +21,5 @@ require("lazy").setup({
   spec = plugins,
   change_detection = { enabled = false },
 })
+
+vim.opt.clipboard = { "unnamedplus", "unnamed" }
