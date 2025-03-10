@@ -18,7 +18,7 @@ export class GenerateCommitMessageUseCase {
     if (response) {
       return this.formatCommitMessage(response);
     }
-    return "diff not found";
+    return "failed";
   }
 
   private createWorkflow(language: string) {

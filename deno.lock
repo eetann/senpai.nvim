@@ -23,6 +23,7 @@
     "jsr:@std/semver@^1.0.1": "1.0.4",
     "npm:@ai-sdk/openai@*": "1.2.1_zod@3.24.2",
     "npm:@mastra/core@*": "0.4.4_@opentelemetry+api@1.9.0_zod@3.24.2",
+    "npm:@openrouter/ai-sdk-provider@*": "0.4.3_zod@3.24.2",
     "npm:@streamparser/json@^0.0.21": "0.0.21",
     "npm:@types/node@*": "22.12.0",
     "npm:msgpackr@^1.10.1": "1.11.2",
@@ -115,15 +116,25 @@
     "@ai-sdk/openai@1.2.1_zod@3.24.2": {
       "integrity": "sha512-UtVDNrmrKzb3b4T9bnpduXs4FKpWGn+sH5qaFP1mtxOPeYGUF9OoJfGilH3CNfqGAE4QdZh/LT3IV6GHacooGg==",
       "dependencies": [
-        "@ai-sdk/provider",
-        "@ai-sdk/provider-utils",
+        "@ai-sdk/provider@1.0.10",
+        "@ai-sdk/provider-utils@2.1.11_zod@3.24.2",
+        "zod"
+      ]
+    },
+    "@ai-sdk/provider-utils@2.1.10_zod@3.24.2": {
+      "integrity": "sha512-4GZ8GHjOFxePFzkl3q42AU0DQOtTQ5w09vmaWUf/pKFXJPizlnzKSUkF0f+VkapIUfDugyMqPMT1ge8XQzVI7Q==",
+      "dependencies": [
+        "@ai-sdk/provider@1.0.9",
+        "eventsource-parser",
+        "nanoid",
+        "secure-json-parse",
         "zod"
       ]
     },
     "@ai-sdk/provider-utils@2.1.11_zod@3.24.2": {
       "integrity": "sha512-lMnXA5KaRJidzW7gQmlo/SnX6D+AKk5GxHFcQtOaGOSJNmu/qcNZc1rGaO7K5qW52OvCLXtnWudR4cc/FvMpVQ==",
       "dependencies": [
-        "@ai-sdk/provider",
+        "@ai-sdk/provider@1.0.10",
         "eventsource-parser",
         "nanoid",
         "secure-json-parse",
@@ -136,10 +147,16 @@
         "json-schema"
       ]
     },
+    "@ai-sdk/provider@1.0.9": {
+      "integrity": "sha512-jie6ZJT2ZR0uVOVCDc9R2xCX5I/Dum/wEK28lx21PJx6ZnFAN9EzD2WsPhcDWfCgGx3OAZZ0GyM3CEobXpa9LA==",
+      "dependencies": [
+        "json-schema"
+      ]
+    },
     "@ai-sdk/react@1.1.21_zod@3.24.2": {
       "integrity": "sha512-VKgqzG5wKjyLhROiFhRdyMuDcGu5QPfdLU5J7ovqR1HecknxymL3nCXsxWbAaiZ0khm2EsST6L6zwUbriZrKgg==",
       "dependencies": [
-        "@ai-sdk/provider-utils",
+        "@ai-sdk/provider-utils@2.1.11_zod@3.24.2",
         "@ai-sdk/ui-utils",
         "swr",
         "throttleit",
@@ -149,8 +166,8 @@
     "@ai-sdk/ui-utils@1.1.17_zod@3.24.2": {
       "integrity": "sha512-fCnp/wntZGqPf6tiCmhuQoSDLSBhXoI5DU2JX4As96EO870+jliE6ozvYUwYOZC6Ta2OKAjjWPcSP7HeHX0b+g==",
       "dependencies": [
-        "@ai-sdk/provider",
-        "@ai-sdk/provider-utils",
+        "@ai-sdk/provider@1.0.10",
+        "@ai-sdk/provider-utils@2.1.11_zod@3.24.2",
         "zod",
         "zod-to-json-schema"
       ]
@@ -789,6 +806,14 @@
     },
     "@neon-rs/load@0.0.4": {
       "integrity": "sha512-kTPhdZyTQxB+2wpiRcFWrDcejc4JI6tkPuS7UZCG4l6Zvc5kU/gGQ/ozvHTh1XR5tS+UlfAfGuPajjzQjCiHCw=="
+    },
+    "@openrouter/ai-sdk-provider@0.4.3_zod@3.24.2": {
+      "integrity": "sha512-/MAUj5XFKs6IRZ3WwD8qFyUC6I+yhQ4TsemxvwDk+mbXNiVuJvP5Qc+yJ4fKTfIP4vRiV1sApA/t/La5MgA2FQ==",
+      "dependencies": [
+        "@ai-sdk/provider@1.0.9",
+        "@ai-sdk/provider-utils@2.1.10_zod@3.24.2",
+        "zod"
+      ]
     },
     "@opentelemetry/api-logs@0.55.0": {
       "integrity": "sha512-3cpa+qI45VHYcA5c0bHM6VHo9gicv3p5mlLHNG3rLyjQU8b7e0st1rWtrUn3JbZ3DwwCfhKop4eQ9UuYlC6Pkg==",
@@ -2136,8 +2161,8 @@
     "ai@4.1.54_zod@3.24.2": {
       "integrity": "sha512-VcUZhNEC9i1OpdhDaz1cF0IllgMqhwoUdqHQT1U3dKvS9KnOa9qvEtUUAilA+VHI/1LSZF4VzGhXPC7QMT9NMg==",
       "dependencies": [
-        "@ai-sdk/provider",
-        "@ai-sdk/provider-utils",
+        "@ai-sdk/provider@1.0.10",
+        "@ai-sdk/provider-utils@2.1.11_zod@3.24.2",
         "@ai-sdk/react",
         "@ai-sdk/ui-utils",
         "@opentelemetry/api",
