@@ -44,9 +44,12 @@ local subcmd_tbl = {
       return get_complete(subcmd_arg_lead, args)
     end,
   },
-  summarize = {
-    impl = function(args)
-      require("senpai.presentation.api").summarize(args[1])
+  summarizeExample = {
+    impl = function()
+      require("senpai.presentation.api").summarize([[
+      Take care of the shopping.
+      Two apples and three oranges.
+      Oh, and a banana, please.]])
     end,
   },
 }
