@@ -1,13 +1,15 @@
 M.get_commit_message_language()	senpai.txt	/*M.get_commit_message_language()*
+M.get_provider()	senpai.txt	/*M.get_provider()*
 senpai	senpai.txt	/*senpai*
 senpai-commands	senpai.txt	/*senpai-commands*
 senpai-config	senpai.txt	/*senpai-config*
 senpai-config-commit-message	senpai.txt	/*senpai-config-commit-message*
-senpai-config-providers	senpai.txt	/*senpai-config-providers*
 senpai-config-providers-anthropicprovider	senpai.txt	/*senpai-config-providers-anthropicprovider*
 senpai-config-providers-openaiprovider	senpai.txt	/*senpai-config-providers-openaiprovider*
+senpai-config-providers-openrouterprovider	senpai.txt	/*senpai-config-providers-openrouterprovider*
 senpai-generate-commit-message	senpai.txt	/*senpai-generate-commit-message*
 senpai-setup	senpai.txt	/*senpai-setup*
+senpai-summarize	senpai.txt	/*senpai-summarize*
 senpai-table-of-contents	senpai.txt	/*senpai-table-of-contents*
 senpai-write-commit-message	senpai.txt	/*senpai-write-commit-message*
 senpai.setup()	senpai.txt	/*senpai.setup()*
