@@ -17,15 +17,15 @@ function M.summarize(text)
     vim.notify("[senpai] provider not found", vim.log.levels.WARN)
     return ""
   end
-  -- WithDenops.wait_async_for_setup(function()
-  --   vim.fn["denops#notify"]("senpai", "summarize", {
-  --     {
-  --       provider = provider,
-  --       provider_config = provider_config,
-  --       text = text,
-  --     },
-  --   })
-  -- end)
+  WithDenops.wait_async_for_setup(function()
+    vim.fn["denops#notify"]("senpai", "summarize", {
+      {
+        provider = provider,
+        provider_config = provider_config,
+        text = text,
+      },
+    })
+  end)
 end
 
 return M

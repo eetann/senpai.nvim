@@ -18,7 +18,7 @@ function M:get_win_options()
   return {
     backdrop = {
       bg = "NONE",
-      blend = 0,
+      blend = 100,
       transparent = true,
     },
     ---@type snacks.win.Keys[]
