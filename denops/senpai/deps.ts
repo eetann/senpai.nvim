@@ -1,5 +1,5 @@
 export { z } from "npm:zod";
-export { Tool } from "npm:@mastra/core";
+export { createTool, Tool } from "npm:@mastra/core";
 export { Agent, type AgentConfig } from "npm:@mastra/core/agent";
 export { Step, Workflow } from "npm:@mastra/core/workflows";
 export { type LanguageModel } from "npm:@mastra/core";
