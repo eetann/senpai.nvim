@@ -61,4 +61,21 @@ function M.write_commit_message(language)
   replace_current_line(commit_message)
 end
 
+function M.summarize(text)
+  local provider, provider_config = Config.get_provider()
+  if not provider_config then
+    vim.notify("[senpai] provider not found", vim.log.levels.WARN)
+    return ""
+  end
+  wait_for_setup()
+  local response = vim.fn["denops#request"]("senpai", "summarize", {
+    {
+      provider = provider,
+      provider_config = provider_config,
+      text = text,
+    },
+  })
+  return response
+end
+
 return M

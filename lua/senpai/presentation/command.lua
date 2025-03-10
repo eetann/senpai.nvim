@@ -44,6 +44,11 @@ local subcmd_tbl = {
       return get_complete(subcmd_arg_lead, args)
     end,
   },
+  summarize = {
+    impl = function(args)
+      require("senpai.presentation.api").summarize(args[1])
+    end,
+  },
 }
 
 ---@param opts table :h lua-guide-commands-create

@@ -1,6 +1,7 @@
 import type { Entrypoint } from "./deps.ts";
 import { weatherAgent } from "./weather.ts";
 import { generateCommitMessage } from "./presentation/generateCommitMessage.ts";
+import { summarize } from "./presentation/summary.ts";
 
 export const main: Entrypoint = (denops) => {
   denops.dispatcher = {
@@ -12,6 +13,9 @@ export const main: Entrypoint = (denops) => {
     },
     async generateCommitMessage(args) {
       return await generateCommitMessage(args);
+    },
+    async summarize(args) {
+      return await summarize(denops, args);
     },
   };
   denops.cmd(`echo "Senpai: Ohayo!"`);

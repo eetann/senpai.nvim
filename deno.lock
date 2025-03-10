@@ -7,6 +7,7 @@
     "jsr:@core/unknownutil@^4.3.0": "4.3.0",
     "jsr:@denops/core@7": "7.0.1",
     "jsr:@denops/std@7": "7.5.0",
+    "jsr:@denops/std@^7.5.0": "7.5.0",
     "jsr:@denops/vim-channel-command@^4.0.2": "4.0.2",
     "jsr:@lambdalisue/errorutil@^1.1.0": "1.1.1",
     "jsr:@lambdalisue/indexer@1": "1.0.0",
@@ -22,7 +23,9 @@
     "jsr:@std/cli@^1.0.1": "1.0.14",
     "jsr:@std/internal@^1.0.5": "1.0.5",
     "jsr:@std/path@^1.0.2": "1.0.8",
+    "jsr:@std/semver@1": "1.0.4",
     "jsr:@std/semver@^1.0.1": "1.0.4",
+    "jsr:@std/ulid@1": "1.0.0",
     "npm:@ai-sdk/openai@*": "1.2.1_zod@3.24.2",
     "npm:@mastra/core@*": "0.4.4_@opentelemetry+api@1.9.0_zod@3.24.2",
     "npm:@openrouter/ai-sdk-provider@*": "0.4.3_zod@3.24.2",
@@ -46,7 +49,10 @@
     "@denops/std@7.5.0": {
       "integrity": "22d41172f1f5c91265a5555c1aecd63263176c6c65b4fb7c2b1a585ecb79a554",
       "dependencies": [
-        "jsr:@denops/core"
+        "jsr:@core/unknownutil@^4.3.0",
+        "jsr:@denops/core",
+        "jsr:@std/semver@1",
+        "jsr:@std/ulid"
       ]
     },
     "@denops/vim-channel-command@4.0.2": {
@@ -122,6 +128,9 @@
     },
     "@std/semver@1.0.4": {
       "integrity": "a62af791917d8fd6c48d6ebbb872f83fad3fc6671ffadbbd39ea229c2d34d175"
+    },
+    "@std/ulid@1.0.0": {
+      "integrity": "d41c3d27a907714413649fee864b7cde8d42ee68437d22b79d5de4f81d808780"
     }
   },
   "npm": {
