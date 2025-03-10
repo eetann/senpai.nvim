@@ -26,12 +26,12 @@ end
 local subcmd_tbl = {
   helloDenops = {
     impl = function()
-      require("senpai.presentation.api").hello()
+      require("senpai.api").hello()
     end,
   },
   commitMessage = {
     impl = function(args)
-      require("senpai.presentation.api").write_commit_message(args[1])
+      require("senpai.api").write_commit_message(args[1])
     end,
     complete = function(subcmd_arg_lead)
       local args = {
@@ -46,7 +46,7 @@ local subcmd_tbl = {
   },
   summarizeExample = {
     impl = function()
-      require("senpai.presentation.api").summarize([[
+      require("senpai.api").summarize([[
       Take care of the shopping.
       Two apples and three oranges.
       Oh, and a banana, please.]])
