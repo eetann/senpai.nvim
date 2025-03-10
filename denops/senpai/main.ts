@@ -10,7 +10,9 @@ export const main: Entrypoint = (denops) => {
       ]);
       return response.text;
     },
-    generateCommitMessage,
+    async generateCommitMessage(args) {
+      return await generateCommitMessage(args);
+    },
   };
   denops.cmd(`echo "Senpai: Ohayo!"`);
 };
