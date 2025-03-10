@@ -17,6 +17,9 @@
 ---   You can get a list of models with the following command.
 ---   >sh
 ---   curl https://openrouter.ai/api/v1/models | jq '.data[].id'
+---   # check specific model
+---   curl https://openrouter.ai/api/v1/models | \
+---     jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
 --- <
 
 local providers = {
@@ -28,7 +31,7 @@ local providers = {
   anthropic = { model = "claude-3-7-sonnet-20250219" },
   ---@type senpai.Config.providers.OpenRouterProvider
   ---   see |senpai-config-providers-openrouterprovider|
-  openrouter = { model = "deepseek/deepseek-r1:free" },
+  openrouter = { model = "anthropic/claude-3.7-sonnet" },
 }
 
 ---@tag senpai-config
