@@ -1,8 +1,8 @@
-import { z, Step, Workflow, LanguageModel } from "../deps.ts";
+import { LanguageModel, Step, Workflow, z } from "../deps.ts";
 import {
   CommitMessageAgent,
   CommitMessageSchema,
-} from "../domain/commitMessage.ts";
+} from "../domain/agent/CommitMessageAgent.ts";
 import { IGitDiff } from "./shared/IGitDiff.ts";
 
 export class GenerateCommitMessageUseCase {
