@@ -30,11 +30,16 @@ end
 ---@return string
 function M.generate_commit_message(language)
   local lang = language and language or Config.get_commit_message_language()
+  local provider, provider_config = Config.get_provider()
+  if not provider_config then
+    vim.notify("[senpai] provider not found", vim.log.levels.WARN)
+    return ""
+  end
   wait_for_setup()
   local response = vim.fn["denops#request"]("senpai", "generateCommitMessage", {
     {
-      provider = Config.provider,
-      provider_config = Config.providers[Config.provider],
+      provider = provider,
+      provider_config = provider_config,
       language = lang,
     },
   })
