@@ -22,6 +22,7 @@ function M.summarize(text)
       {
         provider = provider,
         provider_config = provider_config,
+        bufnr = chat:get_log_buf(),
         text = text,
       },
     })
