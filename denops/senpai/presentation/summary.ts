@@ -14,7 +14,7 @@ export type SummarizeCommand = PredicateType<typeof isSummarizeCommand>;
 export async function summarize(
   denops: Denops,
   command: unknown | SummarizeCommand,
-): Promise<string> {
+): Promise<void> {
   assert(command, isSummarizeCommand);
   const model = getModel(command.provider, command.provider_config);
   const textStream = await new SummarizeUseCase(model).execute(command.text);
@@ -23,8 +23,7 @@ export async function summarize(
     denops,
     0,
   ) as number[];
-  let row = initialPosition[0];
-  let col = initialPosition[1];
+  let [row, col] = initialPosition;
   for await (const chunk of textStream) {
     const lines = chunk.split("\n");
     nvim.nvim_buf_set_text(denops, 0, row - 1, col, row - 1, col, lines);
@@ -35,6 +34,5 @@ export async function summarize(
     }
     col += lines[additional_row].length;
   }
-
-  return "";
+  await nvim.nvim_win_set_cursor(denops, 0, [row, col]);
 }
