@@ -63,19 +63,17 @@ end
 --- @param is_failed? boolean
 function M:stop(is_failed)
   self.is_active = false
-  vim.schedule(function()
-    local result_message = is_failed and " FAILED!" or " finished!"
-    if self.stop_callback then
-      self.stop_callback(self.message .. result_message)
-    else
-      local level = is_failed and vim.log.levels.ERROR or vim.log.levels.INFO
-      vim.notify(self.message .. result_message, level, {
-        title = "Progress",
-        replace = self.notify_id,
-      })
-    end
-    self.notify_id = nil
-  end)
+  local result_message = is_failed and " FAILED!" or " finished!"
+  if self.stop_callback then
+    self.stop_callback(self.message .. result_message)
+  else
+    local level = is_failed and vim.log.levels.ERROR or vim.log.levels.INFO
+    vim.notify(self.message .. result_message, level, {
+      title = "Progress",
+      replace = self.notify_id,
+    })
+  end
+  self.notify_id = nil
 end
 
 return M

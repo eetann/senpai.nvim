@@ -112,8 +112,9 @@ function M:action_send()
       },
     }, function()
       spinner:stop()
-    end, function()
+    end, function(e)
       spinner:stop(true)
+      vim.notify(vim.inspect(e), vim.log.levels.ERROR)
     end)
   end)
 end
