@@ -1,4 +1,4 @@
-import type { Entrypoint } from "./deps.ts";
+import { autocmd, type Entrypoint } from "./deps.ts";
 import { weatherAgent } from "./weather.ts";
 import { generateCommitMessage } from "./presentation/generateCommitMessage.ts";
 import { summarize } from "./presentation/summary.ts";
@@ -22,5 +22,5 @@ export const main: Entrypoint = (denops) => {
       await summarize(denops, args);
     },
   };
-  denops.cmd(`echo "Senpai: Ohayo!"`);
+  autocmd.emit(denops, "User", "SenpaiInitEnd", { nomodeline: true });
 };
