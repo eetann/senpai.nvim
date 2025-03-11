@@ -15,7 +15,7 @@ export const main: Entrypoint = (denops) => {
       return await generateCommitMessage(args);
     },
     async summarize(args) {
-      return await summarize(denops, args);
+      await summarize(denops, args);
     },
   };
   denops.cmd(`echo "Senpai: Ohayo!"`);

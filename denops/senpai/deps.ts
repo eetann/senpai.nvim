@@ -14,6 +14,11 @@ export type { Denops, Entrypoint } from "jsr:@denops/std@^7.5.0";
 export * as fn from "jsr:@denops/std@^7.5.0/function";
 export * as nvim from "jsr:@denops/std@^7.5.0/function/nvim";
 
-export { is, type PredicateType } from "jsr:@core/unknownutil@^4.3.0";
+export {
+  as,
+  assert,
+  is,
+  type PredicateType,
+} from "jsr:@core/unknownutil@^4.3.0";
 
 export { assertEquals } from "jsr:@std/assert";

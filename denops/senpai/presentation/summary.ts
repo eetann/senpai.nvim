@@ -1,6 +1,6 @@
 import { SummarizeUseCase } from "../usecase/summarize.ts";
 import { getModel, isProviderConfig } from "../infra/Model.ts";
-import { assert, is } from "jsr:@core/unknownutil@^4.3.0";
+import { assert, is } from "../deps.ts";
 import { Denops, nvim, PredicateType } from "../deps.ts";
 
 const isSummarizeCommand = is.ObjectOf({
