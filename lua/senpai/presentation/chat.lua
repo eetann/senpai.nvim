@@ -83,7 +83,20 @@ function M:action_send()
   local lines = vim.api.nvim_buf_get_lines(self:get_input_buf(), 0, -1, false)
   vim.api.nvim_buf_set_lines(self:get_input_buf(), 0, -1, false, {})
 
-  local spinner = Spinner.new("AI thinking")
+  local spinner = Spinner.new(
+    "AI thinking",
+    -- update
+    function(message)
+      self.chat_input:set_title(message)
+    end,
+    -- finish
+    function(message)
+      self.chat_input:set_title(message)
+      vim.defer_fn(function()
+        self.chat_input:set_title("input")
+      end, 2000)
+    end
+  )
   spinner:start()
   WithDenops.wait_async_for_setup(function()
     vim.fn["denops#request_async"]("senpai", "chat", {
