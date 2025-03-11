@@ -18,12 +18,46 @@ Parameters ~
 
 ==============================================================================
 ------------------------------------------------------------------------------
+Class ~
+{senpai.Config.providers.Provider}
+Fields ~
+{model} `(string)`
+
+------------------------------------------------------------------------------
+                                        *senpai-config-providers-openaiprovider*
+Class ~
+{senpai.Config.providers.OpenAIProvider}
+Fields ~
+{model} `("gpt-4o" | "gpt-4o-mini")`
+
+------------------------------------------------------------------------------
+                                     *senpai-config-providers-anthropicprovider*
+Class ~
+{senpai.Config.providers.AnthropicProvider}
+Fields ~
+{model} `("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")`
+
+------------------------------------------------------------------------------
+                                    *senpai-config-providers-openrouterprovider*
+Class ~
+{senpai.Config.providers.OpenRouterProvider}
+Fields ~
+{model} `(string)`
+  You can get a list of models with the following command.
+  >sh
+  curl https://openrouter.ai/api/v1/models | jq '.data[].id'
+  # check specific model
+  curl https://openrouter.ai/api/v1/models | \
+    jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
+<
+------------------------------------------------------------------------------
                                                                  *senpai-config*
 Class ~
 {senpai.Config}
 Fields ~
-{provider} `(optional)` "`(openai)`"
-{providers} `(optional)` `(senpai.Config.providers)` see |senpai-config-providers|
+{provider} `(optional)` "`(openai)`" | "openrouter"
+{providers} `(optional)` `(table<string, senpai.Config.providers.Provider>)`
+  see |senpai-config-providers|
 {commit_message} `(optional)` `(senpai.Config.commit_message)`
   see |senpai-config-commit-message|
 
@@ -40,35 +74,13 @@ Default values:
       },
       openai = {
         model = "gpt-4o"
+      },
+      openrouter = {
+        model = "anthropic/claude-3.7-sonnet"
       }
     }
   }
 <
-------------------------------------------------------------------------------
-                                                       *senpai-config-providers*
-Class ~
-{senpai.Config.providers}
-Fields ~
-{openai} `(senpai.Config.providers.OpenAIProvider)`
-  see |senpai-config-providers-openaiprovider|
-
-{anthropic} `(senpai.Config.providers.AnthropicProvider)`
-  see |senpai-config-providers-anthropicprovider|
-
-------------------------------------------------------------------------------
-                                        *senpai-config-providers-openaiprovider*
-Class ~
-{senpai.Config.providers.OpenAIProvider}
-Fields ~
-{model} `("gpt-4o" | "gpt-4o-mini")`
-
-------------------------------------------------------------------------------
-                                     *senpai-config-providers-anthropicprovider*
-Class ~
-{senpai.Config.providers.AnthropicProvider}
-Fields ~
-{model} `("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")`
-
 ------------------------------------------------------------------------------
                                                   *senpai-config-commit-message*
 Class ~
@@ -87,6 +99,26 @@ Fields ~
 ------------------------------------------------------------------------------
                                                *M.get_commit_message_language()*
                        `M.get_commit_message_language`()
+Return ~
+`(string)`
+
+------------------------------------------------------------------------------
+                                                              *M.get_provider()*
+                               `M.get_provider`()
+Return ~
+"`(openai)`" | "openrouter"
+Return ~
+`(senpai.Config.providers.Provider)`
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                              *senpai-summarize*
+                             `M.summarize`({text})
+
+Use AI to summarize input text
+Parameters ~
+{text} `(string)`
 Return ~
 `(string)`
 

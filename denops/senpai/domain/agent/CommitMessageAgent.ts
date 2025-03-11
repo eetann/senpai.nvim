@@ -1,4 +1,4 @@
-import { Agent, AgentConfig } from "../deps.ts";
+import { Agent, AgentConfig } from "../../deps.ts";
 import { z } from "npm:zod";
 
 export const CommitMessageSchema = z.object({

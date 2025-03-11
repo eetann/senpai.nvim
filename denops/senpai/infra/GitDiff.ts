@@ -1,4 +1,4 @@
-import { createTool } from "npm:@mastra/core";
+import { createTool } from "../deps.ts";
 import {
   IGitDiff,
   inputSchema,

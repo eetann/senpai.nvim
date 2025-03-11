@@ -14,9 +14,8 @@ local senpai = {}
 senpai.setup = function(opts)
   require("senpai.config").setup(opts)
   -- require("senpai.presentation.highlight").set_highlights()
-  -- require("senpai.presentation.autocmd").set_autocmds()
-  senpai.api = require("senpai.presentation.api")
-  require("senpai.presentation.command")
+  require("senpai.presentation.autocmd").set_autocmds()
+  require("senpai.command")
 end
 
 return senpai

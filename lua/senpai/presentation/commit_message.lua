@@ -1,10 +1,7 @@
 local Config = require("senpai.config")
+local WithDenops = require("senpai.presentation.shared.with_denops")
 
 local M = {}
-
-local function wait_for_setup()
-  vim.fn["denops#plugin#wait"]("senpai")
-end
 
 local function replace_current_line(response)
   local line_number = vim.api.nvim_win_get_cursor(0)[1] - 1
@@ -17,14 +14,6 @@ local function replace_current_line(response)
   )
 end
 
-function M.hello()
-  local provider = Config.provider
-  local provider_opts = Config.providers[provider]
-  wait_for_setup()
-  local response = vim.fn["denops#request"]("senpai", "hello", {})
-  vim.notify(response)
-end
-
 ---@tag senpai-generate-commit-message
 ---@param language? string
 ---@return string
@@ -35,7 +24,7 @@ function M.generate_commit_message(language)
     vim.notify("[senpai] provider not found", vim.log.levels.WARN)
     return ""
   end
-  wait_for_setup()
+  WithDenops.wait_for_setup()
   local response = vim.fn["denops#request"]("senpai", "generateCommitMessage", {
     {
       provider = provider,
