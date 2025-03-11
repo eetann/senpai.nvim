@@ -51,11 +51,23 @@ function M:create_chat_log()
   )
 end
 
+function M:action_send()
+  local lines = vim.api.nvim_buf_get_lines(self:get_input_buf(), 0, -1, false)
+  local content = table.concat(lines, "\n")
+  vim.notify(content)
+  vim.api.nvim_buf_set_lines(self:get_input_buf(), 0, -1, false, {})
+end
+
 function M:create_chat_input()
   return require("snacks").win(
     vim.tbl_deep_extend("force", self:get_win_options(), {
       bo = {
         filetype = "senpai_chat_input",
+      },
+      keys = {
+        ["<CR><CR>"] = function()
+          M:action_send()
+        end,
       },
     })
   )

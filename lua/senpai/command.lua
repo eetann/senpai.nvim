@@ -44,6 +44,11 @@ local subcmd_tbl = {
       Oh, and a banana, please.]])
     end,
   },
+  openChat = {
+    impl = function()
+      require("senpai.api").open_chat()
+    end,
+  },
 }
 
 CommandResiter.regist(subcmd_tbl)
