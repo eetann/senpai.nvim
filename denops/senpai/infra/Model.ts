@@ -1,4 +1,4 @@
-import { openai, is, PredicateType, createOpenRouter } from "../deps.ts";
+import { createOpenRouter, is, openai, PredicateType } from "../deps.ts";
 
 export const isProviderConfig = is.ObjectOf({
   model: is.String,
@@ -6,7 +6,10 @@ export const isProviderConfig = is.ObjectOf({
 
 export type ProviderConfig = PredicateType<typeof isProviderConfig>;
 
-export function getModel(provider: string, provider_config: ProviderConfig) {
+export function getModel(provider?: string, provider_config?: ProviderConfig) {
+  if (!provider || !provider_config) {
+    throw new Error("unknown model");
+  }
   if (provider === "openai") {
     return openai(provider_config.model);
   }

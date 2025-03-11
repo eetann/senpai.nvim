@@ -13,7 +13,7 @@ function M.hello()
 end
 
 function M.open_chat()
-  local chat = Chat:new()
+  local chat = Chat.new()
   chat:show()
 end
 
