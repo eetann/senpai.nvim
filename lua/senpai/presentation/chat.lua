@@ -1,5 +1,6 @@
 local Config = require("senpai.config")
 local WithDenops = require("senpai.presentation.shared.with_denops")
+local Spinner = require("senpai.presentation.shared.spinner")
 
 ---@class senpai.Chat
 ---@field provider provider
@@ -82,8 +83,10 @@ function M:action_send()
   local lines = vim.api.nvim_buf_get_lines(self:get_input_buf(), 0, -1, false)
   vim.api.nvim_buf_set_lines(self:get_input_buf(), 0, -1, false, {})
 
+  local spinner = Spinner.new("AI thinking")
+  spinner:start()
   WithDenops.wait_async_for_setup(function()
-    vim.fn["denops#notify"]("senpai", "chat", {
+    vim.fn["denops#request_async"]("senpai", "chat", {
       {
         model = {
           provider = self.provider,
@@ -94,7 +97,11 @@ function M:action_send()
         bufnr = self:get_log_buf(),
         text = table.concat(lines, "\n"),
       },
-    })
+    }, function()
+      spinner:stop()
+    end, function()
+      spinner:stop(true)
+    end)
   end)
 end
 
