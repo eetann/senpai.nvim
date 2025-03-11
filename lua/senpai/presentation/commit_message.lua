@@ -47,14 +47,12 @@ end
 ---@return nil
 function M.write_commit_message(language)
   local lang = language and language or Config.get_commit_message_language()
-  WithDenops.wait_async_for_setup(function()
-    local commit_message = M.generate_commit_message(lang)
-    if not commit_message then
-      vim.notify("[senpai] write_commit_message failed")
-      return
-    end
-    replace_current_line(commit_message)
-  end)
+  local commit_message = M.generate_commit_message(lang)
+  if not commit_message then
+    vim.notify("[senpai] write_commit_message failed")
+    return
+  end
+  replace_current_line(commit_message)
 end
 
 return M
