@@ -2,6 +2,8 @@ import { assert, is } from "../deps.ts";
 import { Denops, nvim, PredicateType } from "../deps.ts";
 import { chatManager, isChatManagerCommand } from "./chatManager.ts";
 
+const encoder = new TextEncoder();
+
 const isChatCommand = is.ObjectOf({
   model: isChatManagerCommand,
   bufnr: is.Number,
@@ -24,7 +26,6 @@ export async function chat(
   )) as number[];
   let [row, col] = initialPosition;
   for await (const chunk of textStream) {
-    nvim.nvim_notify(denops, chunk, 1, {});
     const lines = chunk.split("\n");
     nvim.nvim_buf_set_text(
       denops,
@@ -40,7 +41,7 @@ export async function chat(
     if (additional_row > 0) {
       col = 0;
     }
-    col += lines[additional_row].length;
+    col += encoder.encode(lines[additional_row]).length;
   }
   await nvim.nvim_win_set_cursor(denops, 0, [row, col]);
 }
