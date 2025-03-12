@@ -25,6 +25,9 @@ local plugins = {
     dependencies = {
       "vim-denops/denops.vim",
     },
+    keys = {
+      { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
+    },
     opts = {},
   },
 }

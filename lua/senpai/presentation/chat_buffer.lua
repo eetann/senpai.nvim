@@ -9,8 +9,8 @@ local Spinner = require("senpai.presentation.shared.spinner")
 ---@field thread_id string
 ---@field chat_log snacks.win
 ---@field chat_input snacks.win
-
 ---@field layout snacks.layout
+---@field hidden boolean
 local M = {}
 M.__index = M
 
@@ -40,6 +40,7 @@ function M.new(args)
   self.chat_log = self:create_chat_log()
   self.chat_input = self:create_chat_input()
   self.layout = self:create_layout()
+  self.hidden = true
   return self
 end
 
@@ -54,7 +55,7 @@ function M:get_win_options()
     ---@type snacks.win.Keys[]
     keys = {
       q = function()
-        self.layout:close()
+        self:hide()
       end,
     },
     wo = {
@@ -168,14 +169,24 @@ end
 
 function M:show()
   self.layout:show()
+  self.chat_input:focus()
+  vim.cmd("normal G$")
+  self.hidden = false
 end
 
 function M:hide()
-  self.layout:hide()
+  for _, win in pairs(self.layout.wins) do
+    win:close({ buf = false })
+  end
+  for _, win in pairs(self.layout.box_wins) do
+    win:close({ buf = false })
+  end
+  self.hidden = true
 end
 
-function M:close()
+function M:destroy()
   self.layout:close()
+  self.hidden = true
 end
 
 function M:toggle_input()
@@ -183,10 +194,10 @@ function M:toggle_input()
 end
 
 function M:toggle()
-  if self.layout:valid() then
-    self:hide()
-  else
+  if self.hidden then
     self:show()
+  else
+    self:hide()
   end
 end
 
