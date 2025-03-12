@@ -49,6 +49,11 @@ local subcmd_tbl = {
       require("senpai.api").open_chat()
     end,
   },
+  toggleChat = {
+    impl = function()
+      require("senpai.api").toggle_chat()
+    end,
+  },
 }
 
 CommandResiter.regist(subcmd_tbl)

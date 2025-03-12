@@ -1,6 +1,6 @@
 local Config = require("senpai.config")
 local WithDenops = require("senpai.presentation.shared.with_denops")
-local Chat = require("senpai.presentation.chat")
+local Chat = require("senpai.presentation.chat_buffer")
 
 local M = {}
 
@@ -15,6 +15,11 @@ end
 function M.open_chat()
   local chat = Chat.new()
   chat:show()
+end
+
+function M.toggle_chat()
+  local chat = Chat.new(Chat.last_thread_id)
+  chat:toggle()
 end
 
 return setmetatable(M, {
