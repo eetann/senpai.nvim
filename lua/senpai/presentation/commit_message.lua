@@ -1,5 +1,6 @@
 local Config = require("senpai.config")
 local WithDenops = require("senpai.presentation.shared.with_denops")
+local Spinner = require("senpai.presentation.shared.spinner")
 
 local M = {}
 
@@ -30,6 +31,8 @@ function M.generate_commit_message(language)
     vim.notify("[senpai] plugin not loaded", vim.log.levels.WARN)
     return ""
   end
+  local spinner = Spinner.new("[Senpai] AI thinking")
+  spinner:start()
   local response = vim.fn["denops#request"]("senpai", "generateCommitMessage", {
     {
       provider = provider,
@@ -37,6 +40,7 @@ function M.generate_commit_message(language)
       language = lang,
     },
   })
+  spinner:stop()
   return response
 end
 
