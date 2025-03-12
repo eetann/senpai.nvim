@@ -1,6 +1,6 @@
 import { as, assert, is, PredicateType } from "../deps.ts";
-import { ChatUseCase } from "../usecase/chat.ts";
 import { getModel, isProviderConfig } from "../infra/Model.ts";
+import { ChatUseCase } from "../usecase/ChatUseCase.ts";
 
 export const isChatManagerCommand = is.ObjectOf({
   thread_id: is.String,

@@ -1,6 +1,6 @@
 import { assert, is } from "../deps.ts";
 import { Denops, PredicateType } from "../deps.ts";
-import { chatManager, isChatManagerCommand } from "./chatManager.ts";
+import { chatManager, isChatManagerCommand } from "./ChatManager.ts";
 import { writeTextStreamToBuffer } from "./writeTextStreamToBuffer.ts";
 
 const isChatCommand = is.ObjectOf({
