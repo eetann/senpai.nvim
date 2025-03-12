@@ -147,7 +147,7 @@ function M:create_layout()
     },
     layout = {
       box = "vertical",
-      width = 0.3,
+      width = 0.4,
       min_width = 50,
       height = 0.8,
       position = "right",
