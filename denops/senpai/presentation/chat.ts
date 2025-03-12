@@ -1,10 +1,12 @@
 import { assert, is } from "../deps.ts";
 import { Denops, PredicateType } from "../deps.ts";
 import { chatManager, isChatManagerCommand } from "./chatManager.ts";
+import { writeTextStreamToBuffer } from "./writeTextStreamToBuffer.ts";
 
 const isChatCommand = is.ObjectOf({
   model: isChatManagerCommand,
   bufnr: is.Number,
+  winnr: is.Number,
   text: is.String,
 });
 
@@ -18,8 +20,9 @@ export async function chat(
   try {
     const chat = chatManager.getOrCreateChat(command.model);
     const textStream = await chat.execute(command.text);
-    await chatManager.writeTextStreamToBuffer(
+    await writeTextStreamToBuffer(
       denops,
+      command.winnr,
       command.bufnr,
       textStream,
     );

@@ -111,6 +111,7 @@ function M:action_send()
           thread_id = self.thread_id,
         },
         bufnr = self:get_log_buf(),
+        winnr = self.chat_log.win,
         text = table.concat(lines, "\n"),
       },
     }, function()
