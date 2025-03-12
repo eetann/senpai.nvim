@@ -2,12 +2,12 @@ import { autocmd, type Entrypoint } from "./deps.ts";
 import { weatherAgent } from "./weather.ts";
 import { generateCommitMessage } from "./presentation/generateCommitMessage.ts";
 import { summarize } from "./presentation/summary.ts";
-import { chat } from "./presentation/chat.ts";
+import { ChatController } from "./presentation/ChatController.ts";
 
 export const main: Entrypoint = (denops) => {
   denops.dispatcher = {
     async chat(args) {
-      await chat(denops, args);
+      await ChatController(denops, args);
     },
     async hello() {
       const response = await weatherAgent.generate([

@@ -3,20 +3,22 @@ import { Denops, PredicateType } from "../deps.ts";
 import { chatManager, isChatManagerCommand } from "./ChatManager.ts";
 import { writeTextStreamToBuffer } from "./writeTextStreamToBuffer.ts";
 
-const isChatCommand = is.ObjectOf({
+const isChatControllerCommand = is.ObjectOf({
   model: isChatManagerCommand,
   bufnr: is.Number,
   winnr: is.Number,
   text: is.String,
 });
 
-export type ChatCommand = PredicateType<typeof isChatCommand>;
+export type ChatControllerCommand = PredicateType<
+  typeof isChatControllerCommand
+>;
 
-export async function chat(
+export async function ChatController(
   denops: Denops,
-  command: unknown | ChatCommand,
+  command: unknown | ChatControllerCommand,
 ): Promise<void> {
-  assert(command, isChatCommand);
+  assert(command, isChatControllerCommand);
   try {
     const chat = chatManager.getOrCreateChat(command.model);
     const textStream = await chat.execute(command.text);
