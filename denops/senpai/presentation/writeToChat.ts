@@ -29,6 +29,17 @@ async function get_end_position(
   return [row, col];
 }
 
+export async function writePlainTextToBuffer(
+  denops: Denops,
+  winnr: number,
+  bufnr: number,
+  text: string,
+) {
+  const [row, col] = await get_end_position(denops, winnr);
+  const lines = text.split("\n");
+  await buf_set_text(denops, bufnr, row, col, lines);
+}
+
 export async function writeTextStreamToBuffer(
   denops: Denops,
   winnr: number,
@@ -47,5 +58,5 @@ export async function writeTextStreamToBuffer(
     }
     col += encoder.encode(lines[additional_row]).length;
   }
-  // TODO: 終わったら必ず改行
+  await buf_set_text(denops, bufnr, row, col, [""]);
 }

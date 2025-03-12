@@ -15,18 +15,21 @@ class ChatManager {
   private chats: Map<string, ChatUseCase> = new Map();
   constructor() {}
 
-  getOrCreateChat(command: unknown | ChatManagerCommand): ChatUseCase {
+  getOrCreateChat(
+    command: unknown | ChatManagerCommand,
+  ): { chat: ChatUseCase; isNew: boolean } {
     assert(command, isChatManagerCommand);
     const threadId = command.thread_id;
+    let isNew = false;
 
     if (!this.chats.has(threadId)) {
       const model = getModel(command.provider, command.provider_config);
       const chatUseCase = new ChatUseCase(model, command.system_prompt ?? "");
       this.chats.set(threadId, chatUseCase);
-      // TODO: ここでモデル名などを書き込む
+      isNew = true;
     }
 
-    return this.chats.get(threadId)!;
+    return { chat: this.chats.get(threadId)!, isNew };
   }
 }
 
