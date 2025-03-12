@@ -1,16 +1,28 @@
 local M = {}
 M.__index = M
 
+---@usesage
+-- local spinner1 = M:new("initialize")
+-- spinner1:start()
+--
+-- vim.defer_fn(function()
+--   spinner1:stop()
+-- end, 3000)
+
 local spinner_chars =
   { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
 
----@param message string
-function M.new(message)
+--- @param message string
+--- @param update_callback? fun(message:string)
+--- @param stop_callback? fun(message:string)
+function M.new(message, update_callback, stop_callback)
   local self = setmetatable({}, M)
   self.spinner_index = 1
   self.is_active = false
   self.message = message
   self.notify_id = nil
+  self.update_callback = update_callback
+  self.stop_callback = stop_callback
   return self
 end
 
@@ -31,10 +43,14 @@ function M:start()
       if self.message then
         full_message = full_message .. " " .. self.message
       end
-      self.notify_id = vim.notify(full_message, vim.log.levels.INFO, {
-        title = "Progress",
-        replace = self.notify_id,
-      })
+      if self.update_callback then
+        self.update_callback(full_message)
+      else
+        self.notify_id = vim.notify(full_message, vim.log.levels.INFO, {
+          title = "Progress",
+          replace = self.notify_id,
+        })
+      end
     end)
 
     self.spinner_index = (self.spinner_index % #spinner_chars) + 1
@@ -44,31 +60,20 @@ function M:start()
   update_spinner()
 end
 
----@param is_faild? boolean
-function M:stop(is_faild)
+--- @param is_failed? boolean
+function M:stop(is_failed)
   self.is_active = false
-  vim.schedule(function()
-    if is_faild then
-      vim.notify(self.message .. " FAILD!", vim.log.levels.ERROR, {
-        title = "Progress",
-        replace = self.notify_id,
-      })
-    else
-      vim.notify(self.message .. " finished!", vim.log.levels.INFO, {
-        title = "Progress",
-        replace = self.notify_id,
-      })
-    end
-    self.notify_id = nil
-  end)
+  local result_message = is_failed and " FAILED!" or " finished!"
+  if self.stop_callback then
+    self.stop_callback(self.message .. result_message)
+  else
+    local level = is_failed and vim.log.levels.ERROR or vim.log.levels.INFO
+    vim.notify(self.message .. result_message, level, {
+      title = "Progress",
+      replace = self.notify_id,
+    })
+  end
+  self.notify_id = nil
 end
-
--- usesage
--- local spinner1 = M:new("処理1中...")
--- spinner1:start()
---
--- vim.defer_fn(function()
---   spinner1:stop()
--- end, 3000)
 
 return M

@@ -44,9 +44,9 @@ local subcmd_tbl = {
       Oh, and a banana, please.]])
     end,
   },
-  openChat = {
+  toggleChat = {
     impl = function()
-      require("senpai.api").open_chat()
+      require("senpai.api").toggle_chat()
     end,
   },
 }

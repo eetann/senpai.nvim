@@ -1,6 +1,6 @@
 local Config = require("senpai.config")
 local WithDenops = require("senpai.presentation.shared.with_denops")
-local Chat = require("senpai.presentation.chat")
+local Chat = require("senpai.presentation.chat_buffer")
 
 local M = {}
 

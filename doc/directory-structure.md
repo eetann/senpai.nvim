@@ -6,8 +6,8 @@
 ├── denops/senpai/ # エージェントのメインロジック
 │   ├── domain/
 │   ├── usecase/
-│   ├── infra/
-│   ├── presentation/
+│   ├── infra/ # denopsを呼んでよい
+│   ├── presentation/ # denopsを呼んでよい
 │   └── main.ts
 │
 ├── lua/senpai # neovimのプラグイン

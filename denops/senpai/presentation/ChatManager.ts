@@ -1,6 +1,6 @@
 import { as, assert, is, PredicateType } from "../deps.ts";
-import { ChatUseCase } from "../usecase/chat.ts";
 import { getModel, isProviderConfig } from "../infra/Model.ts";
+import { ChatUseCase } from "../usecase/ChatUseCase.ts";
 
 export const isChatManagerCommand = is.ObjectOf({
   thread_id: is.String,
@@ -23,6 +23,7 @@ class ChatManager {
       const model = getModel(command.provider, command.provider_config);
       const chatUseCase = new ChatUseCase(model, command.system_prompt ?? "");
       this.chats.set(threadId, chatUseCase);
+      // TODO: ここでモデル名などを書き込む
     }
 
     return this.chats.get(threadId)!;

@@ -1,6 +1,8 @@
 local Config = require("senpai.config")
 local WithDenops = require("senpai.presentation.shared.with_denops")
-local Chat = require("senpai.presentation.chat")
+local ChatBufferManager = require("senpai.presentation.chat_buffer_manager")
+
+local chatBufferManager = ChatBufferManager.new()
 
 local M = {}
 
@@ -12,9 +14,8 @@ function M.hello()
   vim.notify(response)
 end
 
-function M.open_chat()
-  local chat = Chat.new()
-  chat:show()
+function M.toggle_chat()
+  chatBufferManager:toggle_current_chat()
 end
 
 return setmetatable(M, {
