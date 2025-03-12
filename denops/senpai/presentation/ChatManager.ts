@@ -23,6 +23,7 @@ class ChatManager {
       const model = getModel(command.provider, command.provider_config);
       const chatUseCase = new ChatUseCase(model, command.system_prompt ?? "");
       this.chats.set(threadId, chatUseCase);
+      // TODO: ここでモデル名などを書き込む
     }
 
     return this.chats.get(threadId)!;
