@@ -1,15 +1,30 @@
 local Config = require("senpai.config")
 local WithDenops = require("senpai.presentation.shared.with_denops")
 local Spinner = require("senpai.presentation.shared.spinner")
+local Split = require("nui.split")
+local Popup = require("nui.popup")
+
+vim.treesitter.language.register("markdown", "senpai_chat_log")
+vim.treesitter.language.register("markdown", "senpai_chat_input")
+
+local win_options = {
+  colorcolumn = "",
+  number = false,
+  relativenumber = false,
+  signcolumn = "no",
+  spell = false,
+  statuscolumn = " ",
+  wrap = true,
+}
 
 ---@class senpai.ChatBuffer
 ---@field provider provider
 ---@field provider_config senpai.Config.providers.Provider
 ---@field system_prompt string
 ---@field thread_id string
----@field chat_log snacks.win
----@field chat_input snacks.win
----@field layout snacks.layout
+---@field chat_log NuiSplit
+---@field chat_input NuiSplit
+---@field chat_border NuiPopup
 ---@field hidden boolean
 local M = {}
 M.__index = M
@@ -37,49 +52,26 @@ function M.new(args)
 
   self.system_prompt = args.system_prompt or ""
 
+  -- TODO: 実際に描画するときだけ`createする`
   self.chat_log = self:create_chat_log()
+  self.chat_log:mount()
   self.chat_input = self:create_chat_input()
-  self.layout = self:create_layout()
+  self.chat_input:mount()
+  self.chat_border = self:create_chat_border()
+  self.chat_border:mount()
   self.hidden = true
   return self
 end
 
----@return snacks.win.Config|{}
-function M:get_win_options()
-  return {
-    backdrop = {
-      bg = "NONE",
-      blend = 100,
-      transparent = true,
-    },
-    ---@type snacks.win.Keys[]
-    keys = {
-      q = function()
-        self:hide()
-      end,
-    },
-    wo = {
-      colorcolumn = "",
-      number = false,
-      relativenumber = false,
-      signcolumn = "no",
-      spell = false,
-      statuscolumn = " ",
-      winhighlight = "Normal:NONE,NormalNC:NONE,WinBar:SnacksWinBar,WinBarNC:SnacksWinBarNC",
-      wrap = true,
-    },
-    ft = "markdown",
-  }
-end
-
 function M:create_chat_log()
-  return require("snacks").win(
-    vim.tbl_deep_extend("force", self:get_win_options(), {
-      bo = {
-        filetype = "senpai_chat_log",
-      },
-    })
-  )
+  return Split({
+    relative = "editor",
+    position = "right",
+    win_options = win_options,
+    buf_options = {
+      filetype = "senpai_chat_log",
+    },
+  })
 end
 
 function M:action_send()
@@ -90,13 +82,13 @@ function M:action_send()
     "AI thinking",
     -- update
     function(message)
-      self.chat_input:set_title(message)
+      vim.api.nvim_win_set_config(self.chat_input.winid, { winbar = message })
     end,
     -- finish
     function(message)
-      self.chat_input:set_title(message)
+      vim.api.nvim_win_set_config(self.chat_input.winid, { winbar = message })
       vim.defer_fn(function()
-        self.chat_input:set_title("input")
+        vim.api.nvim_win_set_config(self.chat_input.winid, { winbar = "input" })
       end, 2000)
     end
   )
@@ -110,7 +102,7 @@ function M:action_send()
           system_prompt = self.system_prompt,
           thread_id = self.thread_id,
         },
-        winid = self.chat_log.win,
+        winid = self.chat_log.winid,
         bufnr = self:get_log_buf(),
         text = table.concat(lines, "\n"),
       },
@@ -124,74 +116,63 @@ function M:action_send()
 end
 
 function M:create_chat_input()
-  return require("snacks").win(
-    vim.tbl_deep_extend("force", self:get_win_options(), {
-      bo = {
-        filetype = "senpai_chat_input",
-      },
-      ---@type snacks.win.Keys[]
-      keys = {
-        ["<CR><CR>"] = function()
-          self:action_send()
-        end,
-      },
-    })
-  )
+  return Split({
+    relative = { type = "win", winid = self.chat_log.winid },
+    position = "bottom",
+    size = "40%",
+    win_options = win_options,
+    buf_options = {
+      filetype = "senpai_chat_input",
+    },
+  })
 end
 
-function M:create_layout()
-  return require("snacks.layout").new({
-    wins = {
-      chat_log = self.chat_log,
-      input = self.chat_input,
+function M:create_chat_border()
+  local wininfo = vim.fn.getwininfo(self.chat_log.winid)[1]
+  return Popup({
+    position = {
+      row = wininfo.height,
+      col = 2,
     },
-    layout = {
-      box = "vertical",
-      width = 0.4,
-      min_width = 50,
-      height = 0.8,
-      position = "right",
-      {
-        win = "chat_log",
-        title = "Senpai",
-        title_pos = "center",
-        border = "top",
-      },
-      {
-        win = "input",
-        title = "input",
-        title_pos = "center",
-        border = "top",
-        height = 0.3,
-      },
+    size = {
+      width = 20,
+      height = 1,
+    },
+    enter = false,
+    focusable = false,
+    zindex = 50,
+    relative = { type = "win", winid = self.chat_log.winid },
+    border = {
+      style = "none",
+    },
+    buf_options = {
+      modifiable = true,
+      readonly = false,
     },
   })
 end
 
 function M:show()
-  self.layout:show()
-  self.chat_input:focus()
+  self.chat_log:show()
+  self.chat_input:show()
+  self.chat_border:show()
+  vim.api.nvim_set_current_buf(self.chat_input.bufnr)
   vim.cmd("normal G$")
   self.hidden = false
 end
 
 function M:hide()
-  for _, win in pairs(self.layout.wins) do
-    win:close({ buf = false })
-  end
-  for _, win in pairs(self.layout.box_wins) do
-    win:close({ buf = false })
-  end
+  self.chat_log:hide()
+  self.chat_input:hide()
+  self.chat_border:hide()
   self.hidden = true
 end
 
 function M:destroy()
-  self.layout:close()
+  self.chat_log:unmount()
+  self.chat_input:unmount()
+  self.chat_border:unmount()
   self.hidden = true
-end
-
-function M:toggle_input()
-  self.layout:toggle("chat_input")
 end
 
 function M:toggle()
@@ -203,11 +184,11 @@ function M:toggle()
 end
 
 function M:get_log_buf()
-  return self.chat_log.buf
+  return self.chat_log.bufnr
 end
 
 function M:get_input_buf()
-  return self.chat_input.buf
+  return self.chat_input.bufnr
 end
 
 return M

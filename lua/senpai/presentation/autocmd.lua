@@ -26,10 +26,6 @@ function M.set_autocmds()
   })
 
   vim.api.nvim_exec_autocmds("User", { pattern = "SenpaiInitStart" })
-  -- TODO:
-  vim.treesitter.language.register("markdown", "mdx")
-  -- vim.treesitter.language.register("markdown", "senpai_chat_log")
-  -- vim.treesitter.language.register("markdown", "senpai_chat_input")
 end
 
 return M

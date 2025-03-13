@@ -12,7 +12,6 @@ vim.filetype.add({
 vim.opt.conceallevel = 1
 
 local plugins = {
-  { "folke/snacks.nvim", priority = 1000, lazy = false, opts = {} },
   { "echasnovski/mini.test", opts = {} },
   -- {
   --   "folke/tokyonight.nvim",
@@ -30,37 +29,20 @@ local plugins = {
     dir = vim.uv.cwd(),
     dependencies = {
       "vim-denops/denops.vim",
+      "MunifTanjim/nui.nvim",
       {
         "nvim-treesitter/nvim-treesitter",
         build = ":TSUpdate",
         config = function()
           require("nvim-treesitter.configs").setup({
             ensure_installed = {
-              "astro",
-              "bash",
-              "c",
-              "cpp",
-              "css",
-              "go",
-              "graphql",
               "html",
               "javascript",
               "json",
-              "json5",
               "lua",
               "markdown",
-              "php",
-              "python",
-              "regex",
-              "rust",
-              "sql",
-              "toml",
               "tsx",
               "typescript",
-              "vim",
-              "vue",
-              "yaml",
-              "zig",
             },
             sync_install = false,
             auto_install = true,
