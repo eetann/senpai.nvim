@@ -2,7 +2,6 @@ local Config = require("senpai.config")
 local WithDenops = require("senpai.presentation.shared.with_denops")
 local Spinner = require("senpai.presentation.shared.spinner")
 local Split = require("nui.split")
-local Popup = require("nui.popup")
 
 vim.treesitter.language.register("markdown", "senpai_chat_log")
 vim.treesitter.language.register("markdown", "senpai_chat_input")
@@ -13,7 +12,7 @@ local win_options = {
   relativenumber = false,
   signcolumn = "no",
   spell = false,
-  statuscolumn = " ",
+  statuscolumn = "",
   wrap = true,
 }
 
@@ -24,7 +23,6 @@ local win_options = {
 ---@field thread_id string
 ---@field chat_log NuiSplit
 ---@field chat_input NuiSplit
----@field chat_border NuiPopup
 ---@field hidden boolean
 local M = {}
 M.__index = M
@@ -57,21 +55,25 @@ function M.new(args)
   self.chat_log:mount()
   self.chat_input = self:create_chat_input()
   self.chat_input:mount()
-  self.chat_border = self:create_chat_border()
-  self.chat_border:mount()
   self.hidden = true
   return self
 end
 
 function M:create_chat_log()
-  return Split({
+  local chat_log = Split({
     relative = "editor",
     position = "right",
-    win_options = win_options,
+    win_options = vim.tbl_deep_extend("force", win_options, {
+      winbar = "%#Nomal#Conversations with Senpai",
+    }),
     buf_options = {
       filetype = "senpai_chat_log",
     },
   })
+  chat_log:map("n", "q", function()
+    self:hide()
+  end)
+  return chat_log
 end
 
 function M:action_send()
@@ -79,16 +81,28 @@ function M:action_send()
   vim.api.nvim_buf_set_lines(self:get_input_buf(), 0, -1, false, {})
 
   local spinner = Spinner.new(
-    "AI thinking",
+    "Senpai thinking",
     -- update
     function(message)
-      vim.api.nvim_win_set_config(self.chat_input.winid, { winbar = message })
+      vim.api.nvim_set_option_value(
+        "winbar",
+        "%#Nomal#" .. message,
+        { win = self.chat_input.winid }
+      )
     end,
     -- finish
     function(message)
-      vim.api.nvim_win_set_config(self.chat_input.winid, { winbar = message })
+      vim.api.nvim_set_option_value(
+        "winbar",
+        "%#Nomal#" .. message,
+        { win = self.chat_input.winid }
+      )
       vim.defer_fn(function()
-        vim.api.nvim_win_set_config(self.chat_input.winid, { winbar = "input" })
+        vim.api.nvim_set_option_value(
+          "winbar",
+          "%#Nomal#Ask Senpai",
+          { win = self.chat_input.winid }
+        )
       end, 2000)
     end
   )
@@ -116,46 +130,29 @@ function M:action_send()
 end
 
 function M:create_chat_input()
-  return Split({
+  local chat_input = Split({
     relative = { type = "win", winid = self.chat_log.winid },
     position = "bottom",
     size = "40%",
-    win_options = win_options,
+    win_options = vim.tbl_deep_extend("force", win_options, {
+      winbar = "%#Nomal#Ask Senpai",
+    }),
     buf_options = {
       filetype = "senpai_chat_input",
     },
   })
-end
-
-function M:create_chat_border()
-  local wininfo = vim.fn.getwininfo(self.chat_log.winid)[1]
-  return Popup({
-    position = {
-      row = wininfo.height,
-      col = 2,
-    },
-    size = {
-      width = 20,
-      height = 1,
-    },
-    enter = false,
-    focusable = false,
-    zindex = 50,
-    relative = { type = "win", winid = self.chat_log.winid },
-    border = {
-      style = "none",
-    },
-    buf_options = {
-      modifiable = true,
-      readonly = false,
-    },
-  })
+  chat_input:map("n", "<CR><CR>", function()
+    self:action_send()
+  end)
+  chat_input:map("n", "q", function()
+    self:hide()
+  end)
+  return chat_input
 end
 
 function M:show()
   self.chat_log:show()
   self.chat_input:show()
-  self.chat_border:show()
   vim.api.nvim_set_current_buf(self.chat_input.bufnr)
   vim.cmd("normal G$")
   self.hidden = false
@@ -164,14 +161,12 @@ end
 function M:hide()
   self.chat_log:hide()
   self.chat_input:hide()
-  self.chat_border:hide()
   self.hidden = true
 end
 
 function M:destroy()
   self.chat_log:unmount()
   self.chat_input:unmount()
-  self.chat_border:unmount()
   self.hidden = true
 end
 
