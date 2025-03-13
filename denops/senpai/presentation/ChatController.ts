@@ -1,6 +1,10 @@
 import { assert, is } from "../deps.ts";
 import { Denops, PredicateType } from "../deps.ts";
-import { chatManager, isChatManagerCommand } from "./ChatManager.ts";
+import {
+  chatManager,
+  ChatManagerCommand,
+  isChatManagerCommand,
+} from "./ChatManager.ts";
 import {
   writePlainTextToBuffer,
   writeTextStreamToBuffer,
@@ -18,41 +22,54 @@ export type ChatControllerCommand = PredicateType<
   typeof isChatControllerCommand
 >;
 
-export async function ChatController(
-  denops: Denops,
-  command: unknown | ChatControllerCommand,
-): Promise<void> {
-  assert(command, isChatControllerCommand);
-  try {
-    const { chat, isNew } = chatManager.getOrCreateChat(command.model);
-    if (isNew) {
-      const initialText = `\
+export class ChatController {
+  private _denops: Denops;
+  private _model: ChatManagerCommand;
+  private _bufnr: number;
+  private _winnr: number;
+  private _text: string;
+
+  constructor(denops: Denops, command: ChatControllerCommand | unknown) {
+    assert(command, isChatControllerCommand);
+    this._denops = denops;
+    this._model = command.model;
+    this._bufnr = command.bufnr;
+    this._winnr = command.winnr;
+    this._text = command.text;
+  }
+
+  async execute(): Promise<void> {
+    try {
+      const { chat, isNew } = chatManager.getOrCreateChat(this._model);
+      if (isNew) {
+        const initialText = `\
 ---
-provider: "${command.model.provider}"
-model: "${command.model.provider_config?.model ?? ""}"
+provider: "${this._model.provider}"
+model: "${this._model.provider_config?.model ?? ""}"
 ---
 `;
-      await writePlainTextToBuffer(
-        denops,
-        command.winnr,
-        command.bufnr,
-        initialText,
+        await writePlainTextToBuffer(
+          this._denops,
+          this._winnr,
+          this._bufnr,
+          initialText,
+        );
+      }
+      await writeUserInputToBuffer(
+        this._denops,
+        this._winnr,
+        this._bufnr,
+        this._text,
       );
+      const textStream = await chat.execute(this._text);
+      await writeTextStreamToBuffer(
+        this._denops,
+        this._winnr,
+        this._bufnr,
+        textStream,
+      );
+    } catch (error) {
+      console.log(error);
     }
-    await writeUserInputToBuffer(
-      denops,
-      command.winnr,
-      command.bufnr,
-      command.text,
-    );
-    const textStream = await chat.execute(command.text);
-    await writeTextStreamToBuffer(
-      denops,
-      command.winnr,
-      command.bufnr,
-      textStream,
-    );
-  } catch (error) {
-    console.log(error);
   }
 }

@@ -7,7 +7,7 @@ import { ChatController } from "./presentation/ChatController.ts";
 export const main: Entrypoint = (denops) => {
   denops.dispatcher = {
     async chat(args) {
-      await ChatController(denops, args);
+      await new ChatController(denops, args).execute();
     },
     async hello() {
       const response = await weatherAgent.generate([
