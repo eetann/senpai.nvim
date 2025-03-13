@@ -19,7 +19,7 @@ async function buf_set_text(
   );
 }
 
-// 1 based
+// return 1 based position
 async function get_end_position(
   denops: Denops,
   winnr: number,
@@ -29,15 +29,17 @@ async function get_end_position(
   return [row, col];
 }
 
+// return 1 based position
 export async function writePlainTextToBuffer(
   denops: Denops,
   winnr: number,
   bufnr: number,
   text: string,
-) {
+): Promise<{ row: number; col: number }> {
   const [row, col] = await get_end_position(denops, winnr);
   const lines = text.split("\n");
   await buf_set_text(denops, bufnr, row, col, lines);
+  return { row, col };
 }
 
 export async function writeTextStreamToBuffer(
@@ -59,4 +61,74 @@ export async function writeTextStreamToBuffer(
     col += encoder.encode(lines[additional_row]).length;
   }
   await buf_set_text(denops, bufnr, row, col, [""]);
+}
+
+export async function writeUserInputToBuffer(
+  denops: Denops,
+  winnr: number,
+  bufnr: number,
+  text: string,
+): Promise<void> {
+  const userInput = `\
+<SenpaiUserInput>
+${text}
+</SenpaiUserInput>
+`;
+  // 1 based
+  const { row } = await writePlainTextToBuffer(
+    denops,
+    winnr,
+    bufnr,
+    userInput,
+  );
+
+  const lines = userInput.split("\n");
+  const namespace = await nvim.nvim_create_namespace(denops, "sepnai-chat");
+
+  await nvim.nvim_buf_set_extmark(
+    denops,
+    bufnr,
+    namespace,
+    row - 1, // 0-based
+    0,
+    {
+      virt_text: [[
+        `    ╭${"─".repeat(100)}`,
+        "NonText",
+      ]],
+      virt_text_pos: "overlay",
+      virt_text_hide: true,
+    },
+  );
+
+  for (let i = 1; i < lines.length - 2; i++) {
+    // 0 based
+    await nvim.nvim_buf_set_extmark(
+      denops,
+      bufnr,
+      namespace,
+      (row - 1) + i,
+      0,
+      {
+        virt_text: [["    │", "NonText"]],
+        virt_text_pos: "inline",
+      },
+    );
+  }
+  await nvim.nvim_buf_set_extmark(
+    denops,
+    bufnr,
+    namespace,
+    (row - 1) + lines.length - 2, // 0-based
+    0,
+    {
+      virt_text: [[
+        `    ╰${"─".repeat(100)}`,
+        "NonText",
+      ]],
+      virt_text_pos: "overlay",
+      virt_text_hide: true,
+    },
+  );
+  return;
 }

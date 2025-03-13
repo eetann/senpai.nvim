@@ -4,6 +4,7 @@ import { chatManager, isChatManagerCommand } from "./ChatManager.ts";
 import {
   writePlainTextToBuffer,
   writeTextStreamToBuffer,
+  writeUserInputToBuffer,
 } from "./writeToChat.ts";
 
 const isChatControllerCommand = is.ObjectOf({
@@ -25,7 +26,7 @@ export async function ChatController(
   try {
     const { chat, isNew } = chatManager.getOrCreateChat(command.model);
     if (isNew) {
-      const initialText = `
+      const initialText = `\
 ---
 provider: "${command.model.provider}"
 model: "${command.model.provider_config?.model ?? ""}"
@@ -38,16 +39,11 @@ model: "${command.model.provider_config?.model ?? ""}"
         initialText,
       );
     }
-    const userInput = `
-<SenpaiUserInput>
-${command.text}
-</SenpaiUserInput>
-`;
-    await writePlainTextToBuffer(
+    await writeUserInputToBuffer(
       denops,
       command.winnr,
       command.bufnr,
-      userInput,
+      command.text,
     );
     const textStream = await chat.execute(command.text);
     await writeTextStreamToBuffer(
