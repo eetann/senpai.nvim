@@ -1,10 +1,16 @@
 ; extends
 
-((element
+(element
+  [
    (start_tag
       (tag_name) @tag
-      (#eq? @tag "SenpaiUserInput")))
-  @markup.heading (#set! conceal_lines ""))
-
-((element (end_tag (tag_name) @tag (#eq? @tag "SenpaiUserInput")))
-  @markup.heading (#set! conceal_lines ""))
+      (#eq? @tag "SenpaiUserInput")
+      ) @start 
+   (end_tag
+     (tag_name) @tag
+     (#eq? @tag "SenpaiUserInput")
+     ) @end
+   ]
+  (#set! conceal "")
+  (#set! conceal_lines "")
+  )

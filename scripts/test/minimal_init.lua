@@ -9,6 +9,7 @@ vim.filetype.add({
     mdx = "mdx",
   },
 })
+vim.opt.conceallevel = 1
 
 local plugins = {
   { "folke/snacks.nvim", priority = 1000, lazy = false, opts = {} },
