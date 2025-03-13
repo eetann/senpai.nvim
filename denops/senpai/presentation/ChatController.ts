@@ -1,11 +1,10 @@
-import { assert, Denops, fn, is, nvim, PredicateType } from "../deps.ts";
+import { assert, Denops, is, nvim, PredicateType } from "../deps.ts";
 import {
   chatManager,
   ChatManagerCommand,
   isChatManagerCommand,
 } from "./ChatManager.ts";
-
-type position1based = { row: number; col: number };
+import { writePlainTextToBuffer, writeTextStreamToBuffer } from "./utils.ts";
 
 const isChatControllerCommand = is.ObjectOf({
   model: isChatManagerCommand,
@@ -44,71 +43,25 @@ provider: "${this._model.provider}"
 model: "${this._model.provider_config?.model ?? ""}"
 ---
 `;
-        await this.writePlainTextToBuffer(initialText);
+        await writePlainTextToBuffer(
+          this._denops,
+          this._winnr,
+          this._bufnr,
+          initialText,
+        );
       }
       await this.writeUserInputToBuffer();
       const textStream = await chat.execute(this._text);
-      await this.writeTextStreamToBuffer(textStream);
+      await writeTextStreamToBuffer(
+        this._denops,
+        this._winnr,
+        this._bufnr,
+        textStream,
+      );
     } catch (error) {
       console.log(error);
     }
   }
-
-  private async buf_set_text(
-    row: number, // 1-based
-    col: number, // 1-based
-    lines: string[],
-  ): Promise<void> {
-    // 0 based
-    await nvim.nvim_buf_set_text(
-      this._denops,
-      this._bufnr,
-      row - 1,
-      col - 1,
-      row - 1,
-      col - 1,
-      lines,
-    );
-  }
-
-  private async get_end_position(): Promise<position1based> {
-    const row = await fn.line(this._denops, "$", this._winnr);
-    const col = await this._denops.call(
-      "col",
-      [row, "$"],
-      this._winnr,
-    ) as number;
-    return { row, col };
-  }
-
-  // return 1-based position
-  private async writePlainTextToBuffer(
-    text: string,
-  ): Promise<position1based> {
-    const { row, col } = await this.get_end_position();
-    const lines = text.split("\n");
-    await this.buf_set_text(row, col, lines);
-    return { row, col };
-  }
-
-  private async writeTextStreamToBuffer(
-    textStream: AsyncIterable<string>,
-  ): Promise<void> {
-    const encoder = new TextEncoder();
-    let { row, col } = await this.get_end_position();
-    for await (const chunk of textStream) {
-      const lines = chunk.split("\n");
-      await this.buf_set_text(row, col, lines);
-      const additional_row = lines.length - 1;
-      row += additional_row;
-      if (additional_row > 0) {
-        col = 0;
-      }
-      col += encoder.encode(lines[additional_row]).length;
-    }
-    await this.buf_set_text(row, col, [""]);
-  }
-
   private async writeUserInputToBuffer(): Promise<void> {
     const userInput = `\
 <SenpaiUserInput>
@@ -116,7 +69,12 @@ ${this._text}
 </SenpaiUserInput>
 `;
     // 1-based
-    const { row } = await this.writePlainTextToBuffer(userInput);
+    const { row } = await writePlainTextToBuffer(
+      this._denops,
+      this._winnr,
+      this._bufnr,
+      userInput,
+    );
 
     const lines = userInput.split("\n");
     const namespace = await nvim.nvim_create_namespace(

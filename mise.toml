@@ -20,4 +20,5 @@ run = "nvim --noplugin -u ./scripts/test/minimal_init.lua -c 'e ./doc/sample_cha
 run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run treesitter'"
 
 [env]
+DENOPS_TEST_DENOPS_PATH=".repro/data/nvim/lazy/denops.vim"
 COMMIT_MESSAGE_ENGLISH = 1

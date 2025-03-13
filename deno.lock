@@ -8,9 +8,12 @@
     "jsr:@denops/core@7": "7.0.1",
     "jsr:@denops/std@7": "7.5.0",
     "jsr:@denops/std@^7.5.0": "7.5.0",
+    "jsr:@denops/test@*": "3.0.4",
     "jsr:@denops/vim-channel-command@^4.0.2": "4.0.2",
+    "jsr:@lambdalisue/errorutil@1": "1.1.1",
     "jsr:@lambdalisue/errorutil@^1.1.0": "1.1.1",
     "jsr:@lambdalisue/indexer@1": "1.0.0",
+    "jsr:@lambdalisue/messagepack-rpc@^2.1.1": "2.4.0",
     "jsr:@lambdalisue/messagepack-rpc@^2.4.0": "2.4.0",
     "jsr:@lambdalisue/messagepack@^1.0.1": "1.0.1",
     "jsr:@lambdalisue/reservator@^1.0.1": "1.0.1",
@@ -18,13 +21,17 @@
     "jsr:@lambdalisue/workerio@^4.0.1": "4.0.1",
     "jsr:@milly/async-signal@1": "1.0.1",
     "jsr:@std/assert@*": "1.0.11",
+    "jsr:@std/async@1": "1.0.11",
     "jsr:@std/async@^1.0.1": "1.0.11",
     "jsr:@std/bytes@0.221": "0.221.0",
     "jsr:@std/cli@^1.0.1": "1.0.14",
+    "jsr:@std/collections@^1.0.5": "1.0.10",
     "jsr:@std/internal@^1.0.5": "1.0.5",
+    "jsr:@std/path@^1.0.1": "1.0.8",
     "jsr:@std/path@^1.0.2": "1.0.8",
     "jsr:@std/semver@1": "1.0.4",
     "jsr:@std/semver@^1.0.1": "1.0.4",
+    "jsr:@std/streams@1": "1.0.9",
     "jsr:@std/ulid@1": "1.0.0",
     "npm:@ai-sdk/openai@*": "1.2.1_zod@3.24.2",
     "npm:@mastra/core@*": "0.4.4_@opentelemetry+api@1.9.0_zod@3.24.2",
@@ -53,6 +60,19 @@
         "jsr:@denops/core",
         "jsr:@std/semver@1",
         "jsr:@std/ulid"
+      ]
+    },
+    "@denops/test@3.0.4": {
+      "integrity": "6d345744749d3b4ab4858b6bd861b1bcb34cb8f00bd82e3d64a725c369223ff4",
+      "dependencies": [
+        "jsr:@core/unknownutil@4",
+        "jsr:@denops/core",
+        "jsr:@lambdalisue/errorutil@1",
+        "jsr:@lambdalisue/messagepack-rpc@^2.1.1",
+        "jsr:@std/async@1",
+        "jsr:@std/collections",
+        "jsr:@std/path@^1.0.1",
+        "jsr:@std/streams"
       ]
     },
     "@denops/vim-channel-command@4.0.2": {
@@ -120,6 +140,9 @@
     "@std/cli@1.0.14": {
       "integrity": "b09ee9921cd476c0e08185ed2bfce682d45ecf4654f26c31b4aa244a2c5c024e"
     },
+    "@std/collections@1.0.10": {
+      "integrity": "903af106a3d92970d74e20f7ebff77d9658af9bef4403f1dc42a7801c0575899"
+    },
     "@std/internal@1.0.5": {
       "integrity": "54a546004f769c1ac9e025abd15a76b6671ddc9687e2313b67376125650dc7ba"
     },
@@ -128,6 +151,9 @@
     },
     "@std/semver@1.0.4": {
       "integrity": "a62af791917d8fd6c48d6ebbb872f83fad3fc6671ffadbbd39ea229c2d34d175"
+    },
+    "@std/streams@1.0.9": {
+      "integrity": "a9d26b1988cdd7aa7b1f4b51e1c36c1557f3f252880fa6cc5b9f37078b1a5035"
     },
     "@std/ulid@1.0.0": {
       "integrity": "d41c3d27a907714413649fee864b7cde8d42ee68437d22b79d5de4f81d808780"
