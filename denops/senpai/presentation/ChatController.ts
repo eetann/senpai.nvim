@@ -8,8 +8,8 @@ import { writePlainTextToBuffer, writeTextStreamToBuffer } from "./utils.ts";
 
 const isChatControllerCommand = is.ObjectOf({
   model: isChatManagerCommand,
+  winid: is.Number,
   bufnr: is.Number,
-  winnr: is.Number,
   text: is.String,
 });
 
@@ -20,16 +20,16 @@ export type ChatControllerCommand = PredicateType<
 export class ChatController {
   private _denops: Denops;
   private _model: ChatManagerCommand;
+  private _winid: number;
   private _bufnr: number;
-  private _winnr: number;
   private _text: string;
 
   constructor(denops: Denops, command: ChatControllerCommand | unknown) {
     assert(command, isChatControllerCommand);
     this._denops = denops;
     this._model = command.model;
+    this._winid = command.winid;
     this._bufnr = command.bufnr;
-    this._winnr = command.winnr;
     this._text = command.text;
   }
 
@@ -45,7 +45,7 @@ model: "${this._model.provider_config?.model ?? ""}"
 `;
         await writePlainTextToBuffer(
           this._denops,
-          this._winnr,
+          this._winid,
           this._bufnr,
           initialText,
         );
@@ -54,7 +54,7 @@ model: "${this._model.provider_config?.model ?? ""}"
       const textStream = await chat.execute(this._text);
       await writeTextStreamToBuffer(
         this._denops,
-        this._winnr,
+        this._winid,
         this._bufnr,
         textStream,
       );
@@ -71,7 +71,7 @@ ${this._text}
     // 1-based
     const { row } = await writePlainTextToBuffer(
       this._denops,
-      this._winnr,
+      this._winid,
       this._bufnr,
       userInput,
     );

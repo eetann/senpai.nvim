@@ -110,8 +110,8 @@ function M:action_send()
           system_prompt = self.system_prompt,
           thread_id = self.thread_id,
         },
+        winid = self.chat_log.win,
         bufnr = self:get_log_buf(),
-        winnr = self.chat_log.win,
         text = table.concat(lines, "\n"),
       },
     }, function()

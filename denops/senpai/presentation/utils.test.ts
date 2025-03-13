@@ -8,13 +8,14 @@ test({
   fn: async (denops) => {
     await denops.call("has", "nvim");
     const textStream = simulateReadableStream({
-      chunks: ["This ", "is ", "Test.\n", "Hello!\n", "Hello world!"],
+      chunks: ["This ", "is ", "Test.\n", "こんにちは\n世界！", "Hello world!"],
     });
-    await writeTextStreamToBuffer(denops, 0, 0, textStream);
+    const winid = await fn.win_getid(denops);
+    await writeTextStreamToBuffer(denops, winid, 0, textStream);
     assertEquals(await fn.getline(denops, 1, "$"), [
       "This is Test.",
-      "Hello!",
-      "Hello world!",
+      "こんにちは",
+      "世界！Hello world!",
     ]);
   },
 });
