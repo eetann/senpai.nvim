@@ -131,7 +131,7 @@ function M:create_chat_input()
       },
       ---@type snacks.win.Keys[]
       keys = {
-        ["<CR><CR>"] = function(win)
+        ["<CR><CR>"] = function()
           self:action_send()
         end,
       },

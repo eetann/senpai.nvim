@@ -1,6 +1,7 @@
 import { GenerateCommitMessageUseCase } from "./generateCommitMessage.ts";
 import { IGitDiff, inputSchema, outputSchema } from "./shared/IGitDiff.ts";
-import { assertEquals, createTool, MockLanguageModelV1 } from "../deps.ts";
+import { createTool, MockLanguageModelV1 } from "../deps.ts";
+import { assertEquals } from "../test_deps.ts";
 
 const mockGitDiff: IGitDiff = createTool({
   id: "git-diff",

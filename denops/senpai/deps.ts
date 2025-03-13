@@ -21,5 +21,3 @@ export {
   is,
   type PredicateType,
 } from "jsr:@core/unknownutil@^4.3.0";
-
-export { assertEquals } from "jsr:@std/assert";
