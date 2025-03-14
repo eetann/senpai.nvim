@@ -63,7 +63,7 @@ model: "${this._model.provider_config?.model ?? ""}"
     }
   }
   private async writeUserInputToBuffer(): Promise<void> {
-    const userInput = `\
+    const userInput = `
 <SenpaiUserInput>
 ${this._text}
 </SenpaiUserInput>
@@ -86,7 +86,7 @@ ${this._text}
       this._denops,
       this._bufnr,
       namespace,
-      row - 1, // 0-based
+      row, // 0-based
       0,
       {
         virt_text: [[`    ╭${"─".repeat(100)}`, "NonText"]],
@@ -95,7 +95,7 @@ ${this._text}
       },
     );
 
-    for (let i = 1; i < lines.length - 2; i++) {
+    for (let i = 2; i < lines.length - 2; i++) {
       await nvim.nvim_buf_set_extmark(
         this._denops,
         this._bufnr,
