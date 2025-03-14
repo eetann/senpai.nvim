@@ -1,17 +1,18 @@
 ---@alias provider "openai" | "openrouter"
 
+---@doc.type
 ---@class senpai.Config.providers.Provider
 ---@field model string
 
----@tag senpai-config-providers-openaiprovider
+---@doc.type
 ---@class senpai.Config.providers.OpenAIProvider
 ---@field model ("gpt-4o" | "gpt-4o-mini")
 
----@tag senpai-config-providers-anthropicprovider
+---@doc.type
 ---@class senpai.Config.providers.AnthropicProvider
 ---@field model ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")
 
----@tag senpai-config-providers-openrouterprovider
+---@doc.type
 ---@class senpai.Config.providers.OpenRouterProvider
 ---@field model string
 ---   You can get a list of models with the following command.
@@ -24,40 +25,29 @@
 
 local providers = {
   ---@type senpai.Config.providers.OpenAIProvider
-  ---   see |senpai-config-providers-openaiprovider|
   openai = { model = "gpt-4o" },
   ---@type senpai.Config.providers.AnthropicProvider
-  ---   see |senpai-config-providers-anthropicprovider|
   anthropic = { model = "claude-3-7-sonnet-20250219" },
   ---@type senpai.Config.providers.OpenRouterProvider
-  ---   see |senpai-config-providers-openrouterprovider|
   openrouter = { model = "anthropic/claude-3.7-sonnet" },
 }
 
----@tag senpai-config
----@toc_entry Config
+---@doc.type
 ---@class senpai.Config
 ---@field provider? provider
 ---@field providers? table<string, senpai.Config.providers.Provider>
----   see |senpai-config-providers|
 ---@field commit_message? senpai.Config.commit_message
----   see |senpai-config-commit-message|
----
----@eval return require("senpai.config")._format_default()
 
----@tag senpai-config-commit-message
+---@doc.type
 ---@class senpai.Config.commit_message
 ---@field language string|(fun(): string) Supports languages that AI knows
 ---   It doesn't have to be strictly natural language,
 ---   since the prompt is as follows
----   >typescript
 ---    `subject and body should be written in ${language}.`
---- <
 ---   That means the AI can write it in a tsundere style as well.
 ---   Like this.
 ---     `:Senpai commitMessage English(Tsundere)`
 
----@private
 ---@type senpai.Config
 local default_config = {
   provider = "openai",
@@ -67,15 +57,12 @@ local default_config = {
   },
 }
 
----@private
 ---@type senpai.Config
 local options
 
----@nodoc
 ---@class senpai.Config.mod: senpai.Config
 local M = {}
 
----@nodoc
 ---@param opts? senpai.Config
 function M.setup(opts)
   opts = opts or {}
@@ -94,12 +81,12 @@ end
 
 -- use in doc
 function M._format_default()
-  local lines = { "Default values:", ">lua" }
+  local lines = { "```lua" }
   for line in vim.gsplit(vim.inspect(default_config), "\n") do
-    table.insert(lines, "  " .. line)
+    table.insert(lines, line)
   end
-  table.insert(lines, "<")
-  return lines
+  table.insert(lines, "```")
+  return table.concat(lines, "\n")
 end
 
 ---@return string

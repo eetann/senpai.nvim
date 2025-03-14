@@ -1,7 +1,6 @@
 M	senpai.txt	/*M*
 M.get_commit_message_language()	senpai.txt	/*M.get_commit_message_language()*
 M.get_provider()	senpai.txt	/*M.get_provider()*
-M.new()	senpai.txt	/*M.new()*
 senpai	senpai.txt	/*senpai*
 senpai-chat	senpai.txt	/*senpai-chat*
 senpai-commands	senpai.txt	/*senpai-commands*

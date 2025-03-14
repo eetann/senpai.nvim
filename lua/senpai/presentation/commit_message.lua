@@ -15,7 +15,16 @@ local function replace_current_line(response)
   )
 end
 
----@tag senpai-generate-commit-message
+--[=[@doc
+  category = "api"
+  name = "senpai.generate_commit_message(language)"
+  desc = "AI generate conventional commit message of commitizen convention format."
+
+  [[args]]
+  name = "language"
+  type = "string"
+  desc = "Language of commit message"
+--]=]
 ---@param language? string
 ---@return string
 function M.generate_commit_message(language)
@@ -44,9 +53,17 @@ function M.generate_commit_message(language)
   return response
 end
 
----@tag senpai-write-commit-message
+--[=[@doc
+  category = "api"
+  name = "senpai.write_commit_message(language)"
+  desc = "AI write conventional commit message of commitizen convention format."
+
+  [[args]]
+  name = "language"
+  type = "string"
+  desc = "Language of commit message"
+--]=]
 ---@text
---- AI write conventional commit message of commitizen convention format.
 ---@param language? string
 ---@return nil
 function M.write_commit_message(language)

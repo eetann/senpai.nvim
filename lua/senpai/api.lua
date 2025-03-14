@@ -14,9 +14,11 @@ function M.hello()
   vim.notify(response)
 end
 
----@tag senpai-toggle-chat
----@text
---- open chat
+--[=[@doc
+  category = "api"
+  name = "senpai.toggle_chat()"
+  desc = "Toggle chat."
+--]=]
 function M.toggle_chat()
   chatBufferManager:toggle_current_chat()
 end

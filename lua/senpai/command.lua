@@ -1,15 +1,4 @@
 local CommandResiter = require("senpai.presentation.command_register")
----@tag senpai-commands
----@toc_entry Commands
----@text
---- Commands ~
---- `:Senpai {subcommand}`
----
---- `:Senpai commitMessage (language)`
----   detail -> |senpai-write-commit-message|
----
---- `:Senpai toggleChat`
----   detail -> |senpai-toggle-chat|
 
 ---@class Senpai.Subcommand
 ---@field impl fun(args:string[], opts: table) The comand implementation
@@ -24,6 +13,15 @@ local subcmd_tbl = {
       require("senpai.api").hello()
     end,
   },
+  --[=[@doc
+  category = "command"
+  name = "commitMessage"
+  desc = "detail -> |senpai.write_commit_message|"
+
+  [[args]]
+  name = "language"
+  desc = "language"
+  --]=]
   commitMessage = {
     impl = function(args)
       require("senpai.api").write_commit_message(args[1])
@@ -47,6 +45,11 @@ local subcmd_tbl = {
       Oh, and a banana, please.]])
     end,
   },
+  --[=[@doc
+  category = "command"
+  name = "toggleChat"
+  desc = "|senpai-chat|"
+  --]=]
   toggleChat = {
     impl = function()
       require("senpai.api").toggle_chat()

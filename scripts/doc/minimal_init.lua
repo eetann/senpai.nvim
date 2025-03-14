@@ -6,13 +6,13 @@ load(
 )()
 
 local plugins = {
-  { "echasnovski/mini.doc", opts = {} },
   {
     dir = vim.uv.cwd(),
+    lazy = true,
     dependencies = {
       "vim-denops/denops.vim",
     },
-    opts = {},
+    -- opts = {},
   },
 }
 
@@ -21,3 +21,4 @@ require("lazy").setup({
   spec = plugins,
   change_detection = { enabled = false },
 })
+io.stdout:write(require("senpai.config")._format_default())
