@@ -6,6 +6,10 @@ local Split = require("nui.split")
 vim.treesitter.language.register("markdown", "senpai_chat_log")
 vim.treesitter.language.register("markdown", "senpai_chat_input")
 
+local function create_winbar_text(text)
+  return "%#Nomal#%=" .. text .. "%="
+end
+
 local win_options = {
   colorcolumn = "",
   number = false,
@@ -14,6 +18,7 @@ local win_options = {
   spell = false,
   statuscolumn = "",
   wrap = true,
+  fillchars = "eob: ,lastline:…",
 }
 
 ---@class senpai.ChatBuffer
@@ -21,8 +26,8 @@ local win_options = {
 ---@field provider_config senpai.Config.providers.Provider
 ---@field system_prompt string
 ---@field thread_id string
----@field chat_log NuiSplit
----@field chat_input NuiSplit
+---@field chat_log NuiSplit|nil
+---@field chat_input NuiSplit|nil
 ---@field hidden boolean
 local M = {}
 M.__index = M
@@ -50,30 +55,24 @@ function M.new(args)
 
   self.system_prompt = args.system_prompt or ""
 
-  -- TODO: 実際に描画するときだけ`createする`
-  self.chat_log = self:create_chat_log()
-  self.chat_log:mount()
-  self.chat_input = self:create_chat_input()
-  self.chat_input:mount()
   self.hidden = true
   return self
 end
 
 function M:create_chat_log()
-  local chat_log = Split({
+  self.chat_log = Split({
     relative = "editor",
     position = "right",
     win_options = vim.tbl_deep_extend("force", win_options, {
-      winbar = "%#Nomal#Conversations with Senpai",
+      winbar = create_winbar_text("Conversations with Senpai"),
     }),
     buf_options = {
       filetype = "senpai_chat_log",
     },
   })
-  chat_log:map("n", "q", function()
+  self.chat_log:map("n", "q", function()
     self:hide()
   end)
-  return chat_log
 end
 
 function M:action_send()
@@ -86,7 +85,7 @@ function M:action_send()
     function(message)
       vim.api.nvim_set_option_value(
         "winbar",
-        "%#Nomal#" .. message,
+        create_winbar_text(message),
         { win = self.chat_input.winid }
       )
     end,
@@ -94,13 +93,13 @@ function M:action_send()
     function(message)
       vim.api.nvim_set_option_value(
         "winbar",
-        "%#Nomal#" .. message,
+        create_winbar_text(message),
         { win = self.chat_input.winid }
       )
       vim.defer_fn(function()
         vim.api.nvim_set_option_value(
           "winbar",
-          "%#Nomal#Ask Senpai",
+          create_winbar_text("Ask Senpai"),
           { win = self.chat_input.winid }
         )
       end, 2000)
@@ -130,29 +129,43 @@ function M:action_send()
 end
 
 function M:create_chat_input()
-  local chat_input = Split({
-    relative = { type = "win", winid = self.chat_log.winid },
+  self.chat_input = Split({
+    relative = "win",
     position = "bottom",
     size = "40%",
     win_options = vim.tbl_deep_extend("force", win_options, {
-      winbar = "%#Nomal#Ask Senpai",
+      winbar = create_winbar_text("Ask Senpai"),
     }),
     buf_options = {
       filetype = "senpai_chat_input",
     },
   })
-  chat_input:map("n", "<CR><CR>", function()
+  self.chat_input:map("n", "<CR><CR>", function()
     self:action_send()
   end)
-  chat_input:map("n", "q", function()
+  self.chat_input:map("n", "q", function()
     self:hide()
   end)
-  return chat_input
 end
 
 function M:show()
+  if not self.chat_log then
+    self:create_chat_log()
+    self.chat_log:mount()
+  end
   self.chat_log:show()
+
+  if not self.chat_input then
+    self:create_chat_input()
+    self.chat_input:mount()
+  else
+    self.chat_input:update_layout({
+      relative = "win",
+      position = "bottom",
+    })
+  end
   self.chat_input:show()
+
   vim.api.nvim_set_current_buf(self.chat_input.bufnr)
   vim.cmd("normal G$")
   self.hidden = false
