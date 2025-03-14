@@ -1,4 +1,5 @@
 import { as, assert, is, PredicateType } from "../deps.ts";
+import { GetFiles } from "../infra/GetFiles.ts";
 import { getModel, isProviderConfig } from "../infra/Model.ts";
 import { ChatUseCase } from "../usecase/ChatUseCase.ts";
 
@@ -24,7 +25,11 @@ class ChatManager {
 
     if (!this.chats.has(threadId)) {
       const model = getModel(command.provider, command.provider_config);
-      const chatUseCase = new ChatUseCase(model, command.system_prompt ?? "");
+      const chatUseCase = new ChatUseCase(
+        GetFiles,
+        model,
+        command.system_prompt ?? "",
+      );
       this.chats.set(threadId, chatUseCase);
       isNew = true;
     }

@@ -1,10 +1,15 @@
-import { LanguageModel, Agent } from "../deps.ts";
+import { Agent, LanguageModel } from "../deps.ts";
 import { ChatAgent } from "../domain/agent/ChatAgent.ts";
+import { IGetFiles } from "../domain/shared/IGetFiles.ts";
 
 export class ChatUseCase {
   private agent: Agent;
-  constructor(private model: LanguageModel, private system_prompt: string) {
-    this.agent = new ChatAgent(this.model, this.system_prompt);
+  constructor(
+    getFiles: IGetFiles,
+    private model: LanguageModel,
+    private system_prompt: string,
+  ) {
+    this.agent = new ChatAgent(getFiles, this.model, this.system_prompt);
   }
 
   async execute(text: string): Promise<AsyncIterable<string>> {

@@ -3,7 +3,7 @@ import {
   IGetFiles,
   inputSchema,
   outputSchema,
-} from "../usecase/shared/IGetFiles.ts";
+} from "../domain/shared/IGetFiles.ts";
 
 async function glob(pattern: string) {
   return await globby([`**/${pattern}`], { gitignore: true });
