@@ -65,7 +65,9 @@ model: "${this._model.provider_config?.model ?? ""}"
   private async writeUserInputToBuffer(): Promise<void> {
     const userInput = `
 <SenpaiUserInput>
+
 ${this._text}
+
 </SenpaiUserInput>
 `;
     // 1-based
@@ -82,25 +84,27 @@ ${this._text}
       "sepnai-chat",
     );
 
+    const topBorderIndex = row + 2 - 1; // 0 based
+    const bottomBorderIndex = row + lines.length - 3 - 1; // 0 based
     await nvim.nvim_buf_set_extmark(
       this._denops,
       this._bufnr,
       namespace,
-      row, // 0-based
+      topBorderIndex, // 0-based
       0,
       {
-        virt_text: [[`    ╭${"─".repeat(100)}`, "NonText"]],
+        virt_text: [[`    ╭${"─".repeat(150)}`, "NonText"]],
         virt_text_pos: "overlay",
         virt_text_hide: true,
       },
     );
 
-    for (let i = 2; i < lines.length - 2; i++) {
+    for (let i = topBorderIndex + 1; i < bottomBorderIndex; i++) {
       await nvim.nvim_buf_set_extmark(
         this._denops,
         this._bufnr,
         namespace,
-        (row - 1) + i, // 0-based
+        i, // 0-based
         0,
         {
           virt_text: [["    │", "NonText"]],
@@ -113,10 +117,10 @@ ${this._text}
       this._denops,
       this._bufnr,
       namespace,
-      (row - 1) + lines.length - 2, // 0-based
+      bottomBorderIndex, // 0-based
       0,
       {
-        virt_text: [[`    ╰${"─".repeat(100)}`, "NonText"]],
+        virt_text: [[`    ╰${"─".repeat(150)}`, "NonText"]],
         virt_text_pos: "overlay",
         virt_text_hide: true,
       },
