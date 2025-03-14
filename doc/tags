@@ -1,6 +1,9 @@
+M	senpai.txt	/*M*
 M.get_commit_message_language()	senpai.txt	/*M.get_commit_message_language()*
 M.get_provider()	senpai.txt	/*M.get_provider()*
+M.new()	senpai.txt	/*M.new()*
 senpai	senpai.txt	/*senpai*
+senpai-chat	senpai.txt	/*senpai-chat*
 senpai-commands	senpai.txt	/*senpai-commands*
 senpai-config	senpai.txt	/*senpai-config*
 senpai-config-commit-message	senpai.txt	/*senpai-config-commit-message*
@@ -9,7 +12,7 @@ senpai-config-providers-openaiprovider	senpai.txt	/*senpai-config-providers-open
 senpai-config-providers-openrouterprovider	senpai.txt	/*senpai-config-providers-openrouterprovider*
 senpai-generate-commit-message	senpai.txt	/*senpai-generate-commit-message*
 senpai-setup	senpai.txt	/*senpai-setup*
-senpai-summarize	senpai.txt	/*senpai-summarize*
 senpai-table-of-contents	senpai.txt	/*senpai-table-of-contents*
+senpai-toggle-chat	senpai.txt	/*senpai-toggle-chat*
 senpai-write-commit-message	senpai.txt	/*senpai-write-commit-message*
 senpai.setup()	senpai.txt	/*senpai.setup()*

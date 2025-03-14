@@ -1,3 +1,11 @@
+---@tag senpai-chat
+---@toc_entry Chat
+---@text
+--- You can chat with AI.
+--- If you write the file name, it will automatically read it.
+--- If you write `foo/bar/buz.txt` as `summarize buz.txt`,
+--- it will be recognized.
+---   (internally it searches `**/buz.txt` for files under git control).
 local Config = require("senpai.config")
 local WithDenops = require("senpai.presentation.shared.with_denops")
 local Spinner = require("senpai.presentation.shared.spinner")
@@ -38,6 +46,7 @@ M.__index = M
 ---@field system_prompt? string
 ---@field thread_id? string
 
+---@nodoc
 ---@param args senpai.ChatBufferNewArgs
 ---@return senpai.ChatBuffer
 function M.new(args)

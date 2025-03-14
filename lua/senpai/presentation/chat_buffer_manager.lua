@@ -6,7 +6,8 @@ local Chat = require("senpai.presentation.chat_buffer")
 local M = {}
 M.__index = M
 
---- @return senpai.ChatBufferManager
+---@nodoc
+---@return senpai.ChatBufferManager
 function M.new()
   local self = setmetatable({}, M)
   self.current = nil

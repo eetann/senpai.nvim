@@ -7,6 +7,9 @@ local CommandResiter = require("senpai.presentation.command_register")
 ---
 --- `:Senpai commitMessage (language)`
 ---   detail -> |senpai-write-commit-message|
+---
+--- `:Senpai toggleChat`
+---   detail -> |senpai-toggle-chat|
 
 ---@class Senpai.Subcommand
 ---@field impl fun(args:string[], opts: table) The comand implementation

@@ -15,7 +15,8 @@ end
 MiniDoc.generate({
   "lua/senpai/init.lua",
   "lua/senpai/config.lua",
-  "lua/senpai/presentation/summarize.lua",
+  "lua/senpai/presentation/chat_buffer.lua",
+  "lua/senpai/api.lua",
   "lua/senpai/presentation/commit_message.lua",
   "lua/senpai/command.lua",
 }, "doc/senpai.txt", { hooks = hooks })

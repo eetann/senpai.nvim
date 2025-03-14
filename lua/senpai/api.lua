@@ -14,6 +14,9 @@ function M.hello()
   vim.notify(response)
 end
 
+---@tag senpai-toggle-chat
+---@text
+--- open chat
 function M.toggle_chat()
   chatBufferManager:toggle_current_chat()
 end
