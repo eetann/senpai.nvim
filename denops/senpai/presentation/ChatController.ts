@@ -86,6 +86,8 @@ ${this._text}
 
     const topBorderIndex = row + 2 - 1; // 0 based
     const bottomBorderIndex = row + lines.length - 3 - 1; // 0 based
+    // NOTE: I want to use only virt_text to put indent,
+    // but it shifts during `set wrap`, so I also use sign_text.
     await nvim.nvim_buf_set_extmark(
       this._denops,
       this._bufnr,
@@ -93,7 +95,9 @@ ${this._text}
       topBorderIndex, // 0-based
       0,
       {
-        virt_text: [[`    ╭${"─".repeat(150)}`, "NonText"]],
+        sign_text: "╭",
+        sign_hl_group: "NonText",
+        virt_text: [["─".repeat(150), "NonText"]],
         virt_text_pos: "overlay",
         virt_text_hide: true,
       },
@@ -107,8 +111,8 @@ ${this._text}
         i, // 0-based
         0,
         {
-          virt_text: [["    │", "NonText"]],
-          virt_text_pos: "inline",
+          sign_text: "│",
+          sign_hl_group: "NonText",
         },
       );
     }
@@ -120,9 +124,11 @@ ${this._text}
       bottomBorderIndex, // 0-based
       0,
       {
-        virt_text: [[`    ╰${"─".repeat(150)}`, "NonText"]],
+        virt_text: [["─".repeat(150), "NonText"]],
         virt_text_pos: "overlay",
         virt_text_hide: true,
+        sign_text: "╰",
+        sign_hl_group: "NonText",
       },
     );
     return;
