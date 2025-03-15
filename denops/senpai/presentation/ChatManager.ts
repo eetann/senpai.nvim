@@ -16,9 +16,10 @@ class ChatManager {
   private chats: Map<string, ChatUseCase> = new Map();
   constructor() {}
 
-  getOrCreateChat(
-    command: unknown | ChatManagerCommand,
-  ): { chat: ChatUseCase; isNew: boolean } {
+  getOrCreateChat(command: unknown | ChatManagerCommand): {
+    chat: ChatUseCase;
+    isNew: boolean;
+  } {
     assert(command, isChatManagerCommand);
     const threadId = command.thread_id;
     let isNew = false;
@@ -27,6 +28,7 @@ class ChatManager {
       const model = getModel(command.provider, command.provider_config);
       const chatUseCase = new ChatUseCase(
         GetFiles,
+        command.thread_id,
         model,
         command.system_prompt ?? "",
       );

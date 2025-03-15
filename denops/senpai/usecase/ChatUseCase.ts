@@ -6,6 +6,7 @@ export class ChatUseCase {
   private agent: Agent;
   constructor(
     getFiles: IGetFiles,
+    private threadId: string,
     private model: LanguageModel,
     private system_prompt: string,
   ) {
@@ -13,12 +14,18 @@ export class ChatUseCase {
   }
 
   async execute(text: string): Promise<AsyncIterable<string>> {
-    const stream = await this.agent.stream([
+    const stream = await this.agent.stream(
+      [
+        {
+          role: "user",
+          content: text,
+        },
+      ],
       {
-        role: "user",
-        content: text,
+        threadId: this.threadId,
+        resourceId: "senpai",
       },
-    ]);
+    );
     return stream.textStream;
   }
 }
