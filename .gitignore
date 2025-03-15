@@ -1,2 +1,3 @@
 .repro/
 .env
+node_modules/

@@ -64,6 +64,7 @@ local plugins = {
     keys = {
       { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
     },
+    build = "deno task build",
     opts = {},
   },
 }

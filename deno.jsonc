@@ -1,1 +1,8 @@
-{}
+{
+  "nodeModulesDir": "auto",
+  "tasks": {
+    // To use the node API handled inside mastra
+    // https://docs.deno.com/runtime/fundamentals/node/#node-api-addons
+    "build": "mkdir node_modules"
+  }
+}
