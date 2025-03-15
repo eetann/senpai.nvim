@@ -14,7 +14,7 @@ function M.set_autocmds()
         if init_spinner.is_active then
           init_spinner:stop(true)
         end
-      end, 15 * 1000)
+      end, 30 * 1000)
     end,
   })
 

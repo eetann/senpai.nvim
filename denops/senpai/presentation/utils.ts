@@ -7,11 +7,7 @@ export async function get_end_position1based(
   winid: number,
 ): Promise<Position1based> {
   const row = await fn.line(denops, "$", winid);
-  const col = await denops.call(
-    "col",
-    [row, "$"],
-    winid,
-  ) as number;
+  const col = (await denops.call("col", [row, "$"], winid)) as number;
   return { row, col };
 }
 
@@ -54,7 +50,6 @@ export async function writeTextStreamToBuffer(
 ): Promise<void> {
   const encoder = new TextEncoder();
   let { row, col } = await get_end_position1based(denops, winid);
-  console.log({ row, col });
   for await (const chunk of textStream) {
     const lines = chunk.split("\n");
     await buf_set_text(denops, bufnr, { row, col }, lines);
