@@ -34,18 +34,11 @@ function M.generate_commit_message(language)
     vim.notify("[senpai] provider not found", vim.log.levels.WARN)
     return ""
   end
-  local spinner = Spinner.new("[senpai] AI thinking")
-  spinner:start()
-  local response =
-    require("plenary.curl").get("http://localhost:3000/hello", {}).body
-  -- local response = Curl.requestText("/generate-commit-message", {
-  --   {
-  --     provider = provider,
-  --     provider_config = provider_config,
-  --     language = lang,
-  --   },
-  -- })
-  spinner:stop()
+  local response = Curl.requestText("/generate-commit-message", {
+    provider = provider,
+    provider_config = provider_config,
+    language = lang,
+  })
   return response
 end
 
@@ -64,7 +57,10 @@ end
 ---@return nil
 function M.write_commit_message(language)
   local lang = language and language or Config.get_commit_message_language()
+  local spinner = Spinner.new("[senpai] AI thinking")
+  spinner:start()
   local commit_message = M.generate_commit_message(lang)
+  spinner:stop()
   if not commit_message then
     vim.notify("[senpai] write_commit_message failed")
     return

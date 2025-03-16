@@ -8,8 +8,10 @@ local port = 3000
 function M.requestText(route, body)
   Server.start_server()
   local res = curl.post("http://localhost:" .. port .. route, {
-    -- accept = "text/plain",
     body = vim.fn.json_encode(body),
+    headers = {
+      content_type = "application/json",
+    },
   })
   return res.body
 end
