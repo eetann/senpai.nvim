@@ -3,7 +3,6 @@ import { weatherAgent } from "./weather.ts";
 import { generateCommitMessage } from "./presentation/generateCommitMessage.ts";
 import { summarize } from "./presentation/summary.ts";
 import { ChatController } from "./presentation/ChatController.ts";
-import { GetHistory } from "./usecase/GetHistory.ts";
 
 export const main: Entrypoint = (denops) => {
   denops.dispatcher = {
@@ -20,8 +19,7 @@ export const main: Entrypoint = (denops) => {
       return await generateCommitMessage(args);
     },
     async summarize(args) {
-      await new GetHistory().execute();
-      // await summarize(denops, args);
+      await summarize(denops, args);
     },
   };
   autocmd.emit(denops, "User", "SenpaiInitEnd", { nomodeline: true });
