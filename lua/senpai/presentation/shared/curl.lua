@@ -16,4 +16,18 @@ function M.requestText(route, body)
   return res.body
 end
 
+M.async_request_text = require("plenary.async").wrap(
+  function(route, body, callback)
+    Server.start_server()
+    curl.post("http://localhost:" .. port .. route, {
+      body = vim.fn.json_encode(body),
+      headers = {
+        content_type = "application/json",
+      },
+      callback = callback,
+    })
+  end,
+  3
+)
+
 return M

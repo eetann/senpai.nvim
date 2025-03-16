@@ -1,6 +1,7 @@
 local Config = require("senpai.config")
 local Curl = require("senpai.presentation.shared.curl")
 local Spinner = require("senpai.presentation.shared.spinner")
+local async = require("plenary.async")
 
 local M = {}
 
@@ -57,15 +58,29 @@ end
 ---@return nil
 function M.write_commit_message(language)
   local lang = language and language or Config.get_commit_message_language()
+  local provider, provider_config = Config.get_provider()
+  if not provider_config then
+    vim.notify("[senpai] provider not found", vim.log.levels.WARN)
+    return ""
+  end
+
   local spinner = Spinner.new("[senpai] AI thinking")
   spinner:start()
-  local commit_message = M.generate_commit_message(lang)
-  spinner:stop()
-  if not commit_message then
-    vim.notify("[senpai] write_commit_message failed")
-    return
-  end
-  replace_current_line(commit_message)
+  async.void(function()
+    local commit_message = Curl.async_request_text("/generate-commit-message", {
+      provider = provider,
+      provider_config = provider_config,
+      language = lang,
+    })
+    vim.schedule(function()
+      spinner:stop()
+      if not commit_message then
+        vim.notify("[senpai] write_commit_message failed")
+        return
+      end
+      replace_current_line(commit_message.body)
+    end)
+  end)()
 end
 
 return M
