@@ -1,5 +1,5 @@
 local Config = require("senpai.config")
-local WithDenops = require("senpai.presentation.shared.with_denops")
+local Curl = require("senpai.presentation.shared.curl")
 local Spinner = require("senpai.presentation.shared.spinner")
 
 local M = {}
@@ -34,21 +34,17 @@ function M.generate_commit_message(language)
     vim.notify("[senpai] provider not found", vim.log.levels.WARN)
     return ""
   end
-  local spinner = Spinner.new("[Senpai] AI thinking")
+  local spinner = Spinner.new("[senpai] AI thinking")
   spinner:start()
-  local is_success_load = WithDenops.wait_for_setup()
-  if is_success_load ~= 0 then
-    vim.notify("[senpai] error code: " .. is_success_load, vim.log.levels.WARN)
-    vim.notify("[senpai] plugin not loaded", vim.log.levels.WARN)
-    return ""
-  end
-  local response = vim.fn["denops#request"]("senpai", "generateCommitMessage", {
-    {
-      provider = provider,
-      provider_config = provider_config,
-      language = lang,
-    },
-  })
+  local response =
+    require("plenary.curl").get("http://localhost:3000/hello", {}).body
+  -- local response = Curl.requestText("/generate-commit-message", {
+  --   {
+  --     provider = provider,
+  --     provider_config = provider_config,
+  --     language = lang,
+  --   },
+  -- })
   spinner:stop()
   return response
 end
