@@ -16,10 +16,7 @@ function M.start_server()
   )
   M.job = vim.system({ "bun", "run", "src/index.ts" }, {
     cwd = cwd,
-  }, function()
-    vim.notify("[senpai] See you!")
-  end)
-  -- M.job = vim.fn.jobstart("bun run src/index.ts", { cwd = cwd })
+  })
 end
 
 function M:stop_server()

@@ -11,6 +11,7 @@ local plugins = {
     lazy = true,
     dependencies = {
       "vim-denops/denops.vim",
+      "nvim-lua/plenary.nvim",
     },
     -- opts = {},
   },

@@ -8,7 +8,7 @@ local CommandResiter = require("senpai.presentation.command_register")
 ---@type table<string, Senpai.Subcommand>
 ---@private
 local subcmd_tbl = {
-  helloDenops = {
+  hello = {
     impl = function()
       require("senpai.api").hello()
     end,

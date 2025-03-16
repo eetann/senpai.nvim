@@ -3,7 +3,7 @@ import generateCommitMessage from "./presentation/generateCommitMessage";
 
 const app = new Hono();
 
-app.get("/hello", (c) => c.text("[senpai] Hello!"));
+app.post("/hello", (c) => c.text("[senpai] Hello from Bun!"));
 app.route("/", generateCommitMessage);
 
 export default app;
