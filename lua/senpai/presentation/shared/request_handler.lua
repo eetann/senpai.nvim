@@ -1,10 +1,11 @@
 local async = require("plenary.async")
 local curl = require("plenary.curl")
+local Config = require("senpai.config")
 local Server = require("senpai.presentation.server")
 
 local M = {}
 
-local port = 3000
+local port = Config.port
 
 ---@class senpai.RequestHandler.opts
 ---@field url string The url to make the request to.
