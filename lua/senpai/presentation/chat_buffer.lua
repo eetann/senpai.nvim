@@ -1,6 +1,7 @@
 local Config = require("senpai.config")
-local WithDenops = require("senpai.presentation.shared.with_denops")
 local Spinner = require("senpai.presentation.shared.spinner")
+local RequestHandler = require("senpai.presentation.shared.request_handler")
+local WriteChat = require("senpai.presentation.write_chat")
 local Split = require("nui.split")
 
 vim.treesitter.language.register("markdown", "senpai_chat_log")
@@ -107,25 +108,22 @@ function M:action_send()
     end
   )
   spinner:start()
-  WithDenops.wait_async_for_setup(function()
-    vim.fn["denops#request_async"]("senpai", "chat", {
-      {
-        model = {
-          provider = self.provider,
-          provider_config = self.provider_config,
-          system_prompt = self.system_prompt,
-          thread_id = self.thread_id,
-        },
-        winid = self.chat_log.winid,
-        bufnr = self:get_log_buf(),
-        text = table.concat(lines, "\n"),
-      },
-    }, function()
-      spinner:stop()
-    end, function(e)
-      spinner:stop(true)
-      vim.notify(vim.inspect(e), vim.log.levels.ERROR)
+  RequestHandler.request("/chat", {
+    thread_id = self.thread_id,
+    provider = self.provider,
+    provider_config = self.provider_config,
+    system_prompt = self.system_prompt,
+    text = table.concat(lines, "\n"),
+  }, function(error, chunk)
+    vim.schedule(function()
+      if error then
+        vim.notify("error " .. error, vim.log.levels.ERROR)
+        return
+      end
+      WriteChat.set_plain_text(self.chat_log.winid, self.chat_log.bufnr, chunk)
     end)
+  end, function()
+    spinner:stop()
   end)
 end
 

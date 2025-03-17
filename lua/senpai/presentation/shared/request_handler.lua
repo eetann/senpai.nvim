@@ -40,9 +40,10 @@ end, 2)
 
 ---@param route string
 ---@param body table|nil
+---@param stream fun(error: string, data: string, self?: Job)|nil
 ---@param callback senpai.RequestHandler.callback
 ---@return nil
-function M.request(route, body, callback)
+function M.request(route, body, stream, callback)
   Server.start_server()
   if not Server.port then
     vim.notify(
@@ -58,6 +59,7 @@ function M.request(route, body, callback)
       headers = {
         content_type = "application/json",
       },
+      stream = stream,
     })
     vim.schedule(function()
       callback(response)
