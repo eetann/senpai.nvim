@@ -38,12 +38,15 @@ M.post = async.wrap(function(opts, callback)
   curl.post(opts)
 end, 2)
 
----@param route string
----@param body table|nil
----@param stream fun(error: string, data: string, self?: Job)|nil
----@param callback senpai.RequestHandler.callback
+---@class senapi.RequestHandler.args
+---@field route string
+---@field body table|nil
+---@field stream fun(error: string, data: string, self?: Job)|nil
+---@field callback senpai.RequestHandler.callback
+
+---@param args senapi.RequestHandler.args
 ---@return nil
-function M.request(route, body, stream, callback)
+function M.request(args)
   Server.start_server()
   if not Server.port then
     vim.notify(
@@ -54,15 +57,15 @@ function M.request(route, body, stream, callback)
   end
   async.void(function()
     local response = M.post({
-      url = "http://localhost:" .. Server.port .. route,
-      body = body and vim.fn.json_encode(body) or nil,
+      url = "http://localhost:" .. Server.port .. args.route,
+      body = args.body and vim.fn.json_encode(args.body) or nil,
       headers = {
         content_type = "application/json",
       },
-      stream = stream,
+      stream = args.stream,
     })
     vim.schedule(function()
-      callback(response)
+      args.callback(response)
     end)
   end)()
 end

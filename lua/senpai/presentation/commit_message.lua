@@ -38,11 +38,15 @@ function M.generate_commit_message(language, callback)
     vim.notify("[senpai] provider not found", vim.log.levels.WARN)
     return ""
   end
-  RequestHandler.request("/generate-commit-message", {
-    provider = provider,
-    provider_config = provider_config,
-    language = language,
-  }, callback)
+  RequestHandler.request({
+    route = "/generate-commit-message",
+    body = {
+      provider = provider,
+      provider_config = provider_config,
+      language = language,
+    },
+    callback = callback,
+  })
 end
 
 --[=[@doc

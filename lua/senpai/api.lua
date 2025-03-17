@@ -6,13 +6,16 @@ local chatBufferManager = ChatBufferManager.new()
 local M = {}
 
 function M.hello()
-  RequestHandler.request("/hello", nil, function(response)
-    if response.exit ~= 0 then
-      vim.notify("[senpai] Something is wrong.")
-      return
-    end
-    vim.notify(response.body)
-  end)
+  RequestHandler.request({
+    route = "/hello",
+    callback = function(response)
+      if response.exit ~= 0 then
+        vim.notify("[senpai] Something is wrong.")
+        return
+      end
+      vim.notify(response.body)
+    end,
+  })
 end
 
 --[=[@doc
