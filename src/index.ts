@@ -1,5 +1,6 @@
 import { parseArgs } from "node:util";
 import { Hono } from "hono";
+import chatController from "./presentation/chatController";
 import generateCommitMessage from "./presentation/generateCommitMessage";
 
 const { values } = parseArgs({
@@ -22,6 +23,7 @@ const app = new Hono();
 
 app.post("/hello", (c) => c.text("[senpai] Hello from Bun!"));
 app.route("/", generateCommitMessage);
+app.route("/", chatController);
 
 export default {
 	port,
