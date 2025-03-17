@@ -13,10 +13,9 @@ const { values } = parseArgs({
 	allowPositionals: true,
 });
 
-const port = Number(values.port);
+let port = Number(values.port);
 if (Number.isNaN(port)) {
-	console.error("[senpai] Failed because port is wrong");
-	process.exit(1);
+	port = 0;
 }
 
 const app = new Hono();

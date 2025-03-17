@@ -1,11 +1,8 @@
 local async = require("plenary.async")
 local curl = require("plenary.curl")
-local Config = require("senpai.config")
 local Server = require("senpai.presentation.server")
 
 local M = {}
-
-local port = Config.port
 
 ---@class senpai.RequestHandler.opts
 ---@field url string The url to make the request to.
@@ -47,9 +44,16 @@ end, 2)
 ---@return nil
 function M.request(route, body, callback)
   Server.start_server()
+  if not Server.port then
+    vim.notify(
+      "[senpai] Server startup failed. Please try again.",
+      vim.log.levels.ERROR
+    )
+    return
+  end
   async.void(function()
     local response = M.post({
-      url = "http://localhost:" .. port .. route,
+      url = "http://localhost:" .. Server.port .. route,
       body = body and vim.fn.json_encode(body) or nil,
       headers = {
         content_type = "application/json",

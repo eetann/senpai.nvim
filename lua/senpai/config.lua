@@ -37,7 +37,6 @@ local providers = {
 ---@field provider? provider
 ---@field providers? table<string, senpai.Config.providers.Provider>
 ---@field commit_message? senpai.Config.commit_message
----@field port? number Internal local host port number
 
 ---@doc.type
 ---@class senpai.Config.commit_message
@@ -56,7 +55,6 @@ local default_config = {
   commit_message = {
     language = "English",
   },
-  port = 9942,
 }
 
 ---@type senpai.Config
