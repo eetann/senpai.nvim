@@ -29,4 +29,14 @@ function M:stop_server()
   M.job = nil
 end
 
+vim.api.nvim_create_autocmd("VimLeavePre", {
+  pattern = "*",
+  callback = function()
+    local pid = M.job.pid
+    if M.job then
+      M.job:kill(0)
+      vim.uv.kill(pid, 9)
+    end
+  end,
+})
 return M
