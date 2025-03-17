@@ -24,7 +24,7 @@ local M = {}
 ---@field headers table The https response headers
 ---@field body string The http response body
 
----@alias senpai.RequestHandler.callback fun(response: senpai.RequestHandler.return): nil
+---@alias senpai.RequestHandler.callback_fun fun(response: senpai.RequestHandler.return): nil
 
 ---@type fun(opts: senpai.RequestHandler.opts): senpai.RequestHandler.return
 M.get = async.wrap(function(opts, callback)
@@ -38,13 +38,12 @@ M.post = async.wrap(function(opts, callback)
   curl.post(opts)
 end, 2)
 
----@class senapi.RequestHandler.args
+---@class senapi.RequestHandler.callback_args
 ---@field route string
 ---@field body table|nil
----@field stream fun(error: string, data: string, self?: Job)|nil
----@field callback senpai.RequestHandler.callback
+---@field callback senpai.RequestHandler.callback_fun
 
----@param args senapi.RequestHandler.args
+---@param args senapi.RequestHandler.callback_args
 ---@return nil
 function M.request(args)
   Server.start_server()
@@ -62,6 +61,40 @@ function M.request(args)
       headers = {
         content_type = "application/json",
       },
+    })
+    vim.schedule(function()
+      args.callback(response)
+    end)
+  end)()
+end
+
+---@alias senpai.RequestHandler.stream_fun fun(error: string, data: string): nil
+
+---@class senapi.RequestHandler.stream_args
+---@field route string
+---@field body table|nil
+---@field stream senpai.RequestHandler.stream_fun
+---@field callback senpai.RequestHandler.callback_fun
+
+---@param args senapi.RequestHandler.stream_args
+---@return nil
+function M.streamRequest(args)
+  Server.start_server()
+  if not Server.port then
+    vim.notify(
+      "[senpai] Server startup failed. Please try again.",
+      vim.log.levels.ERROR
+    )
+    return
+  end
+  async.void(function()
+    local response = M.post({
+      url = "http://localhost:" .. Server.port .. args.route,
+      body = args.body and vim.fn.json_encode(args.body) or nil,
+      headers = {
+        content_type = "application/json",
+      },
+      raw = { "--no-buffer" }, -- NOTE: IMPORTANT!
       stream = args.stream,
     })
     vim.schedule(function()

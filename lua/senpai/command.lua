@@ -13,6 +13,11 @@ local subcmd_tbl = {
       require("senpai.api").hello()
     end,
   },
+  helloStream = {
+    impl = function()
+      require("senpai.api").hello_stream()
+    end,
+  },
   --[=[@doc
   category = "command"
   name = "commitMessage"

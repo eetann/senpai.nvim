@@ -1,5 +1,6 @@
 local ChatBufferManager = require("senpai.presentation.chat_buffer_manager")
 local RequestHandler = require("senpai.presentation.shared.request_handler")
+local WriteChat = require("senpai.presentation.write_chat")
 
 local chatBufferManager = ChatBufferManager.new()
 
@@ -14,6 +15,31 @@ function M.hello()
         return
       end
       vim.notify(response.body)
+    end,
+  })
+end
+
+function M.hello_stream()
+  RequestHandler.streamRequest({
+    route = "/helloStream",
+    stream = function(error, chunk)
+      vim.schedule(function()
+        if error then
+          vim.notify("error " .. error, vim.log.levels.ERROR)
+          return
+        end
+        WriteChat.set_plain_text(
+          vim.api.nvim_get_current_win(),
+          vim.api.nvim_get_current_buf(),
+          chunk
+        )
+      end)
+    end,
+    callback = function(response)
+      if response.exit ~= 0 then
+        vim.notify("[senpai] Something is wrong.")
+        return
+      end
     end,
   })
 end
