@@ -1,5 +1,5 @@
 local Config = require("senpai.config")
-local Curl = require("senpai.presentation.shared.curl")
+local RequestHandler = require("senpai.presentation.shared.request_handler")
 local Spinner = require("senpai.presentation.shared.spinner")
 local async = require("plenary.async")
 
@@ -25,22 +25,25 @@ end
   name = "language"
   type = "string"
   desc = "Language of commit message"
+  [[args]]
+  name = "callback"
+  type = "senpai.RequestHandler.callback"
+  desc = "Function to be processed using the response"
 --]=]
----@param language? string
----@return string
-function M.generate_commit_message(language)
-  local lang = language and language or Config.get_commit_message_language()
+---@param language string
+---@param callback senpai.RequestHandler.callback
+---@return nil
+function M.generate_commit_message(language, callback)
   local provider, provider_config = Config.get_provider()
   if not provider_config then
     vim.notify("[senpai] provider not found", vim.log.levels.WARN)
     return ""
   end
-  local response = Curl.requestText("/generate-commit-message", {
+  RequestHandler.request("/generate-commit-message", {
     provider = provider,
     provider_config = provider_config,
-    language = lang,
-  })
-  return response
+    language = language,
+  }, callback)
 end
 
 --[=[@doc
@@ -58,29 +61,17 @@ end
 ---@return nil
 function M.write_commit_message(language)
   local lang = language and language or Config.get_commit_message_language()
-  local provider, provider_config = Config.get_provider()
-  if not provider_config then
-    vim.notify("[senpai] provider not found", vim.log.levels.WARN)
-    return ""
-  end
 
   local spinner = Spinner.new("[senpai] AI thinking")
   spinner:start()
-  async.void(function()
-    local commit_message = Curl.async_request_text("/generate-commit-message", {
-      provider = provider,
-      provider_config = provider_config,
-      language = lang,
-    })
-    vim.schedule(function()
-      spinner:stop()
-      if not commit_message then
-        vim.notify("[senpai] write_commit_message failed")
-        return
-      end
-      replace_current_line(commit_message.body)
-    end)
-  end)()
+  M.generate_commit_message(lang, function(response)
+    spinner:stop()
+    if response.exit ~= 0 then
+      vim.notify("[senpai] write_commit_message failed")
+      return
+    end
+    replace_current_line(response.body)
+  end)
 end
 
 return M
