@@ -6,7 +6,7 @@ import {
 import { createTool } from "@mastra/core";
 import { $ } from "bun";
 
-export const GitDiff: IGitDiff = createTool({
+export const GitDiff = createTool({
 	id: "git-diff",
 	description: "get code diffs",
 	inputSchema,
@@ -18,4 +18,4 @@ export const GitDiff: IGitDiff = createTool({
 			throw new Error(`Failed GitDiff: ${err}`);
 		}
 	},
-});
+}) as IGitDiff;

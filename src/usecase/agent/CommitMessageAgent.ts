@@ -1,4 +1,4 @@
-import { Agent } from "@mastra/core";
+import { Agent } from "@mastra/core/agent";
 import type { AgentConfig } from "@mastra/core/agent";
 import { z } from "zod";
 

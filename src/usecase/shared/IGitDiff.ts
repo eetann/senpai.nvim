@@ -1,4 +1,4 @@
-import type { Tool, ToolAction, ToolExecutionContext } from "@mastra/core";
+import type { ToolAction, ToolExecutionContext } from "@mastra/core";
 import { z } from "zod";
 
 export const inputSchema = undefined;

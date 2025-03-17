@@ -1,4 +1,5 @@
-import { type LanguageModel, Step, Workflow } from "@mastra/core";
+import { type LanguageModel, Step } from "@mastra/core";
+import { Workflow } from "@mastra/core/workflows";
 import { z } from "zod";
 import {
 	CommitMessageAgent,

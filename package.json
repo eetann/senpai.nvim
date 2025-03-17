@@ -6,6 +6,7 @@
     "@mastra/core": "^0.6.0",
     "@mastra/memory": "^0.2.1",
     "@openrouter/ai-sdk-provider": "^0.4.3",
+    "ai": "^4.1.61",
     "hono": "^4.7.4",
     "zod": "^3.24.2"
   },
