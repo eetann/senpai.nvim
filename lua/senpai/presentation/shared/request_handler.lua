@@ -95,7 +95,11 @@ function M.streamRequest(args)
         content_type = "application/json",
       },
       raw = { "--no-buffer" }, -- NOTE: IMPORTANT!
-      stream = args.stream,
+      stream = function(error, data)
+        vim.schedule(function()
+          args.stream(error, data)
+        end)
+      end,
     })
     vim.schedule(function()
       args.callback(response)

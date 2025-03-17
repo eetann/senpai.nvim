@@ -35,7 +35,9 @@ function M.start_server()
   )
   M.job = vim.system({ "bun", "run", "src/index.ts" }, {
     cwd = cwd,
-    stdout = get_port,
+    stdout = vim.schedule_wrap(function(err, data)
+      get_port(err, data)
+    end),
   }, function()
     M.job = nil
     M.port = nil
