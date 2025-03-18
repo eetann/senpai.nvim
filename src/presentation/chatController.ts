@@ -1,3 +1,4 @@
+import { threadId } from "node:worker_threads";
 import { GetFiles } from "@/infra/GetFiles";
 import { getModel, providerConfigSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
@@ -25,6 +26,11 @@ app.post(
 		const command = c.req.valid("json");
 		const model = getModel(command.provider, command.provider_config);
 		const agent = new ChatAgent(memory, GetFiles, model, command.system_prompt);
+		const thread = await memory.getThreadById({ threadId: command.thread_id });
+		let isFirstMessage = false;
+		if (thread == null) {
+			isFirstMessage = true;
+		}
 		const agentStream = await agent.stream(
 			[
 				{
@@ -37,8 +43,19 @@ app.post(
 				resourceId: "senpai",
 			},
 		);
-		// const thread = await memory.getThreadById({ threadId: command.thread_id });
-		// console.error({ thread });
+		if (isFirstMessage) {
+			const thread = await memory.getThreadById({
+				threadId: command.thread_id,
+			});
+			await memory.updateThread({
+				id: command.thread_id,
+				title: thread.title,
+				metadata: {
+					provider: command.provider,
+					provider_config: command.provider_config,
+				},
+			});
+		}
 		return agentStream.toDataStreamResponse();
 	},
 );
