@@ -1,5 +1,6 @@
 import { GetFiles } from "@/infra/GetFiles";
 import { getModel, providerConfigSchema } from "@/infra/GetModel";
+import { memory } from "@/infra/Memory";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
@@ -23,7 +24,7 @@ app.post(
 	async (c) => {
 		const command = c.req.valid("json");
 		const model = getModel(command.provider, command.provider_config);
-		const agent = new ChatAgent(GetFiles, model, command.system_prompt);
+		const agent = new ChatAgent(memory, GetFiles, model, command.system_prompt);
 		const agentStream = await agent.stream(
 			[
 				{
