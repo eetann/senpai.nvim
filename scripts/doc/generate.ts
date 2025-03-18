@@ -174,7 +174,7 @@ function renderSourceDoc(doc: Doc & { category: "source" }) {
 	}
 
 	return dedent`
-  ### ${doc.name}
+  ## ${doc.name}
 
   ${doc.desc}
 
@@ -215,13 +215,7 @@ function renderApiDoc(doc: Doc & { category: "api" }) {
 	}
 
 	return dedent`
-
-  <!-- panvimdoc-include-comment ${doc.name} ~ -->
-
-  <!-- panvimdoc-ignore-start -->
-  ### ${doc.name}
-  <!-- panvimdoc-ignore-end -->
-
+  ## ${doc.name}
   ${doc.desc}
 
   ${args}
@@ -245,12 +239,10 @@ function renderCommandDoc(doc: Doc & { category: "command" }) {
 	}
 
 	return dedent`
-
-  <!-- panvimdoc-include-comment ${doc.name} ~ -->
-
-  <!-- panvimdoc-ignore-start -->
-  ### :Senpai ${doc.name}
-  <!-- panvimdoc-ignore-end -->
+  ## ${doc.name}
+  \`\`\`
+  :Senapi ${doc.name}
+  \`\`\`
 
   ${doc.desc}
 
@@ -264,9 +256,7 @@ function renderCommandDoc(doc: Doc & { category: "command" }) {
  */
 function renderTypeDoc(doc: Doc & { category: "type" }) {
 	return dedent`
-  \`\`\`vimdoc
-  *${doc.name}*
-  \`\`\`
+  \`*${doc.name}*\`
   \`\`\`lua
   ${doc.definition}
   \`\`\`

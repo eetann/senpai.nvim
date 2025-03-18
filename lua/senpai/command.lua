@@ -21,7 +21,7 @@ local subcmd_tbl = {
   --[=[@doc
   category = "command"
   name = "commitMessage"
-  desc = "detail -> |senpai.write_commit_message|"
+  desc = "detail -> |senpai-api-write_commit_message|"
 
   [[args]]
   name = "language"
@@ -45,7 +45,7 @@ local subcmd_tbl = {
   --[=[@doc
   category = "command"
   name = "toggleChat"
-  desc = "|senpai-chat|"
+  desc = "detail -> |senpai-feature-chat|"
   --]=]
   toggleChat = {
     impl = function()

@@ -41,8 +41,13 @@ end
 
 --[=[@doc
   category = "api"
-  name = "senpai.toggle_chat()"
-  desc = "Toggle chat."
+  name = "toggle_chat"
+  desc = """
+  ```lua
+  senpai.toggle_chat()
+  ````
+  Toggle chat.
+  """
 --]=]
 function M.toggle_chat()
   chatWindowManager:toggle_current_chat()

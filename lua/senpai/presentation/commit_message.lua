@@ -17,8 +17,13 @@ end
 
 --[=[@doc
   category = "api"
-  name = "senpai.generate_commit_message(language)"
-  desc = "AI generate conventional commit message of commitizen convention format."
+  name = "generate_commit_message"
+  desc = """
+  ```lua
+  senpai.generate_commit_message(language)
+  ````
+  AI generate conventional commit message of commitizen convention format.
+  """
 
   [[args]]
   name = "language"
@@ -30,7 +35,7 @@ end
   desc = "Function to be processed using the response"
 --]=]
 ---@param language string
----@param callback senpai.RequestHandler.callback
+---@param callback senpai.RequestHandler.callback_fun
 ---@return nil
 function M.generate_commit_message(language, callback)
   local provider, provider_config = Config.get_provider()
@@ -51,8 +56,13 @@ end
 
 --[=[@doc
   category = "api"
-  name = "senpai.write_commit_message(language)"
-  desc = "AI write conventional commit message of commitizen convention format."
+  name = "write_commit_message"
+  desc = """
+  ```lua
+  senpai.write_commit_message(language)
+  ````
+  AI write conventional commit message of commitizen convention format.
+  """
 
   [[args]]
   name = "language"

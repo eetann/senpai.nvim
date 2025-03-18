@@ -2,15 +2,43 @@
 Senpai is super reliable Neovim AI plugin!
 
 
-## Feature
-### Chat
+# Feature
+## Chat
 You can chat with AI.
 If you write the file name, it will automatically read it.
 If you write `foo/bar/buz.txt` as `summarize buz.txt`,
 it will be recognized.
 (internally it searches `**/buz.txt` for files under git control).
 
-### default Config
+# Requirements
+
+- Neovim
+- curl
+- [Bun](https://bun.sh/)
+    - Forgive me if the dependence is frustrating for you, but it's easy to install.
+
+
+# Installation
+with[Lazy.nvim](https://github.com/folke/lazy.nvim)
+```lua
+{
+    "eetann/senpai.nvim", 
+	lazy = true,
+	opts = {config}
+}
+```
+with [packer.nvim](https://github.com/wbthomason/packer.nvim)
+```lua
+{
+    "eetann/senpai.nvim", 
+	opt = true,
+    config = function()
+        require("senpai").setup({config}) 
+    end
+}
+```
+
+# default Config
 <!-- auto-generate-s:default_config -->
 ```lua
 {
@@ -33,17 +61,15 @@ it will be recognized.
 ```
 <!-- auto-generate-e:default_config -->
 
-## API
+# API
 <!-- auto-generate-s:api -->
 
-
-<!-- panvimdoc-include-comment senpai.generate_commit_message(language) ~ -->
-
-<!-- panvimdoc-ignore-start -->
-### senpai.generate_commit_message(language)
-<!-- panvimdoc-ignore-end -->
-
-AI generate conventional commit message of commitizen convention format.
+## generate_commit_message
+  ```lua
+  senpai.generate_commit_message(language)
+  ````
+  AI generate conventional commit message of commitizen convention format.
+  
 
 
 | Name | Type | Description |
@@ -54,44 +80,38 @@ AI generate conventional commit message of commitizen convention format.
 &nbsp;
 
 
-
-<!-- panvimdoc-include-comment senpai.setup(config) ~ -->
-
-<!-- panvimdoc-ignore-start -->
-### senpai.setup(config)
-<!-- panvimdoc-ignore-end -->
-
-Setup senpai
+## setup
+  ```lua
+  senpai.setup({...})
+  ```
+  Setup senpai
+  
 
 
 | Name | Type | Description |
 |------|------|-------------|
-| config | senpai.Config | Setup senpai |
+| config | `\|senpai.Config\|` | Setup senpai |
 
 &nbsp;
 
 
-
-<!-- panvimdoc-include-comment senpai.toggle_chat() ~ -->
-
-<!-- panvimdoc-ignore-start -->
-### senpai.toggle_chat()
-<!-- panvimdoc-ignore-end -->
-
-Toggle chat.
+## toggle_chat
+  ```lua
+  senpai.toggle_chat()
+  ````
+  Toggle chat.
+  
 
 _No arguments_
 &nbsp;
 
 
-
-<!-- panvimdoc-include-comment senpai.write_commit_message(language) ~ -->
-
-<!-- panvimdoc-ignore-start -->
-### senpai.write_commit_message(language)
-<!-- panvimdoc-ignore-end -->
-
-AI write conventional commit message of commitizen convention format.
+## write_commit_message
+  ```lua
+  senpai.write_commit_message(language)
+  ````
+  AI write conventional commit message of commitizen convention format.
+  
 
 
 | Name | Type | Description |
@@ -101,19 +121,17 @@ AI write conventional commit message of commitizen convention format.
 &nbsp;
 
 <!-- auto-generate-e:api -->
-## Commands
+# Commands
 `:Senpai {subcommand}`
-<!-- auto-generate-e:command -->
+
 <!-- auto-generate-s:command -->
 
+## commitMessage
+```
+:Senapi commitMessage
+```
 
-<!-- panvimdoc-include-comment commitMessage ~ -->
-
-<!-- panvimdoc-ignore-start -->
-### :Senpai commitMessage
-<!-- panvimdoc-ignore-end -->
-
-detail -> |senpai.write_commit_message|
+detail -> |senpai-api-write_commit_message|
 
 
 | Name | Description |
@@ -123,110 +141,22 @@ detail -> |senpai.write_commit_message|
 &nbsp;
 
 
+## toggleChat
+```
+:Senapi toggleChat
+```
 
-<!-- panvimdoc-include-comment toggleChat ~ -->
-
-<!-- panvimdoc-ignore-start -->
-### :Senpai toggleChat
-<!-- panvimdoc-ignore-end -->
-
-|senpai-chat|
+detail -> |senpai-feature-chat|
 
 _No arguments_
 &nbsp;
 
 <!-- auto-generate-e:command -->
-<!-- auto-generate-s:command -->
 
-
-<!-- panvimdoc-include-comment commitMessage ~ -->
-
-<!-- panvimdoc-ignore-start -->
-### :Senpai commitMessage
-<!-- panvimdoc-ignore-end -->
-
-detail -> |senpai.write_commit_message|
-
-
-| Name | Description |
-|------|-------------|
-| language | language |
-
-&nbsp;
-
-
-
-<!-- panvimdoc-include-comment toggleChat ~ -->
-
-<!-- panvimdoc-ignore-start -->
-### :Senpai toggleChat
-<!-- panvimdoc-ignore-end -->
-
-|senpai-chat|
-
-_No arguments_
-&nbsp;
-
-<!-- auto-generate-e:command -->
-<!-- auto-generate-s:command -->
-
-
-<!-- panvimdoc-include-comment commitMessage ~ -->
-
-<!-- panvimdoc-ignore-start -->
-### :Senpai commitMessage
-<!-- panvimdoc-ignore-end -->
-
-detail -> |senpai.write_commit_message|
-
-
-| Name | Description |
-|------|-------------|
-| language | language |
-
-&nbsp;
-
-
-
-<!-- panvimdoc-include-comment toggleChat ~ -->
-
-<!-- panvimdoc-ignore-start -->
-### :Senpai toggleChat
-<!-- panvimdoc-ignore-end -->
-
-|senpai-chat|
-
-_No arguments_
-&nbsp;
-
-<!-- auto-generate-e:command -->
-<!-- auto-generate-s:command -->
-
-
-<!-- panvimdoc-include-comment commitMessage ~ -->
-
-<!-- panvimdoc-ignore-start -->
-### :Senpai commitMessage
-<!-- panvimdoc-ignore-end -->
-
-detail -> |senpai.write_commit_message|
-
-
-| Name | Description |
-|------|-------------|
-| language | language |
-
-&nbsp;
-
-<!-- auto-generate-e:command -->
-<!-- auto-generate-s:command -->
-
-## Type
+# Type
 <!-- auto-generate-s:type -->
 
-```vimdoc
-*senpai.Config*
-```
+`*senpai.Config*`
 ```lua
 ---@class senpai.Config
 ---@field provider? provider
@@ -235,9 +165,7 @@ detail -> |senpai.write_commit_message|
 ```
 
 
-```vimdoc
-*senpai.Config.commit_message*
-```
+`*senpai.Config.commit_message*`
 ```lua
 ---@class senpai.Config.commit_message
 ---@field language string|(fun(): string) Supports languages that AI knows
@@ -250,27 +178,21 @@ detail -> |senpai.write_commit_message|
 ```
 
 
-```vimdoc
-*senpai.Config.providers.AnthropicProvider*
-```
+`*senpai.Config.providers.AnthropicProvider*`
 ```lua
 ---@class senpai.Config.providers.AnthropicProvider
 ---@field model ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")
 ```
 
 
-```vimdoc
-*senpai.Config.providers.OpenAIProvider*
-```
+`*senpai.Config.providers.OpenAIProvider*`
 ```lua
 ---@class senpai.Config.providers.OpenAIProvider
 ---@field model ("gpt-4o" | "gpt-4o-mini")
 ```
 
 
-```vimdoc
-*senpai.Config.providers.OpenRouterProvider*
-```
+`*senpai.Config.providers.OpenRouterProvider*`
 ```lua
 ---@class senpai.Config.providers.OpenRouterProvider
 ---@field model string
@@ -284,9 +206,7 @@ detail -> |senpai.write_commit_message|
 ```
 
 
-```vimdoc
-*senpai.Config.providers.Provider*
-```
+`*senpai.Config.providers.Provider*`
 ```lua
 ---@class senpai.Config.providers.Provider
 ---@field model string
