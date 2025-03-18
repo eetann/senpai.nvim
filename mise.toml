@@ -35,5 +35,4 @@ docker build --platform linux/arm64/v8 \
 """
 
 [env]
-DENOPS_TEST_DENOPS_PATH=".repro/data/nvim/lazy/denops.vim"
 COMMIT_MESSAGE_ENGLISH = 1

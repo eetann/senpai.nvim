@@ -28,13 +28,13 @@ local plugins = {
   {
     dir = vim.uv.cwd(),
     dependencies = {
-      "vim-denops/denops.vim",
       "MunifTanjim/nui.nvim",
       "nvim-lua/plenary.nvim",
       {
         "nvim-treesitter/nvim-treesitter",
         build = ":TSUpdate",
         config = function()
+          ---@diagnostic disable-next-line: missing-fields
           require("nvim-treesitter.configs").setup({
             ensure_installed = {
               "html",
@@ -65,7 +65,6 @@ local plugins = {
     keys = {
       { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
     },
-    build = "deno task build",
     opts = {},
   },
 }

@@ -42,14 +42,6 @@ local subcmd_tbl = {
       return CommandResiter.get_complete(subcmd_arg_lead, args)
     end,
   },
-  summarizeExample = {
-    impl = function()
-      require("senpai.api").summarize([[
-      Take care of the shopping.
-      Two apples and three oranges.
-      Oh, and a banana, please.]])
-    end,
-  },
   --[=[@doc
   category = "command"
   name = "toggleChat"

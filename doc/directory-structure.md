@@ -1,31 +1,32 @@
-# ディレクトリ構成案（TypeScriptプロジェクト）
+# ディレクトリ構成
 
 ```
 .
 │
-├── denops/senpai/ # エージェントのメインロジック
+├── src/ # エージェントのメインロジック(TypeScript)
 │   ├── domain/
 │   ├── usecase/
-│   ├── infra/ # denopsを呼んでよい
-│   ├── presentation/ # denopsを呼んでよい
-│   └── main.ts
+│   ├── infra/
+│   ├── presentation/
+│   └── index.ts
 │
-├── lua/senpai # neovimのプラグイン
+├── lua/senpai # neovimのプラグイン(Lua)
 │   ├── domain/
 │   ├── usecase/
 │   ├── infra/
 │   ├── presentation/
 │   └── init.lua
 │
-├── /tests # Neovimを使ったE2Eテスト
+├── /tests # Neovimを使ったE2Eテスト(Lua)
 │
 ├── /doc   # 設計仕様や技術的な文書
 └── README.md
 ```
 
+
 ## 説明
 - **srcディレクトリ**:
-  - **domain**: ドメインロジックをTypeScriptで表現。
-  - **usecase**: アプリケーションロジックを実装。
-  - **infra**: データアクセス・外部サービスを抽象化。
-  - **presentation**: ユーザーインターフェースの実装。
+  - **domain**: ドメイン知識を表現
+  - **usecase**: アプリケーションロジックを実装
+  - **infra**: データアクセス・外部サービスを抽象化
+  - **presentation**: ユーザーインターフェースの実装
