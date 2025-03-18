@@ -1,157 +1,253 @@
-*senpai* Senpai is super reliable!
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 March 18
 
 ==============================================================================
-Table of Contents                                  *senpai-table-of-contents*
-  Setup.........................................................|senpai-setup|
-  Config.......................................................|senpai-config|
-  Commands...................................................|senpai-commands|
+Table of Contents                                   *senpai-table-of-contents*
 
-------------------------------------------------------------------------------
-                                                                  *senpai-setup*
+1. senpai.nvim                                            |senpai-senpai.nvim|
+2. Feature                                                    |senpai-feature|
+  - Chat                                                 |senpai-feature-chat|
+3. Requirements                                          |senpai-requirements|
+4. Installation                                          |senpai-installation|
+5. default Config                                      |senpai-default-config|
+6. API                                                            |senpai-api|
+  - generate_commit_message               |senpai-api-generate_commit_message|
+  - setup                                                   |senpai-api-setup|
+  - toggle_chat                                       |senpai-api-toggle_chat|
+  - write_commit_message                     |senpai-api-write_commit_message|
+7. Commands                                                  |senpai-commands|
+  - commitMessage                              |senpai-commands-commitmessage|
+  - toggleChat                                    |senpai-commands-togglechat|
+8. Type                                                          |senpai-type|
 
-------------------------------------------------------------------------------
-                                                                *senpai.setup()*
-                             `senpai.setup`({opts})
-Parameters ~
-{opts} `(optional)` `(senpai.Config)` see |senpai-config|
+==============================================================================
+1. senpai.nvim                                            *senpai-senpai.nvim*
+
+Senpai is super reliable Neovim AI plugin!
 
 
 ==============================================================================
-------------------------------------------------------------------------------
-Class ~
-{senpai.Config.providers.Provider}
-Fields ~
-{model} `(string)`
+2. Feature                                                    *senpai-feature*
 
-------------------------------------------------------------------------------
-                                        *senpai-config-providers-openaiprovider*
-Class ~
-{senpai.Config.providers.OpenAIProvider}
-Fields ~
-{model} `("gpt-4o" | "gpt-4o-mini")`
 
-------------------------------------------------------------------------------
-                                     *senpai-config-providers-anthropicprovider*
-Class ~
-{senpai.Config.providers.AnthropicProvider}
-Fields ~
-{model} `("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")`
+CHAT                                                     *senpai-feature-chat*
 
-------------------------------------------------------------------------------
-                                    *senpai-config-providers-openrouterprovider*
-Class ~
-{senpai.Config.providers.OpenRouterProvider}
-Fields ~
-{model} `(string)`
-  You can get a list of models with the following command.
-  >sh
-  curl https://openrouter.ai/api/v1/models | jq '.data[].id'
-  # check specific model
-  curl https://openrouter.ai/api/v1/models | \
-    jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
-<
-------------------------------------------------------------------------------
-                                                                 *senpai-config*
-Class ~
-{senpai.Config}
-Fields ~
-{provider} `(optional)` "`(openai)`" | "openrouter"
-{providers} `(optional)` `(table<string, senpai.Config.providers.Provider>)`
-  see |senpai-config-providers|
-{commit_message} `(optional)` `(senpai.Config.commit_message)`
-  see |senpai-config-commit-message|
+You can chat with AI. If you write the file name, it will automatically read
+it. If you write `foo/bar/buz.txt` as `summarize buz.txt`, it will be
+recognized. (internally it searches `**/buz.txt` for files under git control).
 
-Default values:
+
+==============================================================================
+3. Requirements                                          *senpai-requirements*
+
+- Neovim
+- curl
+- Bun <https://bun.sh/>
+    - Forgive me if the dependence is frustrating for you, but it’s easy to install.
+
+
+==============================================================================
+4. Installation                                          *senpai-installation*
+
+withLazy.nvim <https://github.com/folke/lazy.nvim>
+
 >lua
-  {
-    commit_message = {
-      language = "English"
-    },
-    provider = "openai",
-    providers = {
-      anthropic = {
-        model = "claude-3-7-sonnet-20250219"
+    {
+        "eetann/senpai.nvim", 
+        lazy = true,
+        opts = {config}
+    }
+<
+
+with packer.nvim <https://github.com/wbthomason/packer.nvim>
+
+>lua
+    {
+        "eetann/senpai.nvim", 
+        opt = true,
+        config = function()
+            require("senpai").setup({config}) 
+        end
+    }
+<
+
+
+==============================================================================
+5. default Config                                      *senpai-default-config*
+
+>lua
+    {
+      commit_message = {
+        language = "English"
       },
-      openai = {
-        model = "gpt-4o"
-      },
-      openrouter = {
-        model = "anthropic/claude-3.7-sonnet"
+      provider = "openai",
+      providers = {
+        anthropic = {
+          model = "claude-3-7-sonnet-20250219"
+        },
+        openai = {
+          model = "gpt-4o"
+        },
+        openrouter = {
+          model = "anthropic/claude-3.7-sonnet"
+        }
       }
     }
-  }
 <
-------------------------------------------------------------------------------
-                                                  *senpai-config-commit-message*
-Class ~
-{senpai.Config.commit_message}
-Fields ~
-{language} `(string|(fun(): string))` Supports languages that AI knows
-  It doesn't have to be strictly natural language,
-  since the prompt is as follows
-  >typescript
-   `subject and body should be written in ${language}.`
-<
-  That means the AI can write it in a tsundere style as well.
-  Like this.
-    `:Senpai commitMessage English(Tsundere)`
-
-------------------------------------------------------------------------------
-                                               *M.get_commit_message_language()*
-                       `M.get_commit_message_language`()
-Return ~
-`(string)`
-
-------------------------------------------------------------------------------
-                                                              *M.get_provider()*
-                               `M.get_provider`()
-Return ~
-"`(openai)`" | "openrouter"
-Return ~
-`(senpai.Config.providers.Provider)`
 
 
 ==============================================================================
-------------------------------------------------------------------------------
-                                                              *senpai-summarize*
-                             `M.summarize`({text})
-
-Use AI to summarize input text
-Parameters ~
-{text} `(string)`
-Return ~
-`(string)`
+6. API                                                            *senpai-api*
 
 
-==============================================================================
-------------------------------------------------------------------------------
-                                                *senpai-generate-commit-message*
-                    `M.generate_commit_message`({language})
-Parameters ~
-{language} `(optional)` `(string)`
-Return ~
-`(string)`
+GENERATE_COMMIT_MESSAGE                   *senpai-api-generate_commit_message*
 
-------------------------------------------------------------------------------
-                                                   *senpai-write-commit-message*
-                      `M.write_commit_message`({language})
+>lua
+    senpai.generate_commit_message(language)
+<
+
+AI generate conventional commit message of commitizen convention format.
+
+  ---------------------------------------------------------------------------------------
+  Name              Type                             Description
+  ----------------- -------------------------------- ------------------------------------
+  language          string                           Language of commit message
+
+  callback          senpai.RequestHandler.callback   Function to be processed using the
+                                                     response
+  ---------------------------------------------------------------------------------------
+ 
+
+
+SETUP                                                       *senpai-api-setup*
+
+>lua
+    senpai.setup({...})
+<
+
+Setup senpai
+
+  Name     Type                Description
+  -------- ------------------- --------------
+  config   \|senpai.Config\|   Setup senpai
+ 
+
+
+TOGGLE_CHAT                                           *senpai-api-toggle_chat*
+
+>lua
+    senpai.toggle_chat()
+<
+
+Toggle chat.
+
+_No arguments_  
+
+
+WRITE_COMMIT_MESSAGE                         *senpai-api-write_commit_message*
+
+>lua
+    senpai.write_commit_message(language)
+<
 
 AI write conventional commit message of commitizen convention format.
-Parameters ~
-{language} `(optional)` `(string)`
-Return ~
-`(nil)`
+
+  Name       Type     Description
+  ---------- -------- ----------------------------
+  language   string   Language of commit message
+ 
 
 
 ==============================================================================
-------------------------------------------------------------------------------
-                                                               *senpai-commands*
+7. Commands                                                  *senpai-commands*
 
-Commands ~
 `:Senpai {subcommand}`
 
-`:Senpai commitMessage (language)`
-  detail -> |senpai-write-commit-message|
+
+COMMITMESSAGE                                  *senpai-commands-commitmessage*
+
+>
+    :Senapi commitMessage
+<
+
+detail -> |senpai-api-write_commit_message|
+
+  Name       Description
+  ---------- -------------
+  language   language
+ 
 
 
- vim:tw=78:ts=8:noet:ft=help:norl:
+TOGGLECHAT                                        *senpai-commands-togglechat*
+
+>
+    :Senapi toggleChat
+<
+
+detail -> |senpai-feature-chat|
+
+_No arguments_  
+
+
+==============================================================================
+8. Type                                                          *senpai-type*
+
+`*senpai.Config*`
+
+>lua
+    ---@class senpai.Config
+    ---@field provider? provider
+    ---@field providers? table<string, senpai.Config.providers.Provider>
+    ---@field commit_message? senpai.Config.commit_message
+<
+
+`*senpai.Config.commit_message*`
+
+>lua
+    ---@class senpai.Config.commit_message
+    ---@field language string|(fun(): string) Supports languages that AI knows
+    ---   It doesn't have to be strictly natural language,
+    ---   since the prompt is as follows
+    ---    `subject and body should be written in ${language}.`
+    ---   That means the AI can write it in a tsundere style as well.
+    ---   Like this.
+    ---     `:Senpai commitMessage English(Tsundere)`
+<
+
+`*senpai.Config.providers.AnthropicProvider*`
+
+>lua
+    ---@class senpai.Config.providers.AnthropicProvider
+    ---@field model ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")
+<
+
+`*senpai.Config.providers.OpenAIProvider*`
+
+>lua
+    ---@class senpai.Config.providers.OpenAIProvider
+    ---@field model ("gpt-4o" | "gpt-4o-mini")
+<
+
+`*senpai.Config.providers.OpenRouterProvider*`
+
+>lua
+    ---@class senpai.Config.providers.OpenRouterProvider
+    ---@field model string
+    ---   You can get a list of models with the following command.
+    ---   >sh
+    ---   curl https://openrouter.ai/api/v1/models | jq '.data[].id'
+    ---   # check specific model
+    ---   curl https://openrouter.ai/api/v1/models | \
+    ---     jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
+    --- <
+<
+
+`*senpai.Config.providers.Provider*`
+
+>lua
+    ---@class senpai.Config.providers.Provider
+    ---@field model string
+<
+
+Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
+
+vim:tw=78:ts=8:noet:ft=help:norl:

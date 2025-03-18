@@ -5,7 +5,17 @@ sources = ["lua/**/*.lua", "tests/**/*"]
 outputs = []
 
 [tasks.generate-doc]
-run = "nvim --headless --noplugin -u ./scripts/doc/minimal_init.lua -c 'luafile ./scripts/doc/generate.lua' -c 'qa!'"
+run = """
+bun run scripts/doc/generate.ts \
+&& docker run -v $(PWD):/data -i panvimdoc \
+  --project-name senpai \
+  --input-file README.md \
+  --vim-version "NVIM v0.10.0" \
+  --toc true \
+  --demojify true \
+  --treesitter true \
+  --ignore-rawblocks true
+"""
 
 [tasks.launch]
 run = "nvim --noplugin -u ./scripts/test/minimal_init.lua"
@@ -13,11 +23,17 @@ run = "nvim --noplugin -u ./scripts/test/minimal_init.lua"
 [tasks.launch-tmux]
 run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run launch'"
 
-# [tasks.demo]
-# run = "nvim --noplugin -u ./scripts/test/minimal_init.lua"
-#
-# [tasks.demo-tmux]
-# run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run demo'"
+[tasks.treesitter]
+run = "nvim --noplugin -u ./scripts/test/minimal_init.lua -c 'e ./doc/sample_chat.mdx'"
+
+[tasks.treesitter-tmux]
+run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run treesitter'"
+
+[tasks.prepare-generate-doc]
+run = """
+docker build --platform linux/arm64/v8 \
+  -t panvimdoc https://github.com/kdheepak/panvimdoc.git#d5b6a1f3ab0cb2c060766e7fd426ed32c4b349b2
+"""
 
 [env]
 COMMIT_MESSAGE_ENGLISH = 1

@@ -1,20 +1,25 @@
---- *senpai* Senpai is super reliable!
----
---- ==============================================================================
---- Table of Contents                                  *senpai-table-of-contents*
----@toc
----@text
-
 local senpai = {}
 
----@tag senpai-setup
----@toc_entry Setup
+--[=[@doc
+  category = "api"
+  name = "setup"
+  desc = """
+  ```lua
+  senpai.setup({...})
+  ```
+  Setup senpai
+  """
 
+  [[args]]
+  name = "config"
+  type = "`|senpai.Config|`"
+  desc = "Setup senpai"
+--]=]
 ---@param opts? senpai.Config see |senpai-config|
 senpai.setup = function(opts)
   require("senpai.config").setup(opts)
+  require("senpai.presentation.server").start_server()
   -- require("senpai.presentation.highlight").set_highlights()
-  require("senpai.presentation.autocmd").set_autocmds()
   require("senpai.command")
 end
 

@@ -4,9 +4,14 @@ load(
     "curl -s https://raw.githubusercontent.com/folke/lazy.nvim/main/bootstrap.lua"
   )
 )()
+vim.filetype.add({
+  extension = {
+    mdx = "mdx",
+  },
+})
+vim.opt.conceallevel = 1
 
 local plugins = {
-  { "folke/snacks.nvim", priority = 1000, lazy = false, opts = {} },
   { "echasnovski/mini.test", opts = {} },
   -- {
   --   "folke/tokyonight.nvim",
@@ -23,8 +28,40 @@ local plugins = {
   {
     dir = vim.uv.cwd(),
     dependencies = {
-      "vim-denops/denops.vim",
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      {
+        "nvim-treesitter/nvim-treesitter",
+        build = ":TSUpdate",
+        config = function()
+          ---@diagnostic disable-next-line: missing-fields
+          require("nvim-treesitter.configs").setup({
+            ensure_installed = {
+              "html",
+              "javascript",
+              "json",
+              "lua",
+              "markdown",
+              "tsx",
+              "typescript",
+            },
+            sync_install = false,
+            auto_install = true,
+            ignore_install = {},
+            highlight = {
+              enable = true,
+            },
+            indent = {
+              enable = true,
+            },
+            matchup = {
+              enable = true,
+            },
+          })
+        end,
+      },
     },
+    lazy = false,
     keys = {
       { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
     },
