@@ -8,7 +8,7 @@ Table of Contents                                   *senpai-table-of-contents*
   - Chat                                                 |senpai-feature-chat|
 3. Requirements                                          |senpai-requirements|
 4. Installation                                          |senpai-installation|
-5. default Config                                      |senpai-default-config|
+5. Default config                                      |senpai-default-config|
 6. API                                                            |senpai-api|
   - generate_commit_message               |senpai-api-generate_commit_message|
   - setup                                                   |senpai-api-setup|
@@ -48,7 +48,7 @@ recognized. (internally it searches `**/buz.txt` for files under git control).
 ==============================================================================
 4. Installation                                          *senpai-installation*
 
-withLazy.nvim <https://github.com/folke/lazy.nvim>
+with Lazy.nvim <https://github.com/folke/lazy.nvim>
 
 >lua
     {
@@ -72,7 +72,7 @@ with packer.nvim <https://github.com/wbthomason/packer.nvim>
 
 
 ==============================================================================
-5. default Config                                      *senpai-default-config*
+5. Default config                                      *senpai-default-config*
 
 >lua
     {
