@@ -3,6 +3,7 @@ import { simulateReadableStream } from "ai";
 import { Hono } from "hono";
 import chatController from "./presentation/chatController";
 import generateCommitMessage from "./presentation/generateCommitMessage";
+import historyController from "./presentation/historyController";
 
 const { values } = parseArgs({
 	args: Bun.argv,
@@ -48,6 +49,7 @@ app.post("/helloStream", (c) => {
 });
 app.route("/", generateCommitMessage);
 app.route("/", chatController);
+app.route("/", historyController);
 
 export default {
 	port,
