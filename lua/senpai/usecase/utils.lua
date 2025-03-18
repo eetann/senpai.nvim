@@ -36,4 +36,16 @@ function M.set_winbar(winid, text)
   )
 end
 
+---@param chat senpai.ChatWindow
+function M.scroll_when_invisible(chat)
+  local winid = chat.chat_log.winid
+  local last_buffer_line = vim.fn.line("$", winid)
+  local last_visible_line = vim.fn.line("w$", winid)
+  if last_visible_line < last_buffer_line then
+    vim.api.nvim_win_call(chat.chat_log.winid, function()
+      vim.cmd("normal! 5j")
+    end)
+  end
+end
+
 return M

@@ -40,6 +40,7 @@ function M:execute(chat)
       end
       if part.type == "0" then
         utils.set_text_at_last(chat.chat_log.bufnr, part.content)
+        utils.scroll_when_invisible(chat)
       end
     end,
     callback = function()
@@ -71,6 +72,7 @@ function M.process_user_input(chat)
   -- user input
   utils.set_text_at_last(chat.chat_log.bufnr, render_text)
   M.create_borders(chat.chat_log.bufnr, start_row, #lines)
+  utils.scroll_when_invisible(chat)
   return user_input
 end
 

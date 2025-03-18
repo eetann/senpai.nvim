@@ -21,6 +21,7 @@ local win_options = {
   statuscolumn = "",
   wrap = true,
   fillchars = "eob: ,lastline:…",
+  listchars = "eol: ",
 }
 
 ---@class senpai.ChatWindow: senpai.ChatWindow.Config
