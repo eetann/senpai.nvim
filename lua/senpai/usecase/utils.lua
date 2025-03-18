@@ -20,16 +20,20 @@ function M.set_text_1based_position(buffer, position, lines)
   )
 end
 
-function M.set_plain_text(winid, buffer, text)
-  local position1based = M.get_end_position1based(winid)
-  local lines = vim.split(text, "\n")
-  M.set_text_1based_position(buffer, position1based, lines)
-  return position1based
-end
-
 function M.set_text_at_last(buffer, text)
   local lines = vim.split(text, "\n")
   vim.api.nvim_buf_set_text(buffer, -1, -1, -1, -1, lines)
+end
+
+---set winbar
+---@param winid number
+---@param text string
+function M.set_winbar(winid, text)
+  vim.api.nvim_set_option_value(
+    "winbar",
+    "%#Nomal#%=" .. text .. "%=",
+    { win = winid }
+  )
 end
 
 return M

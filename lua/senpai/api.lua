@@ -1,8 +1,8 @@
-local ChatBufferManager = require("senpai.presentation.chat_buffer_manager")
+local ChatWindowManager = require("senpai.presentation.chat.window_manager")
 local RequestHandler = require("senpai.presentation.shared.request_handler")
-local WriteChat = require("senpai.presentation.write_chat")
+local utils = require("senpai.usecase.utils")
 
-local chatBufferManager = ChatBufferManager.new()
+local chatWindowManager = ChatWindowManager.new()
 
 local M = {}
 
@@ -27,7 +27,7 @@ function M.hello_stream()
         return
       end
       if part.type == "0" then
-        WriteChat.set_text_at_last(vim.api.nvim_get_current_buf(), part.content)
+        utils.set_text_at_last(vim.api.nvim_get_current_buf(), part.content)
       end
     end,
     callback = function(response)
@@ -45,7 +45,7 @@ end
   desc = "Toggle chat."
 --]=]
 function M.toggle_chat()
-  chatBufferManager:toggle_current_chat()
+  chatWindowManager:toggle_current_chat()
 end
 
 return setmetatable(M, {

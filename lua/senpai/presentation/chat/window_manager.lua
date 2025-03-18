@@ -1,13 +1,13 @@
-local Chat = require("senpai.presentation.chat_buffer")
+local Chat = require("senpai.presentation.chat.window")
 
----@class senpai.ChatBufferManager
+---@class senpai.ChatWindowManager
 ---@field current string|nil
----@field chats table<string, senpai.ChatBuffer>
+---@field chats table<string, senpai.ChatWindow>
 local M = {}
 M.__index = M
 
 ---@nodoc
----@return senpai.ChatBufferManager
+---@return senpai.ChatWindowManager
 function M.new()
   local self = setmetatable({}, M)
   self.current = nil
@@ -15,7 +15,7 @@ function M.new()
   return self
 end
 
----@param args senpai.ChatBufferNewArgs
+---@param args senpai.ChatWindowNewArgs
 function M:add(args)
   local chat = Chat.new(args)
   self.chats[chat.thread_id] = chat
@@ -30,7 +30,7 @@ function M:delete(thread_id)
   end
 end
 
---- @return senpai.ChatBuffer?
+--- @return senpai.ChatWindow?
 function M:get_current_chat()
   if self.current then
     return self.chats[self.current]
@@ -39,12 +39,12 @@ function M:get_current_chat()
 end
 
 --- @param thread_id string
---- @return senpai.ChatBuffer?
+--- @return senpai.ChatWindow?
 function M:get_chat(thread_id)
   return self.chats[thread_id]
 end
 
---- Show the current chat buffer
+--- Show the current chat window
 function M:show_current_chat()
   local chat = self:get_current_chat()
   if chat then
@@ -52,7 +52,7 @@ function M:show_current_chat()
   end
 end
 
---- Hide the current chat buffer
+--- Hide the current chat window
 function M:hide_current_chat()
   local chat = self:get_current_chat()
   if chat then
@@ -60,7 +60,7 @@ function M:hide_current_chat()
   end
 end
 
---- Toggle the current chat buffer
+--- Toggle the current chat window
 function M:toggle_current_chat()
   local chat = self:get_current_chat()
   if chat then
@@ -71,7 +71,7 @@ function M:toggle_current_chat()
   end
 end
 
---- Close the current chat buffer and remove from manager
+--- Close the current chat window and remove from manager
 function M:close_current_chat()
   if self.current then
     local chat = self.chats[self.current]

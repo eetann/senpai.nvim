@@ -1,8 +1,8 @@
 local Config = require("senpai.config")
 local Spinner = require("senpai.presentation.shared.spinner")
 local RequestHandler = require("senpai.presentation.shared.request_handler")
-local WriteChat = require("senpai.presentation.write_chat")
 local Split = require("nui.split")
+local utils = require("senpai.usecase.utils")
 
 vim.treesitter.language.register("markdown", "senpai_chat_log")
 vim.treesitter.language.register("markdown", "senpai_chat_input")
@@ -22,26 +22,18 @@ local win_options = {
   fillchars = "eob: ,lastline:…",
 }
 
----@class senpai.ChatBuffer
----@field provider provider
----@field provider_config senpai.Config.providers.Provider
----@field system_prompt string
----@field thread_id string
----@field chat_log NuiSplit|nil
----@field chat_input NuiSplit|nil
----@field hidden boolean
 local M = {}
 M.__index = M
 
----@class senpai.ChatBufferNewArgs
+---@class senpai.ChatWindowNewArgs
 ---@field provider? provider
 ---@field provider_config? senpai.Config.providers.Provider
 ---@field system_prompt? string
 ---@field thread_id? string
 
 ---@nodoc
----@param args senpai.ChatBufferNewArgs
----@return senpai.ChatBuffer
+---@param args senpai.ChatWindowNewArgs
+---@return senpai.ChatWindow
 function M.new(args)
   args = args or {}
   local self = setmetatable({}, M)
@@ -122,7 +114,7 @@ function M:action_send()
         return
       end
       if part.type == "0" then
-        WriteChat.set_text_at_last(self.chat_log.bufnr, part.content)
+        utils.set_text_at_last(self.chat_log.bufnr, part.content)
       end
     end,
     callback = function()
@@ -155,6 +147,19 @@ function M:show()
   if not self.chat_log then
     self:create_chat_log()
     self.chat_log:mount()
+    utils.set_text_at_last(
+      self.chat_log.bufnr,
+      string.format(
+        [[
+---
+provider: "%s"
+model: "%s"
+---
+]],
+        self.provider,
+        self.provider_config.model
+      )
+    )
   end
   self.chat_log:show()
 
