@@ -25,18 +25,27 @@ const app = new Hono();
 
 app.post("/hello", (c) => c.text("[senpai] Hello from Bun!"));
 app.post("/helloStream", (c) => {
-	return stream(c, async (stream) => {
-		// Write a process to be executed when aborted.
-		stream.onAbort(() => {
-			console.log("Aborted!");
-		});
-		const textStream = simulateReadableStream({
-			chunks: ["[senpai]\n", "Hello ", "Stream!\nbreak ", "test."],
+	return new Response(
+		simulateReadableStream({
+			chunks: [
+				`f:{"messageId":"step_123"}\n`,
+				`0:"[senapi] "\n`,
+				`0:"Hello!\\nThis "\n`,
+				`0:"is example."\n`,
+				`e:{"finishReason":"stop","usage":{"promptTokens":20,"completionTokens":50},"isContinued":false}\n`,
+				`d:{"finishReason":"stop","usage":{"promptTokens":20,"completionTokens":50}}\n`,
+			],
 			initialDelayInMs: 100,
 			chunkDelayInMs: 1000,
-		});
-		await stream.pipe(textStream);
-	});
+		}).pipeThrough(new TextEncoderStream()),
+		{
+			status: 200,
+			headers: {
+				"X-Vercel-AI-Data-Stream": "v1",
+				"Content-Type": "text/plain; charset=utf-8",
+			},
+		},
+	);
 });
 app.route("/", generateCommitMessage);
 app.route("/", chatController);

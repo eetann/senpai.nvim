@@ -22,9 +22,12 @@ end
 function M.hello_stream()
   RequestHandler.streamRequest({
     route = "/helloStream",
-    stream = function(_, chunk)
-      if chunk ~= "" then
-        WriteChat.set_text_at_last(vim.api.nvim_get_current_buf(), chunk)
+    stream = function(_, part)
+      if not part or not part.type or part.content == "" then
+        return
+      end
+      if part.type == "0" then
+        WriteChat.set_text_at_last(vim.api.nvim_get_current_buf(), part.content)
       end
     end,
     callback = function(response)

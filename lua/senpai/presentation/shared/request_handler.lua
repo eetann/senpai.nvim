@@ -68,7 +68,36 @@ function M.request(args)
   end)()
 end
 
----@alias senpai.RequestHandler.stream_fun fun(error: string, data: string): nil
+---@class senpai.data_stream_protocol
+---@field type string|nil
+---@field content string|table
+
+---parse "Data Stream Protocol by AI SDK"
+-- https://sdk.vercel.ai/docs/ai-sdk-ui/stream-protocol#data-stream-protocol
+---@param stream_part string|nil
+---@return senpai.data_stream_protocol
+function M.parse_stream_part(stream_part)
+  if not stream_part or stream_part == "" then
+    return { type = nil, content = "" }
+  end
+  -- TYPE_ID:CONTENT_JSON
+  local type_id, content_json = stream_part:match("^([^:]+):(.+)$")
+  if not type_id or not content_json then
+    return { type = nil, content = "" }
+  end
+
+  local success, content = pcall(vim.json.decode, content_json)
+  if not success then
+    return { type = nil, content = tostring(content) }
+  end
+
+  return {
+    type = type_id,
+    content = content,
+  }
+end
+
+---@alias senpai.RequestHandler.stream_fun fun(error: string, data: senpai.data_stream_protocol?): nil
 
 ---@class senapi.RequestHandler.stream_args
 ---@field route string
@@ -97,12 +126,18 @@ function M.streamRequest(args)
       raw = { "--no-buffer" }, -- NOTE: IMPORTANT!
       stream = function(error, data)
         vim.schedule(function()
-          args.stream(error, data)
+          if error then
+            vim.notify(
+              "[senpai] stream failed: " .. error,
+              vim.log.levels.ERROR
+            )
+          end
+          local part = M.parse_stream_part(data)
+          args.stream(error, part)
         end)
       end,
     })
     vim.schedule(function()
-      vim.print(response)
       args.callback(response)
     end)
   end)()

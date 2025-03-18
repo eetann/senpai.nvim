@@ -117,14 +117,12 @@ function M:action_send()
       system_prompt = self.system_prompt,
       text = table.concat(lines, "\n"),
     },
-    stream = function(error, chunk)
-      if chunk ~= "" then
-        vim.print(chunk)
-        -- WriteChat.set_plain_text(
-        --   self.chat_log.winid,
-        --   self.chat_log.bufnr,
-        --   chunk
-        -- )
+    stream = function(error, part)
+      if not part or not part.type or part.content == "" then
+        return
+      end
+      if part.type == "0" then
+        WriteChat.set_text_at_last(self.chat_log.bufnr, part.content)
       end
     end,
     callback = function()
