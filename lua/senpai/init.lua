@@ -2,19 +2,24 @@ local senpai = {}
 
 --[=[@doc
   category = "api"
-  name = "senpai.setup(config)"
-  desc = "Setup senpai"
+  name = "setup"
+  desc = """
+  ```lua
+  senpai.setup({...})
+  ```
+  Setup senpai
+  """
 
   [[args]]
   name = "config"
-  type = "senpai.Config"
+  type = "`|senpai.Config|`"
   desc = "Setup senpai"
 --]=]
 ---@param opts? senpai.Config see |senpai-config|
 senpai.setup = function(opts)
   require("senpai.config").setup(opts)
+  require("senpai.presentation.server").start_server()
   -- require("senpai.presentation.highlight").set_highlights()
-  require("senpai.presentation.autocmd").set_autocmds()
   require("senpai.command")
 end
 

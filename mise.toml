@@ -6,7 +6,8 @@ outputs = []
 
 [tasks.generate-doc]
 run = """
-docker run -v $(PWD):/data -i panvimdoc \
+bun run scripts/doc/generate.ts \
+&& docker run -v $(PWD):/data -i panvimdoc \
   --project-name senpai \
   --input-file README.md \
   --vim-version "NVIM v0.10.0" \
@@ -35,5 +36,4 @@ docker build --platform linux/arm64/v8 \
 """
 
 [env]
-DENOPS_TEST_DENOPS_PATH=".repro/data/nvim/lazy/denops.vim"
 COMMIT_MESSAGE_ENGLISH = 1

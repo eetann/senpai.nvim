@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "@ai-sdk/openai": "^1.2.5",
+    "@core/unknownutil": "npm:@jsr/core__unknownutil",
+    "@hono/zod-validator": "^0.4.3",
+    "@mastra/core": "^0.6.0",
+    "@mastra/memory": "^0.2.1",
+    "@openrouter/ai-sdk-provider": "^0.4.3",
+    "@qnighy/dedent": "npm:@jsr/qnighy__dedent",
+    "ai": "^4.1.61",
+    "globby": "^14.1.0",
+    "hono": "^4.7.4",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/bun": "^1.2.5",
+    "toml": "^3.0.0",
+    "valibot": "^1.0.0-rc.4"
+  }
+}

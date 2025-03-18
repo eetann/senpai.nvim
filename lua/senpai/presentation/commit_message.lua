@@ -1,5 +1,5 @@
 local Config = require("senpai.config")
-local WithDenops = require("senpai.presentation.shared.with_denops")
+local RequestHandler = require("senpai.presentation.shared.request_handler")
 local Spinner = require("senpai.presentation.shared.spinner")
 
 local M = {}
@@ -17,46 +17,52 @@ end
 
 --[=[@doc
   category = "api"
-  name = "senpai.generate_commit_message(language)"
-  desc = "AI generate conventional commit message of commitizen convention format."
+  name = "generate_commit_message"
+  desc = """
+  ```lua
+  senpai.generate_commit_message(language)
+  ````
+  AI generate conventional commit message of commitizen convention format.
+  """
 
   [[args]]
   name = "language"
   type = "string"
   desc = "Language of commit message"
+  [[args]]
+  name = "callback"
+  type = "senpai.RequestHandler.callback"
+  desc = "Function to be processed using the response"
 --]=]
----@param language? string
----@return string
-function M.generate_commit_message(language)
-  local lang = language and language or Config.get_commit_message_language()
+---@param language string
+---@param callback senpai.RequestHandler.callback_fun
+---@return nil
+function M.generate_commit_message(language, callback)
   local provider, provider_config = Config.get_provider()
   if not provider_config then
     vim.notify("[senpai] provider not found", vim.log.levels.WARN)
     return ""
   end
-  local spinner = Spinner.new("[Senpai] AI thinking")
-  spinner:start()
-  local is_success_load = WithDenops.wait_for_setup()
-  if is_success_load ~= 0 then
-    vim.notify("[senpai] error code: " .. is_success_load, vim.log.levels.WARN)
-    vim.notify("[senpai] plugin not loaded", vim.log.levels.WARN)
-    return ""
-  end
-  local response = vim.fn["denops#request"]("senpai", "generateCommitMessage", {
-    {
+  RequestHandler.request({
+    route = "/generate-commit-message",
+    body = {
       provider = provider,
       provider_config = provider_config,
-      language = lang,
+      language = language,
     },
+    callback = callback,
   })
-  spinner:stop()
-  return response
 end
 
 --[=[@doc
   category = "api"
-  name = "senpai.write_commit_message(language)"
-  desc = "AI write conventional commit message of commitizen convention format."
+  name = "write_commit_message"
+  desc = """
+  ```lua
+  senpai.write_commit_message(language)
+  ````
+  AI write conventional commit message of commitizen convention format.
+  """
 
   [[args]]
   name = "language"
@@ -68,12 +74,17 @@ end
 ---@return nil
 function M.write_commit_message(language)
   local lang = language and language or Config.get_commit_message_language()
-  local commit_message = M.generate_commit_message(lang)
-  if not commit_message then
-    vim.notify("[senpai] write_commit_message failed")
-    return
-  end
-  replace_current_line(commit_message)
+
+  local spinner = Spinner.new("[senpai] AI thinking")
+  spinner:start()
+  M.generate_commit_message(lang, function(response)
+    spinner:stop()
+    if response.exit ~= 0 then
+      vim.notify("[senpai] write_commit_message failed")
+      return
+    end
+    replace_current_line(response.body)
+  end)
 end
 
 return M

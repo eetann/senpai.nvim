@@ -10,7 +10,7 @@ local plugins = {
     dir = vim.uv.cwd(),
     lazy = true,
     dependencies = {
-      "vim-denops/denops.vim",
+      "nvim-lua/plenary.nvim",
     },
     -- opts = {},
   },
