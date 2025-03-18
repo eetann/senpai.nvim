@@ -27,20 +27,9 @@ function M.set_plain_text(winid, buffer, text)
   return position1based
 end
 
--- TODO:
-function M.set_stream_text(winid, buffer, textStream)
-  local position = M.get_end_position1based(winid)
-  for _, chunk in ipairs(textStream) do
-    local lines = vim.split(chunk, "\n")
-    M.set_text_1based_position(buffer, position, lines)
-    local row_length = #lines
-    position.row = position.row + row_length - 1
-    if row_length > 1 then
-      position.col = 1
-    end
-    position.col = position.col + string.len(lines[row_length])
-  end
-  M.set_text_1based_position(buffer, position, { "" })
+function M.set_text_at_last(buffer, text)
+  local lines = vim.split(text, "\n")
+  vim.api.nvim_buf_set_text(buffer, -1, -1, -1, -1, lines)
 end
 
 return M

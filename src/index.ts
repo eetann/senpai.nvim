@@ -1,6 +1,7 @@
 import { parseArgs } from "node:util";
+import { simulateReadableStream } from "ai";
 import { Hono } from "hono";
-import { streamText } from "hono/streaming";
+import { stream } from "hono/streaming";
 import chatController from "./presentation/chatController";
 import generateCommitMessage from "./presentation/generateCommitMessage";
 
@@ -24,12 +25,17 @@ const app = new Hono();
 
 app.post("/hello", (c) => c.text("[senpai] Hello from Bun!"));
 app.post("/helloStream", (c) => {
-	return streamText(c, async (stream) => {
-		await stream.writeln("[senpai] ");
-		await stream.sleep(1000);
-		await stream.writeln("Hello ");
-		await stream.sleep(1000);
-		await stream.write("Stream!");
+	return stream(c, async (stream) => {
+		// Write a process to be executed when aborted.
+		stream.onAbort(() => {
+			console.log("Aborted!");
+		});
+		const textStream = simulateReadableStream({
+			chunks: ["[senpai]\n", "Hello ", "Stream!\nbreak ", "test."],
+			initialDelayInMs: 100,
+			chunkDelayInMs: 1000,
+		});
+		await stream.pipe(textStream);
 	});
 });
 app.route("/", generateCommitMessage);

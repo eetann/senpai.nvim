@@ -22,16 +22,10 @@ end
 function M.hello_stream()
   RequestHandler.streamRequest({
     route = "/helloStream",
-    stream = function(error, chunk)
-      if error then
-        vim.notify("error " .. error, vim.log.levels.ERROR)
-        return
+    stream = function(_, chunk)
+      if chunk ~= "" then
+        WriteChat.set_text_at_last(vim.api.nvim_get_current_buf(), chunk)
       end
-      WriteChat.set_plain_text(
-        vim.api.nvim_get_current_win(),
-        vim.api.nvim_get_current_buf(),
-        chunk
-      )
     end,
     callback = function(response)
       if response.exit ~= 0 then

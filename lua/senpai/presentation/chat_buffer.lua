@@ -108,23 +108,29 @@ function M:action_send()
     end
   )
   spinner:start()
-  RequestHandler.request("/chat", {
-    thread_id = self.thread_id,
-    provider = self.provider,
-    provider_config = self.provider_config,
-    system_prompt = self.system_prompt,
-    text = table.concat(lines, "\n"),
-  }, function(error, chunk)
-    vim.schedule(function()
-      if error then
-        vim.notify("error " .. error, vim.log.levels.ERROR)
-        return
+  RequestHandler.streamRequest({
+    route = "/chat",
+    body = {
+      thread_id = self.thread_id,
+      provider = self.provider,
+      provider_config = self.provider_config,
+      system_prompt = self.system_prompt,
+      text = table.concat(lines, "\n"),
+    },
+    stream = function(error, chunk)
+      if chunk ~= "" then
+        vim.print(chunk)
+        -- WriteChat.set_plain_text(
+        --   self.chat_log.winid,
+        --   self.chat_log.bufnr,
+        --   chunk
+        -- )
       end
-      WriteChat.set_plain_text(self.chat_log.winid, self.chat_log.bufnr, chunk)
-    end)
-  end, function()
-    spinner:stop()
-  end)
+    end,
+    callback = function()
+      spinner:stop()
+    end,
+  })
 end
 
 function M:create_chat_input()

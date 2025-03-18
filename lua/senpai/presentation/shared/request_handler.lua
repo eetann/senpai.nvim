@@ -102,6 +102,7 @@ function M.streamRequest(args)
       end,
     })
     vim.schedule(function()
+      vim.print(response)
       args.callback(response)
     end)
   end)()

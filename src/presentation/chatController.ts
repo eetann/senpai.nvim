@@ -36,7 +36,7 @@ app.post(
 				resourceId: "senpai",
 			},
 		);
-		return agentStream.toTextStreamResponse();
+		return agentStream.toDataStreamResponse();
 	},
 );
 
