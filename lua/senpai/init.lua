@@ -18,7 +18,7 @@ local senpai = {}
 ---@param opts? senpai.Config see |senpai-config|
 senpai.setup = function(opts)
   require("senpai.config").setup(opts)
-  require("senpai.presentation.server").start_server()
+  require("senpai.presentation.client").start_server()
   -- require("senpai.presentation.highlight").set_highlights()
   require("senpai.command")
 end

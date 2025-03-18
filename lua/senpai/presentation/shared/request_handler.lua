@@ -1,6 +1,6 @@
 local async = require("plenary.async")
 local curl = require("plenary.curl")
-local Server = require("senpai.presentation.server")
+local Client = require("senpai.presentation.client")
 
 local M = {}
 
@@ -46,8 +46,8 @@ end, 2)
 ---@param args senapi.RequestHandler.callback_args
 ---@return nil
 function M.request(args)
-  Server.start_server()
-  if not Server.port then
+  Client.start_server()
+  if not Client.port then
     vim.notify(
       "[senpai] Server startup failed. Please try again.",
       vim.log.levels.ERROR
@@ -56,7 +56,7 @@ function M.request(args)
   end
   async.void(function()
     local response = M.post({
-      url = "http://localhost:" .. Server.port .. args.route,
+      url = "http://localhost:" .. Client.port .. args.route,
       body = args.body and vim.fn.json_encode(args.body) or nil,
       headers = {
         content_type = "application/json",
@@ -108,8 +108,8 @@ end
 ---@param args senapi.RequestHandler.stream_args
 ---@return nil
 function M.streamRequest(args)
-  Server.start_server()
-  if not Server.port then
+  Client.start_server()
+  if not Client.port then
     vim.notify(
       "[senpai] Server startup failed. Please try again.",
       vim.log.levels.ERROR
@@ -118,7 +118,7 @@ function M.streamRequest(args)
   end
   async.void(function()
     local response = M.post({
-      url = "http://localhost:" .. Server.port .. args.route,
+      url = "http://localhost:" .. Client.port .. args.route,
       body = args.body and vim.fn.json_encode(args.body) or nil,
       headers = {
         content_type = "application/json",
