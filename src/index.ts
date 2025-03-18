@@ -1,7 +1,6 @@
 import { parseArgs } from "node:util";
 import { simulateReadableStream } from "ai";
 import { Hono } from "hono";
-import { stream } from "hono/streaming";
 import chatController from "./presentation/chatController";
 import generateCommitMessage from "./presentation/generateCommitMessage";
 
