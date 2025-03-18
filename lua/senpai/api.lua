@@ -21,7 +21,7 @@ end
 
 function M.hello_stream()
   RequestHandler.streamRequest({
-    route = "/helloStream",
+    route = "/hello-stream",
     stream = function(_, part)
       if not part or not part.type or part.content == "" then
         return

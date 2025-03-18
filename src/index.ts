@@ -24,7 +24,7 @@ if (Number.isNaN(port)) {
 const app = new Hono();
 
 app.post("/hello", (c) => c.text("[senpai] Hello from Bun!"));
-app.post("/helloStream", (c) => {
+app.post("/hello-stream", (c) => {
 	return new Response(
 		simulateReadableStream({
 			chunks: [
