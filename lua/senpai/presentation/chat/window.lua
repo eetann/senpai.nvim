@@ -3,6 +3,7 @@ local Spinner = require("senpai.presentation.shared.spinner")
 local RequestHandler = require("senpai.presentation.shared.request_handler")
 local Split = require("nui.split")
 local utils = require("senpai.usecase.utils")
+local send_text = require("senpai.usecase.send_text")
 
 vim.treesitter.language.register("markdown", "senpai_chat_log")
 vim.treesitter.language.register("markdown", "senpai_chat_input")
@@ -22,6 +23,7 @@ local win_options = {
   fillchars = "eob: ,lastline:…",
 }
 
+---@class senpai.ChatWindow: senpai.ChatWindow.Config
 local M = {}
 M.__index = M
 
@@ -69,60 +71,6 @@ function M:create_chat_log()
   end)
 end
 
-function M:action_send()
-  local lines = vim.api.nvim_buf_get_lines(self:get_input_buf(), 0, -1, false)
-  vim.api.nvim_buf_set_lines(self:get_input_buf(), 0, -1, false, {})
-
-  local spinner = Spinner.new(
-    "Senpai thinking",
-    -- update
-    function(message)
-      vim.api.nvim_set_option_value(
-        "winbar",
-        create_winbar_text(message),
-        { win = self.chat_input.winid }
-      )
-    end,
-    -- finish
-    function(message)
-      vim.api.nvim_set_option_value(
-        "winbar",
-        create_winbar_text(message),
-        { win = self.chat_input.winid }
-      )
-      vim.defer_fn(function()
-        vim.api.nvim_set_option_value(
-          "winbar",
-          create_winbar_text("Ask Senpai"),
-          { win = self.chat_input.winid }
-        )
-      end, 2000)
-    end
-  )
-  spinner:start()
-  RequestHandler.streamRequest({
-    route = "/chat",
-    body = {
-      thread_id = self.thread_id,
-      provider = self.provider,
-      provider_config = self.provider_config,
-      system_prompt = self.system_prompt,
-      text = table.concat(lines, "\n"),
-    },
-    stream = function(error, part)
-      if not part or not part.type or part.content == "" then
-        return
-      end
-      if part.type == "0" then
-        utils.set_text_at_last(self.chat_log.bufnr, part.content)
-      end
-    end,
-    callback = function()
-      spinner:stop()
-    end,
-  })
-end
-
 function M:create_chat_input()
   self.chat_input = Split({
     relative = "win",
@@ -136,7 +84,7 @@ function M:create_chat_input()
     },
   })
   self.chat_input:map("n", "<CR><CR>", function()
-    self:action_send()
+    send_text:execute(self)
   end)
   self.chat_input:map("n", "q", function()
     self:hide()

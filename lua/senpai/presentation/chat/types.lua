@@ -1,4 +1,4 @@
----@class senpai.ChatWindow
+---@class senpai.ChatWindow.Config
 ---@field provider provider
 ---@field provider_config senpai.Config.providers.Provider
 ---@field system_prompt string
