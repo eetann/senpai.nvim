@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 March 14
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 March 18
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -54,9 +54,14 @@ senpai.generate_commit_message(language) ~
 
 AI generate conventional commit message of commitizen convention format.
 
-  Name       Type     Description
-  ---------- -------- ----------------------------
-  language   string   Language of commit message
+  ---------------------------------------------------------------------------------------
+  Name              Type                             Description
+  ----------------- -------------------------------- ------------------------------------
+  language          string                           Language of commit message
+
+  callback          senpai.RequestHandler.callback   Function to be processed using the
+                                                     response
+  ---------------------------------------------------------------------------------------
  
 
 senpai.setup(config) ~
@@ -97,6 +102,51 @@ detail -> |senpai.write_commit_message|
   language   language
  
 
+toggleChat ~
+
+|senpai-chat|
+
+_No arguments_  
+
+commitMessage ~
+
+detail -> |senpai.write_commit_message|
+
+  Name       Description
+  ---------- -------------
+  language   language
+ 
+
+toggleChat ~
+
+|senpai-chat|
+
+_No arguments_  
+
+commitMessage ~
+
+detail -> |senpai.write_commit_message|
+
+  Name       Description
+  ---------- -------------
+  language   language
+ 
+
+toggleChat ~
+
+|senpai-chat|
+
+_No arguments_  
+
+commitMessage ~
+
+detail -> |senpai.write_commit_message|
+
+  Name       Description
+  ---------- -------------
+  language   language
+ 
+
 
 TYPE                                                 *senpai-senpai.nvim-type*
 
@@ -106,11 +156,7 @@ TYPE                                                 *senpai-senpai.nvim-type*
     ---@class senpai.Config
     ---@field provider? provider
     ---@field providers? table<string, senpai.Config.providers.Provider>
-    ---   see |senpai-config-providers|
     ---@field commit_message? senpai.Config.commit_message
-    ---   see |senpai-config-commit-message|
-    ---
-    ---@eval return require("senpai.config")._format_default()
 <
 
 *senpai.Config.commit_message*
@@ -120,9 +166,7 @@ TYPE                                                 *senpai-senpai.nvim-type*
     ---@field language string|(fun(): string) Supports languages that AI knows
     ---   It doesn't have to be strictly natural language,
     ---   since the prompt is as follows
-    ---   >typescript
     ---    `subject and body should be written in ${language}.`
-    --- <
     ---   That means the AI can write it in a tsundere style as well.
     ---   Like this.
     ---     `:Senpai commitMessage English(Tsundere)`

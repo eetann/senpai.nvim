@@ -49,6 +49,7 @@ AI generate conventional commit message of commitizen convention format.
 | Name | Type | Description |
 |------|------|-------------|
 | language | string | Language of commit message |
+| callback | senpai.RequestHandler.callback | Function to be processed using the response |
 
 &nbsp;
 
@@ -121,6 +122,102 @@ detail -> |senpai.write_commit_message|
 
 &nbsp;
 
+
+
+<!-- panvimdoc-include-comment toggleChat ~ -->
+
+<!-- panvimdoc-ignore-start -->
+### :Senpai toggleChat
+<!-- panvimdoc-ignore-end -->
+
+|senpai-chat|
+
+_No arguments_
+&nbsp;
+
+<!-- auto-generate-e:command -->
+<!-- auto-generate-s:command -->
+
+
+<!-- panvimdoc-include-comment commitMessage ~ -->
+
+<!-- panvimdoc-ignore-start -->
+### :Senpai commitMessage
+<!-- panvimdoc-ignore-end -->
+
+detail -> |senpai.write_commit_message|
+
+
+| Name | Description |
+|------|-------------|
+| language | language |
+
+&nbsp;
+
+
+
+<!-- panvimdoc-include-comment toggleChat ~ -->
+
+<!-- panvimdoc-ignore-start -->
+### :Senpai toggleChat
+<!-- panvimdoc-ignore-end -->
+
+|senpai-chat|
+
+_No arguments_
+&nbsp;
+
+<!-- auto-generate-e:command -->
+<!-- auto-generate-s:command -->
+
+
+<!-- panvimdoc-include-comment commitMessage ~ -->
+
+<!-- panvimdoc-ignore-start -->
+### :Senpai commitMessage
+<!-- panvimdoc-ignore-end -->
+
+detail -> |senpai.write_commit_message|
+
+
+| Name | Description |
+|------|-------------|
+| language | language |
+
+&nbsp;
+
+
+
+<!-- panvimdoc-include-comment toggleChat ~ -->
+
+<!-- panvimdoc-ignore-start -->
+### :Senpai toggleChat
+<!-- panvimdoc-ignore-end -->
+
+|senpai-chat|
+
+_No arguments_
+&nbsp;
+
+<!-- auto-generate-e:command -->
+<!-- auto-generate-s:command -->
+
+
+<!-- panvimdoc-include-comment commitMessage ~ -->
+
+<!-- panvimdoc-ignore-start -->
+### :Senpai commitMessage
+<!-- panvimdoc-ignore-end -->
+
+detail -> |senpai.write_commit_message|
+
+
+| Name | Description |
+|------|-------------|
+| language | language |
+
+&nbsp;
+
 <!-- auto-generate-e:command -->
 <!-- auto-generate-s:command -->
 
@@ -134,11 +231,7 @@ detail -> |senpai.write_commit_message|
 ---@class senpai.Config
 ---@field provider? provider
 ---@field providers? table<string, senpai.Config.providers.Provider>
----   see |senpai-config-providers|
 ---@field commit_message? senpai.Config.commit_message
----   see |senpai-config-commit-message|
----
----@eval return require("senpai.config")._format_default()
 ```
 
 
@@ -150,9 +243,7 @@ detail -> |senpai.write_commit_message|
 ---@field language string|(fun(): string) Supports languages that AI knows
 ---   It doesn't have to be strictly natural language,
 ---   since the prompt is as follows
----   >typescript
 ---    `subject and body should be written in ${language}.`
---- <
 ---   That means the AI can write it in a tsundere style as well.
 ---   Like this.
 ---     `:Senpai commitMessage English(Tsundere)`
