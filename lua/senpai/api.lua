@@ -56,5 +56,6 @@ end
 return setmetatable(M, {
   __index = function(_, k)
     return require("senpai.presentation.commit_message")[k]
+      or require("senpai.presentation.history")[k]
   end,
 })

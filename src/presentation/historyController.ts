@@ -4,7 +4,7 @@ import { Hono } from "hono";
 
 const app = new Hono();
 
-app.post("/getHistory", async (c) => {
+app.post("/get-history", async (c) => {
 	const threads = await new GetHistoryUseCase(memory).execute();
 	return c.json(threads);
 });
