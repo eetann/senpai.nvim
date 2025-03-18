@@ -37,6 +37,8 @@ app.post(
 				resourceId: "senpai",
 			},
 		);
+		// const thread = await memory.getThreadById({ threadId: command.thread_id });
+		// console.error({ thread });
 		return agentStream.toDataStreamResponse();
 	},
 );
