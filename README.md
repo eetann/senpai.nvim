@@ -19,7 +19,7 @@ it will be recognized.
 
 
 # Installation
-with[Lazy.nvim](https://github.com/folke/lazy.nvim)
+with [Lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
 {
     "eetann/senpai.nvim", 
@@ -38,7 +38,7 @@ with [packer.nvim](https://github.com/wbthomason/packer.nvim)
 }
 ```
 
-# default Config
+# Default config
 <!-- auto-generate-s:default_config -->
 ```lua
 {
