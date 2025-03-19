@@ -5,6 +5,7 @@ local Client = require("senpai.presentation.client")
 local M = {}
 
 ---@class senpai.RequestHandler.opts
+---@field method "get"|"post"|"put"|"head"|"patch"|"delete"
 ---@field url string The url to make the request to.
 ---@field query? table url query, append after the url
 ---@field body? string|table The request body
@@ -27,25 +28,24 @@ local M = {}
 ---@alias senpai.RequestHandler.callback_fun fun(response: senpai.RequestHandler.return): nil
 
 ---@type fun(opts: senpai.RequestHandler.opts): senpai.RequestHandler.return
-M.get = async.wrap(function(opts, callback)
+M.curl = async.wrap(function(opts, callback)
   opts.callback = callback
-  curl.get(opts)
+  curl.request(opts)
 end, 2)
 
----@type fun(opts: senpai.RequestHandler.opts): senpai.RequestHandler.return
-M.post = async.wrap(function(opts, callback)
-  opts.callback = callback
-  curl.post(opts)
-end, 2)
-
----@class senapi.RequestHandler.callback_args
+---@class senapi.RequestHandler.base_args
+---@field method "get"|"post"|"put"|"head"|"patch"|"delete"
 ---@field route string
 ---@field body table|nil
 ---@field callback senpai.RequestHandler.callback_fun
 
----@param args senapi.RequestHandler.callback_args
+---@class senapi.RequestHandler.stream_args : senapi.RequestHandler.base_args
+---@field stream senpai.RequestHandler.stream_fun
+
+---@param args senapi.RequestHandler.base_args|senapi.RequestHandler.stream_args
+---@param use_stream boolean
 ---@return nil
-function M.request(args)
+function M._request_base(args, use_stream)
   Client.start_server()
   if not Client.port then
     vim.notify(
@@ -55,17 +55,46 @@ function M.request(args)
     return
   end
   async.void(function()
-    local response = M.post({
+    local opts = {
+      method = args.method,
       url = "http://localhost:" .. Client.port .. args.route,
       body = args.body and vim.fn.json_encode(args.body) or nil,
       headers = {
         content_type = "application/json",
       },
-    })
+    }
+
+    if use_stream then
+      opts.raw = { "--no-buffer" }
+      opts.stream = function(error, data)
+        vim.schedule(function()
+          if error then
+            vim.notify(
+              "[senpai] stream failed: " .. error,
+              vim.log.levels.ERROR
+            )
+          end
+          local part = M.parse_stream_part(data)
+          args.stream(error, part)
+        end)
+      end
+    end
+
+    local response = M.curl(opts)
     vim.schedule(function()
+      if response.status == 404 then
+        vim.notify("[senpai] 404", vim.log.levels.ERROR)
+        return
+      end
       args.callback(response)
     end)
   end)()
+end
+
+---@param args senapi.RequestHandler.base_args
+---@return nil
+function M.request(args)
+  M._request_base(args, false)
 end
 
 ---@class senpai.data_stream_protocol
@@ -99,48 +128,10 @@ end
 
 ---@alias senpai.RequestHandler.stream_fun fun(error: string, data: senpai.data_stream_protocol?): nil
 
----@class senapi.RequestHandler.stream_args
----@field route string
----@field body table|nil
----@field stream senpai.RequestHandler.stream_fun
----@field callback senpai.RequestHandler.callback_fun
-
 ---@param args senapi.RequestHandler.stream_args
 ---@return nil
 function M.streamRequest(args)
-  Client.start_server()
-  if not Client.port then
-    vim.notify(
-      "[senpai] Server startup failed. Please try again.",
-      vim.log.levels.ERROR
-    )
-    return
-  end
-  async.void(function()
-    local response = M.post({
-      url = "http://localhost:" .. Client.port .. args.route,
-      body = args.body and vim.fn.json_encode(args.body) or nil,
-      headers = {
-        content_type = "application/json",
-      },
-      raw = { "--no-buffer" }, -- NOTE: IMPORTANT!
-      stream = function(error, data)
-        vim.schedule(function()
-          if error then
-            vim.notify(
-              "[senpai] stream failed: " .. error,
-              vim.log.levels.ERROR
-            )
-          end
-          local part = M.parse_stream_part(data)
-          args.stream(error, part)
-        end)
-      end,
-    })
-    vim.schedule(function()
-      args.callback(response)
-    end)
-  end)()
+  M._request_base(args, true)
 end
 
 return M

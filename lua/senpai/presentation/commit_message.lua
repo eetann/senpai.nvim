@@ -44,6 +44,7 @@ function M.generate_commit_message(language, callback)
   end
   RequestHandler.request({
     route = "/generate-commit-message",
+    method = "post",
     body = {
       provider = provider,
       language = language,

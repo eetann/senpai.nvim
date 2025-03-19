@@ -8,6 +8,7 @@ local M = {}
 
 function M.hello()
   RequestHandler.request({
+    method = "get",
     route = "/hello",
     callback = function(response)
       if response.exit ~= 0 then
@@ -21,7 +22,8 @@ end
 
 function M.hello_stream()
   RequestHandler.streamRequest({
-    route = "/hello-stream",
+    method = "post",
+    route = "/hello/stream",
     stream = function(_, part)
       if not part or not part.type or part.content == "" then
         return
