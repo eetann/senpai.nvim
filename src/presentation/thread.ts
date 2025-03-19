@@ -18,18 +18,99 @@ const threadSchema = z.object({
 });
 
 // import { CoreMessage } from "ai";
-// type CoreMessage
+const systemMessageSchema = z.object({
+	role: z.literal("system"),
+	content: z.string(),
+});
+
+// TextPart のスキーマ
+const textPartSchema = z.object({
+	type: z.literal("text"),
+	text: z.string(),
+});
+
+// DataContent のスキーマ
+// string, Uint8Array, ArrayBuffer, Buffer を許容します
+// 注: Uint8Array, ArrayBuffer, Buffer は実際にはzodでは直接検証できないため、
+// anyを使用していますが、実際の使用時は適切なバリデーションが必要です
+const dataContentSchema = z.union([
+	z.string(),
+	z.instanceof(Uint8Array),
+	z.instanceof(ArrayBuffer),
+	z.any(), // Buffer用
+]);
+
+// ImagePart のスキーマ
+const imagePartSchema = z.object({
+	type: z.literal("image"),
+	image: z.union([dataContentSchema, z.instanceof(URL)]),
+	mimeType: z.string().optional(),
+});
+
+// FilePart のスキーマ
+const filePartSchema = z.object({
+	type: z.literal("file"),
+	data: z.union([dataContentSchema, z.instanceof(URL)]),
+	filename: z.string().optional(),
+	mimeType: z.string(),
+});
+
+// UserContent のスキーマ
+const userContentSchema = z.union([
+	z.string(),
+	z.array(z.union([textPartSchema, imagePartSchema, filePartSchema])),
+]);
+
+const userMessageSchema = z.object({
+	role: z.literal("user"),
+	content: userContentSchema,
+});
+
+const reasoningPartSchema = z.object({
+	type: z.literal("reasoning"),
+	text: z.string(),
+	signature: z.string().optional(),
+});
+
+const toolCallPartSchema = z.object({
+	type: z.literal("tool-call"),
+	toolCallId: z.string(),
+	toolName: z.string(),
+	args: z.unknown(), // 任意のJSON化可能なオブジェクト
+});
+
+const redactedReasoningPartSchema = z.object({
+	type: z.literal("redacted-reasoning"),
+	data: z.string(),
+});
+
+const assistantContentSchema = z.union([
+	z.string(),
+	z.array(
+		z.union([
+			textPartSchema,
+			reasoningPartSchema,
+			redactedReasoningPartSchema,
+			toolCallPartSchema,
+		]),
+	),
+]);
+
+const assistantMessageSchema = z.object({
+	role: z.literal("assistant"),
+	content: assistantContentSchema,
+});
+
+const toolMessageSchema = z.object({
+	role: z.literal("tool"),
+	content: z.array(z.any()),
+});
+
 const messageSchema = z.discriminatedUnion("role", [
-	z.object({ role: z.literal("system"), content: z.string() }),
-	z.object({
-		role: z.literal("user"),
-		content: z.union([z.string(), z.array(z.any())]),
-	}),
-	z.object({
-		role: z.literal("assistant"),
-		content: z.union([z.string(), z.any()]),
-	}),
-	z.object({ role: z.literal("tool"), content: z.array(z.any()) }),
+	systemMessageSchema,
+	userMessageSchema,
+	assistantMessageSchema,
+	toolMessageSchema,
 ]);
 
 app.openapi(
