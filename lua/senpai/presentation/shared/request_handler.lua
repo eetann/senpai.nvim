@@ -43,11 +43,13 @@ end, 2)
 ---@field stream senpai.RequestHandler.stream_fun
 
 ---@param args senapi.RequestHandler.base_args|senapi.RequestHandler.stream_args
+---@param finish_callback fun():nil For example, stopping a spinner.
 ---@param use_stream boolean
 ---@return nil
-function M._request_base(args, use_stream)
+function M._request_base(args, finish_callback, use_stream)
   Client.start_server()
   if not Client.port then
+    finish_callback()
     vim.notify(
       "[senpai] Server startup failed. Please try again.",
       vim.log.levels.ERROR
@@ -82,6 +84,7 @@ function M._request_base(args, use_stream)
 
     local response = M.curl(opts)
     vim.schedule(function()
+      finish_callback()
       if response.status == 404 then
         vim.notify("[senpai] 404", vim.log.levels.ERROR)
         return
@@ -92,9 +95,10 @@ function M._request_base(args, use_stream)
 end
 
 ---@param args senapi.RequestHandler.base_args
+---@param finish_callback? fun():nil For example, stopping a spinner.
 ---@return nil
-function M.request(args)
-  M._request_base(args, false)
+function M.request(args, finish_callback)
+  M._request_base(args, finish_callback or function() end, false)
 end
 
 ---@class senpai.data_stream_protocol
@@ -129,9 +133,10 @@ end
 ---@alias senpai.RequestHandler.stream_fun fun(error: string, data: senpai.data_stream_protocol?): nil
 
 ---@param args senapi.RequestHandler.stream_args
+---@param finish_callback? fun():nil For example, stopping a spinner.
 ---@return nil
-function M.streamRequest(args)
-  M._request_base(args, true)
+function M.streamRequest(args, finish_callback)
+  M._request_base(args, finish_callback or function() end, true)
 end
 
 return M
