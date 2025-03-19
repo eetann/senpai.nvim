@@ -7,7 +7,8 @@ local M = {}
 ---@return nil
 function M.get_thread(thread_id, callback)
   RequestHandler.request({
-    route = "/get-thread",
+    method = "post",
+    route = "/thread/messages",
     body = {
       thread_id = thread_id,
     },

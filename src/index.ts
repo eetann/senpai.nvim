@@ -3,7 +3,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import chatController from "./presentation/chatController";
 import generateCommitMessage from "./presentation/generateCommitMessage";
 import hello from "./presentation/hello";
-import historyController from "./presentation/historyController";
+import thread from "./presentation/thread";
 
 const { values } = parseArgs({
 	args: Bun.argv,
@@ -33,7 +33,7 @@ app.doc("/doc", {
 app.route("/", hello);
 app.route("/", generateCommitMessage);
 app.route("/", chatController);
-app.route("/", historyController);
+app.route("/", thread);
 
 export default {
 	port,
