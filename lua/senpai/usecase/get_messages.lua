@@ -3,9 +3,9 @@ local RequestHandler = require("senpai.presentation.shared.request_handler")
 local M = {}
 
 ---@param thread_id string
----@param callback senpai.RequestHandler.callback_fun
+---@param callback fun(messages: senpai.chat.message?): nil
 ---@return nil
-function M.get_thread(thread_id, callback)
+function M.execute(thread_id, callback)
   RequestHandler.request({
     method = "post",
     route = "/thread/messages",
@@ -19,8 +19,11 @@ function M.get_thread(thread_id, callback)
           vim.log.levels.WARN
         )
       end
-      -- TODO: ここから
-      callback(vim.json.decocde(response.body))
+      local ok, messages = pcall(vim.json.decode, response.body)
+      if not ok or type(messages) ~= "table" then
+        messages = {}
+      end
+      callback(messages)
     end,
   })
 end

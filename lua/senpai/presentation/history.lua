@@ -6,7 +6,8 @@ local M = {}
 ---@return nil
 function M.get_history(callback)
   RequestHandler.request({
-    route = "/get-history",
+    method = "get",
+    route = "/thread",
     callback = callback,
   })
 end
