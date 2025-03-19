@@ -1,6 +1,5 @@
-import { threadId } from "node:worker_threads";
 import { GetFiles } from "@/infra/GetFiles";
-import { getModel, providerConfigSchema } from "@/infra/GetModel";
+import { getModel, providerSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
 import { zValidator } from "@hono/zod-validator";
@@ -11,8 +10,7 @@ const app = new Hono();
 
 const chatControllerCommandSchema = z.object({
 	thread_id: z.string(),
-	provider: z.optional(z.string()),
-	provider_config: z.optional(providerConfigSchema),
+	provider: providerSchema,
 	system_prompt: z.optional(z.string()),
 	text: z.string(),
 });
@@ -24,7 +22,7 @@ app.post(
 	zValidator("json", chatControllerCommandSchema),
 	async (c) => {
 		const command = c.req.valid("json");
-		const model = getModel(command.provider, command.provider_config);
+		const model = getModel(command.provider);
 		const agent = new ChatAgent(memory, GetFiles, model, command.system_prompt);
 		const thread = await memory.getThreadById({ threadId: command.thread_id });
 		let isFirstMessage = false;
@@ -52,7 +50,6 @@ app.post(
 				title: thread.title,
 				metadata: {
 					provider: command.provider,
-					provider_config: command.provider_config,
 				},
 			});
 		}

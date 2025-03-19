@@ -1,6 +1,5 @@
 ---@class senpai.ChatWindow.Config
----@field provider provider
----@field provider_config senpai.Config.providers.Provider
+---@field provider senpai.Config.provider
 ---@field system_prompt string
 ---@field thread_id string
 ---@field chat_log NuiSplit|nil

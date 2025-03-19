@@ -1,4 +1,4 @@
-import { getModel, providerConfigSchema } from "@/infra/GetModel";
+import { getModel, providerSchema } from "@/infra/GetModel";
 import { GitDiff } from "@/infra/GitDiff";
 import { GenerateCommitMessageUseCase } from "@/usecase/GenerateCommitMessageUseCase";
 import { zValidator } from "@hono/zod-validator";
@@ -8,8 +8,7 @@ import { z } from "zod";
 const app = new Hono();
 
 const generateCommitMessageCommand = z.object({
-	provider: z.string(),
-	provider_config: providerConfigSchema,
+	provider: providerSchema,
 	language: z.string(),
 });
 
@@ -22,7 +21,7 @@ app.post(
 	zValidator("json", generateCommitMessageCommand),
 	async (c) => {
 		const command = c.req.valid("json");
-		const model = getModel(command.provider, command.provider_config);
+		const model = getModel(command.provider);
 		return c.text(
 			await new GenerateCommitMessageUseCase(model, GitDiff).execute(
 				command.language,

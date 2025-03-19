@@ -1,6 +1,4 @@
 local Config = require("senpai.config")
-local Spinner = require("senpai.presentation.shared.spinner")
-local RequestHandler = require("senpai.presentation.shared.request_handler")
 local Split = require("nui.split")
 local utils = require("senpai.usecase.utils")
 local send_text = require("senpai.usecase.send_text")
@@ -29,22 +27,24 @@ local M = {}
 M.__index = M
 
 ---@class senpai.ChatWindowNewArgs
----@field provider? provider
----@field provider_config? senpai.Config.providers.Provider
+---@field provider? senpai.Config.provider
 ---@field system_prompt? string
 ---@field thread_id? string
 
 ---@nodoc
 ---@param args senpai.ChatWindowNewArgs
----@return senpai.ChatWindow
+---@return senpai.ChatWindow|nil
 function M.new(args)
   args = args or {}
   local self = setmetatable({}, M)
-  if args.provider and args.provider_config then
+  if args.provider then
     self.provider = args.provider
-    self.provider_config = args.provider_config
   else
-    self.provider, self.provider_config = Config.get_provider()
+    local provider = Config.get_provider()
+    if not provider then
+      return
+    end
+    self.provider = provider
   end
 
   self.thread_id = args.thread_id
@@ -105,8 +105,7 @@ provider: "%s"
 model: "%s"
 ---
 ]],
-        self.provider,
-        self.provider_config.model
+        self.provider.name,
       )
     )
   end
