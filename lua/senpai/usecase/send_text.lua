@@ -30,7 +30,6 @@ function M:execute(chat)
     body = {
       thread_id = chat.thread_id,
       provider = chat.provider,
-      provider_config = chat.provider_config,
       system_prompt = chat.system_prompt,
       text = user_input,
     },

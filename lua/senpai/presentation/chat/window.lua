@@ -27,9 +27,10 @@ local M = {}
 M.__index = M
 
 ---@class senpai.ChatWindowNewArgs
----@field provider? senpai.Config.provider
+---@field provider? senpai.Config.provider.name|senpai.Config.provider
 ---@field system_prompt? string
 ---@field thread_id? string
+---@field is_resume? boolean
 
 ---@nodoc
 ---@param args senpai.ChatWindowNewArgs
@@ -37,15 +38,11 @@ M.__index = M
 function M.new(args)
   args = args or {}
   local self = setmetatable({}, M)
-  if args.provider then
-    self.provider = args.provider
-  else
-    local provider = Config.get_provider()
-    if not provider then
-      return
-    end
-    self.provider = provider
+  local provider = Config.get_provider(args.provider)
+  if not provider then
+    return
   end
+  self.provider = provider
 
   self.thread_id = args.thread_id
     or vim.fn.getcwd() .. "-" .. os.date("%Y%m%d%H%M%S")
@@ -101,15 +98,18 @@ function M:show()
       string.format(
         [[
 ---
-provider: "%s"
-model: "%s"
+name: "%s"
+model_id: "%s"
 ---
 ]],
         self.provider.name,
+        self.provider.model_id
       )
     )
+    -- TODO: このタイミングでthreadsを取得し、存在すればバッファに書き込む
+  else
+    self.chat_log:show()
   end
-  self.chat_log:show()
 
   if not self.chat_input then
     self:create_chat_input()
@@ -119,8 +119,8 @@ model: "%s"
       relative = "win",
       position = "bottom",
     })
+    self.chat_input:show()
   end
-  self.chat_input:show()
 
   vim.api.nvim_set_current_buf(self.chat_input.bufnr)
   vim.cmd("normal G$")

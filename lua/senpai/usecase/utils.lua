@@ -32,7 +32,7 @@ function M.set_winbar(winid, text)
   vim.api.nvim_set_option_value(
     "winbar",
     "%#Nomal#%=" .. text .. "%=",
-    { win = winid }
+    { win = winid, scope = "local" }
   )
 end
 
