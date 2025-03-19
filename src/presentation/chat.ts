@@ -2,24 +2,37 @@ import { GetFiles } from "@/infra/GetFiles";
 import { getModel, providerSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
-import { zValidator } from "@hono/zod-validator";
-import { Hono } from "hono";
-import { z } from "zod";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
-const app = new Hono();
+const app = new OpenAPIHono().basePath("/chat");
 
-const chatControllerCommandSchema = z.object({
+const chatControllerSchema = z.object({
 	thread_id: z.string(),
 	provider: providerSchema,
 	system_prompt: z.optional(z.string()),
 	text: z.string(),
 });
 
-export type ChatControllerCommand = z.infer<typeof chatControllerCommandSchema>;
-
-app.post(
-	"/chat",
-	zValidator("json", chatControllerCommandSchema),
+app.openapi(
+	createRoute({
+		method: "post",
+		path: "/",
+		request: {
+			body: {
+				required: true,
+				content: {
+					"application/json": {
+						schema: chatControllerSchema,
+					},
+				},
+			},
+		},
+		responses: {
+			200: {
+				description: "chat",
+			},
+		},
+	}),
 	async (c) => {
 		const command = c.req.valid("json");
 		const model = getModel(command.provider);

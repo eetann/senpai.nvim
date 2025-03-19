@@ -1,6 +1,7 @@
 import { parseArgs } from "node:util";
+import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
-import chatController from "./presentation/chatController";
+import chat from "./presentation/chat";
 import generateCommitMessage from "./presentation/generateCommitMessage";
 import hello from "./presentation/hello";
 import thread from "./presentation/thread";
@@ -30,9 +31,10 @@ app.doc("/doc", {
 		title: "Senpai API",
 	},
 });
+app.get("/ui", swaggerUI({ url: "/doc" }));
 app.route("/", hello);
 app.route("/", generateCommitMessage);
-app.route("/", chatController);
+app.route("/", chat);
 app.route("/", thread);
 
 export default {

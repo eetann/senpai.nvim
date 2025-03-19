@@ -2,8 +2,7 @@ import { providerSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
 import { GetHistoryUseCase } from "@/usecase/GetHistoryUseCase";
 import { GetThreadUseCase } from "@/usecase/GetThreadUseCase";
-import { z } from "@hono/zod-openapi";
-import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
 const app = new OpenAPIHono().basePath("/thread");
 
