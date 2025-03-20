@@ -24,14 +24,14 @@ if (Number.isNaN(port)) {
 
 const app = new OpenAPIHono();
 
-app.doc31("/doc", {
+app.doc31("/openapi.json", {
 	openapi: "3.1.0",
 	info: {
 		version: "0.0.1",
 		title: "Senpai API",
 	},
 });
-app.get("/ui", swaggerUI({ url: "/doc" }));
+app.get("/doc", swaggerUI({ url: "/openapi.json" }));
 app.route("/", hello);
 app.route("/", generateCommitMessage);
 app.route("/", chat);

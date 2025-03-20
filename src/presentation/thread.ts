@@ -1,8 +1,8 @@
 import { messageSchema } from "@/domain/messageSchema";
 import { providerSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
-import { GetHistoryUseCase } from "@/usecase/GetHistoryUseCase";
-import { GetThreadUseCase } from "@/usecase/GetThreadUseCase";
+import { GetMessagesUseCase } from "@/usecase/GetMessagesUseCase";
+import { GetThreadsUseCase } from "@/usecase/GetThreadsUseCase";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
 const app = new OpenAPIHono().basePath("/thread");
@@ -34,7 +34,7 @@ app.openapi(
 		},
 	}),
 	async (c) => {
-		const threads = await new GetHistoryUseCase(memory).execute();
+		const threads = await new GetThreadsUseCase(memory).execute();
 		return c.json(threads);
 	},
 );
@@ -68,7 +68,7 @@ const route = createRoute({
 
 app.openapi(route, async (c) => {
 	const { thread_id } = c.req.valid("json");
-	const threads = await new GetThreadUseCase(memory).execute(thread_id);
+	const threads = await new GetMessagesUseCase(memory).execute(thread_id);
 	return c.json(threads);
 });
 

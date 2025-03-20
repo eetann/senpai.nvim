@@ -1,6 +1,6 @@
 import type { Memory } from "@mastra/memory";
 
-export class GetThreadUseCase {
+export class GetMessagesUseCase {
 	constructor(private memory: Memory) {}
 	async execute(threadId: string) {
 		return (
