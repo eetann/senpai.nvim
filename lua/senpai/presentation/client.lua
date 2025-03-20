@@ -6,7 +6,9 @@ M.job = nil
 ---@type number?
 M.port = nil
 
-function M.start_server()
+---start server
+---@param in_setup? boolean Flag to prevent sleep if called from the plugin's setup function
+function M.start_server(in_setup)
   if M.job then
     return
   end
@@ -45,7 +47,9 @@ function M.start_server()
         M.port = nil
       end
     )
-    vim.cmd("sleep 1000ms")
+    if not in_setup then
+      vim.cmd("sleep 1000ms")
+    end
   end
 
   math.randomseed(os.time())
