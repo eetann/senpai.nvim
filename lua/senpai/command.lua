@@ -52,6 +52,16 @@ local subcmd_tbl = {
       require("senpai.api").toggle_chat()
     end,
   },
+  --[=[@doc
+  category = "command"
+  name = "openHistory"
+  desc = "detail -> |senpai-feature-history|"
+  --]=]
+  loadThread = {
+    impl = function()
+      require("senpai.api").load_thread()
+    end,
+  },
 }
 
 CommandResiter.regist(subcmd_tbl)

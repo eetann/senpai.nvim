@@ -1,28 +1,39 @@
-import { getModel, providerConfigSchema } from "@/infra/GetModel";
+import { getModel, providerSchema } from "@/infra/GetModel";
 import { GitDiff } from "@/infra/GitDiff";
 import { GenerateCommitMessageUseCase } from "@/usecase/GenerateCommitMessageUseCase";
-import { zValidator } from "@hono/zod-validator";
-import { Hono } from "hono";
-import { z } from "zod";
+import { z } from "@hono/zod-openapi";
+import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 
-const app = new Hono();
+const app = new OpenAPIHono().basePath("/agent");
 
-const generateCommitMessageCommand = z.object({
-	provider: z.string(),
-	provider_config: providerConfigSchema,
+const generateCommitMessageSchema = z.object({
+	provider: providerSchema,
 	language: z.string(),
 });
 
-export type GenerateCommitMessageCommand = z.infer<
-	typeof generateCommitMessageCommand
->;
-
-app.post(
-	"/generate-commit-message",
-	zValidator("json", generateCommitMessageCommand),
+app.openapi(
+	createRoute({
+		method: "post",
+		path: "/generate-commit-message",
+		request: {
+			body: {
+				required: true,
+				content: {
+					"application/json": {
+						schema: generateCommitMessageSchema,
+					},
+				},
+			},
+		},
+		responses: {
+			201: {
+				description: "generate commit message",
+			},
+		},
+	}),
 	async (c) => {
 		const command = c.req.valid("json");
-		const model = getModel(command.provider, command.provider_config);
+		const model = getModel(command.provider);
 		return c.text(
 			await new GenerateCommitMessageUseCase(model, GitDiff).execute(
 				command.language,

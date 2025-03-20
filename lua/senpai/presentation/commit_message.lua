@@ -36,22 +36,22 @@ end
 --]=]
 ---@param language string
 ---@param callback senpai.RequestHandler.callback_fun
+---@param finish_callback fun():nil For example, stopping a spinner.
 ---@return nil
-function M.generate_commit_message(language, callback)
-  local provider, provider_config = Config.get_provider()
-  if not provider_config then
-    vim.notify("[senpai] provider not found", vim.log.levels.WARN)
-    return ""
+function M.generate_commit_message(language, callback, finish_callback)
+  local provider = Config.get_provider()
+  if not provider then
+    return
   end
   RequestHandler.request({
-    route = "/generate-commit-message",
+    method = "post",
+    route = "/agent/generate-commit-message",
     body = {
       provider = provider,
-      provider_config = provider_config,
       language = language,
     },
     callback = callback,
-  })
+  }, finish_callback)
 end
 
 --[=[@doc
@@ -78,12 +78,13 @@ function M.write_commit_message(language)
   local spinner = Spinner.new("[senpai] AI thinking")
   spinner:start()
   M.generate_commit_message(lang, function(response)
-    spinner:stop()
     if response.exit ~= 0 then
       vim.notify("[senpai] write_commit_message failed")
       return
     end
     replace_current_line(response.body)
+  end, function()
+    spinner:stop()
   end)
 end
 

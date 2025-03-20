@@ -1,41 +1,16 @@
----@alias provider "openai" | "openrouter"
+local Provider = require("senpai.domain.provider")
 
----@doc.type
----@class senpai.Config.providers.Provider
----@field model string
-
----@doc.type
----@class senpai.Config.providers.OpenAIProvider
----@field model ("gpt-4o" | "gpt-4o-mini")
-
----@doc.type
----@class senpai.Config.providers.AnthropicProvider
----@field model ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")
-
----@doc.type
----@class senpai.Config.providers.OpenRouterProvider
----@field model string
----   You can get a list of models with the following command.
----   >sh
----   curl https://openrouter.ai/api/v1/models | jq '.data[].id'
----   # check specific model
----   curl https://openrouter.ai/api/v1/models | \
----     jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
---- <
-
+---@type senpai.Config.providers
 local providers = {
-  ---@type senpai.Config.providers.OpenAIProvider
-  openai = { model = "gpt-4o" },
-  ---@type senpai.Config.providers.AnthropicProvider
-  anthropic = { model = "claude-3-7-sonnet-20250219" },
-  ---@type senpai.Config.providers.OpenRouterProvider
-  openrouter = { model = "anthropic/claude-3.7-sonnet" },
+  default = "openrouter",
+  openai = { model_id = "gpt-4o" },
+  anthropic = { model_id = "claude-3-7-sonnet-20250219" },
+  openrouter = { model_id = "anthropic/claude-3.7-sonnet" },
 }
 
 ---@doc.type
 ---@class senpai.Config
----@field provider? provider
----@field providers? table<string, senpai.Config.providers.Provider>
+---@field providers? senpai.Config.providers
 ---@field commit_message? senpai.Config.commit_message
 
 ---@doc.type
@@ -50,7 +25,6 @@ local providers = {
 
 ---@type senpai.Config
 local default_config = {
-  provider = "openai",
   providers = providers,
   commit_message = {
     language = "English",
@@ -62,22 +36,6 @@ local options
 
 ---@class senpai.Config.mod: senpai.Config
 local M = {}
-
----@param opts? senpai.Config
-function M.setup(opts)
-  opts = opts or {}
-  options = vim.tbl_deep_extend("force", default_config, opts)
-  if options.provider == "openai" and not vim.env.OPENAI_API_KEY then
-    vim.schedule(function()
-      vim.notify("[senpai]: OPENAI_API_KEY is not set", vim.log.levels.WARN)
-    end)
-  end
-  if options.provider == "openrouter" and not vim.env.OPENROUTER_API_KEY then
-    vim.schedule(function()
-      vim.notify("[senpai]: OPENROUTER_API_KEY is not set", vim.log.levels.WARN)
-    end)
-  end
-end
 
 -- use in doc
 function M._format_default()
@@ -98,10 +56,81 @@ function M.get_commit_message_language()
   return language
 end
 
----@return provider
----@return senpai.Config.providers.Provider
-function M.get_provider()
-  return options.provider, options.providers[options.provider]
+---@param provider? senpai.Config.provider.name|senpai.Config.provider
+---@return senpai.Config.provider?
+function M.get_provider(provider)
+  local error = Provider.validate_provider(provider)
+  if error == "" then
+    return provider --[[@as senpai.Config.provider]]
+  elseif type(provider) == "table" then
+    vim.notify(
+      "[senpai] " .. error .. vim.inspect(provider),
+      vim.log.levels.ERROR
+    )
+    return nil
+  end
+
+  local name = provider --[[@as senpai.Config.provider.name]]
+    or options.providers.default
+  if name == "" then
+    vim.notify("[senpai] please write `providers.default", vim.log.levels.ERROR)
+    return nil
+  end
+
+  ---@class senpai.Config.provider
+  local option_provider = options.providers[name]
+  if not option_provider then
+    vim.notify(
+      "[senpai] please write `providers." .. name .. "`",
+      vim.log.levels.ERROR
+    )
+    return nil
+  end
+  option_provider.name = name
+  if not Provider.validate_provider(option_provider) then
+    vim.notify(
+      "[senpai] please fix `providers." .. name .. "` to the correct structure",
+      vim.log.levels.ERROR
+    )
+    return nil
+  end
+  return option_provider
+end
+
+function M.validate_option_providers(option_providers)
+  for key, provider in pairs(option_providers) do
+    if key == "default" then
+      goto continue
+    end
+    if not Provider.validate_provider(provider) then
+      vim.notify(
+        "[senpai] please fix `providers." .. key .. "` to the correct structure",
+        vim.log.levels.ERROR
+      )
+    end
+    ::continue::
+  end
+end
+
+---@param opts? senpai.Config
+function M.setup(opts)
+  opts = opts or {}
+  options = vim.tbl_deep_extend("force", default_config, opts)
+  if options.providers.default == "openai" and not vim.env.OPENAI_API_KEY then
+    vim.schedule(function()
+      vim.notify("[senpai]: OPENAI_API_KEY is not set", vim.log.levels.WARN)
+    end)
+  end
+  if
+    options.providers.default == "openrouter" and not vim.env.OPENROUTER_API_KEY
+  then
+    vim.schedule(function()
+      vim.notify("[senpai]: OPENROUTER_API_KEY is not set", vim.log.levels.WARN)
+    end)
+  end
+  vim.schedule(function()
+    M.validate_option_providers(options.providers)
+  end)
 end
 
 return setmetatable(M, {

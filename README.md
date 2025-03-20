@@ -4,11 +4,22 @@ Senpai is super reliable Neovim AI plugin!
 
 # Feature
 ## Chat
+![chat](https://github.com/user-attachments/assets/93053937-325b-4ed3-bce5-0215285fdb29)
 You can chat with AI.
 If you write the file name, it will automatically read it.
 If you write `foo/bar/buz.txt` as `summarize buz.txt`,
 it will be recognized.
 (internally it searches `**/buz.txt` for files under git control).
+
+## History
+Select a past thread and load it again as a chat.
+You can continue the conversation.
+The selection UI supports the following methods.
+
+- Native (vim.ui.select)
+- [snacks.nvim](https://github.com/folke/snacks.nvim) picker
+
+![Senpai loadThread](https://github.com/user-attachments/assets/734a759d-5251-465b-8aef-76060979acec)
 
 # Requirements
 
@@ -19,7 +30,7 @@ it will be recognized.
 
 
 # Installation
-with[Lazy.nvim](https://github.com/folke/lazy.nvim)
+with [Lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
 {
     "eetann/senpai.nvim", 
@@ -38,23 +49,23 @@ with [packer.nvim](https://github.com/wbthomason/packer.nvim)
 }
 ```
 
-# default Config
+# Default config
 <!-- auto-generate-s:default_config -->
 ```lua
 {
   commit_message = {
     language = "English"
   },
-  provider = "openai",
   providers = {
     anthropic = {
-      model = "claude-3-7-sonnet-20250219"
+      model_id = "claude-3-7-sonnet-20250219"
     },
+    default = "openrouter",
     openai = {
-      model = "gpt-4o"
+      model_id = "gpt-4o"
     },
     openrouter = {
-      model = "anthropic/claude-3.7-sonnet"
+      model_id = "anthropic/claude-3.7-sonnet"
     }
   }
 }
@@ -77,6 +88,17 @@ with [packer.nvim](https://github.com/wbthomason/packer.nvim)
 | language | string | Language of commit message |
 | callback | senpai.RequestHandler.callback | Function to be processed using the response |
 
+&nbsp;
+
+
+## load_thread
+  ```lua
+  senpai.load_thread()
+  ````
+  detail -> |senpai-feature-history|
+  
+
+_No arguments_
 &nbsp;
 
 
@@ -141,6 +163,17 @@ detail -> |senpai-api-write_commit_message|
 &nbsp;
 
 
+## openHistory
+```
+:Senapi openHistory
+```
+
+detail -> |senpai-feature-history|
+
+_No arguments_
+&nbsp;
+
+
 ## toggleChat
 ```
 :Senapi toggleChat
@@ -159,8 +192,7 @@ _No arguments_
 `*senpai.Config*`
 ```lua
 ---@class senpai.Config
----@field provider? provider
----@field providers? table<string, senpai.Config.providers.Provider>
+---@field providers? senpai.Config.providers
 ---@field commit_message? senpai.Config.commit_message
 ```
 
@@ -178,24 +210,31 @@ _No arguments_
 ```
 
 
-`*senpai.Config.providers.AnthropicProvider*`
+`*senpai.Config.provider.anthropic*`
 ```lua
----@class senpai.Config.providers.AnthropicProvider
----@field model ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")
+---@class senpai.Config.provider.anthropic: senpai.Config.provider.base
+---@field model_id ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022"|string)
 ```
 
 
-`*senpai.Config.providers.OpenAIProvider*`
+`*senpai.Config.provider.base*`
 ```lua
----@class senpai.Config.providers.OpenAIProvider
----@field model ("gpt-4o" | "gpt-4o-mini")
+---@class senpai.Config.provider.base
+---@field model_id string
 ```
 
 
-`*senpai.Config.providers.OpenRouterProvider*`
+`*senpai.Config.provider.openai*`
 ```lua
----@class senpai.Config.providers.OpenRouterProvider
----@field model string
+---@class senpai.Config.provider.openai: senpai.Config.provider.base
+---@field model_id ("gpt-4o" | "gpt-4o-mini"|string)
+```
+
+
+`*senpai.Config.provider.openrouter*`
+```lua
+---@class senpai.Config.provider.openrouter: senpai.Config.provider.base
+---@field model_id string
 ---   You can get a list of models with the following command.
 ---   >sh
 ---   curl https://openrouter.ai/api/v1/models | jq '.data[].id'
@@ -203,13 +242,6 @@ _No arguments_
 ---   curl https://openrouter.ai/api/v1/models | \
 ---     jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
 --- <
-```
-
-
-`*senpai.Config.providers.Provider*`
-```lua
----@class senpai.Config.providers.Provider
----@field model string
 ```
 
 <!-- auto-generate-e:type -->

@@ -4,19 +4,6 @@ run = "nvim --headless --noplugin -u ./scripts/test/minimal_init.lua -c 'lua Min
 sources = ["lua/**/*.lua", "tests/**/*"]
 outputs = []
 
-[tasks.generate-doc]
-run = """
-bun run scripts/doc/generate.ts \
-&& docker run -v $(PWD):/data -i panvimdoc \
-  --project-name senpai \
-  --input-file README.md \
-  --vim-version "NVIM v0.10.0" \
-  --toc true \
-  --demojify true \
-  --treesitter true \
-  --ignore-rawblocks true
-"""
-
 [tasks.launch]
 run = "nvim --noplugin -u ./scripts/test/minimal_init.lua"
 
@@ -34,6 +21,25 @@ run = """
 docker build --platform linux/arm64/v8 \
   -t panvimdoc https://github.com/kdheepak/panvimdoc.git#d5b6a1f3ab0cb2c060766e7fd426ed32c4b349b2
 """
+
+[tasks.generate-doc]
+run = """
+bun run scripts/doc/generate.ts \
+&& docker run -v $(PWD):/data -i panvimdoc \
+  --project-name senpai \
+  --input-file README.md \
+  --vim-version "NVIM v0.10.0" \
+  --toc true \
+  --demojify true \
+  --treesitter true \
+  --ignore-rawblocks true
+"""
+
+[tasks.dev-server]
+run ="bun run src/index.ts --port 9942"
+
+[tasks.generate-openapi]
+run ="curl --no-buffer -X GET 'http://localhost:9942/doc' | jq > ./openapi.json"
 
 [env]
 COMMIT_MESSAGE_ENGLISH = 1

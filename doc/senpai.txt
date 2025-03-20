@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 March 18
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 March 20
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -6,16 +6,19 @@ Table of Contents                                   *senpai-table-of-contents*
 1. senpai.nvim                                            |senpai-senpai.nvim|
 2. Feature                                                    |senpai-feature|
   - Chat                                                 |senpai-feature-chat|
+  - History                                           |senpai-feature-history|
 3. Requirements                                          |senpai-requirements|
 4. Installation                                          |senpai-installation|
-5. default Config                                      |senpai-default-config|
+5. Default config                                      |senpai-default-config|
 6. API                                                            |senpai-api|
   - generate_commit_message               |senpai-api-generate_commit_message|
+  - load_thread                                       |senpai-api-load_thread|
   - setup                                                   |senpai-api-setup|
   - toggle_chat                                       |senpai-api-toggle_chat|
   - write_commit_message                     |senpai-api-write_commit_message|
 7. Commands                                                  |senpai-commands|
   - commitMessage                              |senpai-commands-commitmessage|
+  - openHistory                                  |senpai-commands-openhistory|
   - toggleChat                                    |senpai-commands-togglechat|
 8. Type                                                          |senpai-type|
 
@@ -36,6 +39,15 @@ it. If you write `foo/bar/buz.txt` as `summarize buz.txt`, it will be
 recognized. (internally it searches `**/buz.txt` for files under git control).
 
 
+HISTORY                                               *senpai-feature-history*
+
+Select a past thread and load it again as a chat. You can continue the
+conversation. The selection UI supports the following methods.
+
+- Native (vim.ui.select)
+- snacks.nvim <https://github.com/folke/snacks.nvim> picker
+
+
 ==============================================================================
 3. Requirements                                          *senpai-requirements*
 
@@ -48,7 +60,7 @@ recognized. (internally it searches `**/buz.txt` for files under git control).
 ==============================================================================
 4. Installation                                          *senpai-installation*
 
-withLazy.nvim <https://github.com/folke/lazy.nvim>
+with Lazy.nvim <https://github.com/folke/lazy.nvim>
 
 >lua
     {
@@ -72,23 +84,23 @@ with packer.nvim <https://github.com/wbthomason/packer.nvim>
 
 
 ==============================================================================
-5. default Config                                      *senpai-default-config*
+5. Default config                                      *senpai-default-config*
 
 >lua
     {
       commit_message = {
         language = "English"
       },
-      provider = "openai",
       providers = {
         anthropic = {
-          model = "claude-3-7-sonnet-20250219"
+          model_id = "claude-3-7-sonnet-20250219"
         },
+        default = "openrouter",
         openai = {
-          model = "gpt-4o"
+          model_id = "gpt-4o"
         },
         openrouter = {
-          model = "anthropic/claude-3.7-sonnet"
+          model_id = "anthropic/claude-3.7-sonnet"
         }
       }
     }
@@ -116,6 +128,17 @@ AI generate conventional commit message of commitizen convention format.
                                                      response
   ---------------------------------------------------------------------------------------
  
+
+
+LOAD_THREAD                                           *senpai-api-load_thread*
+
+>lua
+    senpai.load_thread()
+<
+
+detail -> |senpai-feature-history|
+
+_No arguments_  
 
 
 SETUP                                                       *senpai-api-setup*
@@ -177,6 +200,17 @@ detail -> |senpai-api-write_commit_message|
  
 
 
+OPENHISTORY                                      *senpai-commands-openhistory*
+
+>
+    :Senapi openHistory
+<
+
+detail -> |senpai-feature-history|
+
+_No arguments_  
+
+
 TOGGLECHAT                                        *senpai-commands-togglechat*
 
 >
@@ -195,8 +229,7 @@ _No arguments_  
 
 >lua
     ---@class senpai.Config
-    ---@field provider? provider
-    ---@field providers? table<string, senpai.Config.providers.Provider>
+    ---@field providers? senpai.Config.providers
     ---@field commit_message? senpai.Config.commit_message
 <
 
@@ -213,25 +246,32 @@ _No arguments_  
     ---     `:Senpai commitMessage English(Tsundere)`
 <
 
-`*senpai.Config.providers.AnthropicProvider*`
+`*senpai.Config.provider.anthropic*`
 
 >lua
-    ---@class senpai.Config.providers.AnthropicProvider
-    ---@field model ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022")
+    ---@class senpai.Config.provider.anthropic: senpai.Config.provider.base
+    ---@field model_id ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022"|string)
 <
 
-`*senpai.Config.providers.OpenAIProvider*`
+`*senpai.Config.provider.base*`
 
 >lua
-    ---@class senpai.Config.providers.OpenAIProvider
-    ---@field model ("gpt-4o" | "gpt-4o-mini")
+    ---@class senpai.Config.provider.base
+    ---@field model_id string
 <
 
-`*senpai.Config.providers.OpenRouterProvider*`
+`*senpai.Config.provider.openai*`
 
 >lua
-    ---@class senpai.Config.providers.OpenRouterProvider
-    ---@field model string
+    ---@class senpai.Config.provider.openai: senpai.Config.provider.base
+    ---@field model_id ("gpt-4o" | "gpt-4o-mini"|string)
+<
+
+`*senpai.Config.provider.openrouter*`
+
+>lua
+    ---@class senpai.Config.provider.openrouter: senpai.Config.provider.base
+    ---@field model_id string
     ---   You can get a list of models with the following command.
     ---   >sh
     ---   curl https://openrouter.ai/api/v1/models | jq '.data[].id'
@@ -239,13 +279,6 @@ _No arguments_  
     ---   curl https://openrouter.ai/api/v1/models | \
     ---     jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
     --- <
-<
-
-`*senpai.Config.providers.Provider*`
-
->lua
-    ---@class senpai.Config.providers.Provider
-    ---@field model string
 <
 
 Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>

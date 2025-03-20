@@ -2,12 +2,11 @@ local ChatWindowManager = require("senpai.presentation.chat.window_manager")
 local RequestHandler = require("senpai.presentation.shared.request_handler")
 local utils = require("senpai.usecase.utils")
 
-local chatWindowManager = ChatWindowManager.new()
-
 local M = {}
 
 function M.hello()
   RequestHandler.request({
+    method = "get",
     route = "/hello",
     callback = function(response)
       if response.exit ~= 0 then
@@ -21,7 +20,8 @@ end
 
 function M.hello_stream()
   RequestHandler.streamRequest({
-    route = "/helloStream",
+    method = "post",
+    route = "/hello/stream",
     stream = function(_, part)
       if not part or not part.type or part.content == "" then
         return
@@ -50,11 +50,12 @@ end
   """
 --]=]
 function M.toggle_chat()
-  chatWindowManager:toggle_current_chat()
+  ChatWindowManager:toggle_current_chat()
 end
 
 return setmetatable(M, {
   __index = function(_, k)
     return require("senpai.presentation.commit_message")[k]
+      or require("senpai.presentation.load_thread")[k]
   end,
 })

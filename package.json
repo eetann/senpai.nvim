@@ -2,6 +2,8 @@
   "dependencies": {
     "@ai-sdk/openai": "^1.2.5",
     "@core/unknownutil": "npm:@jsr/core__unknownutil",
+    "@hono/swagger-ui": "^0.5.1",
+    "@hono/zod-openapi": "^0.19.2",
     "@hono/zod-validator": "^0.4.3",
     "@mastra/core": "^0.6.0",
     "@mastra/memory": "^0.2.1",
