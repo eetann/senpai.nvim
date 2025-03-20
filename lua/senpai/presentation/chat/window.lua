@@ -2,7 +2,6 @@ local Config = require("senpai.config")
 local Split = require("nui.split")
 local utils = require("senpai.usecase.utils")
 local send_text = require("senpai.usecase.send_text")
-local get_messages = require("senpai.usecase.get_messages")
 local set_messages = require("senpai.usecase.set_messages")
 
 vim.treesitter.language.register("markdown", "senpai_chat_log")

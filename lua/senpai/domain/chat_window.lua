@@ -1,3 +1,5 @@
+---@module "nui.split"
+
 ---@class senpai.ChatWindow.Config
 ---@field provider senpai.Config.provider
 ---@field system_prompt string

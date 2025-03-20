@@ -17,6 +17,10 @@ end
 
 ---@param args senpai.ChatWindowNewArgs
 function M:add(args)
+  if self.chats[args.thread_id] then
+    self.current = args.thread_id
+    return
+  end
   local chat = Chat.new(args)
   if not chat then
     return

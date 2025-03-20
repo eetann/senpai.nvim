@@ -43,7 +43,7 @@ function M.scroll_when_invisible(chat)
   local last_visible_line = vim.fn.line("w$", winid)
   if last_visible_line < last_buffer_line then
     vim.api.nvim_win_call(chat.chat_log.winid, function()
-      vim.cmd("normal! 5j")
+      vim.cmd("normal! G")
     end)
   end
 end
@@ -132,36 +132,5 @@ function M.create_borders(bufnr, start_row, user_input_row_length)
     }
   )
 end
-
----@class senpai.chat.content.various
----@field type string
----@field text? string
----@field [string] any
-
----@alias senpai.chat.content
----|string
----|senpai.chat.content.various
-
----@class senpai.chat.message.system
----@field role "system"
----@field content string
-
----@class senpai.chat.message.user
----@field role "user"
----@field content string | any[]
-
----@class senpai.chat.message.assistant
----@field role "assistant"
----@field content string | any
-
----@class senpai.chat.message.tool
----@field role "tool"
----@field content any[]
-
----@alias senpai.chat.message
----| senpai.chat.message.system
----| senpai.chat.message.user
----| senpai.chat.message.assistant
----| senpai.chat.message.tool
 
 return M

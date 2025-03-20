@@ -1,41 +1,4 @@
----@alias senpai.Config.provider.name
----| "openai"
----| "openrouter"
-
----@doc.type
----@class senpai.Config.provider.base
----@field model_id string
-
----@doc.type
----@class senpai.Config.provider.openai: senpai.Config.provider.base
----@field model_id ("gpt-4o" | "gpt-4o-mini"|string)
-
----@doc.type
----@class senpai.Config.provider.anthropic: senpai.Config.provider.base
----@field model_id ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022"|string)
-
----@doc.type
----@class senpai.Config.provider.openrouter: senpai.Config.provider.base
----@field model_id string
----   You can get a list of models with the following command.
----   >sh
----   curl https://openrouter.ai/api/v1/models | jq '.data[].id'
----   # check specific model
----   curl https://openrouter.ai/api/v1/models | \
----     jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
---- <
-
----@class senpai.Config.provider: senpai.Config.provider.base
----@field name senpai.Config.provider.name
-
----@class senpai.Config.provider.settings
----@field openai? senpai.Config.provider.openai
----@field anthropic? senpai.Config.provider.anthropic
----@field openrouter? senpai.Config.provider.openrouter
----@field [string] senpai.Config.provider.base
-
----@class senpai.Config.providers: senpai.Config.provider.settings
----@field default senpai.Config.provider.name|string
+local Provider = require("senpai.domain.provider")
 
 ---@type senpai.Config.providers
 local providers = {
@@ -93,26 +56,10 @@ function M.get_commit_message_language()
   return language
 end
 
----Validate that the value passed is provider
----@param target any
----@return string
-function M.validate_provider(target)
-  if type(target) ~= "table" then
-    return "It is not table"
-  end
-  if type(target.name) ~= "string" then
-    return "correct name"
-  end
-  if type(target.model_id) ~= "string" then
-    return "correct model_id"
-  end
-  return ""
-end
-
 ---@param provider? senpai.Config.provider.name|senpai.Config.provider
 ---@return senpai.Config.provider?
 function M.get_provider(provider)
-  local error = M.validate_provider(provider)
+  local error = Provider.validate_provider(provider)
   if error == "" then
     return provider --[[@as senpai.Config.provider]]
   elseif type(provider) == "table" then
@@ -140,7 +87,7 @@ function M.get_provider(provider)
     return nil
   end
   option_provider.name = name
-  if not M.validate_provider(option_provider) then
+  if not Provider.validate_provider(option_provider) then
     vim.notify(
       "[senpai] please fix `providers." .. name .. "` to the correct structure",
       vim.log.levels.ERROR
@@ -155,7 +102,7 @@ function M.validate_option_providers(option_providers)
     if key == "default" then
       goto continue
     end
-    if not M.validate_provider(provider) then
+    if not Provider.validate_provider(provider) then
       vim.notify(
         "[senpai] please fix `providers." .. key .. "` to the correct structure",
         vim.log.levels.ERROR

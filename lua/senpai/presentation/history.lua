@@ -39,6 +39,8 @@ local function make_item_text(history)
   return text
 end
 
+local function open_chat_from_history(history) end
+
 function M.select_history()
   M.get_history(function(response)
     if response.exit ~= 0 then
