@@ -24,8 +24,8 @@ if (Number.isNaN(port)) {
 
 const app = new OpenAPIHono();
 
-app.doc("/doc", {
-	openapi: "3.0.0",
+app.doc31("/doc", {
+	openapi: "3.1.0",
 	info: {
 		version: "0.0.1",
 		title: "Senpai API",
