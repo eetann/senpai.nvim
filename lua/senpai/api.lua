@@ -27,7 +27,10 @@ function M.hello_stream()
         return
       end
       if part.type == "0" then
-        utils.set_text_at_last(vim.api.nvim_get_current_buf(), part.content)
+        utils.set_text_at_last(
+          vim.api.nvim_get_current_buf(),
+          part.content --[[@as string]]
+        )
       end
     end,
     callback = function(response)
@@ -50,7 +53,7 @@ end
   """
 --]=]
 function M.toggle_chat()
-  ChatWindowManager:toggle_current_chat()
+  ChatWindowManager.toggle_current_chat()
 end
 
 return setmetatable(M, {

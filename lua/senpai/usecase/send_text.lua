@@ -41,7 +41,10 @@ function M:execute(chat)
         return
       end
       if part.type == "0" then
-        utils.set_text_at_last(chat.chat_log.bufnr, part.content)
+        utils.set_text_at_last(
+          chat.chat_log.bufnr,
+          part.content --[[@as string]]
+        )
         utils.scroll_when_invisible(chat)
       end
     end,

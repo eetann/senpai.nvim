@@ -98,8 +98,8 @@ function M.create_borders(bufnr, start_row, user_input_row_length)
     0,
     {
       sign_text = "╭",
-      sign_hl_group = "NonText",
-      virt_text = { { string.rep("─", 150), "NonText" } },
+      sign_hl_group = "FloatBorder",
+      virt_text = { { string.rep("─", 150), "FloatBorder" } },
       virt_text_pos = "overlay",
       virt_text_hide = true,
     }
@@ -114,7 +114,7 @@ function M.create_borders(bufnr, start_row, user_input_row_length)
       0,
       {
         sign_text = "│",
-        sign_hl_group = "NonText",
+        sign_hl_group = "FloatBorder",
       }
     )
   end
@@ -127,8 +127,8 @@ function M.create_borders(bufnr, start_row, user_input_row_length)
     0,
     {
       sign_text = "╰",
-      sign_hl_group = "NonText",
-      virt_text = { { string.rep("─", 150), "NonText" } },
+      sign_hl_group = "FloatBorder",
+      virt_text = { { string.rep("─", 150), "FloatBorder" } },
       virt_text_pos = "overlay",
       virt_text_hide = true,
     }

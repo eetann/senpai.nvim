@@ -25,12 +25,13 @@ end
 ---@param thread senpai.chat.thread
 local function show_thread(thread)
   local args = {
-    provider = thread.metadata.provider,
-    system_prompt = thread.metadata.system_prompt,
     thread_id = thread.id,
   }
-  ChatWindowManager:add(args)
-  ChatWindowManager:show_current_chat()
+  if thread.metadata then
+    args.provider = thread.metadata.provider
+    args.system_prompt = thread.metadata.system_prompt
+  end
+  ChatWindowManager.replace_new_chat(args)
 end
 
 --[=[@doc

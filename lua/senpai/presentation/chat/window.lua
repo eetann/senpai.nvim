@@ -89,9 +89,23 @@ function M:create_chat_input()
   end)
 end
 
-function M:show()
+---@param winid? number
+function M:show(winid)
   if not self.chat_log then
     self:create_chat_log()
+    if winid then
+      self.chat_log.winid = winid
+      vim.api.nvim_win_set_buf(self.chat_log.winid, self.chat_log.bufnr)
+      ---@diagnostic disable-next-line: invisible
+      for name, value in pairs(self.chat_log._.win_options) do
+        vim.api.nvim_set_option_value(
+          name,
+          value,
+          { scope = "local", win = self.chat_log.winid }
+        )
+      end
+      vim.api.nvim_set_current_win(self.chat_log.winid)
+    end
     self.chat_log:mount()
     utils.set_text_at_last(
       self.chat_log.bufnr,
