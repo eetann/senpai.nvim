@@ -4,6 +4,7 @@ Senpai is super reliable Neovim AI plugin!
 
 # Feature
 ## Chat
+![chat](https://github.com/user-attachments/assets/93053937-325b-4ed3-bce5-0215285fdb29)
 You can chat with AI.
 If you write the file name, it will automatically read it.
 If you write `foo/bar/buz.txt` as `summarize buz.txt`,
@@ -17,6 +18,8 @@ The selection UI supports the following methods.
 
 - Native (vim.ui.select)
 - [snacks.nvim](https://github.com/folke/snacks.nvim) picker
+
+![Senpai loadThread](https://github.com/user-attachments/assets/734a759d-5251-465b-8aef-76060979acec)
 
 # Requirements
 
