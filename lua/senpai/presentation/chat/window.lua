@@ -3,6 +3,7 @@ local Split = require("nui.split")
 local utils = require("senpai.usecase.utils")
 local send_text = require("senpai.usecase.send_text")
 local set_messages = require("senpai.usecase.set_messages")
+local keymaps = require("senpai.presentation.chat.keymaps")
 
 vim.treesitter.language.register("markdown", "senpai_chat_log")
 vim.treesitter.language.register("markdown", "senpai_chat_input")
@@ -31,6 +32,8 @@ M.__index = M
 ---@field provider? senpai.Config.provider.name|senpai.Config.provider
 ---@field system_prompt? string
 ---@field thread_id? string
+
+-- TODO: nuiのlayoutへ置き換える
 
 ---@nodoc
 ---@param args senpai.ChatWindowNewArgs
@@ -67,6 +70,9 @@ function M:create_chat_log()
   self.chat_log:map("n", "q", function()
     self:hide()
   end)
+  self.chat_log:map("n", "?", function()
+    keymaps.execute()
+  end)
 end
 
 function M:create_chat_input()
@@ -86,6 +92,9 @@ function M:create_chat_input()
   end)
   self.chat_input:map("n", "q", function()
     self:hide()
+  end)
+  self.chat_input:map("n", "?", function()
+    keymaps.execute()
   end)
 end
 
