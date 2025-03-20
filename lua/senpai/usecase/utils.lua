@@ -20,6 +20,8 @@ function M.set_text_1based_position(buffer, position, lines)
   )
 end
 
+---@param buffer number
+---@param text string
 function M.set_text_at_last(buffer, text)
   local lines = vim.split(text, "\n")
   vim.api.nvim_buf_set_text(buffer, -1, -1, -1, -1, lines)

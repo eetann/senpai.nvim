@@ -20,7 +20,7 @@ local win_options = {
   statuscolumn = "",
   wrap = true,
   fillchars = "eob: ,lastline:…",
-  listchars = "eol: ",
+  -- listchars = "eol: ",
 }
 
 ---@class senpai.ChatWindow: senpai.ChatWindow.Config
@@ -31,7 +31,6 @@ M.__index = M
 ---@field provider? senpai.Config.provider.name|senpai.Config.provider
 ---@field system_prompt? string
 ---@field thread_id? string
----@field is_resume? boolean
 
 ---@nodoc
 ---@param args senpai.ChatWindowNewArgs

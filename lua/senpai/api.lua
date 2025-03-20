@@ -2,8 +2,6 @@ local ChatWindowManager = require("senpai.presentation.chat.window_manager")
 local RequestHandler = require("senpai.presentation.shared.request_handler")
 local utils = require("senpai.usecase.utils")
 
-local chatWindowManager = ChatWindowManager.new()
-
 local M = {}
 
 function M.hello()
@@ -52,12 +50,12 @@ end
   """
 --]=]
 function M.toggle_chat()
-  chatWindowManager:toggle_current_chat()
+  ChatWindowManager:toggle_current_chat()
 end
 
 return setmetatable(M, {
   __index = function(_, k)
     return require("senpai.presentation.commit_message")[k]
-      or require("senpai.presentation.history")[k]
+      or require("senpai.presentation.load_thread")[k]
   end,
 })

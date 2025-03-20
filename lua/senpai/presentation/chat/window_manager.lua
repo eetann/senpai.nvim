@@ -90,4 +90,6 @@ function M:close_current_chat()
   end
 end
 
-return M
+local ChatWindowManager = M.new()
+
+return ChatWindowManager

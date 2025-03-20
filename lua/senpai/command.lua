@@ -57,9 +57,9 @@ local subcmd_tbl = {
   name = "openHistory"
   desc = "detail -> |senpai-feature-history|"
   --]=]
-  openHistory = {
+  loadThread = {
     impl = function()
-      require("senpai.api").select_history()
+      require("senpai.api").load_thread()
     end,
   },
 }

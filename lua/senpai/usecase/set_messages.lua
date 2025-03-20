@@ -17,6 +17,7 @@ function M.execute(chat)
         M.set_assistant_message(chat, message)
       end
     end
+    utils.scroll_when_invisible(chat)
   end)
 end
 
@@ -42,16 +43,19 @@ end
 ---@param message senpai.chat.message.assistant
 function M.set_assistant_message(chat, message)
   if type(message.content) == "string" then
-    utils.set_text_at_last(chat.chat_log.bufnr, message.content)
+    utils.set_text_at_last(
+      chat.chat_log.bufnr,
+      message.content --[[@as string]]
+    )
   end
-  local content = {}
+  local content = ""
   for _, part in
     pairs(message.content --[=[@as senpai.chat.message.assistant.part[]]=])
   do
     if part.type == "text" then
-      table.insert(content, part.text)
+      content = content .. "\n" .. part.text
     elseif part.type == "reasoning" then
-      table.insert(content, part.text)
+      content = content .. "\n" .. part.text
     end
   end
   utils.set_text_at_last(chat.chat_log.bufnr, content)

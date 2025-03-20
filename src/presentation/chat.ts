@@ -63,6 +63,7 @@ app.openapi(
 				title: thread.title,
 				metadata: {
 					provider: command.provider,
+					system_prompt: command.system_prompt,
 				},
 			});
 		}

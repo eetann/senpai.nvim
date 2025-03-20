@@ -1,7 +1,11 @@
----@class senpai.thread
+---@class senpai.chat.thread.metadata
+---@field provider? senpai.Config.provider
+---@field system_prompt? ""
+
+---@class senpai.chat.thread
 ---@field id string example: "/home/eetann/workspace-20250318163153"
 ---@field resourceId string example: "senpai"
 ---@field title? string example: "how to develop Neovim plugin"
 ---@field createdAt string example: "2025-03-18T07:32:02.912Z"
 ---@field updatedAt string example: "2025-03-18T07:32:02.912Z"
----@field metadata? { provider?: senpai.Config.provider }
+---@field metadata? senpai.chat.thread.metadata
