@@ -53,8 +53,12 @@ end
 ---@return string user_input
 function M.process_user_input(chat, user_input)
   local start_row = vim.fn.line("$", chat.chat_log.winid)
+  local line_number = 1
   if type(user_input) == "table" then
+    line_number = #user_input
     user_input = table.concat(user_input, "\n")
+  else
+    line_number = #vim.split(user_input, "\n")
   end
   local render_text = string.format(
     [[
@@ -70,7 +74,7 @@ function M.process_user_input(chat, user_input)
 
   -- user input
   M.set_text_at_last(chat.chat_log.bufnr, render_text)
-  M.create_borders(chat.chat_log.bufnr, start_row, #lines)
+  M.create_borders(chat.chat_log.bufnr, start_row, line_number)
   M.scroll_when_invisible(chat)
   return user_input
 end

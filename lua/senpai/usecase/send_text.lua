@@ -28,7 +28,7 @@ function M:execute(chat)
   )
   spinner:start()
   RequestHandler.streamRequest({
-    method = "get",
+    method = "post",
     route = "/chat",
     body = {
       thread_id = chat.thread_id,

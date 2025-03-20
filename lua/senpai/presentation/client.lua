@@ -6,42 +6,50 @@ M.job = nil
 ---@type number?
 M.port = nil
 
-local function get_port(err, data)
-  if err or not data then
-    vim.notify(
-      "[senpai] Server startup failed. Please try again.",
-      vim.log.levels.ERROR
-    )
-    return
-  end
-  local port = tonumber(string.match(data, "localhost:(%d+)"))
-  if not port then
-    vim.notify(
-      "[senpai] Server startup failed. Please try again.",
-      vim.log.levels.ERROR
-    )
-    return
-  end
-  M.port = port
-end
-
 function M.start_server()
   if M.job then
     return
   end
+
   local cwd = vim.fn.fnamemodify(
     vim.api.nvim_get_runtime_file("lua/senpai", false)[1],
     ":h:h"
   )
-  M.job = vim.system({ "bun", "run", "src/index.ts" }, {
-    cwd = cwd,
-    stdout = vim.schedule_wrap(function(err, data)
-      get_port(err, data)
-    end),
-  }, function()
-    M.job = nil
-    M.port = nil
-  end)
+
+  local max_attempts = 10
+  local attempts = 0
+
+  local function try_start_server()
+    attempts = attempts + 1
+    if attempts > max_attempts then
+      vim.notify("[senpai] Server startup failed.", vim.log.levels.ERROR)
+      return
+    end
+    M.port = math.random(1024, 49151)
+
+    M.job = vim.system(
+      { "bun", "run", "src/index.ts", "--port", tostring(M.port) },
+      {
+        cwd = cwd,
+        stdout = vim.schedule_wrap(function(_, data)
+          --
+        end),
+      },
+      function(obj)
+        if obj.code ~= 0 and obj.stderr:find("EADDRINUSE") then
+          M.job = nil
+          vim.schedule(try_start_server)
+          return
+        end
+        M.job = nil
+        M.port = nil
+      end
+    )
+    vim.cmd("sleep 1000ms")
+  end
+
+  math.randomseed(os.time())
+  try_start_server()
 end
 
 local function stop_server()
