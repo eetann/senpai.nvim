@@ -136,10 +136,12 @@ function M:show(winid)
 ---
 name: "%s"
 model_id: "%s"
+thread_id: "%s"
 ---
 ]],
         self.provider.name,
-        self.provider.model_id
+        self.provider.model_id,
+        self.thread_id
       )
     )
     set_messages.execute(self)

@@ -1,5 +1,7 @@
 local get_threads = require("senpai.usecase.get_threads")
 local ChatWindowManager = require("senpai.presentation.chat.window_manager")
+local delete_threads = require("senpai.usecase.delete_threads")
+local Spinner = require("senpai.presentation.shared.spinner")
 local M = {}
 
 local function extract_directory_path(path)
@@ -34,56 +36,93 @@ local function show_thread(thread)
   ChatWindowManager.replace_new_chat(args)
 end
 
+local function load_thread_native()
+  local threads = get_threads.execute()
+  vim.ui.select(threads, {
+    prompt = "Select Thread",
+    format_item = make_item_text,
+  }, function(thread)
+    show_thread(thread)
+  end)
+end
+
+local function load_thread_snacks()
+  require("snacks.picker")({
+    ---@return snacks.picker.Item[]
+    finder = function()
+      local spinner = Spinner.new("[senpai] I'm still trying to remember...")
+      spinner:start()
+      local threads = get_threads.execute()
+      spinner:stop()
+      local items = {}
+      local i = 1
+      for _, thread in pairs(threads) do
+        ---@return snacks.picker.Item
+        local item = {
+          idx = i,
+          score = get_score(thread.updatedAt),
+          text = make_item_text(thread),
+          preview = { text = vim.inspect(thread), ft = "lua" },
+          thread = thread,
+        }
+        table.insert(items, item)
+        i = i + 1
+      end
+      return items
+    end,
+    ---@type snacks.picker.Action.spec
+    confirm = function(the_picker, choice)
+      the_picker:close()
+      show_thread(choice.thread)
+    end,
+    format = "text",
+    preview = "preview",
+    win = {
+      input = {
+        keys = {
+          ["dd"] = { "delete_thread", mode = { "n" } },
+        },
+      },
+    },
+    actions = {
+      delete_thread = function(the_picker)
+        the_picker.preview:reset()
+        for _, item in ipairs(the_picker:selected({ fallback = true })) do
+          local thread = item.thread
+          ---@cast thread senpai.chat.thread
+          if thread then
+            delete_threads.execute(thread.id, function()
+              vim.notify(
+                "[senpai] Successfully deleted thread:\n" .. thread.title
+              )
+            end)
+          end
+        end
+        the_picker.list:set_selected()
+        the_picker.list:set_target()
+        the_picker:find()
+      end,
+    },
+  })
+end
+
 --[=[@doc
   category = "api"
   name = "load_thread"
   desc = """
-  ```lua
-  senpai.load_thread()
-  ````
-  detail -> |senpai-feature-history|
-  """
+```lua
+senpai.load_thread()
+```
+detail -> |senpai-feature-history|
+"""
 --]=]
 function M.load_thread()
-  get_threads.execute(function(threads)
-    local ok, picker = pcall(require, "snacks.picker")
-    if not ok then
-      vim.ui.select(threads, {
-        prompt = "Select Thread",
-        format_item = make_item_text,
-      }, function(thread)
-        show_thread(thread)
-      end)
-    else
-      picker({
-        ---@return snacks.picker.Item[]
-        finder = function()
-          local items = {}
-          local i = 1
-          for _, thread in pairs(threads) do
-            ---@return snacks.picker.Item
-            local item = {
-              idx = i,
-              score = get_score(thread.updatedAt),
-              text = make_item_text(thread),
-              preview = { text = vim.inspect(thread), ft = "lua" },
-              thread = thread,
-            }
-            table.insert(items, item)
-            i = i + 1
-          end
-          return items
-        end,
-        ---@type snacks.picker.Action.spec
-        confirm = function(the_picker, choice)
-          the_picker:close()
-          show_thread(choice.thread)
-        end,
-        format = "text",
-        preview = "preview",
-      })
-    end
-  end)
+  local ok, _ = pcall(require, "snacks.picker")
+  if not ok then
+    load_thread_native()
+  else
+    load_thread_snacks()
+  end
 end
 
 return M
