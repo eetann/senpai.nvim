@@ -59,16 +59,16 @@ end
 
 --[=[@doc
   category = "api"
-  name = "new_chat"
+  name = "new_thread"
   desc = """
 ```lua
-senpai.new_chat()
+senpai.new_thread()
 ```
 Open new chat.
 """
 --]=]
-function M.new_chat()
-  ChatWindowManager.replace_new_chat()
+function M.new_thread()
+  ChatWindowManager.replace_new_thread()
 end
 
 --[=[@doc

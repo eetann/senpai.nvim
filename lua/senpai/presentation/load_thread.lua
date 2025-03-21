@@ -33,7 +33,7 @@ local function show_thread(thread)
     args.provider = thread.metadata.provider
     args.system_prompt = thread.metadata.system_prompt
   end
-  ChatWindowManager.replace_new_chat(args)
+  ChatWindowManager.replace_new_thread(args)
 end
 
 local function load_thread_native()

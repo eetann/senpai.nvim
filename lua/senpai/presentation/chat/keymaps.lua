@@ -72,8 +72,8 @@ function M:execute_action(name)
     help = function()
       self:show_help()
     end,
-    new_chat = function()
-      vim.cmd("Senpai newChat")
+    new_thread = function()
+      vim.cmd("Senpai newThread")
     end,
     submit = function()
       send_text.execute(self.chat)

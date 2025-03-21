@@ -34,7 +34,7 @@ M.default_config = {
     keymaps = {
       ["?"] = "help",
       q = "close",
-      gx = "new_chat",
+      gx = "new_thread",
       gl = "load_thread",
       ["<C-c>"] = "abort",
     },

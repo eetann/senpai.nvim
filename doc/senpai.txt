@@ -16,7 +16,7 @@ Table of Contents                                   *senpai-table-of-contents*
   - delete_thread                                   |senpai-api-delete_thread|
   - generate_commit_message               |senpai-api-generate_commit_message|
   - load_thread                                       |senpai-api-load_thread|
-  - new_chat                                             |senpai-api-new_chat|
+  - new_thread                                         |senpai-api-new_thread|
   - setup                                                   |senpai-api-setup|
   - toggle_chat                                       |senpai-api-toggle_chat|
   - write_commit_message                     |senpai-api-write_commit_message|
@@ -25,7 +25,7 @@ Table of Contents                                   *senpai-table-of-contents*
   - _helloStream                                |senpai-commands-_hellostream|
   - commitMessage                              |senpai-commands-commitmessage|
   - loadThread                                    |senpai-commands-loadthread|
-  - newChat                                          |senpai-commands-newchat|
+  - newThread                                      |senpai-commands-newthread|
   - toggleChat                                    |senpai-commands-togglechat|
 8. Type                                                          |senpai-type|
 
@@ -144,7 +144,7 @@ The default config are as follows.
             ["<C-c>"] = "abort",
             ["?"] = "help",
             gl = "load_thread",
-            gx = "new_chat",
+            gx = "new_thread",
             q = "close"
           }
         },
@@ -242,10 +242,10 @@ detail -> |senpai-feature-history|
 _No arguments_  
 
 
-NEW_CHAT                                                 *senpai-api-new_chat*
+NEW_THREAD                                             *senpai-api-new_thread*
 
 >lua
-    senpai.new_chat()
+    senpai.new_thread()
 <
 
 Open new chat.
@@ -346,13 +346,13 @@ detail -> |senpai-feature-history|
 _No arguments_  
 
 
-NEWCHAT                                              *senpai-commands-newchat*
+NEWTHREAD                                          *senpai-commands-newthread*
 
 >
-    :Senapi newChat
+    :Senapi newThread
 <
 
-detail -> |senpai-api-new_chat|
+detail -> |senpai-api-new_thread|
 
 _No arguments_  
 

@@ -54,12 +54,12 @@ local subcmd_tbl = {
   },
   --[=[@doc
   category = "command"
-  name = "newChat"
-  desc = "detail -> |senpai-api-new_chat|"
+  name = "newThread"
+  desc = "detail -> |senpai-api-new_thread|"
   --]=]
-  newChat = {
+  newThread = {
     impl = function()
-      require("senpai.api").new_chat()
+      require("senpai.api").new_thread()
     end,
   },
   --[=[@doc

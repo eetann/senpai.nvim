@@ -103,7 +103,7 @@ The default config are as follows.
         ["<C-c>"] = "abort",
         ["?"] = "help",
         gl = "load_thread",
-        gx = "new_chat",
+        gx = "new_thread",
         q = "close"
       }
     },
@@ -204,9 +204,9 @@ _No arguments_
 &nbsp;
 
 
-## new_chat
+## new_thread
 ```lua
-senpai.new_chat()
+senpai.new_thread()
 ```
 Open new chat.
 
@@ -317,12 +317,12 @@ _No arguments_
 &nbsp;
 
 
-## newChat
+## newThread
 ```
-:Senapi newChat
+:Senapi newThread
 ```
 
-detail -> |senpai-api-new_chat|
+detail -> |senpai-api-new_thread|
 
 _No arguments_
 &nbsp;
