@@ -1,15 +1,23 @@
-import {
-	type IGetFiles,
-	inputSchema,
-	outputSchema,
-} from "@/usecase/shared/IGetFiles";
 import { createTool } from "@mastra/core/tools";
+import type { DataContent } from "ai";
 import { globby } from "globby";
-import type { z } from "zod";
+import { z } from "zod";
 
 async function glob(pattern: string) {
 	return await globby([`**/${pattern}`], { gitignore: true });
 }
+
+export const inputSchema = z.object({
+	filenames: z.array(z.string()),
+});
+export const outputSchema = z.array(
+	z.object({
+		type: z.literal("file"),
+		data: z.custom<DataContent>(),
+		mimeType: z.string(),
+		filename: z.optional(z.string()),
+	}),
+);
 
 export async function getFiles(
 	iGlob: (pattern: string) => Promise<string[]>,
@@ -53,12 +61,13 @@ export async function getFiles(
 	return result;
 }
 
-export const GetFiles = createTool({
+export const GetFilesTool = createTool({
 	id: "get-files",
-	description: "get files",
+	description:
+		"Get Files. Use only when instructed by the user or when editing files.",
 	inputSchema,
 	outputSchema,
 	execute: async ({ context: { filenames } }) => {
 		return await getFiles(glob, filenames);
 	},
-}) as IGetFiles;
+});

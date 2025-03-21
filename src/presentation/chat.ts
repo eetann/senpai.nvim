@@ -1,4 +1,3 @@
-import { GetFiles } from "@/infra/GetFiles";
 import { getModel, providerSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
@@ -36,7 +35,7 @@ app.openapi(
 	async (c) => {
 		const command = c.req.valid("json");
 		const model = getModel(command.provider);
-		const agent = new ChatAgent(memory, GetFiles, model, command.system_prompt);
+		const agent = new ChatAgent(memory, model, command.system_prompt);
 		const thread = await memory.getThreadById({ threadId: command.thread_id });
 		let isFirstMessage = false;
 		if (thread == null) {

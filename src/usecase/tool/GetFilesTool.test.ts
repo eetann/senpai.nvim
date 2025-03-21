@@ -1,9 +1,9 @@
 import { beforeAll, expect, spyOn, test } from "bun:test";
 import type { BunFile } from "bun";
-import { getFiles } from "./GetFiles";
+import { getFiles } from "./GetFilesTool";
 
 beforeAll(() => {
-	spyOn(global.Bun, "file").mockImplementation((path, options) => {
+	spyOn(global.Bun, "file").mockImplementation((path, _) => {
 		let bytes = "foo";
 		if (path === "foo.txt") {
 			bytes = "hello";
