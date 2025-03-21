@@ -26,6 +26,7 @@ local win_options = {
 
 ---@class senpai.ChatWindow: senpai.ChatWindow.Config
 ---@field keymaps senpai.chat.Keymaps
+---@field is_sending boolean
 local M = {}
 M.__index = M
 
@@ -55,6 +56,7 @@ function M.new(args)
 
   self.hidden = true
   self.keymaps = Keymaps.new(self)
+  self.is_sending = false
   return self
 end
 
