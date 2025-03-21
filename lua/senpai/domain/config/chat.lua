@@ -1,6 +1,6 @@
 local M = {}
 
----@class senpai.Config.chat.keymap: vim.api.keyset.keymap
+---@class senpai.Config.chat.keymap
 ---@field [1]? string|fun(self: senpai.ChatWindow.Config):nil
 ---@field key? string
 ---@field mode? string|string[]
@@ -28,11 +28,11 @@ M.default_config = {
     keymaps = {
       ["?"] = "help",
       q = "close",
-      gx = "replace_new_chat",
+      gx = "new_chat",
       gl = "load_thread",
     },
   },
-  log_area = {},
+  log_area = { keymaps = {} },
   input_area = {
     keymaps = {
       ["<CR>"] = "submit",

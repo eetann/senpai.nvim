@@ -52,6 +52,11 @@ local subcmd_tbl = {
       require("senpai.api").load_thread()
     end,
   },
+  newChat = {
+    impl = function()
+      require("senpai.api").new_chat()
+    end,
+  },
   _hello = {
     impl = function()
       require("senpai.api").hello()

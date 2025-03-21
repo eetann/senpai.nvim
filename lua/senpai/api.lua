@@ -56,6 +56,10 @@ function M.toggle_chat()
   ChatWindowManager.toggle_current_chat()
 end
 
+function M.new_chat()
+  ChatWindowManager.replace_new_chat()
+end
+
 return setmetatable(M, {
   __index = function(_, k)
     return require("senpai.presentation.commit_message")[k]

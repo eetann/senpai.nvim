@@ -3,7 +3,7 @@ local Split = require("nui.split")
 local utils = require("senpai.usecase.utils")
 local send_text = require("senpai.usecase.send_text")
 local set_messages = require("senpai.usecase.set_messages")
-local keymaps = require("senpai.presentation.chat.keymaps")
+local Keymaps = require("senpai.presentation.chat.keymaps")
 
 vim.treesitter.language.register("markdown", "senpai_chat_log")
 vim.treesitter.language.register("markdown", "senpai_chat_input")
@@ -25,6 +25,7 @@ local win_options = {
 }
 
 ---@class senpai.ChatWindow: senpai.ChatWindow.Config
+---@field keymaps senpai.chat.Keymaps
 local M = {}
 M.__index = M
 
@@ -53,6 +54,7 @@ function M.new(args)
   self.system_prompt = args.system_prompt or ""
 
   self.hidden = true
+  self.keymaps = Keymaps.new(self)
   return self
 end
 
@@ -67,12 +69,17 @@ function M:create_chat_log()
       filetype = "senpai_chat_log",
     },
   })
-  self.chat_log:map("n", "q", function()
-    self:hide()
-  end)
-  self.chat_log:map("n", "?", function()
-    keymaps.execute()
-  end)
+  for key, value in pairs(self.keymaps.log_area) do
+    if type(value.mode) == "string" then
+      self.chat_log:map(value.mode--[[@as string]], key, value[1])
+    else
+      for _, mode in
+        pairs(value.mode--[=[@as string[]]=])
+      do
+        self.chat_log:map(mode, key, value[1])
+      end
+    end
+  end
 end
 
 function M:create_chat_input()
@@ -87,15 +94,17 @@ function M:create_chat_input()
       filetype = "senpai_chat_input",
     },
   })
-  self.chat_input:map("n", "<CR><CR>", function()
-    send_text:execute(self)
-  end)
-  self.chat_input:map("n", "q", function()
-    self:hide()
-  end)
-  self.chat_input:map("n", "?", function()
-    keymaps.execute()
-  end)
+  for key, value in pairs(self.keymaps.input_area) do
+    if type(value.mode) == "string" then
+      self.chat_input:map(value.mode--[[@as string]], key, value[1])
+    else
+      for _, mode in
+        pairs(value.mode--[=[@as string[]]=])
+      do
+        self.chat_input:map(mode, key, value[1])
+      end
+    end
+  end
 end
 
 ---@param winid? number
