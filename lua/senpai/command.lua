@@ -8,16 +8,6 @@ local CommandResiter = require("senpai.presentation.command_register")
 ---@type table<string, Senpai.Subcommand>
 ---@private
 local subcmd_tbl = {
-  hello = {
-    impl = function()
-      require("senpai.api").hello()
-    end,
-  },
-  helloStream = {
-    impl = function()
-      require("senpai.api").hello_stream()
-    end,
-  },
   --[=[@doc
   category = "command"
   name = "commitMessage"
@@ -54,12 +44,22 @@ local subcmd_tbl = {
   },
   --[=[@doc
   category = "command"
-  name = "openHistory"
+  name = "loadThread"
   desc = "detail -> |senpai-feature-history|"
   --]=]
   loadThread = {
     impl = function()
       require("senpai.api").load_thread()
+    end,
+  },
+  _hello = {
+    impl = function()
+      require("senpai.api").hello()
+    end,
+  },
+  _helloStream = {
+    impl = function()
+      require("senpai.api").hello_stream()
     end,
   },
 }

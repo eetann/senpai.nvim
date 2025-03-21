@@ -23,6 +23,7 @@ local default_config = {
     default = "openrouter",
     openai = { model_id = "gpt-4o" },
     anthropic = { model_id = "claude-3-7-sonnet-20250219" },
+    openrouter = { model_id = "anthropic/claude-3.7-sonnet" },
   },
   commit_message = {
     language = "English",
