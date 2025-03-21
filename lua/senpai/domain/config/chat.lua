@@ -36,6 +36,7 @@ M.default_config = {
       q = "close",
       gx = "new_chat",
       gl = "load_thread",
+      ["<C-c>"] = "abort",
     },
   },
   log_area = { keymaps = {} },

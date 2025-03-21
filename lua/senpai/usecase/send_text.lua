@@ -7,7 +7,7 @@ M.__index = M
 
 ---send chat to LLM
 ---@param chat senpai.ChatWindow
-function M:execute(chat)
+function M.execute(chat)
   if chat.is_sending then
     return
   end
@@ -32,7 +32,7 @@ function M:execute(chat)
     end
   )
   spinner:start()
-  RequestHandler.streamRequest({
+  chat.job = RequestHandler.streamRequest({
     method = "post",
     route = "/chat",
     body = {

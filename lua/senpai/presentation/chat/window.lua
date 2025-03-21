@@ -27,6 +27,7 @@ local win_options = {
 ---@class senpai.ChatWindow: senpai.ChatWindow.Config
 ---@field keymaps senpai.chat.Keymaps
 ---@field is_sending boolean
+---@field job? Job
 local M = {}
 M.__index = M
 

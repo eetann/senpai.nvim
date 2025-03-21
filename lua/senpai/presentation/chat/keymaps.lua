@@ -3,6 +3,7 @@ local Text = require("nui.text")
 local Line = require("nui.line")
 local Menu = require("nui.menu")
 local send_text = require("senpai.usecase.send_text")
+local abort_request = require("senpai.usecase.abort_request")
 
 ---@class senpai.chat.Keymaps.keymaps
 
@@ -59,6 +60,9 @@ end
 function M:execute_action(name)
   ---@type table<string, fun(chat: senpai.ChatWindow):nil>
   local actions = {
+    abort = function()
+      abort_request.execute(self.chat)
+    end,
     close = function()
       self.chat:hide()
     end,
@@ -72,7 +76,7 @@ function M:execute_action(name)
       vim.cmd("Senpai newChat")
     end,
     submit = function()
-      send_text:execute(self.chat)
+      send_text.execute(self.chat)
     end,
   }
   local action = actions[name]

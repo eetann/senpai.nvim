@@ -27,12 +27,6 @@ local M = {}
 
 ---@alias senpai.RequestHandler.callback_fun fun(response: senpai.RequestHandler.return): nil
 
----@type fun(opts: senpai.RequestHandler.opts): senpai.RequestHandler.return
-M.curl = async.wrap(function(opts, callback)
-  opts.callback = callback
-  curl.request(opts)
-end, 2)
-
 ---@class senapi.RequestHandler.base_args
 ---@field method "get"|"post"|"put"|"head"|"patch"|"delete"
 ---@field route string
@@ -45,7 +39,7 @@ end, 2)
 ---@param args senapi.RequestHandler.base_args|senapi.RequestHandler.stream_args
 ---@param finish_callback fun():nil For example, stopping a spinner.
 ---@param use_stream boolean
----@return nil
+---@return Job?
 function M._request_base(args, finish_callback, use_stream)
   Client.start_server()
   if not Client.port then
@@ -56,49 +50,40 @@ function M._request_base(args, finish_callback, use_stream)
     )
     return
   end
-  async.void(function()
-    local opts = {
-      method = args.method,
-      url = "http://localhost:" .. Client.port .. args.route,
-      body = args.body and vim.fn.json_encode(args.body) or nil,
-      headers = {
-        content_type = "application/json",
-      },
-    }
+  local opts = {
+    method = args.method,
+    url = "http://localhost:" .. Client.port .. args.route,
+    body = args.body and vim.fn.json_encode(args.body) or nil,
+    headers = {
+      content_type = "application/json",
+    },
+  }
 
-    if use_stream then
-      opts.raw = { "--no-buffer" }
-      opts.stream = function(error, data)
-        vim.schedule(function()
-          if error then
-            vim.notify(
-              "[senpai] stream failed: " .. error,
-              vim.log.levels.ERROR
-            )
-          end
-          local part = M.parse_stream_part(data)
-          args.stream(error, part)
-        end)
-      end
+  if use_stream then
+    opts.raw = { "--no-buffer" }
+    opts.stream = function(error, data)
+      vim.schedule(function()
+        if error then
+          vim.notify("[senpai] stream failed: " .. error, vim.log.levels.ERROR)
+        end
+        local part = M.parse_stream_part(data)
+        args.stream(error, part)
+      end)
     end
+  end
 
-    local response = M.curl(opts)
-    vim.schedule(function()
-      finish_callback()
-      if response.status == 404 then
-        vim.notify("[senpai] 404", vim.log.levels.ERROR)
-        return
-      end
-      args.callback(response)
-    end)
-  end)()
+  opts.callback = vim.schedule_wrap(function(response)
+    finish_callback()
+    args.callback(response)
+  end)
+  return curl.request(opts)
 end
 
 ---@param args senapi.RequestHandler.base_args
 ---@param finish_callback? fun():nil For example, stopping a spinner.
----@return nil
+---@return Job?
 function M.request(args, finish_callback)
-  M._request_base(args, finish_callback or function() end, false)
+  return M._request_base(args, finish_callback or function() end, false)
 end
 
 ---@class senpai.data_stream_protocol
@@ -134,9 +119,9 @@ end
 
 ---@param args senapi.RequestHandler.stream_args
 ---@param finish_callback? fun():nil For example, stopping a spinner.
----@return nil
+---@return Job?
 function M.streamRequest(args, finish_callback)
-  M._request_base(args, finish_callback or function() end, true)
+  return M._request_base(args, finish_callback or function() end, true)
 end
 
 return M
