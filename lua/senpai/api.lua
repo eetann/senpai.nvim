@@ -56,6 +56,16 @@ function M.toggle_chat()
   ChatWindowManager.toggle_current_chat()
 end
 
+--[=[@doc
+  category = "api"
+  name = "new_chat"
+  desc = """
+  ```lua
+  senpai.new_chat()
+  ````
+  Open new chat.
+  """
+--]=]
 function M.new_chat()
   ChatWindowManager.replace_new_chat()
 end

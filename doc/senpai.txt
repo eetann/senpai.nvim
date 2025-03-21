@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 March 20
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 March 21
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -9,16 +9,22 @@ Table of Contents                                   *senpai-table-of-contents*
   - History                                           |senpai-feature-history|
 3. Requirements                                          |senpai-requirements|
 4. Installation                                          |senpai-installation|
-5. Default config                                      |senpai-default-config|
+5. config                                                      |senpai-config|
+  - default config                              |senpai-config-default-config|
+  - changing the chat keymap          |senpai-config-changing-the-chat-keymap|
 6. API                                                            |senpai-api|
   - generate_commit_message               |senpai-api-generate_commit_message|
   - load_thread                                       |senpai-api-load_thread|
+  - new_chat                                             |senpai-api-new_chat|
   - setup                                                   |senpai-api-setup|
   - toggle_chat                                       |senpai-api-toggle_chat|
   - write_commit_message                     |senpai-api-write_commit_message|
 7. Commands                                                  |senpai-commands|
+  - _hello                                            |senpai-commands-_hello|
+  - _helloStream                                |senpai-commands-_hellostream|
   - commitMessage                              |senpai-commands-commitmessage|
-  - openHistory                                  |senpai-commands-openhistory|
+  - loadThread                                    |senpai-commands-loadthread|
+  - newChat                                          |senpai-commands-newchat|
   - toggleChat                                    |senpai-commands-togglechat|
 8. Type                                                          |senpai-type|
 
@@ -34,18 +40,34 @@ Senpai is super reliable Neovim AI plugin!
 
 CHAT                                                     *senpai-feature-chat*
 
-You can chat with AI. If you write the file name, it will automatically read
-it. If you write `foo/bar/buz.txt` as `summarize buz.txt`, it will be
-recognized. (internally it searches `**/buz.txt` for files under git control).
+You can chat with AI.
+
+
+CHAT HELP ~
+
+You can open keymap help with `?`.
+
+By default, send to AI with `<CR>`.
+
+
+READ FILE ~
+
+If you write the file name, it will automatically read it. If you write
+`foo/bar/buz.txt` as `summarize buz.txt`, it will be recognized. (internally it
+searches `**/buz.txt` for files under git control).
+
+Right now it’s automatic, but eventually I’m going to make it controllable.
 
 
 HISTORY                                               *senpai-feature-history*
 
-Select a past thread and load it again as a chat. You can continue the
-conversation. The selection UI supports the following methods.
+Select a past thread and load it again as a chat. **You can continue the
+conversation**. The selection UI supports the following methods.
 
 - Native (vim.ui.select)
 - snacks.nvim <https://github.com/folke/snacks.nvim> picker
+
+
 
 
 ==============================================================================
@@ -65,7 +87,6 @@ with Lazy.nvim <https://github.com/folke/lazy.nvim>
 >lua
     {
         "eetann/senpai.nvim", 
-        lazy = true,
         opts = {config}
     }
 <
@@ -82,12 +103,48 @@ with packer.nvim <https://github.com/wbthomason/packer.nvim>
     }
 <
 
-
-==============================================================================
-5. Default config                                      *senpai-default-config*
+**Example of lazy.nvim lazy loading** It is useful to set `:Senpai toggleChat`!
 
 >lua
     {
+        "eetann/senpai.nvim", 
+        keys = {
+            { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
+        },
+        cmd = { "Senpai" },
+        opts = {config}
+    }
+<
+
+
+==============================================================================
+5. config                                                      *senpai-config*
+
+
+DEFAULT CONFIG                                  *senpai-config-default-config*
+
+The default config are as follows.
+
+>lua
+    {
+      chat = {
+        common = {
+          keymaps = {
+            ["?"] = "help",
+            gl = "load_thread",
+            gx = "new_chat",
+            q = "close"
+          }
+        },
+        input_area = {
+          keymaps = {
+            ["<CR>"] = "submit"
+          }
+        },
+        log_area = {
+          keymaps = {}
+        }
+      },
       commit_message = {
         language = "English"
       },
@@ -107,6 +164,24 @@ with packer.nvim <https://github.com/wbthomason/packer.nvim>
 <
 
 
+CHANGING THE CHAT KEYMAP              *senpai-config-changing-the-chat-keymap*
+
+Assign `false` if you want to delete the keymap.
+
+>lua
+    require("senpai").setup({
+        chat = {
+            input_area = {
+                keymaps = {
+                    ["<CR>"] = false,
+                    ["<CR><CR>"] = "submit",
+                },
+            },
+        },
+    })
+<
+
+
 ==============================================================================
 6. API                                                            *senpai-api*
 
@@ -114,7 +189,7 @@ with packer.nvim <https://github.com/wbthomason/packer.nvim>
 GENERATE_COMMIT_MESSAGE                   *senpai-api-generate_commit_message*
 
 >lua
-    senpai.generate_commit_message(language)
+      senpai.generate_commit_message(language)
 <
 
 AI generate conventional commit message of commitizen convention format.
@@ -133,7 +208,7 @@ AI generate conventional commit message of commitizen convention format.
 LOAD_THREAD                                           *senpai-api-load_thread*
 
 >lua
-    senpai.load_thread()
+      senpai.load_thread()
 <
 
 detail -> |senpai-feature-history|
@@ -141,10 +216,21 @@ detail -> |senpai-feature-history|
 _No arguments_  
 
 
+NEW_CHAT                                                 *senpai-api-new_chat*
+
+>lua
+      senpai.new_chat()
+<
+
+Open new chat.
+
+_No arguments_  
+
+
 SETUP                                                       *senpai-api-setup*
 
 >lua
-    senpai.setup({...})
+      senpai.setup({...})
 <
 
 Setup senpai
@@ -158,7 +244,7 @@ Setup senpai
 TOGGLE_CHAT                                           *senpai-api-toggle_chat*
 
 >lua
-    senpai.toggle_chat()
+      senpai.toggle_chat()
 <
 
 Toggle chat.
@@ -169,7 +255,7 @@ _No arguments_  
 WRITE_COMMIT_MESSAGE                         *senpai-api-write_commit_message*
 
 >lua
-    senpai.write_commit_message(language)
+      senpai.write_commit_message(language)
 <
 
 AI write conventional commit message of commitizen convention format.
@@ -186,6 +272,29 @@ AI write conventional commit message of commitizen convention format.
 `:Senpai {subcommand}`
 
 
+_HELLO                                                *senpai-commands-_hello*
+
+>
+    :Senapi _hello
+<
+
+For developers. To check communication with internal servers.
+
+_No arguments_  
+
+
+_HELLOSTREAM                                    *senpai-commands-_hellostream*
+
+>
+    :Senapi _helloStream
+<
+
+For developers. To check that streams are received correctly from the internal
+server.
+
+_No arguments_  
+
+
 COMMITMESSAGE                                  *senpai-commands-commitmessage*
 
 >
@@ -200,13 +309,24 @@ detail -> |senpai-api-write_commit_message|
  
 
 
-OPENHISTORY                                      *senpai-commands-openhistory*
+LOADTHREAD                                        *senpai-commands-loadthread*
 
 >
-    :Senapi openHistory
+    :Senapi loadThread
 <
 
 detail -> |senpai-feature-history|
+
+_No arguments_  
+
+
+NEWCHAT                                              *senpai-commands-newchat*
+
+>
+    :Senapi newChat
+<
+
+detail -> |senpai-api-new_chat|
 
 _No arguments_  
 
@@ -231,6 +351,47 @@ _No arguments_  
     ---@class senpai.Config
     ---@field providers? senpai.Config.providers
     ---@field commit_message? senpai.Config.commit_message
+    ---@field chat? senpai.Config.chat
+<
+
+`*senpai.Config.chat*`
+
+>lua
+    ---@class senpai.Config.chat
+    ---@field common? senpai.Config.chat.common
+    ---@field log_area? senpai.Config.chat.log_area
+    ---@field input_area? senpai.Config.chat.input_area
+<
+
+`*senpai.Config.chat.common*`
+
+>lua
+    ---@class senpai.Config.chat.common
+    ---@field keymaps? senpai.Config.chat.keymaps
+<
+
+`*senpai.Config.chat.input_area*`
+
+>lua
+    ---@class senpai.Config.chat.input_area
+    ---@field keymaps? senpai.Config.chat.keymaps
+<
+
+`*senpai.Config.chat.keymap*`
+
+>lua
+    ---@class senpai.Config.chat.keymap
+    ---@field [1]? string|fun(self: senpai.ChatWindow.Config):nil
+    ---@field key? string
+    ---@field mode? string|string[]
+    ---@field desc string
+<
+
+`*senpai.Config.chat.log_area*`
+
+>lua
+    ---@class senpai.Config.chat.log_area
+    ---@field keymaps? senpai.Config.chat.keymaps
 <
 
 `*senpai.Config.commit_message*`
