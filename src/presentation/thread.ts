@@ -1,6 +1,7 @@
 import { messageSchema } from "@/domain/messageSchema";
 import { providerSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
+import { DeleteThreadsUseCase } from "@/usecase/DeleteThreadsUseCase";
 import { GetMessagesUseCase } from "@/usecase/GetMessagesUseCase";
 import { GetThreadsUseCase } from "@/usecase/GetThreadsUseCase";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
@@ -71,5 +72,25 @@ app.openapi(route, async (c) => {
 	const threads = await new GetMessagesUseCase(memory).execute(thread_id);
 	return c.json(threads);
 });
+
+app.openapi(
+	createRoute({
+		method: "delete",
+		path: "/{id}",
+		request: {
+			params: z.object({ id: z.string() }),
+		},
+		responses: {
+			204: {
+				description: "delete thread",
+			},
+		},
+	}),
+	async (c) => {
+		const { id } = c.req.valid("param");
+		await new DeleteThreadsUseCase(memory).execute(id);
+		return new Response(undefined, { status: 204 });
+	},
+);
 
 export default app;

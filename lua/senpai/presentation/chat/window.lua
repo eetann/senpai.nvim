@@ -1,8 +1,8 @@
 local Config = require("senpai.config")
 local Split = require("nui.split")
 local utils = require("senpai.usecase.utils")
-local send_text = require("senpai.usecase.send_text")
 local set_messages = require("senpai.usecase.set_messages")
+local Keymaps = require("senpai.presentation.chat.keymaps")
 
 vim.treesitter.language.register("markdown", "senpai_chat_log")
 vim.treesitter.language.register("markdown", "senpai_chat_input")
@@ -23,7 +23,12 @@ local win_options = {
   -- listchars = "eol: ",
 }
 
+---@module 'plenary.job'
+
 ---@class senpai.ChatWindow: senpai.ChatWindow.Config
+---@field keymaps senpai.chat.Keymaps
+---@field is_sending boolean
+---@field job? Job
 local M = {}
 M.__index = M
 
@@ -31,6 +36,8 @@ M.__index = M
 ---@field provider? senpai.Config.provider.name|senpai.Config.provider
 ---@field system_prompt? string
 ---@field thread_id? string
+
+-- TODO: nuiのlayoutへ置き換える
 
 ---@nodoc
 ---@param args senpai.ChatWindowNewArgs
@@ -50,6 +57,8 @@ function M.new(args)
   self.system_prompt = args.system_prompt or ""
 
   self.hidden = true
+  self.keymaps = Keymaps.new(self)
+  self.is_sending = false
   return self
 end
 
@@ -64,9 +73,17 @@ function M:create_chat_log()
       filetype = "senpai_chat_log",
     },
   })
-  self.chat_log:map("n", "q", function()
-    self:hide()
-  end)
+  for key, value in pairs(self.keymaps.log_area) do
+    if type(value.mode) == "string" then
+      self.chat_log:map(value.mode--[[@as string]], key, value[1])
+    else
+      for _, mode in
+        pairs(value.mode--[=[@as string[]]=])
+      do
+        self.chat_log:map(mode, key, value[1])
+      end
+    end
+  end
 end
 
 function M:create_chat_input()
@@ -81,17 +98,36 @@ function M:create_chat_input()
       filetype = "senpai_chat_input",
     },
   })
-  self.chat_input:map("n", "<CR><CR>", function()
-    send_text:execute(self)
-  end)
-  self.chat_input:map("n", "q", function()
-    self:hide()
-  end)
+  for key, value in pairs(self.keymaps.input_area) do
+    if type(value.mode) == "string" then
+      self.chat_input:map(value.mode--[[@as string]], key, value[1])
+    else
+      for _, mode in
+        pairs(value.mode--[=[@as string[]]=])
+      do
+        self.chat_input:map(mode, key, value[1])
+      end
+    end
+  end
 end
 
-function M:show()
+---@param winid? number
+function M:show(winid)
   if not self.chat_log then
     self:create_chat_log()
+    if winid then
+      self.chat_log.winid = winid
+      vim.api.nvim_win_set_buf(self.chat_log.winid, self.chat_log.bufnr)
+      ---@diagnostic disable-next-line: invisible
+      for name, value in pairs(self.chat_log._.win_options) do
+        vim.api.nvim_set_option_value(
+          name,
+          value,
+          { scope = "local", win = self.chat_log.winid }
+        )
+      end
+      vim.api.nvim_set_current_win(self.chat_log.winid)
+    end
     self.chat_log:mount()
     utils.set_text_at_last(
       self.chat_log.bufnr,
@@ -100,10 +136,12 @@ function M:show()
 ---
 name: "%s"
 model_id: "%s"
+thread_id: "%s"
 ---
 ]],
         self.provider.name,
-        self.provider.model_id
+        self.provider.model_id,
+        self.thread_id
       )
     )
     set_messages.execute(self)
@@ -134,9 +172,9 @@ function M:hide()
 end
 
 function M:destroy()
+  self.hidden = true
   self.chat_log:unmount()
   self.chat_input:unmount()
-  self.hidden = true
 end
 
 function M:toggle()
@@ -145,14 +183,6 @@ function M:toggle()
   else
     self:hide()
   end
-end
-
-function M:get_log_buf()
-  return self.chat_log.bufnr
-end
-
-function M:get_input_buf()
-  return self.chat_input.bufnr
 end
 
 return M

@@ -1,8 +1,20 @@
-local async = require("plenary.async")
 local curl = require("plenary.curl")
 local Client = require("senpai.presentation.client")
 
 local M = {}
+
+---@class senpai.RequestHandler.return
+---@field exit number The shell process exit code
+---@field status number The https response status
+---@field headers table The https response headers
+---@field body string The http response body
+
+---@class senpai.data_stream_protocol
+---@field type string|nil
+---@field content string|table
+
+---@alias senpai.RequestHandler.callback_fun fun(response: senpai.RequestHandler.return): nil
+---@alias senpai.RequestHandler.stream_fun fun(error: string, data: senpai.data_stream_protocol?): nil
 
 ---@class senpai.RequestHandler.opts
 ---@field method "get"|"post"|"put"|"head"|"patch"|"delete"
@@ -18,92 +30,73 @@ local M = {}
 ---@field http_version? 'HTTP/0.9'|'HTTP/1.0'|'HTTP/1.1'|'HTTP/2'|'HTTP/3'
 ---@field proxy? string [protocol://]host[:port] Use this proxy
 ---@field insecure? boolean Allow insecure server connections
-
----@class senpai.RequestHandler.return
----@field exit number The shell process exit code
----@field status number The https response status
----@field headers table The https response headers
----@field body string The http response body
-
----@alias senpai.RequestHandler.callback_fun fun(response: senpai.RequestHandler.return): nil
-
----@type fun(opts: senpai.RequestHandler.opts): senpai.RequestHandler.return
-M.curl = async.wrap(function(opts, callback)
-  opts.callback = callback
-  curl.request(opts)
-end, 2)
+---@field callback? senpai.RequestHandler.callback_fun
+---@field stream? fun(error: string, data: string|nil): nil
 
 ---@class senapi.RequestHandler.base_args
 ---@field method "get"|"post"|"put"|"head"|"patch"|"delete"
 ---@field route string
 ---@field body table|nil
+
+---@class senapi.RequestHandler.callback_args : senapi.RequestHandler.base_args
 ---@field callback senpai.RequestHandler.callback_fun
 
 ---@class senapi.RequestHandler.stream_args : senapi.RequestHandler.base_args
 ---@field stream senpai.RequestHandler.stream_fun
 
----@param args senapi.RequestHandler.base_args|senapi.RequestHandler.stream_args
----@param finish_callback fun():nil For example, stopping a spinner.
----@param use_stream boolean
----@return nil
-function M._request_base(args, finish_callback, use_stream)
+---@param args senapi.RequestHandler.base_args
+---@return senpai.RequestHandler.opts?
+local function create_opts(args)
   Client.start_server()
   if not Client.port then
-    finish_callback()
     vim.notify(
       "[senpai] Server startup failed. Please try again.",
       vim.log.levels.ERROR
     )
-    return
+    return nil
   end
-  async.void(function()
-    local opts = {
-      method = args.method,
-      url = "http://localhost:" .. Client.port .. args.route,
-      body = args.body and vim.fn.json_encode(args.body) or nil,
-      headers = {
-        content_type = "application/json",
-      },
-    }
+  return {
+    method = args.method,
+    url = "http://localhost:" .. Client.port .. args.route,
+    body = args.body and vim.fn.json_encode(args.body) or nil,
+    headers = {
+      content_type = "application/json",
+    },
+  }
+end
 
-    if use_stream then
-      opts.raw = { "--no-buffer" }
-      opts.stream = function(error, data)
-        vim.schedule(function()
-          if error then
-            vim.notify(
-              "[senpai] stream failed: " .. error,
-              vim.log.levels.ERROR
-            )
-          end
-          local part = M.parse_stream_part(data)
-          args.stream(error, part)
-        end)
-      end
+---@param args senapi.RequestHandler.callback_args|senapi.RequestHandler.stream_args
+---@param finish_callback fun():nil For example, stopping a spinner.
+---@param use_stream boolean
+---@return Job?
+function M._request_base(args, finish_callback, use_stream)
+  local opts = create_opts(args)
+  if use_stream then
+    opts.raw = { "--no-buffer" }
+    opts.stream = function(error, data)
+      vim.schedule(function()
+        if error then
+          vim.notify("[senpai] stream failed: " .. error, vim.log.levels.ERROR)
+        end
+        local part = M.parse_stream_part(data)
+        args.stream(error, part)
+      end)
     end
+  end
 
-    local response = M.curl(opts)
-    vim.schedule(function()
-      finish_callback()
-      if response.status == 404 then
-        vim.notify("[senpai] 404", vim.log.levels.ERROR)
-        return
-      end
-      args.callback(response)
-    end)
-  end)()
+  opts.callback = vim.schedule_wrap(function(response)
+    finish_callback()
+    args.callback(response)
+  end)
+  return curl.request(opts)
 end
 
----@param args senapi.RequestHandler.base_args
+---@param args senapi.RequestHandler.callback_args
 ---@param finish_callback? fun():nil For example, stopping a spinner.
----@return nil
+---@return Job?
 function M.request(args, finish_callback)
-  M._request_base(args, finish_callback or function() end, false)
+  return M._request_base(args, finish_callback or function() end, false)
 end
-
----@class senpai.data_stream_protocol
----@field type string|nil
----@field content string|table
 
 ---parse "Data Stream Protocol by AI SDK"
 -- https://sdk.vercel.ai/docs/ai-sdk-ui/stream-protocol#data-stream-protocol
@@ -130,13 +123,18 @@ function M.parse_stream_part(stream_part)
   }
 end
 
----@alias senpai.RequestHandler.stream_fun fun(error: string, data: senpai.data_stream_protocol?): nil
-
 ---@param args senapi.RequestHandler.stream_args
 ---@param finish_callback? fun():nil For example, stopping a spinner.
----@return nil
+---@return Job?
 function M.streamRequest(args, finish_callback)
-  M._request_base(args, finish_callback or function() end, true)
+  return M._request_base(args, finish_callback or function() end, true)
+end
+
+---@param args senapi.RequestHandler.base_args
+---@return senpai.RequestHandler.return
+function M.request_without_callback(args)
+  local opts = create_opts(args)
+  return curl.request(opts) --[[@as senpai.RequestHandler.return]]
 end
 
 return M

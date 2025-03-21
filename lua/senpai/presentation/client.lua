@@ -6,8 +6,21 @@ M.job = nil
 ---@type number?
 M.port = nil
 
+local function wait_to_setup_server()
+  for _ = 1, 10 do
+    local result =
+      vim.system({ "curl", "-s", "http://localhost:" .. M.port }):wait()
+    if result.code == 0 then
+      break
+    end
+    vim.cmd("sleep 200ms")
+  end
+end
+
+---start server
 function M.start_server()
   if M.job then
+    wait_to_setup_server()
     return
   end
 
@@ -45,7 +58,6 @@ function M.start_server()
         M.port = nil
       end
     )
-    vim.cmd("sleep 1000ms")
   end
 
   math.randomseed(os.time())

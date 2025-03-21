@@ -8,16 +8,6 @@ local CommandResiter = require("senpai.presentation.command_register")
 ---@type table<string, Senpai.Subcommand>
 ---@private
 local subcmd_tbl = {
-  hello = {
-    impl = function()
-      require("senpai.api").hello()
-    end,
-  },
-  helloStream = {
-    impl = function()
-      require("senpai.api").hello_stream()
-    end,
-  },
   --[=[@doc
   category = "command"
   name = "commitMessage"
@@ -54,12 +44,48 @@ local subcmd_tbl = {
   },
   --[=[@doc
   category = "command"
-  name = "openHistory"
+  name = "loadThread"
   desc = "detail -> |senpai-feature-history|"
   --]=]
   loadThread = {
     impl = function()
       require("senpai.api").load_thread()
+    end,
+  },
+  --[=[@doc
+  category = "command"
+  name = "newChat"
+  desc = "detail -> |senpai-api-new_chat|"
+  --]=]
+  newChat = {
+    impl = function()
+      require("senpai.api").new_chat()
+    end,
+  },
+  --[=[@doc
+  category = "command"
+  name = "_hello"
+  desc = """
+For developers.
+To check communication with internal servers.
+"""
+  --]=]
+  _hello = {
+    impl = function()
+      require("senpai.api").hello()
+    end,
+  },
+  --[=[@doc
+  category = "command"
+  name = "_helloStream"
+  desc = """
+For developers.
+To check that streams are received correctly from the internal server.
+"""
+  --]=]
+  _helloStream = {
+    impl = function()
+      require("senpai.api").hello_stream()
     end,
   },
 }

@@ -1,6 +1,7 @@
 local ChatWindowManager = require("senpai.presentation.chat.window_manager")
 local RequestHandler = require("senpai.presentation.shared.request_handler")
 local utils = require("senpai.usecase.utils")
+local delete_threads = require("senpai.usecase.delete_threads")
 
 local M = {}
 
@@ -27,7 +28,10 @@ function M.hello_stream()
         return
       end
       if part.type == "0" then
-        utils.set_text_at_last(vim.api.nvim_get_current_buf(), part.content)
+        utils.set_text_at_last(
+          vim.api.nvim_get_current_buf(),
+          part.content --[[@as string]]
+        )
       end
     end,
     callback = function(response)
@@ -43,14 +47,49 @@ end
   category = "api"
   name = "toggle_chat"
   desc = """
-  ```lua
-  senpai.toggle_chat()
-  ````
-  Toggle chat.
-  """
+```lua
+senpai.toggle_chat()
+```
+Toggle chat.
+"""
 --]=]
 function M.toggle_chat()
-  ChatWindowManager:toggle_current_chat()
+  ChatWindowManager.toggle_current_chat()
+end
+
+--[=[@doc
+  category = "api"
+  name = "new_chat"
+  desc = """
+```lua
+senpai.new_chat()
+```
+Open new chat.
+"""
+--]=]
+function M.new_chat()
+  ChatWindowManager.replace_new_chat()
+end
+
+--[=[@doc
+  category = "api"
+  name = "delete_thread"
+  desc = """
+```lua
+senpai.delete_thread(thread_id)
+```
+Delete the specified thread.
+"""
+
+  [[args]]
+  name = "thread_id"
+  type = "string"
+  desc = "thread_id"
+--]=]
+function M.delete_thread(thread_id)
+  delete_threads.execute(thread_id, function()
+    vim.notify("[senpai] Successfully deleted thread " .. thread_id)
+  end)
 end
 
 return setmetatable(M, {

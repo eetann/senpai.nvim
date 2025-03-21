@@ -3,23 +3,45 @@ Senpai is super reliable Neovim AI plugin!
 
 
 # Feature
+
+- 💬 Chat
+- 📜 History: You can continue the conversation
+- ✅ Generate commit message
+
+
 ## Chat
-![chat](https://github.com/user-attachments/assets/93053937-325b-4ed3-bce5-0215285fdb29)
-You can chat with AI.
+<img width="1756" alt="chat" src="https://github.com/user-attachments/assets/e981ad2c-1d63-4f45-a30a-80885f557d26" />
+You can chat with AI.<br/>
+
+### chat help
+You can open keymap help with `?`.<br/>
+<img width="312" alt="keymap help for chat" src="https://github.com/user-attachments/assets/8ee2bf91-1602-4441-aedd-59875fe22a83" />
+
+By default, send to AI with `<CR>`.<br/>
+
+### read file
 If you write the file name, it will automatically read it.
 If you write `foo/bar/buz.txt` as `summarize buz.txt`,
-it will be recognized.
-(internally it searches `**/buz.txt` for files under git control).
+it will be recognized.<br/>
+(internally it searches `**/buz.txt` for files under git control).<br/>
+
+Right now it's automatic, but eventually I'm going to make it controllable.
+
 
 ## History
-Select a past thread and load it again as a chat.
-You can continue the conversation.
-The selection UI supports the following methods.
+Select a past thread and load it again as a chat.<br/>
+**You can continue the conversation**.
+The selection UI supports the following methods.<br/>
 
 - Native (vim.ui.select)
 - [snacks.nvim](https://github.com/folke/snacks.nvim) picker
 
-![Senpai loadThread](https://github.com/user-attachments/assets/734a759d-5251-465b-8aef-76060979acec)
+<img width="1671" alt="Senpai loadThread" src="https://github.com/user-attachments/assets/5289e694-c942-496a-ac5c-0786e726c166" />
+
+### delete thread from history
+In case of snacks, switch to normal mode and enter `dd` to delete the specified thread.<br/>
+You can also delete using the API `senpai.delete_thread(thread_id)`.
+
 
 # Requirements
 
@@ -34,7 +56,6 @@ with [Lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
 {
     "eetann/senpai.nvim", 
-	lazy = true,
 	opts = {config}
 }
 ```
@@ -49,10 +70,52 @@ with [packer.nvim](https://github.com/wbthomason/packer.nvim)
 }
 ```
 
-# Default config
+**Example of lazy.nvim lazy loading**
+It is useful to set `:Senpai toggleChat`!
+
+```lua
+{
+    "eetann/senpai.nvim", 
+	keys = {
+		{ "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
+	},
+	cmd = { "Senpai" },
+	opts = {config}
+}
+```
+
+# config
+
+## default config
+The default config are as follows.
+
+<!-- panvimdoc-ignore-start -->
+<details>
+    <summary>default config</summary>
+<!-- panvimdoc-ignore-end -->
+
 <!-- auto-generate-s:default_config -->
 ```lua
 {
+  chat = {
+    common = {
+      keymaps = {
+        ["<C-c>"] = "abort",
+        ["?"] = "help",
+        gl = "load_thread",
+        gx = "new_chat",
+        q = "close"
+      }
+    },
+    input_area = {
+      keymaps = {
+        ["<CR>"] = "submit"
+      }
+    },
+    log_area = {
+      keymaps = {}
+    }
+  },
   commit_message = {
     language = "English"
   },
@@ -72,15 +135,54 @@ with [packer.nvim](https://github.com/wbthomason/packer.nvim)
 ```
 <!-- auto-generate-e:default_config -->
 
+<!-- panvimdoc-ignore-start -->
+</details>
+<!-- panvimdoc-ignore-end -->
+
+## changing the chat keymap
+
+Assign `false` if you want to delete the keymap.
+```lua
+require("senpai").setup({
+    chat = {
+        input_area = {
+            keymaps = {
+                ["<CR>"] = false,
+                ["<CR><CR>"] = "submit",
+            },
+        },
+    },
+})
+```
+
 # API
+<!-- panvimdoc-ignore-start -->
+<details>
+    <summary>API</summary>
+<!-- panvimdoc-ignore-end -->
 <!-- auto-generate-s:api -->
 
+## delete_thread
+```lua
+senpai.delete_thread(thread_id)
+```
+Delete the specified thread.
+
+
+
+| Name | Type | Description |
+|------|------|-------------|
+| thread_id | string | thread_id |
+
+&nbsp;
+
+
 ## generate_commit_message
-  ```lua
-  senpai.generate_commit_message(language)
-  ````
-  AI generate conventional commit message of commitizen convention format.
-  
+```lua
+senpai.generate_commit_message(language)
+```
+AI generate conventional commit message of commitizen convention format.
+
 
 
 | Name | Type | Description |
@@ -92,22 +194,33 @@ with [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
 
 ## load_thread
-  ```lua
-  senpai.load_thread()
-  ````
-  detail -> |senpai-feature-history|
-  
+```lua
+senpai.load_thread()
+```
+detail -> |senpai-feature-history|
+
+
+_No arguments_
+&nbsp;
+
+
+## new_chat
+```lua
+senpai.new_chat()
+```
+Open new chat.
+
 
 _No arguments_
 &nbsp;
 
 
 ## setup
-  ```lua
-  senpai.setup({...})
-  ```
-  Setup senpai
-  
+```lua
+senpai.setup({...})
+```
+Setup senpai
+
 
 
 | Name | Type | Description |
@@ -118,22 +231,22 @@ _No arguments_
 
 
 ## toggle_chat
-  ```lua
-  senpai.toggle_chat()
-  ````
-  Toggle chat.
-  
+```lua
+senpai.toggle_chat()
+```
+Toggle chat.
+
 
 _No arguments_
 &nbsp;
 
 
 ## write_commit_message
-  ```lua
-  senpai.write_commit_message(language)
-  ````
-  AI write conventional commit message of commitizen convention format.
-  
+```lua
+senpai.write_commit_message(language)
+```
+AI write conventional commit message of commitizen convention format.
+
 
 
 | Name | Type | Description |
@@ -143,10 +256,40 @@ _No arguments_
 &nbsp;
 
 <!-- auto-generate-e:api -->
+<!-- panvimdoc-ignore-start -->
+</details>
+<!-- panvimdoc-ignore-end -->
+
 # Commands
 `:Senpai {subcommand}`
 
 <!-- auto-generate-s:command -->
+
+## _hello
+```
+:Senapi _hello
+```
+
+For developers.
+To check communication with internal servers.
+
+
+_No arguments_
+&nbsp;
+
+
+## _helloStream
+```
+:Senapi _helloStream
+```
+
+For developers.
+To check that streams are received correctly from the internal server.
+
+
+_No arguments_
+&nbsp;
+
 
 ## commitMessage
 ```
@@ -163,12 +306,23 @@ detail -> |senpai-api-write_commit_message|
 &nbsp;
 
 
-## openHistory
+## loadThread
 ```
-:Senapi openHistory
+:Senapi loadThread
 ```
 
 detail -> |senpai-feature-history|
+
+_No arguments_
+&nbsp;
+
+
+## newChat
+```
+:Senapi newChat
+```
+
+detail -> |senpai-api-new_chat|
 
 _No arguments_
 &nbsp;
@@ -187,6 +341,10 @@ _No arguments_
 <!-- auto-generate-e:command -->
 
 # Type
+<!-- panvimdoc-ignore-start -->
+<details>
+    <summary>Types</summary>
+<!-- panvimdoc-ignore-end -->
 <!-- auto-generate-s:type -->
 
 `*senpai.Config*`
@@ -194,6 +352,47 @@ _No arguments_
 ---@class senpai.Config
 ---@field providers? senpai.Config.providers
 ---@field commit_message? senpai.Config.commit_message
+---@field chat? senpai.Config.chat
+```
+
+
+`*senpai.Config.chat*`
+```lua
+---@class senpai.Config.chat
+---@field common? senpai.Config.chat.common
+---@field log_area? senpai.Config.chat.log_area
+---@field input_area? senpai.Config.chat.input_area
+```
+
+
+`*senpai.Config.chat.common*`
+```lua
+---@class senpai.Config.chat.common
+---@field keymaps? senpai.Config.chat.keymaps
+```
+
+
+`*senpai.Config.chat.input_area*`
+```lua
+---@class senpai.Config.chat.input_area
+---@field keymaps? senpai.Config.chat.keymaps
+```
+
+
+`*senpai.Config.chat.keymap*`
+```lua
+---@class senpai.Config.chat.keymap
+---@field [1]? string|fun(self: senpai.ChatWindow.Config):nil
+---@field key? string
+---@field mode? string|string[]
+---@field desc string
+```
+
+
+`*senpai.Config.chat.log_area*`
+```lua
+---@class senpai.Config.chat.log_area
+---@field keymaps? senpai.Config.chat.keymaps
 ```
 
 
@@ -245,3 +444,6 @@ _No arguments_
 ```
 
 <!-- auto-generate-e:type -->
+<!-- panvimdoc-ignore-start -->
+</details>
+<!-- panvimdoc-ignore-end -->

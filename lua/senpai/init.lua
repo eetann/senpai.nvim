@@ -4,11 +4,11 @@ local senpai = {}
   category = "api"
   name = "setup"
   desc = """
-  ```lua
-  senpai.setup({...})
-  ```
-  Setup senpai
-  """
+```lua
+senpai.setup({...})
+```
+Setup senpai
+"""
 
   [[args]]
   name = "config"

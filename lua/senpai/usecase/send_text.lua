@@ -7,7 +7,11 @@ M.__index = M
 
 ---send chat to LLM
 ---@param chat senpai.ChatWindow
-function M:execute(chat)
+function M.execute(chat)
+  if chat.is_sending then
+    return
+  end
+  chat.is_sending = true
   local lines = vim.api.nvim_buf_get_lines(chat.chat_input.bufnr, 0, -1, false)
   vim.api.nvim_buf_set_lines(chat.chat_input.bufnr, 0, -1, false, {})
   local user_input = utils.process_user_input(chat, lines)
@@ -20,6 +24,7 @@ function M:execute(chat)
     end,
     -- finish
     function(message)
+      chat.is_sending = false
       utils.set_winbar(chat.chat_input.winid, message)
       vim.defer_fn(function()
         utils.set_winbar(chat.chat_input.winid, "Ask Senpai")
@@ -27,7 +32,7 @@ function M:execute(chat)
     end
   )
   spinner:start()
-  RequestHandler.streamRequest({
+  chat.job = RequestHandler.streamRequest({
     method = "post",
     route = "/chat",
     body = {
@@ -41,7 +46,10 @@ function M:execute(chat)
         return
       end
       if part.type == "0" then
-        utils.set_text_at_last(chat.chat_log.bufnr, part.content)
+        utils.set_text_at_last(
+          chat.chat_log.bufnr,
+          part.content --[[@as string]]
+        )
         utils.scroll_when_invisible(chat)
       end
     end,

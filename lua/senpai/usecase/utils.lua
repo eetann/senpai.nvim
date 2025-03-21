@@ -28,9 +28,15 @@ function M.set_text_at_last(buffer, text)
 end
 
 ---set winbar
----@param winid number
+---@param winid number|nil
 ---@param text string
 function M.set_winbar(winid, text)
+  if not winid then
+    return
+  end
+  if not vim.api.nvim_win_is_valid(winid) then
+    return
+  end
   vim.api.nvim_set_option_value(
     "winbar",
     "%#Nomal#%=" .. text .. "%=",
@@ -98,8 +104,8 @@ function M.create_borders(bufnr, start_row, user_input_row_length)
     0,
     {
       sign_text = "╭",
-      sign_hl_group = "NonText",
-      virt_text = { { string.rep("─", 150), "NonText" } },
+      sign_hl_group = "FloatBorder",
+      virt_text = { { string.rep("─", 150), "FloatBorder" } },
       virt_text_pos = "overlay",
       virt_text_hide = true,
     }
@@ -114,7 +120,7 @@ function M.create_borders(bufnr, start_row, user_input_row_length)
       0,
       {
         sign_text = "│",
-        sign_hl_group = "NonText",
+        sign_hl_group = "FloatBorder",
       }
     )
   end
@@ -127,12 +133,27 @@ function M.create_borders(bufnr, start_row, user_input_row_length)
     0,
     {
       sign_text = "╰",
-      sign_hl_group = "NonText",
-      virt_text = { { string.rep("─", 150), "NonText" } },
+      sign_hl_group = "FloatBorder",
+      virt_text = { { string.rep("─", 150), "FloatBorder" } },
       virt_text_pos = "overlay",
       virt_text_hide = true,
     }
   )
+end
+
+-- https://gist.github.com/liukun/f9ce7d6d14fa45fe9b924a3eed5c3d99
+local char_to_hex = function(c)
+  return string.format("%%%02X", string.byte(c))
+end
+
+function M.encode_url(url)
+  if url == nil then
+    return
+  end
+  url = url:gsub("\n", "\r\n")
+  url = url:gsub("([^%w _%%%-%.~])", char_to_hex)
+  url = url:gsub(" ", "+")
+  return url
 end
 
 return M

@@ -1,17 +1,11 @@
-local Provider = require("senpai.domain.provider")
-
----@type senpai.Config.providers
-local providers = {
-  default = "openrouter",
-  openai = { model_id = "gpt-4o" },
-  anthropic = { model_id = "claude-3-7-sonnet-20250219" },
-  openrouter = { model_id = "anthropic/claude-3.7-sonnet" },
-}
+local Provider = require("senpai.domain.config.provider")
+local ChatConfig = require("senpai.domain.config.chat")
 
 ---@doc.type
 ---@class senpai.Config
 ---@field providers? senpai.Config.providers
 ---@field commit_message? senpai.Config.commit_message
+---@field chat? senpai.Config.chat
 
 ---@doc.type
 ---@class senpai.Config.commit_message
@@ -25,10 +19,16 @@ local providers = {
 
 ---@type senpai.Config
 local default_config = {
-  providers = providers,
+  providers = {
+    default = "openrouter",
+    openai = { model_id = "gpt-4o" },
+    anthropic = { model_id = "claude-3-7-sonnet-20250219" },
+    openrouter = { model_id = "anthropic/claude-3.7-sonnet" },
+  },
   commit_message = {
     language = "English",
   },
+  chat = ChatConfig.default_config,
 }
 
 ---@type senpai.Config
