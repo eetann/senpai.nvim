@@ -28,9 +28,15 @@ function M.set_text_at_last(buffer, text)
 end
 
 ---set winbar
----@param winid number
+---@param winid number|nil
 ---@param text string
 function M.set_winbar(winid, text)
+  if not winid then
+    return
+  end
+  if not vim.api.nvim_win_is_valid(winid) then
+    return
+  end
   vim.api.nvim_set_option_value(
     "winbar",
     "%#Nomal#%=" .. text .. "%=",

@@ -1,7 +1,6 @@
 local Config = require("senpai.config")
 local Split = require("nui.split")
 local utils = require("senpai.usecase.utils")
-local send_text = require("senpai.usecase.send_text")
 local set_messages = require("senpai.usecase.set_messages")
 local Keymaps = require("senpai.presentation.chat.keymaps")
 
@@ -23,6 +22,8 @@ local win_options = {
   fillchars = "eob: ,lastline:…",
   -- listchars = "eol: ",
 }
+
+---@module 'plenary.job'
 
 ---@class senpai.ChatWindow: senpai.ChatWindow.Config
 ---@field keymaps senpai.chat.Keymaps
@@ -169,9 +170,9 @@ function M:hide()
 end
 
 function M:destroy()
+  self.hidden = true
   self.chat_log:unmount()
   self.chat_input:unmount()
-  self.hidden = true
 end
 
 function M:toggle()
@@ -180,14 +181,6 @@ function M:toggle()
   else
     self:hide()
   end
-end
-
-function M:get_log_buf()
-  return self.chat_log.bufnr
-end
-
-function M:get_input_buf()
-  return self.chat_input.bufnr
 end
 
 return M
