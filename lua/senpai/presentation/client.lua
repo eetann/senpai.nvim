@@ -6,10 +6,21 @@ M.job = nil
 ---@type number?
 M.port = nil
 
+local function wait_to_setup_server()
+  for _ = 1, 10 do
+    local result =
+      vim.system({ "curl", "-s", "http://localhost:" .. M.port }):wait()
+    if result.code == 0 then
+      break
+    end
+    vim.cmd("sleep 200ms")
+  end
+end
+
 ---start server
----@param in_setup? boolean Flag to prevent sleep if called from the plugin's setup function
-function M.start_server(in_setup)
+function M.start_server()
   if M.job then
+    wait_to_setup_server()
     return
   end
 
@@ -47,9 +58,6 @@ function M.start_server(in_setup)
         M.port = nil
       end
     )
-    if not in_setup then
-      vim.cmd("sleep 1000ms")
-    end
   end
 
   math.randomseed(os.time())
