@@ -66,9 +66,9 @@ local subcmd_tbl = {
   category = "command"
   name = "_hello"
   desc = """
-  For developers.
-  To check communication with internal servers.
-  """
+For developers.
+To check communication with internal servers.
+"""
   --]=]
   _hello = {
     impl = function()
@@ -79,9 +79,9 @@ local subcmd_tbl = {
   category = "command"
   name = "_helloStream"
   desc = """
-  For developers.
-  To check that streams are received correctly from the internal server.
-  """
+For developers.
+To check that streams are received correctly from the internal server.
+"""
   --]=]
   _helloStream = {
     impl = function()

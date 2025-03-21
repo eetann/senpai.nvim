@@ -13,6 +13,7 @@ Table of Contents                                   *senpai-table-of-contents*
   - default config                              |senpai-config-default-config|
   - changing the chat keymap          |senpai-config-changing-the-chat-keymap|
 6. API                                                            |senpai-api|
+  - delete_thread                                   |senpai-api-delete_thread|
   - generate_commit_message               |senpai-api-generate_commit_message|
   - load_thread                                       |senpai-api-load_thread|
   - new_chat                                             |senpai-api-new_chat|
@@ -36,6 +37,10 @@ Senpai is super reliable Neovim AI plugin!
 
 ==============================================================================
 2. Feature                                                    *senpai-feature*
+
+- Chat
+- History: You can continue the conversation
+- Generate commit message
 
 
 CHAT                                                     *senpai-feature-chat*
@@ -68,6 +73,12 @@ conversation**. The selection UI supports the following methods.
 - snacks.nvim <https://github.com/folke/snacks.nvim> picker
 
 
+
+
+DELETE THREAD FROM HISTORY ~
+
+In case of snacks, switch to normal mode and enter `dd` to delete the specified
+thread. You can also delete using the API `senpai.delete_thread(thread_id)`.
 
 
 ==============================================================================
@@ -130,6 +141,7 @@ The default config are as follows.
       chat = {
         common = {
           keymaps = {
+            ["<C-c>"] = "abort",
             ["?"] = "help",
             gl = "load_thread",
             gx = "new_chat",
@@ -186,10 +198,24 @@ Assign `false` if you want to delete the keymap.
 6. API                                                            *senpai-api*
 
 
+DELETE_THREAD                                       *senpai-api-delete_thread*
+
+>lua
+    senpai.delete_thread(thread_id)
+<
+
+Delete the specified thread.
+
+  Name        Type     Description
+  ----------- -------- -------------
+  thread_id   string   thread_id
+ 
+
+
 GENERATE_COMMIT_MESSAGE                   *senpai-api-generate_commit_message*
 
 >lua
-      senpai.generate_commit_message(language)
+    senpai.generate_commit_message(language)
 <
 
 AI generate conventional commit message of commitizen convention format.
@@ -208,7 +234,7 @@ AI generate conventional commit message of commitizen convention format.
 LOAD_THREAD                                           *senpai-api-load_thread*
 
 >lua
-      senpai.load_thread()
+    senpai.load_thread()
 <
 
 detail -> |senpai-feature-history|
@@ -219,7 +245,7 @@ _No arguments_  
 NEW_CHAT                                                 *senpai-api-new_chat*
 
 >lua
-      senpai.new_chat()
+    senpai.new_chat()
 <
 
 Open new chat.
@@ -230,7 +256,7 @@ _No arguments_  
 SETUP                                                       *senpai-api-setup*
 
 >lua
-      senpai.setup({...})
+    senpai.setup({...})
 <
 
 Setup senpai
@@ -244,7 +270,7 @@ Setup senpai
 TOGGLE_CHAT                                           *senpai-api-toggle_chat*
 
 >lua
-      senpai.toggle_chat()
+    senpai.toggle_chat()
 <
 
 Toggle chat.
@@ -255,7 +281,7 @@ _No arguments_  
 WRITE_COMMIT_MESSAGE                         *senpai-api-write_commit_message*
 
 >lua
-      senpai.write_commit_message(language)
+    senpai.write_commit_message(language)
 <
 
 AI write conventional commit message of commitizen convention format.

@@ -3,6 +3,12 @@ Senpai is super reliable Neovim AI plugin!
 
 
 # Feature
+
+- 💬 Chat
+- 📜 History: You can continue the conversation
+- ✅ Generate commit message
+
+
 ## Chat
 <img width="1756" alt="chat" src="https://github.com/user-attachments/assets/e981ad2c-1d63-4f45-a30a-80885f557d26" />
 You can chat with AI.<br/>
@@ -31,6 +37,11 @@ The selection UI supports the following methods.<br/>
 - [snacks.nvim](https://github.com/folke/snacks.nvim) picker
 
 <img width="1671" alt="Senpai loadThread" src="https://github.com/user-attachments/assets/5289e694-c942-496a-ac5c-0786e726c166" />
+
+### delete thread from history
+In case of snacks, switch to normal mode and enter `dd` to delete the specified thread.<br/>
+You can also delete using the API `senpai.delete_thread(thread_id)`.
+
 
 # Requirements
 
@@ -89,6 +100,7 @@ The default config are as follows.
   chat = {
     common = {
       keymaps = {
+        ["<C-c>"] = "abort",
         ["?"] = "help",
         gl = "load_thread",
         gx = "new_chat",
@@ -150,12 +162,27 @@ require("senpai").setup({
 <!-- panvimdoc-ignore-end -->
 <!-- auto-generate-s:api -->
 
+## delete_thread
+```lua
+senpai.delete_thread(thread_id)
+```
+Delete the specified thread.
+
+
+
+| Name | Type | Description |
+|------|------|-------------|
+| thread_id | string | thread_id |
+
+&nbsp;
+
+
 ## generate_commit_message
-  ```lua
-  senpai.generate_commit_message(language)
-  ````
-  AI generate conventional commit message of commitizen convention format.
-  
+```lua
+senpai.generate_commit_message(language)
+```
+AI generate conventional commit message of commitizen convention format.
+
 
 
 | Name | Type | Description |
@@ -167,33 +194,33 @@ require("senpai").setup({
 
 
 ## load_thread
-  ```lua
-  senpai.load_thread()
-  ````
-  detail -> |senpai-feature-history|
-  
+```lua
+senpai.load_thread()
+```
+detail -> |senpai-feature-history|
+
 
 _No arguments_
 &nbsp;
 
 
 ## new_chat
-  ```lua
-  senpai.new_chat()
-  ````
-  Open new chat.
-  
+```lua
+senpai.new_chat()
+```
+Open new chat.
+
 
 _No arguments_
 &nbsp;
 
 
 ## setup
-  ```lua
-  senpai.setup({...})
-  ```
-  Setup senpai
-  
+```lua
+senpai.setup({...})
+```
+Setup senpai
+
 
 
 | Name | Type | Description |
@@ -204,22 +231,22 @@ _No arguments_
 
 
 ## toggle_chat
-  ```lua
-  senpai.toggle_chat()
-  ````
-  Toggle chat.
-  
+```lua
+senpai.toggle_chat()
+```
+Toggle chat.
+
 
 _No arguments_
 &nbsp;
 
 
 ## write_commit_message
-  ```lua
-  senpai.write_commit_message(language)
-  ````
-  AI write conventional commit message of commitizen convention format.
-  
+```lua
+senpai.write_commit_message(language)
+```
+AI write conventional commit message of commitizen convention format.
+
 
 
 | Name | Type | Description |
@@ -243,9 +270,9 @@ _No arguments_
 :Senapi _hello
 ```
 
-  For developers.
-  To check communication with internal servers.
-  
+For developers.
+To check communication with internal servers.
+
 
 _No arguments_
 &nbsp;
@@ -256,9 +283,9 @@ _No arguments_
 :Senapi _helloStream
 ```
 
-  For developers.
-  To check that streams are received correctly from the internal server.
-  
+For developers.
+To check that streams are received correctly from the internal server.
+
 
 _No arguments_
 &nbsp;

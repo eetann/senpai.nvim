@@ -47,11 +47,11 @@ end
   category = "api"
   name = "toggle_chat"
   desc = """
-  ```lua
-  senpai.toggle_chat()
-  ````
-  Toggle chat.
-  """
+```lua
+senpai.toggle_chat()
+```
+Toggle chat.
+"""
 --]=]
 function M.toggle_chat()
   ChatWindowManager.toggle_current_chat()
@@ -61,11 +61,11 @@ end
   category = "api"
   name = "new_chat"
   desc = """
-  ```lua
-  senpai.new_chat()
-  ````
-  Open new chat.
-  """
+```lua
+senpai.new_chat()
+```
+Open new chat.
+"""
 --]=]
 function M.new_chat()
   ChatWindowManager.replace_new_chat()
