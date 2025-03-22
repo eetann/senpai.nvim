@@ -22,21 +22,29 @@ beforeAll(() => {
 			type: "text/plain; charset=UTF-8",
 		} as unknown as BunFile;
 	});
+	spyOn(global.Bun, "resolveSync").mockImplementation((moduleId, _) => {
+		return `/workspace/${moduleId}`;
+	});
 });
 
 test("works", async () => {
-	const glob = async (_: string) => {
+	const glob = async (path: string) => {
+		if (path === "foo.txt") {
+			return ["foo.txt"];
+		}
 		return ["bar/piyo.txt"];
 	};
 
 	const result = await getFiles(glob, ["foo.txt", "piyo.txt"]);
 	expect(result).toEqual([
 		{
+			filepath: "/workspace/foo.txt",
 			type: "file",
 			data: "hello",
 			mimeType: "text/plain; charset=UTF-8",
 		},
 		{
+			filepath: "/workspace/bar/piyo.txt",
 			type: "file",
 			data: "world",
 			mimeType: "text/plain; charset=UTF-8",
