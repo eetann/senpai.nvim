@@ -24,10 +24,11 @@ export async function getFiles(
 	filenames: string[],
 ): Promise<z.infer<typeof outputSchema>> {
 	const result: z.infer<typeof outputSchema> = [];
-	for (const target of filenames) {
-		for (const filename of await iGlob(target)) {
+	const notFounds: string[] = [];
+	for (const filename of filenames) {
+		try {
 			const file = Bun.file(filename);
-			if (file.exists()) {
+			if (await file.exists()) {
 				const data = await file.bytes();
 				result.push({
 					filepath: Bun.resolveSync(filename, process.cwd()),
@@ -35,6 +36,27 @@ export async function getFiles(
 					data,
 					mimeType: file.type,
 				});
+			} else {
+				notFounds.push(filename);
+			}
+		} catch (e) {
+			notFounds.push(filename);
+		}
+	}
+
+	if (notFounds.length > 0) {
+		for (const notFound of notFounds) {
+			for (const filename of await iGlob(notFound)) {
+				const file = Bun.file(filename);
+				if (file.exists()) {
+					const data = await file.bytes();
+					result.push({
+						filepath: Bun.resolveSync(filename, process.cwd()),
+						type: "file",
+						data,
+						mimeType: file.type,
+					});
+				}
 			}
 		}
 	}
