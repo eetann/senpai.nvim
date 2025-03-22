@@ -85,7 +85,12 @@ end
 function M.replace_new_thread(args)
   local current_win = nil
   local chat = M.get_current_chat()
-  if chat and vim.api.nvim_win_is_valid(chat.chat_log.winid) then
+  if
+    chat
+    and chat.chat_log
+    and type(chat.chat_log.winid) == "number"
+    and vim.api.nvim_win_is_valid(chat.chat_log.winid)
+  then
     current_win = chat.chat_log.winid
     chat.chat_input:hide()
     chat.chat_log.winid = nil
