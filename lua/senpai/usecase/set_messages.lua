@@ -2,6 +2,7 @@ local utils = require("senpai.usecase.utils")
 local get_messages = require("senpai.usecase.get_messages")
 local UserMessage = require("senpai.usecase.message.user")
 local AssistantMessage = require("senpai.usecase.message.assistant")
+local ToolResultMessage = require("senpai.usecase.message.tool_result")
 
 local M = {}
 
@@ -17,8 +18,8 @@ function M.execute(chat)
         UserMessage.render_from_memory(chat, message)
       elseif message.role == "assistant" then
         AssistantMessage.render_from_memory(chat, message)
-        -- elseif message.role == "tool" then
-        --   M.set_tool_message(chat, message)
+      elseif message.role == "tool" then
+        M.set_tool_message(chat, message)
       end
     end
     utils.scroll_when_invisible(chat)
@@ -32,7 +33,7 @@ function M.set_tool_message(chat, message)
     pairs(message.content --[=[@as senpai.chat.message.part.tool_result[]]=])
   do
     if part.type == "tool-result" then
-      utils.process_tool_result(chat, part)
+      ToolResultMessage.render_from_memory(chat, part)
     end
   end
 end

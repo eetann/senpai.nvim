@@ -62,45 +62,6 @@ function M.get_relative_path(absolute_path)
   return Path:new({ absolute_path }):make_relative(vim.uv.cwd())
 end
 
----@param chat senpai.ChatWindow
----@param part senpai.chat.message.part.tool_result
-function M.process_tool_result(chat, part)
-  if type(part.result) == "string" then
-    M.set_text_at_last(chat.chat_log.bufnr, part.result)
-    return
-  end
-  -- TODO: ここでToolNameごとに分岐(全部小文字にしてから一致させる)
-  local result = part.result
-  local render_text = string.format(
-    [[
-<SenpaiEditFile
-  filepath="%s" >
-<SenapiSearch>
-
-```%s
-%s
-```
-
-</SenapiSearch>
-<SenapiReplace>
-
-```%s
-%s
-```
-
-</SenapiReplace>
-</SenpaiEditFile>
-]],
-    M.getrelative_path(result.filepath),
-    result.filetype,
-    result.searchType,
-    result.filetype,
-    result.replaceText
-  )
-  M.set_text_at_last(chat.chat_log.bufnr, render_text)
-  -- TODO: ここにvirt textなど
-end
-
 -- https://gist.github.com/liukun/f9ce7d6d14fa45fe9b924a3eed5c3d99
 local char_to_hex = function(c)
   return string.format("%%%02X", string.byte(c))

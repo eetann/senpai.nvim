@@ -4,6 +4,7 @@ import { z } from "zod";
 import { GetFilesTool } from "../tool/GetFilesTool";
 
 export const editFileSchema = z.object({
+	toolName: z.literal("EditFile"), // Used to receive and draw streams
 	filepath: z
 		.string()
 		.describe("Path of the file to be edited example: `/workspace/sum.ts"),
@@ -57,6 +58,7 @@ function add(a: number, b: number) {
 ### System output
 \`\`\`
 {
+  toolName: "EditFile",
   filepath: "/home/eetann/workspace/add.ts",
   searchText: "  return a - b;",
   replaceText: "  return a + b;",
