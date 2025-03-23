@@ -2,6 +2,7 @@ local Spinner = require("senpai.presentation.shared.spinner")
 local RequestHandler = require("senpai.presentation.shared.request_handler")
 local utils = require("senpai.usecase.utils")
 local UserMessage = require("senpai.usecase.message.user")
+local AssistantMessage = require("senpai.usecase.message.assistant")
 
 local M = {}
 M.__index = M
@@ -13,7 +14,7 @@ function M.execute(chat)
     return
   end
   chat.is_sending = true
-  local user_input = UserMessage.render_from_input(chat)
+  local user_input = UserMessage.render_from_request(chat)
 
   local spinner = Spinner.new(
     "Senpai thinking",
@@ -45,10 +46,7 @@ function M.execute(chat)
         return
       end
       if part.type == "0" then
-        utils.set_text_at_last(
-          chat.chat_log.bufnr,
-          part.content --[[@as string]]
-        )
+        AssistantMessage.render_from_response(chat, part)
       elseif part.type == "a" then
         local tool_result = part.content --[[@as table]]
         if type(tool_result.result) == "string" then
