@@ -52,7 +52,8 @@ export class GenerateCommitMessageUseCase {
 						return response.object;
 					},
 				}),
-			);
+			)
+			.commit();
 	}
 
 	private async runWorkflow(
