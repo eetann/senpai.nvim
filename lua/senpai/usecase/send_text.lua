@@ -1,6 +1,7 @@
 local Spinner = require("senpai.presentation.shared.spinner")
 local RequestHandler = require("senpai.presentation.shared.request_handler")
 local utils = require("senpai.usecase.utils")
+local UserMessage = require("senpai.usecase.message.user")
 
 local M = {}
 M.__index = M
@@ -12,9 +13,7 @@ function M.execute(chat)
     return
   end
   chat.is_sending = true
-  local lines = vim.api.nvim_buf_get_lines(chat.chat_input.bufnr, 0, -1, false)
-  vim.api.nvim_buf_set_lines(chat.chat_input.bufnr, 0, -1, false, {})
-  local user_input = utils.process_user_input(chat, lines)
+  local user_input = UserMessage.render_from_input(chat)
 
   local spinner = Spinner.new(
     "Senpai thinking",

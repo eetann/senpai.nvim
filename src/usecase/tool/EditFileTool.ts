@@ -9,7 +9,7 @@ export const EditFileTool = (model: LanguageModel) => {
 		id: "edit-file",
 		description: "edit file",
 		inputSchema,
-		outputSchema: z.string(),
+		outputSchema: editFileSchema,
 		execute: async ({ context: { request } }) => {
 			const agent = new EditFileAgent(model);
 			const response = await agent.generate(
@@ -21,26 +21,7 @@ export const EditFileTool = (model: LanguageModel) => {
 				],
 				{ output: editFileSchema },
 			);
-			const content = response.object;
-			return `
-<SenpaiEditFile
-  filepath="${content.filepath}" >
-<SenapiSearch>
-
-\`\`\`${content.filetype}
-${content.searchText}
-\`\`\`
-
-</SenapiSearch>
-<SenapiReplace>
-
-\`\`\`${content.filetype}
-${content.replaceText}
-\`\`\`
-
-</SenapiReplace>
-</SenpaiEditFile>
-`;
+			return response.object;
 		},
 	});
 };

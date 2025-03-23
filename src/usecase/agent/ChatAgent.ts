@@ -32,8 +32,9 @@ If a file is to be edited, it will be read in EditFileTool, so there is no need 
 			instructions: prompt,
 			model,
 			tools: {
+				// PascalCase name
 				GetFilesTool,
-				editFileTool,
+				EditFileTool: editFileTool,
 			},
 			memory,
 		});

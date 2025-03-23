@@ -1,5 +1,6 @@
 local utils = require("senpai.usecase.utils")
 local get_messages = require("senpai.usecase.get_messages")
+local UserMessage = require("senpai.usecase.message.user")
 
 local M = {}
 
@@ -12,7 +13,7 @@ function M.execute(chat)
     end
     for _, message in pairs(messages) do
       if message.role == "user" then
-        M.set_user_message(chat, message)
+        UserMessage.render_from_memory(chat, message)
       elseif message.role == "assistant" then
         M.set_assistant_message(chat, message)
       elseif message.role == "tool" then
@@ -21,24 +22,6 @@ function M.execute(chat)
     end
     utils.scroll_when_invisible(chat)
   end)
-end
-
----@param chat senpai.ChatWindow
----@param message senpai.chat.message.user
-function M.set_user_message(chat, message)
-  if type(message.content) == "string" then
-    utils.process_user_input(chat, message.content)
-    return
-  end
-  local content = {}
-  for _, part in
-    pairs(message.content --[=[@as senpai.chat.message.user.part[]]=])
-  do
-    if part.type == "text" then
-      table.insert(content, part.text)
-    end
-  end
-  utils.process_user_input(chat, content)
 end
 
 ---@param chat senpai.ChatWindow
@@ -66,15 +49,13 @@ end
 ---@param chat senpai.ChatWindow
 ---@param message senpai.chat.message.tool
 function M.set_tool_message(chat, message)
-  local content = ""
   for _, part in
     pairs(message.content --[=[@as senpai.chat.message.part.tool_result[]]=])
   do
-    if part.type == "tool-result" and type(part.result) == "string" then
-      content = content .. "\n" .. part.result
+    if part.type == "tool-result" then
+      utils.process_tool_result(chat, part)
     end
   end
-  utils.set_text_at_last(chat.chat_log.bufnr, content)
 end
 
 return M

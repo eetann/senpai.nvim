@@ -1,3 +1,5 @@
+local Path = require("plenary.path")
+
 local M = {}
 
 ---@param winid number
@@ -56,89 +58,47 @@ function M.scroll_when_invisible(chat)
   end
 end
 
----@param chat senpai.ChatWindow
----@param user_input string|string[]
----@return string user_input
-function M.process_user_input(chat, user_input)
-  local start_row = vim.fn.line("$", chat.chat_log.winid)
-  local line_number = 1
-  if type(user_input) == "table" then
-    line_number = #user_input
-    user_input = table.concat(user_input, "\n")
-  else
-    line_number = #vim.split(user_input, "\n")
-  end
-  local render_text = string.format(
-    [[
-
-<SenpaiUserInput>
-
-%s
-
-</SenpaiUserInput>
-]],
-    user_input
-  )
-
-  -- user input
-  M.set_text_at_last(chat.chat_log.bufnr, render_text)
-  M.create_borders(chat.chat_log.bufnr, start_row, line_number)
-  M.scroll_when_invisible(chat)
-  return user_input
+function M.get_relative_path(absolute_path)
+  return Path:new({ absolute_path }):make_relative(vim.uv.cwd())
 end
 
-function M.create_borders(bufnr, start_row, user_input_row_length)
-  local namespace = vim.api.nvim_create_namespace("sepnai-chat")
-  local start_index = start_row - 1 -- 0 based
-
-  local startTagIndex = start_index + 1
-  local endTagIndex = start_index + 2 + user_input_row_length + 2
-  -- NOTE: I want to use only virt_text to put indent,
-  -- but it shifts during `set wrap`, so I also use sign_text.
-
-  -- border top
-  vim.api.nvim_buf_set_extmark(
-    bufnr,
-    namespace,
-    startTagIndex, -- 0-based
-    0,
-    {
-      sign_text = "╭",
-      sign_hl_group = "FloatBorder",
-      virt_text = { { string.rep("─", 150), "FloatBorder" } },
-      virt_text_pos = "overlay",
-      virt_text_hide = true,
-    }
-  )
-
-  -- border left
-  for i = startTagIndex + 1, endTagIndex - 1 do
-    vim.api.nvim_buf_set_extmark(
-      bufnr,
-      namespace,
-      i, -- 0-based
-      0,
-      {
-        sign_text = "│",
-        sign_hl_group = "FloatBorder",
-      }
-    )
+---@param chat senpai.ChatWindow
+---@param part senpai.chat.message.part.tool_result
+function M.process_tool_result(chat, part)
+  if type(part.result) == "string" then
+    M.set_text_at_last(chat.chat_log.bufnr, part.result)
+    return
   end
+  -- TODO: ここでToolNameごとに分岐(全部小文字にしてから一致させる)
+  local result = part.result
+  local render_text = string.format(
+    [[
+<SenpaiEditFile
+  filepath="%s" >
+<SenapiSearch>
 
-  -- border bottom
-  vim.api.nvim_buf_set_extmark(
-    bufnr,
-    namespace,
-    endTagIndex, -- 0-based
-    0,
-    {
-      sign_text = "╰",
-      sign_hl_group = "FloatBorder",
-      virt_text = { { string.rep("─", 150), "FloatBorder" } },
-      virt_text_pos = "overlay",
-      virt_text_hide = true,
-    }
+```%s
+%s
+```
+
+</SenapiSearch>
+<SenapiReplace>
+
+```%s
+%s
+```
+
+</SenapiReplace>
+</SenpaiEditFile>
+]],
+    M.getrelative_path(result.filepath),
+    result.filetype,
+    result.searchType,
+    result.filetype,
+    result.replaceText
   )
+  M.set_text_at_last(chat.chat_log.bufnr, render_text)
+  -- TODO: ここにvirt textなど
 end
 
 -- https://gist.github.com/liukun/f9ce7d6d14fa45fe9b924a3eed5c3d99
