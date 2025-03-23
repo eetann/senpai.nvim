@@ -50,8 +50,14 @@ function M.execute(chat)
           chat.chat_log.bufnr,
           part.content --[[@as string]]
         )
-        utils.scroll_when_invisible(chat)
+      elseif part.type == "a" then
+        local tool_result = part.content --[[@as table]]
+        if type(tool_result.result) == "string" then
+          -- TODO: ここでvirtual textやsigncolumnも追加
+          utils.set_text_at_last(chat.chat_log.bufnr, tool_result.result)
+        end
       end
+      utils.scroll_when_invisible(chat)
     end,
     callback = function()
       spinner:stop()

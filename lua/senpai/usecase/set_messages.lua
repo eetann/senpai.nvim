@@ -15,6 +15,8 @@ function M.execute(chat)
         M.set_user_message(chat, message)
       elseif message.role == "assistant" then
         M.set_assistant_message(chat, message)
+      elseif message.role == "tool" then
+        M.set_tool_message(chat, message)
       end
     end
     utils.scroll_when_invisible(chat)
@@ -56,6 +58,20 @@ function M.set_assistant_message(chat, message)
       content = content .. "\n" .. part.text
     elseif part.type == "reasoning" then
       content = content .. "\n" .. part.text
+    end
+  end
+  utils.set_text_at_last(chat.chat_log.bufnr, content)
+end
+
+---@param chat senpai.ChatWindow
+---@param message senpai.chat.message.tool
+function M.set_tool_message(chat, message)
+  local content = ""
+  for _, part in
+    pairs(message.content --[=[@as senpai.chat.message.part.tool_result[]]=])
+  do
+    if part.type == "tool-result" and type(part.result) == "string" then
+      content = content .. "\n" .. part.result
     end
   end
   utils.set_text_at_last(chat.chat_log.bufnr, content)

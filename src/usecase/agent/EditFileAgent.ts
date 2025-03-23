@@ -11,6 +11,9 @@ export const editFileSchema = z.object({
 		.string()
 		.describe("Text that actually exists in the file and is to be replaced"),
 	replaceText: z.string().describe("Text after editing"),
+	filetype: z
+		.string()
+		.describe("filetype to use at codeblock by user. example: `typescript`"),
 });
 
 export class EditFileAgent extends Agent {
@@ -57,6 +60,7 @@ function add(a: number, b: number) {
   filepath: "/home/eetann/workspace/add.ts",
   searchText: "  return a - b;",
   replaceText: "  return a + b;",
+  filetype: "typescript"
 }
 \`\`\`
 `,
@@ -67,23 +71,3 @@ function add(a: number, b: number) {
 		});
 	}
 }
-
-// import { getModel } from "@/infra/GetModel";
-// async function main() {
-// 	const request = `
-// /home/eetann/ghq/github.com/eetann/senpai.nvim/src/presentation/thread.tsの\`/messages\`APIをPOSTでbodyではなくGETでパラメーターとして受け取れるように変更してください。
-// `;
-// 	const model = getModel({
-// 		name: "openrouter",
-// 		model_id: "anthropic/claude-3.7-sonnet",
-// 	});
-// 	const agent = new EditFileAgent(model);
-// 	const response = await agent.generate([
-// 		{
-// 			role: "user",
-// 			content: request,
-// 		},
-// 	]);
-// 	console.log(response.text);
-// }
-// main();
