@@ -5,6 +5,9 @@ local M = {}
 ---@param chat senpai.ChatWindow
 ---@param result table|string
 local function render_base(chat, result)
+  if result == nil then
+    return
+  end
   if type(result) == "string" then
     utils.set_text_at_last(chat.chat_log.bufnr, result)
     return
@@ -12,6 +15,7 @@ local function render_base(chat, result)
   if result.toolName == "EditFile" then
     local render_text = string.format(
       [[
+
 <SenpaiEditFile
   filepath="%s" >
 <SenapiSearch>
@@ -30,9 +34,9 @@ local function render_base(chat, result)
 </SenapiReplace>
 </SenpaiEditFile>
 ]],
-      utils.getrelative_path(result.filepath),
+      utils.get_relative_path(result.filepath),
       result.filetype,
-      result.searchType,
+      result.searchText,
       result.filetype,
       result.replaceText
     )
@@ -55,7 +59,7 @@ function M.render_from_response(chat, part)
     utils.set_text_at_last(chat.chat_log.bufnr, content .. "\n")
     return
   end
-  render_base(chat, content)
+  render_base(chat, content.result)
 end
 
 return M
