@@ -2,6 +2,7 @@ local get_threads = require("senpai.usecase.get_threads")
 local ChatWindowManager = require("senpai.presentation.chat.window_manager")
 local delete_threads = require("senpai.usecase.delete_threads")
 local Spinner = require("senpai.presentation.shared.spinner")
+local get_thread_by_id = require("senpai.usecase.get_thread_by_id")
 local M = {}
 
 local function extract_directory_path(path)
@@ -112,11 +113,25 @@ end
   desc = """
 ```lua
 senpai.load_thread()
+senpai.load_thread(thread)
 ```
 detail -> |senpai-feature-history|
 """
+
+  [[args]]
+  name = "thread_id"
+  type = "string?"
+  desc = """
+If you do not specify the id of the thread you want to read, the finder will open.
+"""
 --]=]
-function M.load_thread()
+---@param thread_id? string
+function M.load_thread(thread_id)
+  if thread_id then
+    local thread = get_thread_by_id.execute(thread_id)
+    show_thread(thread)
+    return
+  end
   local ok, _ = pcall(require, "snacks.picker")
   if not ok then
     load_thread_native()

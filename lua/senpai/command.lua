@@ -48,8 +48,8 @@ local subcmd_tbl = {
   desc = "detail -> |senpai-feature-history|"
   --]=]
   loadThread = {
-    impl = function()
-      require("senpai.api").load_thread()
+    impl = function(args)
+      require("senpai.api").load_thread(args[1])
     end,
   },
   --[=[@doc
