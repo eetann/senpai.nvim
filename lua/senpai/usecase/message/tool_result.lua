@@ -2,6 +2,15 @@ local utils = require("senpai.usecase.utils")
 
 local M = {}
 
+---@class senpai.tool.EditFile.result
+---@field filepath string
+---@field searchText string
+---@field replaceText string
+---@field filetype string
+
+---@class senpai.tool.EditFile: senpai.chat.message.part.tool_result
+---@field result senpai.tool.EditFile.result
+
 -- index: content
 --  x:        [[
 --  0:
@@ -19,7 +28,10 @@ local M = {}
 -- 12: ]],
 
 ---@param chat senpai.ChatWindow
-local function render_virt_text(chat, start_row, end_row, result)
+---@param start_row number
+---@param end_row number
+---@param part senpai.tool.EditFile
+local function render_virt_text(chat, start_row, end_row, part)
   local namespace = vim.api.nvim_create_namespace("sepnai-chat")
   local start_index = start_row - 1 -- 0 based
 
@@ -50,7 +62,7 @@ local function render_virt_text(chat, start_row, end_row, result)
   )
 
   ---@type number
-  local line_numer = #vim.split(result.replaceText, "\n")
+  local line_numer = #vim.split(part.result.replaceText, "\n")
   local start_search_fold_index = start_tag_index + 3 + line_numer + 2
   vim.api.nvim_win_call(chat.chat_log.winid, function()
     vim.cmd(start_search_fold_index + 1 .. "," .. end_tag_index .. " fold")
@@ -71,23 +83,24 @@ local function render_virt_text(chat, start_row, end_row, result)
 end
 
 ---@param chat senpai.ChatWindow
----@param result table|string
-local function render_base(chat, result)
-  if result == nil then
+---@param part senpai.chat.message.part.tool_result
+local function render_base(chat, part)
+  if part.result == nil then
     return
   end
-  if type(result) == "string" then
-    utils.set_text_at_last(chat.chat_log.bufnr, result)
+  if type(part.result) == "string" then
+    utils.set_text_at_last(chat.chat_log.bufnr, part.result)
     return
   end
 
   local start_row = vim.fn.line("$", chat.chat_log.winid)
-  if result.toolName == "EditFile" then
+  if part.result.toolName == "EditFile" then
+    ---@cast part senpai.tool.EditFile
     local render_text = string.format(
       [[
 
 
-<SenpaiEditFile>
+<SenpaiEditFile id="%s">
 
 filepath: `%s`
 ```%s type="replace"
@@ -98,22 +111,23 @@ filepath: `%s`
 ```
 </SenpaiEditFile>
 ]],
-      utils.get_relative_path(result.filepath),
-      result.filetype,
-      result.replaceText,
-      result.filetype,
-      result.searchText
+      part.toolCallId,
+      utils.get_relative_path(part.result.filepath),
+      part.result.filetype,
+      part.result.replaceText,
+      part.result.filetype,
+      part.result.searchText
     )
     utils.set_text_at_last(chat.chat_log.bufnr, render_text)
     local end_row = vim.fn.line("$", chat.chat_log.winid)
-    render_virt_text(chat, start_row, end_row, result)
+    render_virt_text(chat, start_row, end_row, part)
   end
 end
 
 ---@param chat senpai.ChatWindow
 ---@param part senpai.chat.message.part.tool_result
 function M.render_from_memory(chat, part)
-  render_base(chat, part.result)
+  render_base(chat, part)
 end
 
 ---@param chat senpai.ChatWindow
@@ -124,7 +138,7 @@ function M.render_from_response(chat, part)
     utils.set_text_at_last(chat.chat_log.bufnr, content .. "\n")
     return
   end
-  render_base(chat, content.result)
+  render_base(chat, content)
 end
 
 return M
