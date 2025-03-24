@@ -68,7 +68,7 @@ local function render_border(bufnr, start_row, user_input_row_length)
   )
 end
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 ---@param user_input string[]
 ---@return string # request text for send to LLM
 local function base_render(chat, user_input)
@@ -94,7 +94,7 @@ local function base_render(chat, user_input)
   return texts
 end
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 ---@param message senpai.chat.message.user
 function M.render_from_memory(chat, message)
   local content = message.content
@@ -112,7 +112,7 @@ function M.render_from_memory(chat, message)
   base_render(chat, lines)
 end
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 ---@return string # request text for send to LLM
 function M.render_from_request(chat)
   local lines = vim.api.nvim_buf_get_lines(chat.chat_input.bufnr, 0, -1, false)

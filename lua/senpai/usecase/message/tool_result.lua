@@ -27,7 +27,7 @@ local M = {}
 -- 11: </SenpaiEditFile>
 -- 12: ]],
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 ---@param start_row number
 ---@param end_row number
 ---@param part senpai.tool.EditFile
@@ -82,7 +82,7 @@ local function render_virt_text(chat, start_row, end_row, part)
   end
 end
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 ---@param part senpai.chat.message.part.tool_result
 local function render_base(chat, part)
   if part.result == nil then
@@ -121,16 +121,17 @@ filepath: `%s`
     utils.set_text_at_last(chat.chat_log.bufnr, render_text)
     local end_row = vim.fn.line("$", chat.chat_log.winid)
     render_virt_text(chat, start_row, end_row, part)
+    -- TODO: ここでchatにいれる
   end
 end
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 ---@param part senpai.chat.message.part.tool_result
 function M.render_from_memory(chat, part)
   render_base(chat, part)
 end
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 ---@param part senpai.data_stream_protocol type = "a"
 function M.render_from_response(chat, part)
   local content = part.content

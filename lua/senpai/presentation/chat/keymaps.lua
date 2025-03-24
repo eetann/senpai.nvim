@@ -8,7 +8,7 @@ local abort_request = require("senpai.usecase.abort_request")
 ---@class senpai.chat.Keymaps.keymaps
 
 ---@class senpai.chat.Keymaps
----@field chat senpai.ChatWindow
+---@field chat senpai.IChatWindow
 ---@field common table<string, senpai.Config.chat.keymap>
 ---@field log_area table<string, senpai.Config.chat.keymap>
 ---@field input_area table<string, senpai.Config.chat.keymap>
@@ -58,7 +58,7 @@ function M:show_help()
 end
 
 function M:execute_action(name)
-  ---@type table<string, fun(chat: senpai.ChatWindow):nil>
+  ---@type table<string, fun(chat: senpai.IChatWindow):nil>
   local actions = {
     abort = function()
       abort_request.execute(self.chat)

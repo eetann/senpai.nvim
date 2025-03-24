@@ -23,23 +23,12 @@ local win_options = {
   -- listchars = "eol: ",
 }
 
----@module 'plenary.job'
-
----@class senpai.ChatWindow: senpai.ChatWindow.Config
----@field keymaps senpai.chat.Keymaps
----@field is_sending boolean
----@field job? Job
+---@class senpai.ChatWindow: senpai.IChatWindow
 local M = {}
 M.__index = M
 
----@class senpai.ChatWindowNewArgs
----@field provider? senpai.Config.provider.name|senpai.Config.provider
----@field system_prompt? string
----@field thread_id? string
-
 -- TODO: nuiのlayoutへ置き換える
 
----@nodoc
 ---@param args senpai.ChatWindowNewArgs
 ---@return senpai.ChatWindow|nil
 function M.new(args)
@@ -57,12 +46,12 @@ function M.new(args)
   self.system_prompt = args.system_prompt or ""
 
   self.hidden = true
-  self.keymaps = Keymaps.new(self)
   self.is_sending = false
   return self
 end
 
-function M:create_chat_log()
+--- @param keymaps table<string, senpai.Config.chat.keymap>
+function M:create_chat_log(keymaps)
   self.chat_log = Split({
     relative = "editor",
     position = "right",
@@ -73,7 +62,7 @@ function M:create_chat_log()
       filetype = "senpai_chat_log",
     },
   })
-  for key, value in pairs(self.keymaps.log_area) do
+  for key, value in pairs(keymaps) do
     if type(value.mode) == "string" then
       self.chat_log:map(value.mode--[[@as string]], key, value[1])
     else
@@ -86,7 +75,8 @@ function M:create_chat_log()
   end
 end
 
-function M:create_chat_input()
+---@param keymaps table<string, senpai.Config.chat.keymap>
+function M:create_chat_input(keymaps)
   self.chat_input = Split({
     relative = "win",
     position = "bottom",
@@ -98,7 +88,7 @@ function M:create_chat_input()
       filetype = "senpai_chat_input",
     },
   })
-  for key, value in pairs(self.keymaps.input_area) do
+  for key, value in pairs(keymaps) do
     if type(value.mode) == "string" then
       self.chat_input:map(value.mode--[[@as string]], key, value[1])
     else
@@ -111,10 +101,11 @@ function M:create_chat_input()
   end
 end
 
----@param winid? number
 function M:show(winid)
+  local resolved_keymaps
   if not self.chat_log then
-    self:create_chat_log()
+    resolved_keymaps = Keymaps.new(self)
+    self:create_chat_log(resolved_keymaps.log_area)
     if winid then
       self.chat_log.winid = winid
       vim.api.nvim_win_set_buf(self.chat_log.winid, self.chat_log.bufnr)
@@ -150,7 +141,10 @@ thread_id: "%s"
   end
 
   if not self.chat_input then
-    self:create_chat_input()
+    if not resolved_keymaps then
+      resolved_keymaps = Keymaps.new(self)
+    end
+    self:create_chat_input(resolved_keymaps.input_area)
     self.chat_input:mount()
   else
     self.chat_input:update_layout({

@@ -8,7 +8,7 @@ local function render_base(bufnr, text)
   utils.set_text_at_last(bufnr, text)
 end
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 ---@param message senpai.chat.message.assistant
 function M.render_from_memory(chat, message)
   local content = message.content
@@ -28,7 +28,7 @@ function M.render_from_memory(chat, message)
   render_base(chat.chat_log.bufnr, text)
 end
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 ---@param part senpai.data_stream_protocol type = "0"
 function M.render_from_response(chat, part)
   render_base(chat.chat_log.bufnr, part.content --[[@as string]])

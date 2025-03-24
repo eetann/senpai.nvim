@@ -46,7 +46,7 @@ function M.set_winbar(winid, text)
   )
 end
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 function M.scroll_when_invisible(chat)
   local winid = chat.chat_log.winid
   local last_buffer_line = vim.fn.line("$", winid)

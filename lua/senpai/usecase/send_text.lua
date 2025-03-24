@@ -9,7 +9,7 @@ local M = {}
 M.__index = M
 
 ---send chat to LLM
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 function M.execute(chat)
   if chat.is_sending then
     return

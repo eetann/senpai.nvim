@@ -7,7 +7,7 @@ local ToolResultMessage = require("senpai.usecase.message.tool_result")
 local M = {}
 
 ---Getting the specified thread and restoring it to the chat.
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 function M.execute(chat)
   get_messages.execute(chat.thread_id, function(messages)
     if #messages == 0 then
@@ -26,7 +26,7 @@ function M.execute(chat)
   end)
 end
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 ---@param message senpai.chat.message.tool
 function M.set_tool_message(chat, message)
   for _, part in

@@ -2,7 +2,7 @@ local M = {}
 
 ---@doc.type
 ---@class senpai.Config.chat.keymap
----@field [1]? string|fun(self: senpai.ChatWindow.Config):nil
+---@field [1]? string|fun(self: senpai.IChatWindow):nil
 ---@field key? string
 ---@field mode? string|string[]
 ---@field desc string
