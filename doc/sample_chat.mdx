@@ -13,8 +13,10 @@ thread_id: "/home/eetann/ghq/github.com/eetann/senpai.nvim-20250323180405"
 `/home/eetann/ghq/github.com/eetann/senpai.nvim/src/presentation/thread.ts`ファイルの`/messages`APIをPOSTからGETに変更し、bodyではなくURLパラメーターとして受け取るように修正します。まずファイルの内容を確認しましょう。
 ファイルの内容を確認しました。`/messages` APIをPOSTからGETに変更し、bodyではなくURLパラメーターとして受け取るように修正します。
 
-<SenpaiEditFile
-  filepath="src/presentation/thread.ts" >
+<SenpaiEditFile>
+
+filepath: `src/presentation/thread.ts`
+
 <SenapiSearch>
 
 ```typescript
@@ -22,6 +24,7 @@ const { thread_id } = c.req.valid("json");
 ```
 
 </SenapiSearch>
+
 <SenapiReplace>
 
 ```typescript
@@ -29,6 +32,7 @@ const { thread_id } = c.req.valid("query");
 ```
 
 </SenapiReplace>
+
 </SenpaiEditFile>
 
 変更が完了しました。以下の修正を行いました：

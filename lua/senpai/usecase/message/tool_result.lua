@@ -2,6 +2,86 @@ local utils = require("senpai.usecase.utils")
 
 local M = {}
 
+-- index: content
+--  x:       [[
+--  0:
+--  1:
+--  2: <SenpaiEditFile>
+--  3:
+--  4: filepath: `%s`
+--  5:
+--  6: <SenapiSearch>
+--  7:
+--  8: ```%s
+--  9: %s
+-- 10: ```
+-- 11:
+-- 12: </SenapiSearch>
+-- 13: <SenapiReplace>
+-- 14:
+-- 15: ```%s
+-- 16: %s
+-- 17: ```
+-- 18:
+-- 19: </SenapiReplace>
+-- 20:
+-- 21: </SenpaiEditFile>
+-- 22: ]],
+
+---@param chat senpai.ChatWindow
+local function render_virt_text(chat, start_row, end_row, result)
+  local namespace = vim.api.nvim_create_namespace("sepnai-chat")
+  local start_index = start_row - 1 -- 0 based
+
+  local start_tag_index = start_index + 2
+  local end_tag_index = end_row - 1
+
+  vim.api.nvim_buf_set_extmark(
+    chat.chat_log.bufnr,
+    namespace,
+    start_tag_index, -- 0-based
+    0,
+    {
+      sign_text = "󰬲",
+      sign_hl_group = "DiagnosticInfo",
+      virt_text = { { "Edit File" } },
+      virt_text_pos = "inline",
+    }
+  )
+  vim.api.nvim_buf_set_extmark(
+    chat.chat_log.bufnr,
+    namespace,
+    start_tag_index, -- 0-based
+    0,
+    {
+      virt_text = { { "apply [a/A]" } },
+      virt_text_pos = "right_align",
+    }
+  )
+
+  local start_flod_index = start_index + 5
+  local end_flod_index = start_flod_index
+    + 2
+    + #vim.split(result.searchText, "\n")
+    + 4
+  vim.api.nvim_win_call(chat.chat_log.winid, function()
+    vim.cmd(start_flod_index + 1 .. "," .. end_flod_index + 1 .. " fold")
+  end)
+
+  for i = start_tag_index + 1, end_tag_index - 1 do
+    vim.api.nvim_buf_set_extmark(
+      chat.chat_log.bufnr,
+      namespace,
+      i, -- 0-based
+      0,
+      {
+        sign_text = "▕",
+        sign_hl_group = "DiagnosticVirtualInfo",
+      }
+    )
+  end
+end
+
 ---@param chat senpai.ChatWindow
 ---@param result table|string
 local function render_base(chat, result)
@@ -12,12 +92,17 @@ local function render_base(chat, result)
     utils.set_text_at_last(chat.chat_log.bufnr, result)
     return
   end
+
+  local start_row = vim.fn.line("$", chat.chat_log.winid)
   if result.toolName == "EditFile" then
     local render_text = string.format(
       [[
 
-<SenpaiEditFile
-  filepath="%s" >
+
+<SenpaiEditFile>
+
+filepath: `%s`
+
 <SenapiSearch>
 
 ```%s
@@ -32,6 +117,7 @@ local function render_base(chat, result)
 ```
 
 </SenapiReplace>
+
 </SenpaiEditFile>
 ]],
       utils.get_relative_path(result.filepath),
@@ -41,7 +127,8 @@ local function render_base(chat, result)
       result.replaceText
     )
     utils.set_text_at_last(chat.chat_log.bufnr, render_text)
-    -- TODO: ここでvirt textなど
+    local end_row = vim.fn.line("$", chat.chat_log.winid)
+    render_virt_text(chat, start_row, end_row, result)
   end
 end
 
