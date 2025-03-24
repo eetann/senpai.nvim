@@ -1,7 +1,20 @@
 local utils = require("senpai.usecase.utils")
 local M = {}
 
-local function create_borders(bufnr, start_row, user_input_row_length)
+-- index: content
+-- x: [[
+-- 1:
+-- 2: <SenpaiUserInput>
+-- 3:
+-- 4: %s
+-- 5:
+-- 6: </SenpaiUserInput>
+-- 7: ]],
+
+---@param bufnr number
+---@param start_row number
+---@param user_input_row_length number
+local function render_border(bufnr, start_row, user_input_row_length)
   local namespace = vim.api.nvim_create_namespace("sepnai-chat")
   local start_index = start_row - 1 -- 0 based
 
@@ -76,7 +89,7 @@ local function base_render(chat, user_input)
 
   -- user input
   utils.set_text_at_last(chat.chat_log.bufnr, render_text)
-  create_borders(chat.chat_log.bufnr, start_row, line_number)
+  render_border(chat.chat_log.bufnr, start_row, line_number)
   utils.scroll_when_invisible(chat)
   return texts
 end
