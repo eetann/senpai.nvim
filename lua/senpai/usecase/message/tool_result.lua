@@ -3,30 +3,20 @@ local utils = require("senpai.usecase.utils")
 local M = {}
 
 -- index: content
---  x:       [[
+--  x:        [[
 --  0:
 --  1:
 --  2: <SenpaiEditFile>
 --  3:
 --  4: filepath: `%s`
---  5:
---  6: <SenapiSearch>
---  7:
---  8: ```%s
+--  5: ```%s type="replace"
+--  6: %s
+--  7: ```
+--  8: ```%s type="search"
 --  9: %s
 -- 10: ```
--- 11:
--- 12: </SenapiSearch>
--- 13: <SenapiReplace>
--- 14:
--- 15: ```%s
--- 16: %s
--- 17: ```
--- 18:
--- 19: </SenapiReplace>
--- 20:
--- 21: </SenpaiEditFile>
--- 22: ]],
+-- 11: </SenpaiEditFile>
+-- 12: ]],
 
 ---@param chat senpai.ChatWindow
 local function render_virt_text(chat, start_row, end_row, result)
@@ -59,13 +49,11 @@ local function render_virt_text(chat, start_row, end_row, result)
     }
   )
 
-  local start_flod_index = start_index + 5
-  local end_flod_index = start_flod_index
-    + 2
-    + #vim.split(result.searchText, "\n")
-    + 4
+  ---@type number
+  local line_numer = #vim.split(result.replaceText, "\n")
+  local start_search_fold_index = start_tag_index + 3 + line_numer + 2
   vim.api.nvim_win_call(chat.chat_log.winid, function()
-    vim.cmd(start_flod_index + 1 .. "," .. end_flod_index + 1 .. " fold")
+    vim.cmd(start_search_fold_index + 1 .. "," .. end_tag_index .. " fold")
   end)
 
   for i = start_tag_index + 1, end_tag_index - 1 do
@@ -102,29 +90,19 @@ local function render_base(chat, result)
 <SenpaiEditFile>
 
 filepath: `%s`
-
-<SenapiSearch>
-
-```%s
+```%s type="replace"
 %s
 ```
-
-</SenapiSearch>
-<SenapiReplace>
-
-```%s
+```%s type="search"
 %s
 ```
-
-</SenapiReplace>
-
 </SenpaiEditFile>
 ]],
       utils.get_relative_path(result.filepath),
       result.filetype,
-      result.searchText,
+      result.replaceText,
       result.filetype,
-      result.replaceText
+      result.searchText
     )
     utils.set_text_at_last(chat.chat_log.bufnr, render_text)
     local end_row = vim.fn.line("$", chat.chat_log.winid)
