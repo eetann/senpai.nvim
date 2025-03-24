@@ -1,4 +1,4 @@
-local RequestHandler = require("senpai.presentation.shared.request_handler")
+local RequestHandler = require("senpai.usecase.request.request_handler")
 local utils = require("senpai.usecase.utils")
 
 local M = {}

@@ -1,5 +1,5 @@
 local utils = require("senpai.usecase.utils")
-local get_messages = require("senpai.usecase.get_messages")
+local get_messages = require("senpai.usecase.request.get_messages")
 local UserMessage = require("senpai.usecase.message.user")
 local AssistantMessage = require("senpai.usecase.message.assistant")
 local ToolResultMessage = require("senpai.usecase.message.tool_result")

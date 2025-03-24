@@ -1,5 +1,5 @@
 local Config = require("senpai.config")
-local RequestHandler = require("senpai.presentation.shared.request_handler")
+local RequestHandler = require("senpai.usecase.request.request_handler")
 local Spinner = require("senpai.presentation.shared.spinner")
 
 local M = {}

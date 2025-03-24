@@ -1,8 +1,8 @@
-local get_threads = require("senpai.usecase.get_threads")
+local get_threads = require("senpai.usecase.request.get_threads")
 local ChatWindowManager = require("senpai.presentation.chat.window_manager")
-local delete_threads = require("senpai.usecase.delete_threads")
+local delete_threads = require("senpai.usecase.request.delete_threads")
 local Spinner = require("senpai.presentation.shared.spinner")
-local get_thread_by_id = require("senpai.usecase.get_thread_by_id")
+local get_thread_by_id = require("senpai.usecase.request.get_thread_by_id")
 local M = {}
 
 local function extract_directory_path(path)

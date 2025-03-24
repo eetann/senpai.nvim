@@ -1,7 +1,7 @@
 local ChatWindowManager = require("senpai.presentation.chat.window_manager")
-local RequestHandler = require("senpai.presentation.shared.request_handler")
+local RequestHandler = require("senpai.usecase.request.request_handler")
 local utils = require("senpai.usecase.utils")
-local delete_threads = require("senpai.usecase.delete_threads")
+local delete_threads = require("senpai.usecase.request.delete_threads")
 
 local M = {}
 

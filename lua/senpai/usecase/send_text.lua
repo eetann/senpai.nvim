@@ -1,5 +1,5 @@
 local Spinner = require("senpai.presentation.shared.spinner")
-local RequestHandler = require("senpai.presentation.shared.request_handler")
+local RequestHandler = require("senpai.usecase.request.request_handler")
 local utils = require("senpai.usecase.utils")
 local UserMessage = require("senpai.usecase.message.user")
 local AssistantMessage = require("senpai.usecase.message.assistant")
