@@ -47,6 +47,7 @@ function M.new(args)
 
   self.hidden = true
   self.is_sending = false
+  self.edit_file_results = {}
   return self
 end
 

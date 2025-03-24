@@ -16,6 +16,7 @@
 ---@field keymaps senpai.chat.Keymaps
 ---@field is_sending boolean
 ---@field job? Job
+---@field edit_file_results table<string, senpai.tool.EditFile.result> # <[toolCallId]: reuslt>
 local IChatWindow = {}
 
 ---@param winid? number

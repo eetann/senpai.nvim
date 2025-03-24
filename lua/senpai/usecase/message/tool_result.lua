@@ -2,15 +2,6 @@ local utils = require("senpai.usecase.utils")
 
 local M = {}
 
----@class senpai.tool.EditFile.result
----@field filepath string
----@field searchText string
----@field replaceText string
----@field filetype string
-
----@class senpai.tool.EditFile: senpai.chat.message.part.tool_result
----@field result senpai.tool.EditFile.result
-
 -- index: content
 --  x:        [[
 --  0:
@@ -121,7 +112,7 @@ filepath: `%s`
     utils.set_text_at_last(chat.chat_log.bufnr, render_text)
     local end_row = vim.fn.line("$", chat.chat_log.winid)
     render_virt_text(chat, start_row, end_row, part)
-    -- TODO: ここでchatにいれる
+    chat.edit_file_results[part.toolCallId] = part.result
   end
 end
 

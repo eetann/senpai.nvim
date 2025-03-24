@@ -39,7 +39,10 @@ M.default_config = {
       ["<C-c>"] = "abort",
     },
   },
-  log_area = { keymaps = {} },
+  log_area = { keymaps = {
+    a = "apply",
+    A = "All apply",
+  } },
   input_area = {
     keymaps = {
       ["<CR>"] = "submit",
