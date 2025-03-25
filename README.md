@@ -447,3 +447,12 @@ _No arguments_
 <!-- panvimdoc-ignore-start -->
 </details>
 <!-- panvimdoc-ignore-end -->
+
+# Acknowledgements
+This plugin was inspired by the following.
+
+- [codecompanion.nvim](https://github.com/olimorris/codecompanion.nvim): Default keymaps and Implementation of diff display
+- [avante.nvim](https://github.com/yetone/avante.nvim): Use of winbar and virt text in chat windows
+- [nvim-deck: nvim-deck](https://github.com/hrsh7th/nvim-deck): Scripts for creating README and Help
+
+Thanks to all those involved in these.
