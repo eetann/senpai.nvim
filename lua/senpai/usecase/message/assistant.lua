@@ -58,52 +58,75 @@ function M:process_line(line)
   local lower_line = string.lower(line)
   if self.replace_file_current.id == "" then
     if string.match(lower_line, "<replace_file>") then
-      self.replace_file_current = {
-        id = utils.create_random_id(12),
-        path = "",
-        search = {},
-        replace = {},
-      }
+      self:process_start_replace_file()
     end
     return
   end
+
   if string.match(lower_line, "</replace_file>") then
-    self.replace_file_table[self.replace_file_current.id] = vim.deepcopy({
-      path = self.replace_file_current.path,
-      search = self.replace_file_current.search,
-      replace = self.replace_file_current.replace,
-    })
-    self.replace_file_current =
-      { id = "", path = "", search = {}, replace = {} }
-    self.replace_file_current.tag = nil
+    self:process_end_replace_file()
   elseif string.match(lower_line, "<path>.*</path>") then
-    self.replace_file_current.path = line:sub(7, -8)
-    self.replace_file_current.tag = nil
-    self.current_content = {}
+    self:process_path_tag(line)
   elseif string.match(lower_line, "<search>") then
-    self.replace_file_current.tag = "search"
-    self.current_content = {}
+    self:process_start_search_tag()
   elseif string.match(lower_line, "<replace>") then
-    self.replace_file_current.tag = "replace"
-    self.current_content = {}
+    self:process_start_replace_tag()
   elseif string.match(lower_line, "</search>") then
-    self.replace_file_current.search = self.current_content
-    self.replace_file_current.tag = nil
+    self:process_end_search_tag()
   elseif string.match(lower_line, "</replace>") then
-    self.replace_file_current.replace = self.current_content
-    self.replace_file_current.tag = nil
+    self:process_end_replace_tag()
   elseif self.replace_file_current.tag then
-    table.insert(self.current_content, line)
+    self:process_content_line(line)
   end
 end
 
-function M:get_results()
-  if self.chunks ~= "" then
-    self:process_line(self.chunks)
-    self.chunks = ""
-  end
+function M:process_start_replace_file()
+  self.replace_file_current = {
+    id = utils.create_random_id(12),
+    path = "",
+    search = {},
+    replace = {},
+  }
+end
 
-  return self.replace_file_table
+function M:process_end_replace_file()
+  self.replace_file_table[self.replace_file_current.id] = vim.deepcopy({
+    path = self.replace_file_current.path,
+    search = self.replace_file_current.search,
+    replace = self.replace_file_current.replace,
+  })
+  self.replace_file_current = { id = "", path = "", search = {}, replace = {} }
+  self.replace_file_current.tag = nil
+end
+
+function M:process_path_tag(line)
+  self.replace_file_current.path = line:sub(7, -8)
+  self.replace_file_current.tag = nil
+  self.current_content = {}
+end
+
+function M:process_start_search_tag()
+  self.replace_file_current.tag = "search"
+  self.current_content = {}
+end
+
+function M:process_start_replace_tag()
+  self.replace_file_current.tag = "replace"
+  self.current_content = {}
+end
+
+function M:process_end_search_tag()
+  self.replace_file_current.search = self.current_content
+  self.replace_file_current.tag = nil
+end
+
+function M:process_end_replace_tag()
+  self.replace_file_current.replace = self.current_content
+  self.replace_file_current.tag = nil
+end
+
+function M:process_content_line(line)
+  table.insert(self.current_content, line)
 end
 
 ---@param text string
