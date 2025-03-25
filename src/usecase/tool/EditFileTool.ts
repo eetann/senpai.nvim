@@ -1,7 +1,7 @@
 import { type LanguageModel, createTool } from "@mastra/core";
 import { z } from "zod";
 import { EditFileAgent, editFileSchema } from "../agent/EditFileAgent";
-import { GetFilesTool } from "./GetFilesTool";
+import { ReadFilesTool } from "./ReadFilesTool";
 
 const inputSchema = z.object({
 	request: z.string().describe("Summary of user instructions."),
@@ -22,7 +22,7 @@ export const EditFileTool = (model: LanguageModel) => {
 		inputSchema,
 		outputSchema,
 		execute: async ({ context: { request, targetFile } }) => {
-			const files = await GetFilesTool.execute({
+			const files = await ReadFilesTool.execute({
 				context: { filenames: [targetFile] },
 			});
 			const file = files[0];
