@@ -90,4 +90,17 @@ function M.get_range_by_search(winid, text)
   return result
 end
 
+-- https://gist.github.com/haggen/2fd643ea9a261fea2094
+math.randomseed(os.clock() ^ 5)
+local charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+function M.create_random_id(length)
+  local ret = {}
+  local r
+  for _ = 1, length do
+    r = math.random(1, #charset)
+    table.insert(ret, charset:sub(r, r))
+  end
+  return table.concat(ret)
+end
+
 return M
