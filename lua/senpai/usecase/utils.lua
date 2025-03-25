@@ -77,4 +77,17 @@ function M.encode_url(url)
   return url
 end
 
+---@param winid number
+---@param text string
+---@return { start_line:number, end_line:number }
+function M.get_range_by_search(winid, text)
+  -- Simply `end` is confusing due to the grammar, so `end_line` is used.
+  local result = { start_line = 0, end_line = 0 }
+  vim.api.nvim_win_call(winid, function()
+    result.start_line = vim.fn.search(text)
+  end)
+  result.end_line = result.start_line + #vim.split(text, "\n")
+  return result
+end
+
 return M
