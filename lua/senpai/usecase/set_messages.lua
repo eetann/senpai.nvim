@@ -9,6 +9,7 @@ local M = {}
 ---Getting the specified thread and restoring it to the chat.
 ---@param chat senpai.IChatWindow
 function M.execute(chat)
+  local assistant = AssistantMessage.new(chat)
   get_messages.execute(chat.thread_id, function(messages)
     if #messages == 0 then
       return
@@ -17,7 +18,7 @@ function M.execute(chat)
       if message.role == "user" then
         UserMessage.render_from_memory(chat, message)
       elseif message.role == "assistant" then
-        AssistantMessage.render_from_memory(chat, message)
+        assistant:render_from_memory(message)
       elseif message.role == "tool" then
         M.set_tool_message(chat, message)
       end

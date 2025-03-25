@@ -15,6 +15,7 @@ local T = MiniTest.new_set({
 
 T["assistant <replace_file> from chunk"] = function()
   child.lua([[chat=require("senpai.presentation.chat.window").new({})]])
+  child.lua([[chat:show()]])
   child.lua("assistant=M.new(chat)")
   child.lua("assistant:process_chunk(...)", { "plain text " })
   child.lua("assistant:process_chunk(...)", { "here.\n" })
@@ -31,7 +32,7 @@ T["assistant <replace_file> from chunk"] = function()
   child.lua("assistant:process_chunk(...)", { "</replace_file>\nexam" })
   child.lua("assistant:process_chunk(...)", { "ple foo bar.\n" })
 
-  local result = child.lua_get("assistant.replace_file_table")
+  local result = child.lua_get("chat.replace_file_results")
   local count = 0
 
   for _, content in pairs(result) do
@@ -45,6 +46,7 @@ end
 
 T["assistant <replace_file> from message"] = function()
   child.lua([[chat=require("senpai.presentation.chat.window").new({})]])
+  child.lua([[chat:show()]])
   child.lua("assistant=M.new(chat)")
   child.lua("assistant:process_chunk(...)", {
     [[
@@ -61,7 +63,7 @@ plain text here.
 example foo bar.
   ]],
   })
-  local result = child.lua_get("assistant.replace_file_table")
+  local result = child.lua_get("chat.replace_file_results")
   local count = 0
 
   for _, content in pairs(result) do

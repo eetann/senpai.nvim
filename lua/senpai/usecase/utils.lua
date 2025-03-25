@@ -29,6 +29,13 @@ function M.set_text_at_last(buffer, text)
   vim.api.nvim_buf_set_text(buffer, -1, -1, -1, -1, lines)
 end
 
+---@param buffer number
+---@param text string
+function M.replace_text_at_last(buffer, text)
+  local lines = vim.split(text, "\n")
+  vim.api.nvim_buf_set_text(buffer, -1, 0, -1, -1, lines)
+end
+
 ---set winbar
 ---@param winid number|nil
 ---@param text string

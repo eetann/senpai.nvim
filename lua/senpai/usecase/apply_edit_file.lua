@@ -5,33 +5,34 @@ local M = {}
 function M.execute(chat)
   local row = vim.fn.line(".", chat.chat_log.winid)
   local col = vim.fn.col(".", chat.chat_log.winid)
-  -- example: <SenpaiEditFile id="toolu_vrtx_01YXj1vvRdFUHhf7Q58VGrJy">
-  vim.cmd("?^<SenpaiEditFile.*")
-  local tool_call_id =
-    vim.fn.getline("."):match('^<SenpaiEditFile.*id="([^"]+)"')
-  if not tool_call_id or tool_call_id == "" then
+  -- example: <SenpaiReplaceFile id="01YXj1vvRdFUHhf7Q58VGrJy">
+  vim.cmd("?^<SenpaiReplaceFile.*")
+  local id = vim.fn.getline("."):match('^<SenpaiEditFile.*id="([^"]+)"')
+  if not id or id == "" then
     return
   end
   vim.api.nvim_win_set_cursor(chat.chat_log.winid, { row, col - 1 })
-  ---@cast tool_call_id string
+  ---@cast id string
 
-  local result = chat.edit_file_results[tool_call_id]
+  local result = chat.replace_file_results[id]
   vim.cmd("wincmd h")
-  vim.cmd("edit " .. result.filepath)
+  vim.cmd("edit " .. result.path)
   local original_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
   local original_win = vim.api.nvim_get_current_win()
   local original_buf = vim.api.nvim_get_current_buf()
   local original_filetype =
     vim.api.nvim_get_option_value("filetype", { buf = original_buf })
 
-  local range =
-    utils.get_range_by_search(vim.api.nvim_get_current_win(), result.searchText)
+  local range = utils.get_range_by_search(
+    vim.api.nvim_get_current_win(),
+    table.concat(result.search, "\n")
+  )
 
   local buf = vim.api.nvim_create_buf(false, true)
   local win =
     vim.api.nvim_open_win(buf, false, { vertical = true, win = original_win })
 
-  vim.api.nvim_buf_set_name(buf, "[senpai] " .. tool_call_id)
+  vim.api.nvim_buf_set_name(buf, "[senpai] " .. id)
   vim.api.nvim_set_option_value(
     "filetype",
     original_filetype,
@@ -43,7 +44,7 @@ function M.execute(chat)
     range.start_line - 1,
     range.end_line - 1,
     false,
-    vim.split(result.replaceText, "\n")
+    result.replace
   )
 
   vim.api.nvim_win_call(win, function()
