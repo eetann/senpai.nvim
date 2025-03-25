@@ -14,7 +14,7 @@ local M = {}
 ---@param bufnr number
 ---@param start_row number
 ---@param user_input_row_length number
-local function render_border(bufnr, start_row, user_input_row_length)
+function M.render_border(bufnr, start_row, user_input_row_length)
   local namespace = vim.api.nvim_create_namespace("sepnai-chat")
   local start_index = start_row - 1 -- 0 based
 
@@ -89,7 +89,7 @@ local function base_render(chat, user_input)
 
   -- user input
   utils.set_text_at_last(chat.chat_log.bufnr, render_text)
-  render_border(chat.chat_log.bufnr, start_row, line_number)
+  M.render_border(chat.chat_log.bufnr, start_row, line_number)
   utils.scroll_when_invisible(chat)
   return texts
 end
