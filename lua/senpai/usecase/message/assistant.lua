@@ -36,47 +36,45 @@ end
 
 ---@param chunk string
 function M:process_chunk(chunk)
-  self.chunks = self.chunks .. chunk
+  local lines = vim.split(chunk, "\n")
+  if #lines == 1 then
+    -- 改行なし -> そのままchunkを描画
+    self:render_base(chunk)
+    self.chunks = self.chunks .. chunk
+    return
+  end
+  self.chunks = ""
 
-  while true do
-    local nl_pos = self.chunks:find("\n")
-    if not nl_pos then
-      break
-    end
-
-    local line = self.chunks:sub(1, nl_pos - 1) -- before newline
-    self.chunks = self.chunks:sub(nl_pos + 1) -- after newline
-
-    self:process_line(line, chunk)
+  for _, line in pairs(lines) do
+    self:render_base(line .. "\n")
+    self:process_line(line)
   end
 end
 
 ---@param line string
-function M:process_line(line, chunk)
+function M:process_line(line)
   local lower_line = string.lower(line)
   if self.replace_file_current.id == "" then
-    if string.match(lower_line, "<replace_file>") then
+    if lower_line:match("<replace_file>") then
       self:process_start_replace_file()
-    else
-      self:render_base(chunk)
     end
     return
   end
 
-  if string.match(lower_line, "</replace_file>") then
+  if lower_line:match("</replace_file>") then
     self:process_end_replace_file()
-  elseif string.match(lower_line, "<path>.*</path>") then
+  elseif lower_line:match("<path>.*</path>") then
     self:process_path_tag(line)
-  elseif string.match(lower_line, "<search>") then
+  elseif lower_line:match("<search>") then
     self:process_start_search_tag()
-  elseif string.match(lower_line, "</search>") then
+  elseif lower_line:match("</search>") then
     self:process_end_search_tag()
-  elseif string.match(lower_line, "<replace>") then
+  elseif lower_line:match("<replace>") then
     self:process_start_replace_tag()
-  elseif string.match(lower_line, "</replace>") then
+  elseif lower_line:match("</replace>") then
     self:process_end_replace_tag()
   elseif self.replace_file_current.tag then
-    self:process_content_line(line, chunk)
+    self:process_content_line(line)
   end
 end
 
@@ -149,11 +147,8 @@ function M:process_end_replace_tag()
   utils.replace_text_at_last(self.chat.chat_log.bufnr, "\n```" .. "\n")
 end
 
-function M:process_content_line(line, chunk)
+function M:process_content_line(line)
   table.insert(self.current_content, line)
-  if self.replace_file_current.tag == "replace" then
-    self:render_base(chunk)
-  end
 end
 
 ---@param message senpai.chat.message.assistant
