@@ -90,7 +90,7 @@ function M:process_start_replace_file()
   }
   utils.replace_text_at_last(
     self.chat.chat_log.bufnr,
-    '<SenpaiReplaceFile id="' .. id .. '">\n\n'
+    '\n<SenpaiReplaceFile id="' .. id .. '">\n\n'
   )
 end
 
@@ -115,7 +115,7 @@ function M:process_path_tag(line)
   self.current_content = {}
   utils.replace_text_at_last(
     self.chat.chat_log.bufnr,
-    "filepath: " .. path .. "\n"
+    "\nfilepath: " .. path .. "\n"
   )
 end
 
@@ -134,18 +134,19 @@ end
 function M:process_start_replace_tag()
   self.replace_file_current.tag = "replace"
   self.current_content = {}
+  local filetype = vim.filetype.match({
+    filename = self.replace_file_current.path,
+  }) or ""
   utils.replace_text_at_last(
     self.chat.chat_log.bufnr,
-    "```"
-      .. vim.filetype.match({ filename = self.replace_file_current.path })
-      .. "\n"
+    "\n```" .. filetype .. "\n"
   )
 end
 
 function M:process_end_replace_tag()
   self.replace_file_current.replace = self.current_content
   self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.chat_log.bufnr, "```" .. "\n")
+  utils.replace_text_at_last(self.chat.chat_log.bufnr, "\n```" .. "\n")
 end
 
 function M:process_content_line(line, chunk)
