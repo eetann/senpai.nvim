@@ -11,11 +11,13 @@ M.__index = M
 ---send chat to LLM
 ---@param chat senpai.IChatWindow
 function M.execute(chat)
+  -- TODO: ここに空だった時の判定
   if chat.is_sending then
     return
   end
   chat.is_sending = true
   local user_input = UserMessage.render_from_request(chat)
+  local assistant = AssistantMessage.new(chat)
 
   local spinner = Spinner.new(
     "Senpai thinking",
@@ -47,7 +49,7 @@ function M.execute(chat)
         return
       end
       if part.type == "0" then
-        AssistantMessage.render_from_response(chat, part)
+        assistant:render_from_response(part)
       elseif part.type == "a" then
         ToolResultMessage.render_from_response(chat, part)
       end

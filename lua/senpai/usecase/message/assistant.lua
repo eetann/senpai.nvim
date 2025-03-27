@@ -3,12 +3,14 @@ local utils = require("senpai.usecase.utils")
 ---@class senpai.message.assistant.replace_file_current: senpai.XML.replace_file
 ---@field id string
 ---@field tag? string
+---@field start_line number
 
 ---@class senpai.message.assistant
 ---@field chat senpai.IChatWindow
 ---@field replace_file_current senpai.message.assistant.replace_file_current
 ---@field current_content string
 ---@field line string
+---@field namespace integer
 local M = {}
 M.__index = M
 
@@ -23,9 +25,11 @@ function M.new(chat)
     search = {},
     replace = {},
     tag = nil,
+    start_line = 0,
   }
   self.current_content = ""
   self.line = ""
+  self.namespace = vim.api.nvim_create_namespace("sepnai-chat")
   return self
 end
 
@@ -42,22 +46,21 @@ function M:process_chunk(text)
   -- 普通のコンテンツは描画 chunk必要 最終行以外は改行あり
   -- search以外のreplace_file中は置き換えの発生あり line必要 改行制御あり 最終行は不要
 
-  local last = #lines
-  for i = 1, last do
+  local length = #lines
+  for i = 1, length do
     local chunk = lines[i]
     self.line = self.line .. chunk
-    if chunk ~= "" and last > 1 then
+    if chunk ~= "" and length > 1 and i ~= length then
       chunk = chunk .. "\n"
     end
-    local is_need_newline = self:process_line(chunk)
-    if i ~= last then
+    self:process_line(chunk)
+    if i ~= length then
       self.line = ""
     end
   end
 end
 
 ---@param chunk string
----@return boolean # need newline
 function M:process_line(chunk)
   local lower_line = string.lower(self.line)
   if self.replace_file_current.id == "" then
@@ -66,51 +69,64 @@ function M:process_line(chunk)
     else
       self:render_base(chunk)
     end
-    return true
+    return
   end
 
   if lower_line:match("</replace_file>") then
     self:process_end_replace_file()
-    return true
+    return
   end
   if lower_line:match("<path>.*</path>") then
     self:process_path_tag()
-    return true
+    return
   end
   if lower_line:match("<search>") then
     self:process_start_search_tag()
-    return false
+    return
   end
   if lower_line:match("</search>") then
     self:process_end_search_tag()
-    return false
+    return
   end
   if lower_line:match("<replace>") then
     self:process_start_replace_tag()
-    return true
+    return
   end
   if lower_line:match("</replace>") then
     self:process_end_replace_tag()
-    return true
+    return
   end
   if self.replace_file_current.tag then
     self:process_content_line(chunk)
-    return true
+    return
   end
-  return true
 end
 
 function M:process_start_replace_file()
   local id = utils.create_random_id(12)
+  utils.replace_text_at_last(
+    self.chat.chat_log.bufnr,
+    '\n<SenpaiReplaceFile id="' .. id .. '">\n\n'
+  )
+  local start_line = vim.fn.line("$", self.chat.chat_log.winid) - 2
   self.replace_file_current = {
     id = id,
     path = "",
     search = {},
     replace = {},
+    start_line = start_line,
   }
-  utils.replace_text_at_last(
+  vim.api.nvim_buf_set_extmark(
     self.chat.chat_log.bufnr,
-    '\n<SenpaiReplaceFile id="' .. id .. '">\n\n'
+    self.namespace,
+    start_line - 1,
+    0,
+    {
+      sign_text = "󰬲",
+      sign_hl_group = "DiagnosticInfo",
+      virt_text = { { "Replace File" } },
+      virt_text_pos = "inline",
+    }
   )
 end
 
@@ -120,12 +136,38 @@ function M:process_end_replace_file()
     search = self.replace_file_current.search,
     replace = self.replace_file_current.replace,
   })
-  self.replace_file_current = { id = "", path = "", search = {}, replace = {} }
-  self.replace_file_current.tag = nil
   utils.replace_text_at_last(
     self.chat.chat_log.bufnr,
-    "\n</SenpaiReplaceFile>\n"
+    "\n</SenpaiReplaceFile>\n\n"
   )
+  vim.api.nvim_buf_set_extmark(
+    self.chat.chat_log.bufnr,
+    self.namespace,
+    self.replace_file_current.start_line - 1,
+    0,
+    {
+      virt_text = { { "apply [a/A]" } },
+      virt_text_pos = "right_align",
+    }
+  )
+
+  local end_index = vim.fn.line("$", self.chat.chat_log.winid) - 3
+  for i = self.replace_file_current.start_line, end_index do
+    vim.api.nvim_buf_set_extmark(
+      self.chat.chat_log.bufnr,
+      self.namespace,
+      i, -- 0-based
+      0,
+      {
+        sign_text = "▕",
+        sign_hl_group = "DiagnosticVirtualInfo",
+      }
+    )
+  end
+
+  self.replace_file_current =
+    { id = "", path = "", search = {}, replace = {}, start_line = 0 }
+  self.replace_file_current.tag = nil
 end
 
 function M:process_path_tag()
@@ -201,7 +243,7 @@ end
 
 ---@param part senpai.data_stream_protocol type = "0"
 function M:render_from_response(part)
-  self:render_base(part.content --[[@as string]])
+  self:process_chunk(part.content --[[@as string]])
 end
 
 return M

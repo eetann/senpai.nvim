@@ -41,38 +41,30 @@ T["assistant <replace_file> chunk process"] = function()
   eq(Helpers.get_line(child, bufnr, 9), "")
   eq(Helpers.get_line(child, bufnr, 10), "")
   eq(Helpers.get_line(child, bufnr, 11), nil)
-end
 
--- T["assistant <replace_file> from chunk"] = function()
---   child.lua([[chat=require("senpai.presentation.chat.window").new({})]])
---   child.lua([[chat:show()]])
---   child.lua("assistant=M.new(chat)")
---   child.lua("assistant:process_chunk(...)", { "plain text " })
---   child.lua("assistant:process_chunk(...)", { "here.\n" })
---   child.lua("assistant:process_chunk(...)", { "<replace_file>\n<path>src/m" })
---   child.lua("assistant:process_chunk(...)", { "ain.js</path>\n" })
---   child.lua(
---     "assistant:process_chunk(...)",
---     { "<search>\n  return a - b;\n</search>\n" }
---   )
---   child.lua(
---     "assistant:process_chunk(...)",
---     { "<replace>\n  return a + b;\n</replace>\n" }
---   )
---   child.lua("assistant:process_chunk(...)", { "</replace_file>\nexam" })
---   child.lua("assistant:process_chunk(...)", { "ple foo bar.\n" })
---
---   local result = child.lua_get("chat.replace_file_results")
---   local count = 0
---
---   for _, content in pairs(result) do
---     eq(content.path, "src/main.js")
---     eq(content.search, { "  return a - b;" })
---     eq(content.replace, { "  return a + b;" })
---     count = count + 1
---   end
---   eq(count, 1)
--- end
+  child.lua("assistant:process_chunk(...)", { "<path>src/" })
+  child.lua("assistant:process_chunk(...)", { "main.js" })
+  child.lua("assistant:process_chunk(...)", { "</path>\n" })
+  child.lua("assistant:process_chunk(...)", { "<search>\n" })
+  child.lua("assistant:process_chunk(...)", { "  return a - b;\n" })
+  child.lua("assistant:process_chunk(...)", { "</search>\n" })
+  child.lua("assistant:process_chunk(...)", { "<replace>\n" })
+  child.lua("assistant:process_chunk(...)", { "  return a + b;\n" })
+  child.lua("assistant:process_chunk(...)", { "</replace>\n" })
+  child.lua("assistant:process_chunk(...)", { "</replace_file>\n" })
+  eq(Helpers.get_line(child, bufnr, 9), "")
+  eq(Helpers.get_line(child, bufnr, 10), "filepath: src/main.js")
+  eq(Helpers.get_line(child, bufnr, 11), "```javascript")
+  eq(Helpers.get_line(child, bufnr, 12), "  return a + b;")
+  eq(Helpers.get_line(child, bufnr, 13), "```")
+  eq(Helpers.get_line(child, bufnr, 14), "")
+  eq(Helpers.get_line(child, bufnr, 15), "</SenpaiReplaceFile>")
+  child.lua("assistant:process_chunk(...)", { "red\nblue" })
+  child.lua("assistant:process_chunk(...)", { " yellow green" })
+  eq(Helpers.get_line(child, bufnr, 16), "red")
+  eq(Helpers.get_line(child, bufnr, 17), "blue yellow green")
+  eq(Helpers.get_line(child, bufnr, 18), nil)
+end
 
 T["assistant <replace_file> from message"] = function()
   child.lua([[chat=require("senpai.presentation.chat.window").new({})]])
@@ -106,7 +98,6 @@ example foo bar.
   eq(count, 1)
 
   local bufnr = child.lua_get([[chat.chat_log.bufnr]])
-  local buf_content = child.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   eq(Helpers.get_line(child, bufnr, 5), "---")
   eq(Helpers.get_line(child, bufnr, 6), "plain text here.")
   eq(Helpers.get_line(child, bufnr, 7), "")
