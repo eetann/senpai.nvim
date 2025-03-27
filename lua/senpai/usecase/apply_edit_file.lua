@@ -7,7 +7,7 @@ function M.execute(chat)
   local col = vim.fn.col(".", chat.chat_log.winid)
   -- example: <SenpaiReplaceFile id="01YXj1vvRdFUHhf7Q58VGrJy">
   vim.cmd("?^<SenpaiReplaceFile.*")
-  local id = vim.fn.getline("."):match('^<SenpaiEditFile.*id="([^"]+)"')
+  local id = vim.fn.getline("."):match('^<SenpaiReplaceFile.*id="([^"]+)"')
   if not id or id == "" then
     return
   end
@@ -15,6 +15,7 @@ function M.execute(chat)
   ---@cast id string
 
   local result = chat.replace_file_results[id]
+  vim.print(result)
   vim.cmd("wincmd h")
   vim.cmd("edit " .. result.path)
   local original_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
@@ -27,6 +28,10 @@ function M.execute(chat)
     vim.api.nvim_get_current_win(),
     table.concat(result.search, "\n")
   )
+  if range.start_line == 0 then
+    vim.notify("[senpai]: Could not find code.", vim.log.levels.WARN)
+    return
+  end
 
   local buf = vim.api.nvim_create_buf(false, true)
   local win =

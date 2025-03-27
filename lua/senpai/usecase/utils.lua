@@ -90,8 +90,9 @@ end
 function M.get_range_by_search(winid, text)
   -- Simply `end` is confusing due to the grammar, so `end_line` is used.
   local result = { start_line = 0, end_line = 0 }
+  local escaped_text, _ = text:gsub("\n", "\\_.")
   vim.api.nvim_win_call(winid, function()
-    result.start_line = vim.fn.search(text)
+    result.start_line = vim.fn.search(escaped_text) or 0
   end)
   result.end_line = result.start_line + #vim.split(text, "\n")
   return result
