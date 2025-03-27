@@ -117,12 +117,12 @@ example foo bar.
   )
   eq(Helpers.get_line(child, bufnr, 9), "")
   eq(Helpers.get_line(child, bufnr, 10), "filepath: src/main.js")
-  eq(Helpers.get_all_line(child, bufnr), "")
   eq(Helpers.get_line(child, bufnr, 11), "```javascript")
   eq(Helpers.get_line(child, bufnr, 12), "  return a + b;")
   eq(Helpers.get_line(child, bufnr, 13), "```")
-  eq(Helpers.get_line(child, bufnr, 14), "</SenpaiReplaceFile>")
-  eq(Helpers.get_line(child, bufnr, 15), "example foo bar.")
+  eq(Helpers.get_line(child, bufnr, 14), "")
+  eq(Helpers.get_line(child, bufnr, 15), "</SenpaiReplaceFile>")
+  eq(Helpers.get_line(child, bufnr, 16), "example foo bar.")
 end
 
 return T

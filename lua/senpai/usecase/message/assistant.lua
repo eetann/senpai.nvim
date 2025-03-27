@@ -7,7 +7,8 @@ local utils = require("senpai.usecase.utils")
 ---@class senpai.message.assistant
 ---@field chat senpai.IChatWindow
 ---@field replace_file_current senpai.message.assistant.replace_file_current
----@field current_content string[]
+---@field current_content string
+---@field line string
 local M = {}
 M.__index = M
 
@@ -23,7 +24,8 @@ function M.new(chat)
     replace = {},
     tag = nil,
   }
-  self.current_content = {}
+  self.current_content = ""
+  self.line = ""
   return self
 end
 
@@ -32,57 +34,70 @@ function M:render_base(text)
   utils.set_text_at_last(self.chat.chat_log.bufnr, text)
 end
 
----@param chunk string
-function M:process_chunk(chunk)
-  if not chunk:find("\n") then
-    self:render_base(chunk)
-    return
-  end
-
-  local lines = vim.split(chunk, "\n", { plain = true })
-  self:render_base(lines[1])
-  self:process_line(
-    vim.api.nvim_buf_get_lines(self.chat.chat_log.bufnr, -2, -1, false)[1]
-  )
-  self:render_base("\n")
+---@param text string
+function M:process_chunk(text)
+  local lines = vim.split(text, "\n", { plain = true })
+  -- TODO: 描画の分岐
+  -- searchタグ中は描画させたくない 引数不要 改行なし
+  -- 普通のコンテンツは描画 chunk必要 最終行以外は改行あり
+  -- search以外のreplace_file中は置き換えの発生あり line必要 改行制御あり 最終行は不要
 
   local last = #lines
-  for i = 2, last - 1 do
-    -- TODO: レンダリングするかどうかは各タグの processor に任せる
-    local line = lines[i]
-    self:render_base(line)
-    self:process_line(line)
-    self:render_base("\n")
+  for i = 1, last do
+    local chunk = lines[i]
+    self.line = self.line .. chunk
+    if chunk ~= "" and last > 1 then
+      chunk = chunk .. "\n"
+    end
+    local is_need_newline = self:process_line(chunk)
+    if i ~= last then
+      self.line = ""
+    end
   end
-  self:render_base(lines[last])
-  self:process_line(lines[last])
 end
 
----@param line string
-function M:process_line(line)
-  local lower_line = string.lower(line)
+---@param chunk string
+---@return boolean # need newline
+function M:process_line(chunk)
+  local lower_line = string.lower(self.line)
   if self.replace_file_current.id == "" then
     if lower_line:match("<replace_file>") then
       self:process_start_replace_file()
+    else
+      self:render_base(chunk)
     end
-    return
+    return true
   end
 
   if lower_line:match("</replace_file>") then
     self:process_end_replace_file()
-  elseif lower_line:match("<path>.*</path>") then
-    self:process_path_tag(line)
-  elseif lower_line:match("<search>") then
-    self:process_start_search_tag()
-  elseif lower_line:match("</search>") then
-    self:process_end_search_tag()
-  elseif lower_line:match("<replace>") then
-    self:process_start_replace_tag()
-  elseif lower_line:match("</replace>") then
-    self:process_end_replace_tag()
-  elseif self.replace_file_current.tag then
-    self:process_content_line(line)
+    return true
   end
+  if lower_line:match("<path>.*</path>") then
+    self:process_path_tag()
+    return true
+  end
+  if lower_line:match("<search>") then
+    self:process_start_search_tag()
+    return false
+  end
+  if lower_line:match("</search>") then
+    self:process_end_search_tag()
+    return false
+  end
+  if lower_line:match("<replace>") then
+    self:process_start_replace_tag()
+    return true
+  end
+  if lower_line:match("</replace>") then
+    self:process_end_replace_tag()
+    return true
+  end
+  if self.replace_file_current.tag then
+    self:process_content_line(chunk)
+    return true
+  end
+  return true
 end
 
 function M:process_start_replace_file()
@@ -95,7 +110,7 @@ function M:process_start_replace_file()
   }
   utils.replace_text_at_last(
     self.chat.chat_log.bufnr,
-    '\n<SenpaiReplaceFile id="' .. id .. '">\n'
+    '\n<SenpaiReplaceFile id="' .. id .. '">\n\n'
   )
 end
 
@@ -113,46 +128,56 @@ function M:process_end_replace_file()
   )
 end
 
-function M:process_path_tag(line)
-  local path = utils.get_relative_path(line:sub(7, -8))
+function M:process_path_tag()
+  local path = utils.get_relative_path(self.line:sub(7, -8))
   self.replace_file_current.path = path
   self.replace_file_current.tag = nil
-  self.current_content = {}
-  utils.replace_text_at_last(self.chat.chat_log.bufnr, "filepath: " .. path)
+  self.current_content = ""
+  utils.replace_text_at_last(
+    self.chat.chat_log.bufnr,
+    "filepath: " .. path .. "\n"
+  )
 end
 
 function M:process_start_search_tag()
   self.replace_file_current.tag = "search"
-  self.current_content = {}
+  self.current_content = ""
+  utils.replace_text_at_last(self.chat.chat_log.bufnr, "")
   -- TODO: 検索スピナーの開始
 end
 
 function M:process_end_search_tag()
-  self.replace_file_current.search = self.current_content
+  self.replace_file_current.search =
+    vim.split(self.current_content:gsub("\n$", ""), "\n")
   self.replace_file_current.tag = nil
+  utils.replace_text_at_last(self.chat.chat_log.bufnr, "")
   -- TODO: 検索スピナーの終了
 end
 
 function M:process_start_replace_tag()
   self.replace_file_current.tag = "replace"
-  self.current_content = {}
+  self.current_content = ""
   local filetype = vim.filetype.match({
     filename = self.replace_file_current.path,
   }) or ""
   utils.replace_text_at_last(
     self.chat.chat_log.bufnr,
-    "\n```" .. filetype .. "\n"
+    "```" .. filetype .. "\n"
   )
 end
 
 function M:process_end_replace_tag()
-  self.replace_file_current.replace = self.current_content
+  self.replace_file_current.replace =
+    vim.split(self.current_content:gsub("\n$", ""), "\n")
   self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.chat_log.bufnr, "\n```" .. "\n")
+  utils.replace_text_at_last(self.chat.chat_log.bufnr, "```" .. "\n")
 end
 
-function M:process_content_line(line)
-  table.insert(self.current_content, line)
+function M:process_content_line(chunk)
+  self.current_content = self.current_content .. chunk
+  if self.replace_file_current.tag ~= "search" then
+    self:render_base(chunk)
+  end
 end
 
 ---@param message senpai.chat.message.assistant
