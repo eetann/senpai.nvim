@@ -70,7 +70,6 @@ end
 
 ---@param chat senpai.IChatWindow
 ---@param user_input string[]
----@return string # request text for send to LLM
 local function base_render(chat, user_input)
   local start_row = vim.fn.line("$", chat.chat_log.winid)
   local line_number = #user_input
@@ -91,7 +90,6 @@ local function base_render(chat, user_input)
   utils.set_text_at_last(chat.chat_log.bufnr, render_text)
   M.render_border(chat.chat_log.bufnr, start_row, line_number)
   utils.scroll_when_invisible(chat)
-  return texts
 end
 
 ---@param chat senpai.IChatWindow
@@ -113,11 +111,10 @@ function M.render_from_memory(chat, message)
 end
 
 ---@param chat senpai.IChatWindow
----@return string # request text for send to LLM
-function M.render_from_request(chat)
-  local lines = vim.api.nvim_buf_get_lines(chat.chat_input.bufnr, 0, -1, false)
+---@param user_input string[]
+function M.render_from_request(chat, user_input)
   vim.api.nvim_buf_set_lines(chat.chat_input.bufnr, 0, -1, false, {})
-  return base_render(chat, lines)
+  base_render(chat, user_input)
 end
 
 return M

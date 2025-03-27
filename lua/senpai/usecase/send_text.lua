@@ -11,12 +11,17 @@ M.__index = M
 ---send chat to LLM
 ---@param chat senpai.IChatWindow
 function M.execute(chat)
-  -- TODO: ここに空だった時の判定
   if chat.is_sending then
     return
   end
+  local lines = vim.api.nvim_buf_get_lines(chat.chat_input.bufnr, 0, -1, false)
+  local user_input = table.concat(lines, "\n")
+  if user_input == "" then
+    return
+  end
+
   chat.is_sending = true
-  local user_input = UserMessage.render_from_request(chat)
+  UserMessage.render_from_request(chat, lines)
   local assistant = AssistantMessage.new(chat)
 
   local spinner = Spinner.new(
