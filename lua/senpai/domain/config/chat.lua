@@ -36,12 +36,12 @@ M.default_config = {
       q = "close",
       gx = "new_thread",
       gl = "load_thread",
+      gi = "toggle_input",
       ["<C-c>"] = "abort",
     },
   },
   log_area = { keymaps = {
     a = "apply",
-    A = "All apply",
   } },
   input_area = {
     keymaps = {

@@ -45,7 +45,6 @@ function M.new(args)
 
   self.system_prompt = args.system_prompt or ""
 
-  self.hidden = true
   self.is_sending = false
   self.edit_file_results = {}
   self.replace_file_results = {}
@@ -82,7 +81,7 @@ function M:create_chat_input(keymaps)
   self.chat_input = Split({
     relative = "win",
     position = "bottom",
-    size = "40%",
+    size = "25%",
     win_options = vim.tbl_deep_extend("force", win_options, {
       winbar = create_winbar_text("Ask Senpai"),
     }),
@@ -158,26 +157,33 @@ thread_id: "%s"
 
   vim.api.nvim_set_current_buf(self.chat_input.bufnr)
   vim.cmd("normal G$")
-  self.hidden = false
 end
 
 function M:hide()
   self.chat_log:hide()
   self.chat_input:hide()
-  self.hidden = true
 end
 
 function M:destroy()
-  self.hidden = true
   self.chat_log:unmount()
   self.chat_input:unmount()
 end
 
 function M:toggle()
-  if self.hidden then
-    self:show()
-  else
+  local winid = self.chat_log.winid
+  if winid and vim.api.nvim_win_is_valid(winid) then
     self:hide()
+  else
+    self:show()
+  end
+end
+
+function M:toggle_input()
+  local winid = self.chat_input.winid
+  if winid and vim.api.nvim_win_is_valid(winid) then
+    self.chat_input:hide()
+  else
+    self.chat_input:show()
   end
 end
 

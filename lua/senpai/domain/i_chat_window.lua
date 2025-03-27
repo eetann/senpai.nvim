@@ -17,7 +17,6 @@
 ---@field thread_id string
 ---@field chat_log NuiSplit|nil
 ---@field chat_input NuiSplit|nil
----@field hidden boolean
 ---@field keymaps senpai.chat.Keymaps
 ---@field is_sending boolean
 ---@field job? Job
@@ -31,3 +30,4 @@ function IChatWindow:show(winid) end
 function IChatWindow:hide() end
 function IChatWindow:destory() end
 function IChatWindow:toggle() end
+function IChatWindow:toggle_input() end

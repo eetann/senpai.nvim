@@ -82,6 +82,9 @@ function M:execute_action(name)
     submit = function()
       send_text.execute(self.chat)
     end,
+    toggle_input = function()
+      self.chat:toggle_input()
+    end,
   }
   local action = actions[name]
   if action then
