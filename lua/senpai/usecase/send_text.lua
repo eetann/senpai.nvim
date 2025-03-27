@@ -14,7 +14,7 @@ function M.execute(chat)
   if chat.is_sending then
     return
   end
-  local lines = vim.api.nvim_buf_get_lines(chat.chat_input.bufnr, 0, -1, false)
+  local lines = vim.api.nvim_buf_get_lines(chat.input_area.bufnr, 0, -1, false)
   local user_input = table.concat(lines, "\n")
   if user_input == "" then
     return
@@ -28,14 +28,14 @@ function M.execute(chat)
     "Senpai thinking",
     -- update
     function(message)
-      utils.set_winbar(chat.chat_input.winid, message)
+      utils.set_winbar(chat.input_area.winid, message)
     end,
     -- finish
     function(message)
       chat.is_sending = false
-      utils.set_winbar(chat.chat_input.winid, message)
+      utils.set_winbar(chat.input_area.winid, message)
       vim.defer_fn(function()
-        utils.set_winbar(chat.chat_input.winid, "Ask Senpai")
+        utils.set_winbar(chat.input_area.winid, "Ask Senpai")
       end, 2000)
     end
   )

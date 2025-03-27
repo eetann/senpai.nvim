@@ -71,7 +71,7 @@ end
 ---@param chat senpai.IChatWindow
 ---@param user_input string[]
 local function base_render(chat, user_input)
-  local start_row = vim.fn.line("$", chat.chat_log.winid)
+  local start_row = vim.fn.line("$", chat.log_area.winid)
   local line_number = #user_input
   local texts = table.concat(user_input, "\n")
   local render_text = string.format(
@@ -87,8 +87,8 @@ local function base_render(chat, user_input)
   )
 
   -- user input
-  utils.set_text_at_last(chat.chat_log.bufnr, render_text)
-  M.render_border(chat.chat_log.bufnr, start_row, line_number)
+  utils.set_text_at_last(chat.log_area.bufnr, render_text)
+  M.render_border(chat.log_area.bufnr, start_row, line_number)
   utils.scroll_when_invisible(chat)
 end
 
@@ -113,7 +113,7 @@ end
 ---@param chat senpai.IChatWindow
 ---@param user_input string[]
 function M.render_from_request(chat, user_input)
-  vim.api.nvim_buf_set_lines(chat.chat_input.bufnr, 0, -1, false, {})
+  vim.api.nvim_buf_set_lines(chat.input_area.bufnr, 0, -1, false, {})
   base_render(chat, user_input)
 end
 

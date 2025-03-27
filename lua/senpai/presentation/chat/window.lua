@@ -52,8 +52,8 @@ function M.new(args)
 end
 
 --- @param keymaps table<string, senpai.Config.chat.keymap>
-function M:create_chat_log(keymaps)
-  self.chat_log = Split({
+function M:create_log_area(keymaps)
+  self.log_area = Split({
     relative = "editor",
     position = "right",
     win_options = vim.tbl_deep_extend("force", win_options, {
@@ -65,20 +65,20 @@ function M:create_chat_log(keymaps)
   })
   for key, value in pairs(keymaps) do
     if type(value.mode) == "string" then
-      self.chat_log:map(value.mode--[[@as string]], key, value[1])
+      self.log_area:map(value.mode--[[@as string]], key, value[1])
     else
       for _, mode in
         pairs(value.mode--[=[@as string[]]=])
       do
-        self.chat_log:map(mode, key, value[1])
+        self.log_area:map(mode, key, value[1])
       end
     end
   end
 end
 
 ---@param keymaps table<string, senpai.Config.chat.keymap>
-function M:create_chat_input(keymaps)
-  self.chat_input = Split({
+function M:create_input_area(keymaps)
+  self.input_area = Split({
     relative = "win",
     position = "bottom",
     size = "25%",
@@ -91,12 +91,12 @@ function M:create_chat_input(keymaps)
   })
   for key, value in pairs(keymaps) do
     if type(value.mode) == "string" then
-      self.chat_input:map(value.mode--[[@as string]], key, value[1])
+      self.input_area:map(value.mode--[[@as string]], key, value[1])
     else
       for _, mode in
         pairs(value.mode--[=[@as string[]]=])
       do
-        self.chat_input:map(mode, key, value[1])
+        self.input_area:map(mode, key, value[1])
       end
     end
   end
@@ -104,25 +104,25 @@ end
 
 function M:show(winid)
   local resolved_keymaps
-  if not self.chat_log then
+  if not self.log_area then
     resolved_keymaps = Keymaps.new(self)
-    self:create_chat_log(resolved_keymaps.log_area)
+    self:create_log_area(resolved_keymaps.log_area)
     if winid then
-      self.chat_log.winid = winid
-      vim.api.nvim_win_set_buf(self.chat_log.winid, self.chat_log.bufnr)
+      self.log_area.winid = winid
+      vim.api.nvim_win_set_buf(self.log_area.winid, self.log_area.bufnr)
       ---@diagnostic disable-next-line: invisible
-      for name, value in pairs(self.chat_log._.win_options) do
+      for name, value in pairs(self.log_area._.win_options) do
         vim.api.nvim_set_option_value(
           name,
           value,
-          { scope = "local", win = self.chat_log.winid }
+          { scope = "local", win = self.log_area.winid }
         )
       end
-      vim.api.nvim_set_current_win(self.chat_log.winid)
+      vim.api.nvim_set_current_win(self.log_area.winid)
     end
-    self.chat_log:mount()
+    self.log_area:mount()
     utils.set_text_at_last(
-      self.chat_log.bufnr,
+      self.log_area.bufnr,
       string.format(
         [[
 ---
@@ -138,39 +138,39 @@ thread_id: "%s"
     )
     set_messages.execute(self)
   else
-    self.chat_log:show()
+    self.log_area:show()
   end
 
-  if not self.chat_input then
+  if not self.input_area then
     if not resolved_keymaps then
       resolved_keymaps = Keymaps.new(self)
     end
-    self:create_chat_input(resolved_keymaps.input_area)
-    self.chat_input:mount()
+    self:create_input_area(resolved_keymaps.input_area)
+    self.input_area:mount()
   else
-    self.chat_input:update_layout({
+    self.input_area:update_layout({
       relative = "win",
       position = "bottom",
     })
-    self.chat_input:show()
+    self.input_area:show()
   end
 
-  vim.api.nvim_set_current_buf(self.chat_input.bufnr)
+  vim.api.nvim_set_current_buf(self.input_area.bufnr)
   vim.cmd("normal G$")
 end
 
 function M:hide()
-  self.chat_log:hide()
-  self.chat_input:hide()
+  self.log_area:hide()
+  self.input_area:hide()
 end
 
 function M:destroy()
-  self.chat_log:unmount()
-  self.chat_input:unmount()
+  self.log_area:unmount()
+  self.input_area:unmount()
 end
 
 function M:toggle()
-  local winid = self.chat_log.winid
+  local winid = self.log_area.winid
   if winid and vim.api.nvim_win_is_valid(winid) then
     self:hide()
   else
@@ -179,11 +179,11 @@ function M:toggle()
 end
 
 function M:toggle_input()
-  local winid = self.chat_input.winid
+  local winid = self.input_area.winid
   if winid and vim.api.nvim_win_is_valid(winid) then
-    self.chat_input:hide()
+    self.input_area:hide()
   else
-    self.chat_input:show()
+    self.input_area:show()
   end
 end
 

@@ -16,7 +16,7 @@ local T = MiniTest.new_set({
 T["assistant <replace_file> chunk process"] = function()
   child.lua([[chat=require("senpai.presentation.chat.window").new({})]])
   child.lua([[chat:show()]])
-  local bufnr = child.lua_get([[chat.chat_log.bufnr]])
+  local bufnr = child.lua_get([[chat.log_area.bufnr]])
   child.lua("assistant=M.new(chat)")
   eq(Helpers.get_line(child, bufnr, 5), "---")
 
@@ -98,7 +98,7 @@ example foo bar.
   end
   eq(count, 1)
 
-  local bufnr = child.lua_get([[chat.chat_log.bufnr]])
+  local bufnr = child.lua_get([[chat.log_area.bufnr]])
   eq(Helpers.get_line(child, bufnr, 5), "---")
   eq(Helpers.get_line(child, bufnr, 6), "plain text here.")
   eq(Helpers.get_line(child, bufnr, 7), "")

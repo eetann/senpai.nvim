@@ -30,7 +30,7 @@ local function render_virt_text(chat, start_row, end_row, part)
   local end_tag_index = end_row - 1
 
   vim.api.nvim_buf_set_extmark(
-    chat.chat_log.bufnr,
+    chat.log_area.bufnr,
     namespace,
     start_tag_index, -- 0-based
     0,
@@ -42,7 +42,7 @@ local function render_virt_text(chat, start_row, end_row, part)
     }
   )
   vim.api.nvim_buf_set_extmark(
-    chat.chat_log.bufnr,
+    chat.log_area.bufnr,
     namespace,
     start_tag_index, -- 0-based
     0,
@@ -55,13 +55,13 @@ local function render_virt_text(chat, start_row, end_row, part)
   ---@type number
   local line_numer = #vim.split(part.result.replaceText, "\n")
   local start_search_fold_index = start_tag_index + 3 + line_numer + 2
-  vim.api.nvim_win_call(chat.chat_log.winid, function()
+  vim.api.nvim_win_call(chat.log_area.winid, function()
     vim.cmd(start_search_fold_index + 1 .. "," .. end_tag_index .. " fold")
   end)
 
   for i = start_tag_index + 1, end_tag_index - 1 do
     vim.api.nvim_buf_set_extmark(
-      chat.chat_log.bufnr,
+      chat.log_area.bufnr,
       namespace,
       i, -- 0-based
       0,
@@ -80,11 +80,11 @@ local function render_base(chat, part)
     return
   end
   if type(part.result) == "string" then
-    utils.set_text_at_last(chat.chat_log.bufnr, part.result)
+    utils.set_text_at_last(chat.log_area.bufnr, part.result)
     return
   end
 
-  local start_row = vim.fn.line("$", chat.chat_log.winid)
+  local start_row = vim.fn.line("$", chat.log_area.winid)
   if part.result.toolName == "EditFile" then
     ---@cast part senpai.tool.EditFile
     local render_text = string.format(
@@ -109,8 +109,8 @@ filepath: `%s`
       part.result.filetype,
       part.result.searchText
     )
-    utils.set_text_at_last(chat.chat_log.bufnr, render_text)
-    local end_row = vim.fn.line("$", chat.chat_log.winid)
+    utils.set_text_at_last(chat.log_area.bufnr, render_text)
+    local end_row = vim.fn.line("$", chat.log_area.winid)
     render_virt_text(chat, start_row, end_row, part)
     chat.edit_file_results[part.toolCallId] = part.result
   end
@@ -127,7 +127,7 @@ end
 function M.render_from_response(chat, part)
   local content = part.content
   if type(content) == "string" then
-    utils.set_text_at_last(chat.chat_log.bufnr, content .. "\n")
+    utils.set_text_at_last(chat.log_area.bufnr, content .. "\n")
     return
   end
   render_base(chat, content)

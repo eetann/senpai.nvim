@@ -3,15 +3,15 @@ local M = {}
 
 ---@param chat senpai.IChatWindow
 function M.execute(chat)
-  local row = vim.fn.line(".", chat.chat_log.winid)
-  local col = vim.fn.col(".", chat.chat_log.winid)
+  local row = vim.fn.line(".", chat.log_area.winid)
+  local col = vim.fn.col(".", chat.log_area.winid)
   -- example: <SenpaiReplaceFile id="01YXj1vvRdFUHhf7Q58VGrJy">
   vim.cmd("?^<SenpaiReplaceFile.*")
   local id = vim.fn.getline("."):match('^<SenpaiReplaceFile.*id="([^"]+)"')
   if not id or id == "" then
     return
   end
-  vim.api.nvim_win_set_cursor(chat.chat_log.winid, { row, col - 1 })
+  vim.api.nvim_win_set_cursor(chat.log_area.winid, { row, col - 1 })
   ---@cast id string
 
   local result = chat.replace_file_results[id]

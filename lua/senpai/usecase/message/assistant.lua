@@ -35,7 +35,7 @@ end
 
 ---@param text string
 function M:render_base(text)
-  utils.set_text_at_last(self.chat.chat_log.bufnr, text)
+  utils.set_text_at_last(self.chat.log_area.bufnr, text)
 end
 
 ---@param text string
@@ -96,10 +96,10 @@ end
 function M:process_start_replace_file()
   local id = utils.create_random_id(12)
   utils.replace_text_at_last(
-    self.chat.chat_log.bufnr,
+    self.chat.log_area.bufnr,
     '\n<SenpaiReplaceFile id="' .. id .. '">\n\n'
   )
-  local start_line = vim.fn.line("$", self.chat.chat_log.winid) - 2
+  local start_line = vim.fn.line("$", self.chat.log_area.winid) - 2
   self.replace_file_current = {
     id = id,
     path = "",
@@ -108,7 +108,7 @@ function M:process_start_replace_file()
     start_line = start_line,
   }
   vim.api.nvim_buf_set_extmark(
-    self.chat.chat_log.bufnr,
+    self.chat.log_area.bufnr,
     self.namespace,
     start_line - 1,
     0,
@@ -128,11 +128,11 @@ function M:process_end_replace_file()
     replace = self.replace_file_current.replace,
   })
   utils.replace_text_at_last(
-    self.chat.chat_log.bufnr,
+    self.chat.log_area.bufnr,
     "\n</SenpaiReplaceFile>\n\n"
   )
   vim.api.nvim_buf_set_extmark(
-    self.chat.chat_log.bufnr,
+    self.chat.log_area.bufnr,
     self.namespace,
     self.replace_file_current.start_line - 1,
     0,
@@ -142,10 +142,10 @@ function M:process_end_replace_file()
     }
   )
 
-  local end_index = vim.fn.line("$", self.chat.chat_log.winid) - 3
+  local end_index = vim.fn.line("$", self.chat.log_area.winid) - 3
   for i = self.replace_file_current.start_line, end_index do
     vim.api.nvim_buf_set_extmark(
-      self.chat.chat_log.bufnr,
+      self.chat.log_area.bufnr,
       self.namespace,
       i, -- 0-based
       0,
@@ -167,7 +167,7 @@ function M:process_path_tag()
   self.replace_file_current.tag = nil
   self.current_content = ""
   utils.replace_text_at_last(
-    self.chat.chat_log.bufnr,
+    self.chat.log_area.bufnr,
     "filepath: " .. path .. "\n"
   )
 end
@@ -175,7 +175,7 @@ end
 function M:process_start_search_tag()
   self.replace_file_current.tag = "search"
   self.current_content = ""
-  utils.replace_text_at_last(self.chat.chat_log.bufnr, "")
+  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
   -- TODO: 検索スピナーの開始
 end
 
@@ -183,7 +183,7 @@ function M:process_end_search_tag()
   self.replace_file_current.search =
     vim.split(self.current_content:gsub("\n$", ""), "\n")
   self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.chat_log.bufnr, "")
+  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
   -- TODO: 検索スピナーの終了
 end
 
@@ -192,7 +192,7 @@ function M:process_start_replace_tag()
   self.current_content = ""
   local filetype = utils.get_filetype(self.replace_file_current.path)
   utils.replace_text_at_last(
-    self.chat.chat_log.bufnr,
+    self.chat.log_area.bufnr,
     "```" .. filetype .. "\n"
   )
 end
@@ -201,7 +201,7 @@ function M:process_end_replace_tag()
   self.replace_file_current.replace =
     vim.split(self.current_content:gsub("\n$", ""), "\n")
   self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.chat_log.bufnr, "```" .. "\n")
+  utils.replace_text_at_last(self.chat.log_area.bufnr, "```" .. "\n")
 end
 
 function M:process_content_line(chunk)
