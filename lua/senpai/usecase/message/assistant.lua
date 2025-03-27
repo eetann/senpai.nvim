@@ -8,7 +8,6 @@ local utils = require("senpai.usecase.utils")
 ---@field chat senpai.IChatWindow
 ---@field replace_file_current senpai.message.assistant.replace_file_current
 ---@field current_content string[]
----@field chunks string
 local M = {}
 M.__index = M
 
@@ -17,7 +16,6 @@ M.__index = M
 function M.new(chat)
   local self = setmetatable({}, M)
   self.chat = chat
-  self.chunks = ""
   self.replace_file_current = {
     id = "",
     path = "",
@@ -43,11 +41,14 @@ function M:process_chunk(chunk)
 
   local lines = vim.split(chunk, "\n", { plain = true })
   self:render_base(lines[1])
-  self:process_line(lines[1])
+  self:process_line(
+    vim.api.nvim_buf_get_lines(self.chat.chat_log.bufnr, -2, -1, false)[1]
+  )
   self:render_base("\n")
 
   local last = #lines
   for i = 2, last - 1 do
+    -- TODO: レンダリングするかどうかは各タグの processor に任せる
     local line = lines[i]
     self:render_base(line)
     self:process_line(line)
@@ -94,7 +95,7 @@ function M:process_start_replace_file()
   }
   utils.replace_text_at_last(
     self.chat.chat_log.bufnr,
-    '\n<SenpaiReplaceFile id="' .. id .. '">\n\n'
+    '\n<SenpaiReplaceFile id="' .. id .. '">\n'
   )
 end
 
@@ -117,10 +118,7 @@ function M:process_path_tag(line)
   self.replace_file_current.path = path
   self.replace_file_current.tag = nil
   self.current_content = {}
-  utils.replace_text_at_last(
-    self.chat.chat_log.bufnr,
-    "\nfilepath: " .. path .. "\n"
-  )
+  utils.replace_text_at_last(self.chat.chat_log.bufnr, "filepath: " .. path)
 end
 
 function M:process_start_search_tag()
