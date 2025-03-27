@@ -61,9 +61,10 @@ T["assistant <replace_file> chunk process"] = function()
   eq(Helpers.get_line(child, bufnr, 15), "</SenpaiReplaceFile>")
   child.lua("assistant:process_chunk(...)", { "red\nblue" })
   child.lua("assistant:process_chunk(...)", { " yellow green" })
-  eq(Helpers.get_line(child, bufnr, 16), "red")
-  eq(Helpers.get_line(child, bufnr, 17), "blue yellow green")
-  eq(Helpers.get_line(child, bufnr, 18), nil)
+  eq(Helpers.get_line(child, bufnr, 16), "")
+  eq(Helpers.get_line(child, bufnr, 17), "red")
+  eq(Helpers.get_line(child, bufnr, 18), "blue yellow green")
+  eq(Helpers.get_line(child, bufnr, 19), nil)
 end
 
 T["assistant <replace_file> from message"] = function()
@@ -113,7 +114,8 @@ example foo bar.
   eq(Helpers.get_line(child, bufnr, 13), "```")
   eq(Helpers.get_line(child, bufnr, 14), "")
   eq(Helpers.get_line(child, bufnr, 15), "</SenpaiReplaceFile>")
-  eq(Helpers.get_line(child, bufnr, 16), "example foo bar.")
+  eq(Helpers.get_line(child, bufnr, 16), "")
+  eq(Helpers.get_line(child, bufnr, 17), "example foo bar.")
 end
 
 return T
