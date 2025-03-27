@@ -36,19 +36,25 @@ end
 
 ---@param chunk string
 function M:process_chunk(chunk)
-  local lines = vim.split(chunk, "\n")
-  if #lines == 1 then
-    -- 改行なし -> そのままchunkを描画
+  if not chunk:find("\n") then
     self:render_base(chunk)
-    self.chunks = self.chunks .. chunk
     return
   end
-  self.chunks = ""
 
-  for _, line in pairs(lines) do
-    self:render_base(line .. "\n")
+  local lines = vim.split(chunk, "\n", { plain = true })
+  self:render_base(lines[1])
+  self:process_line(lines[1])
+  self:render_base("\n")
+
+  local last = #lines
+  for i = 2, last - 1 do
+    local line = lines[i]
+    self:render_base(line)
     self:process_line(line)
+    self:render_base("\n")
   end
+  self:render_base(lines[last])
+  self:process_line(lines[last])
 end
 
 ---@param line string
