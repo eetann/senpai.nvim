@@ -199,9 +199,7 @@ end
 function M:process_start_replace_tag()
   self.replace_file_current.tag = "replace"
   self.current_content = ""
-  local filetype = vim.filetype.match({
-    filename = self.replace_file_current.path,
-  }) or ""
+  local filetype = utils.get_filetype(self.replace_file_current.path)
   utils.replace_text_at_last(
     self.chat.chat_log.bufnr,
     "```" .. filetype .. "\n"

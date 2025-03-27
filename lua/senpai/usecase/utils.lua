@@ -110,4 +110,18 @@ function M.create_random_id(length)
   return table.concat(ret)
 end
 
+-- https://github.com/neovim/neovim/issues/27265
+---@param filepath string
+function M.get_filetype(filepath)
+  local filetype = vim.filetype.match({
+    filename = filepath,
+  }) or ""
+  if filetype == "" then
+    if filepath:find(".ts$") then
+      return "typescript"
+    end
+  end
+  return filetype
+end
+
 return M
