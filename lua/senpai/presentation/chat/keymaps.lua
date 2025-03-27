@@ -4,7 +4,7 @@ local Line = require("nui.line")
 local Menu = require("nui.menu")
 local send_text = require("senpai.usecase.send_text")
 local abort_request = require("senpai.usecase.abort_request")
-local apply_edit_file = require("senpai.usecase.apply_edit_file")
+local apply_replace_file = require("senpai.usecase.apply_replace_file")
 
 ---@class senpai.chat.Keymaps.keymaps
 
@@ -65,7 +65,7 @@ function M:execute_action(name)
       abort_request.execute(self.chat)
     end,
     apply = function()
-      apply_edit_file.execute(self.chat)
+      apply_replace_file.execute(self.chat)
     end,
     close = function()
       self.chat:hide()
