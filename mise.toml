@@ -11,7 +11,12 @@ run = "nvim --noplugin -u ./scripts/test/minimal_init.lua"
 run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run launch'"
 
 [tasks.treesitter]
-run = "nvim --noplugin -u ./scripts/test/minimal_init.lua -c 'e ./doc/sample_chat.mdx'"
+run = """
+nvim --noplugin -u ./scripts/test/minimal_init.lua \
+  -c 'lua vim.treesitter.language.register("markdown", "senpai_chat_log")' \
+  -c 'e ./doc/sample_chat.mdx' \
+  -c 'setlocal filetype=senpai_chat_log'
+"""
 
 [tasks.treesitter-tmux]
 run = "tmux popup -E -w 95% -h 95% -d '#{pane_current_path}' 'mise run treesitter'"

@@ -7,13 +7,13 @@ local T = MiniTest.new_set({
     pre_case = function()
       child.setup()
       child.load()
-      child.lua([[M=require("senpai.usecase.send_text")]])
+      child.lua([[M=require("senpai.usecase.message.user")]])
     end,
     post_once = child.stop,
   },
 })
 
-T["create_borders creates proper extmarks"] = function()
+T["render_border creates proper extmarks"] = function()
   local buffer = child.api.nvim_get_current_buf()
   local lines = {
     "",
@@ -29,7 +29,7 @@ T["create_borders creates proper extmarks"] = function()
   local start_row = 1 -- at <SenpaiUserInput>
   local user_input_row_length = 1
   child.lua(
-    "M.create_borders(...)",
+    "M.render_border(...)",
     { buffer, start_row, user_input_row_length }
   )
 
@@ -53,14 +53,14 @@ T["create_borders creates proper extmarks"] = function()
     -- top
     if details.sign_text:find("╭") then
       top_border_found = true
-      eq(details.sign_hl_group, "NonText")
-      eq(details.virt_text[1][2], "NonText")
+      eq(details.sign_hl_group, "FloatBorder")
+      eq(details.virt_text[1][2], "FloatBorder")
     end
     -- bottom
     if details.sign_text:find("╰") then
       bottom_border_found = true
-      eq(details.sign_hl_group, "NonText")
-      eq(details.virt_text[1][2], "NonText")
+      eq(details.sign_hl_group, "FloatBorder")
+      eq(details.virt_text[1][2], "FloatBorder")
     end
   end
 
@@ -73,7 +73,7 @@ T["create_borders creates proper extmarks"] = function()
     local details = mark[4]
     if details.sign_text:find("│") then
       left_border_count = left_border_count + 1
-      eq(details.sign_hl_group, "NonText")
+      eq(details.sign_hl_group, "FloatBorder")
     end
   end
 
@@ -82,7 +82,7 @@ T["create_borders creates proper extmarks"] = function()
   eq(left_border_count >= 3, true)
 end
 
-T["create_borders positions borders correctly"] = function()
+T["render_border positions borders correctly"] = function()
   local buffer = child.api.nvim_get_current_buf()
   local start_row = 5
   local user_input_row_length = 2
@@ -102,7 +102,7 @@ T["create_borders positions borders correctly"] = function()
   child.api.nvim_buf_set_lines(buffer, 0, -1, true, lines)
 
   child.lua(
-    "M.create_borders(...)",
+    "M.render_border(...)",
     { buffer, start_row, user_input_row_length }
   )
   local namespace = child.lua_get([[
@@ -125,9 +125,9 @@ T["create_borders positions borders correctly"] = function()
     --     ns_id = 3,
     --     priority = 4096,
     --     right_gravity = true,
-    --     sign_hl_group = "NonText",
+    --     sign_hl_group = "FloatBorder",
     --     sign_text = "╭ ",
-    --     virt_text = { { "text", "NonText", }, },
+    --     virt_text = { { "text", "FloatBorder", }, },
     --     virt_text_hide = true,
     --     virt_text_pos = "overlay",
     --     virt_text_repeat_linebreak = false,

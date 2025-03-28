@@ -3,12 +3,12 @@
 (element
   [
    (start_tag
-      (tag_name) @tag
-      (#eq? @tag "SenpaiUserInput")
-      ) @start 
+     (tag_name) @tag
+     (#any-of? @tag "SenpaiUserInput" "SenpaiReplaceFile")
+     ) @start 
    (end_tag
      (tag_name) @tag
-     (#eq? @tag "SenpaiUserInput")
+     (#any-of? @tag "SenpaiUserInput" "SenpaiReplaceFile")
      ) @end
    ]
   (#set! conceal "")

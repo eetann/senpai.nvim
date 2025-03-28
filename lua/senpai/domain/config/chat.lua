@@ -2,7 +2,7 @@ local M = {}
 
 ---@doc.type
 ---@class senpai.Config.chat.keymap
----@field [1]? string|fun(self: senpai.ChatWindow.Config):nil
+---@field [1]? string|fun(self: senpai.IChatWindow):nil
 ---@field key? string
 ---@field mode? string|string[]
 ---@field desc string
@@ -34,12 +34,15 @@ M.default_config = {
     keymaps = {
       ["?"] = "help",
       q = "close",
-      gx = "new_chat",
+      gx = "new_thread",
       gl = "load_thread",
+      gi = "toggle_input",
       ["<C-c>"] = "abort",
     },
   },
-  log_area = { keymaps = {} },
+  log_area = { keymaps = {
+    a = "apply",
+  } },
   input_area = {
     keymaps = {
       ["<CR>"] = "submit",

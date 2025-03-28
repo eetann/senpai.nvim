@@ -82,14 +82,19 @@ function M.close_current_chat()
 end
 
 ---@param args? senpai.ChatWindowNewArgs
-function M.replace_new_chat(args)
+function M.replace_new_thread(args)
   local current_win = nil
   local chat = M.get_current_chat()
-  if chat and vim.api.nvim_win_is_valid(chat.chat_log.winid) then
-    current_win = chat.chat_log.winid
-    chat.chat_input:hide()
-    chat.chat_log.winid = nil
-    chat.chat_log:hide()
+  if
+    chat
+    and chat.log_area
+    and type(chat.log_area.winid) == "number"
+    and vim.api.nvim_win_is_valid(chat.log_area.winid)
+  then
+    current_win = chat.log_area.winid
+    chat.input_area:hide()
+    chat.log_area.winid = nil
+    chat.log_area:hide()
   end
   M.add(args or {})
   M.show_current_chat(current_win)

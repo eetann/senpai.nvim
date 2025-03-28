@@ -4,11 +4,12 @@ local Line = require("nui.line")
 local Menu = require("nui.menu")
 local send_text = require("senpai.usecase.send_text")
 local abort_request = require("senpai.usecase.abort_request")
+local apply_replace_file = require("senpai.usecase.apply_replace_file")
 
 ---@class senpai.chat.Keymaps.keymaps
 
 ---@class senpai.chat.Keymaps
----@field chat senpai.ChatWindow
+---@field chat senpai.IChatWindow
 ---@field common table<string, senpai.Config.chat.keymap>
 ---@field log_area table<string, senpai.Config.chat.keymap>
 ---@field input_area table<string, senpai.Config.chat.keymap>
@@ -58,10 +59,13 @@ function M:show_help()
 end
 
 function M:execute_action(name)
-  ---@type table<string, fun(chat: senpai.ChatWindow):nil>
+  ---@type table<string, fun(chat: senpai.IChatWindow):nil>
   local actions = {
     abort = function()
       abort_request.execute(self.chat)
+    end,
+    apply = function()
+      apply_replace_file.execute(self.chat)
     end,
     close = function()
       self.chat:hide()
@@ -72,11 +76,14 @@ function M:execute_action(name)
     help = function()
       self:show_help()
     end,
-    new_chat = function()
-      vim.cmd("Senpai newChat")
+    new_thread = function()
+      vim.cmd("Senpai newThread")
     end,
     submit = function()
       send_text.execute(self.chat)
+    end,
+    toggle_input = function()
+      self.chat:toggle_input()
     end,
   }
   local action = actions[name]

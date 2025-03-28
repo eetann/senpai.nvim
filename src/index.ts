@@ -38,6 +38,7 @@ app.route("/", chat);
 app.route("/", thread);
 
 export default {
+	idleTimeout: 60,
 	port,
 	fetch: app.fetch,
 };

@@ -7,6 +7,7 @@ M.job = nil
 M.port = nil
 
 local function wait_to_setup_server()
+  -- TODO: vim.wait?
   for _ = 1, 10 do
     local result =
       vim.system({ "curl", "-s", "http://localhost:" .. M.port }):wait()

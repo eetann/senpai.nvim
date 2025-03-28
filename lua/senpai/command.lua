@@ -48,18 +48,18 @@ local subcmd_tbl = {
   desc = "detail -> |senpai-feature-history|"
   --]=]
   loadThread = {
-    impl = function()
-      require("senpai.api").load_thread()
+    impl = function(args)
+      require("senpai.api").load_thread(args[1])
     end,
   },
   --[=[@doc
   category = "command"
-  name = "newChat"
-  desc = "detail -> |senpai-api-new_chat|"
+  name = "newThread"
+  desc = "detail -> |senpai-api-new_thread|"
   --]=]
-  newChat = {
+  newThread = {
     impl = function()
-      require("senpai.api").new_chat()
+      require("senpai.api").new_thread()
     end,
   },
   --[=[@doc

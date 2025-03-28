@@ -1,64 +1,42 @@
 local utils = require("senpai.usecase.utils")
-local get_messages = require("senpai.usecase.get_messages")
+local get_messages = require("senpai.usecase.request.get_messages")
+local UserMessage = require("senpai.usecase.message.user")
+local AssistantMessage = require("senpai.usecase.message.assistant")
+local ToolResultMessage = require("senpai.usecase.message.tool_result")
 
 local M = {}
 
 ---Getting the specified thread and restoring it to the chat.
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 function M.execute(chat)
+  local assistant = AssistantMessage.new(chat)
   get_messages.execute(chat.thread_id, function(messages)
     if #messages == 0 then
       return
     end
     for _, message in pairs(messages) do
       if message.role == "user" then
-        M.set_user_message(chat, message)
+        UserMessage.render_from_memory(chat, message)
       elseif message.role == "assistant" then
-        M.set_assistant_message(chat, message)
+        assistant:render_from_memory(message)
+      elseif message.role == "tool" then
+        M.set_tool_message(chat, message)
       end
     end
     utils.scroll_when_invisible(chat)
   end)
 end
 
----@param chat senpai.ChatWindow
----@param message senpai.chat.message.user
-function M.set_user_message(chat, message)
-  if type(message.content) == "string" then
-    utils.process_user_input(chat, message.content)
-    return
-  end
-  local content = {}
+---@param chat senpai.IChatWindow
+---@param message senpai.chat.message.tool
+function M.set_tool_message(chat, message)
   for _, part in
-    pairs(message.content --[=[@as senpai.chat.message.user.part[]]=])
+    pairs(message.content --[=[@as senpai.chat.message.part.tool_result[]]=])
   do
-    if part.type == "text" then
-      table.insert(content, part.text)
+    if part.type == "tool-result" then
+      ToolResultMessage.render_from_memory(chat, part)
     end
   end
-  utils.process_user_input(chat, content)
-end
-
----@param chat senpai.ChatWindow
----@param message senpai.chat.message.assistant
-function M.set_assistant_message(chat, message)
-  if type(message.content) == "string" then
-    utils.set_text_at_last(
-      chat.chat_log.bufnr,
-      message.content --[[@as string]]
-    )
-  end
-  local content = ""
-  for _, part in
-    pairs(message.content --[=[@as senpai.chat.message.assistant.part[]]=])
-  do
-    if part.type == "text" then
-      content = content .. "\n" .. part.text
-    elseif part.type == "reasoning" then
-      content = content .. "\n" .. part.text
-    end
-  end
-  utils.set_text_at_last(chat.chat_log.bufnr, content)
 end
 
 return M

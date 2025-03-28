@@ -1,7 +1,7 @@
 local M = {}
 
 ---abort the chat request
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 function M.execute(chat)
   if not chat.job then
     return

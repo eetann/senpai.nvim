@@ -1,33 +1,41 @@
 local Spinner = require("senpai.presentation.shared.spinner")
-local RequestHandler = require("senpai.presentation.shared.request_handler")
+local RequestHandler = require("senpai.usecase.request.request_handler")
 local utils = require("senpai.usecase.utils")
+local UserMessage = require("senpai.usecase.message.user")
+local AssistantMessage = require("senpai.usecase.message.assistant")
+local ToolResultMessage = require("senpai.usecase.message.tool_result")
 
 local M = {}
 M.__index = M
 
 ---send chat to LLM
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 function M.execute(chat)
   if chat.is_sending then
     return
   end
+  local lines = vim.api.nvim_buf_get_lines(chat.input_area.bufnr, 0, -1, false)
+  local user_input = table.concat(lines, "\n")
+  if user_input == "" then
+    return
+  end
+
   chat.is_sending = true
-  local lines = vim.api.nvim_buf_get_lines(chat.chat_input.bufnr, 0, -1, false)
-  vim.api.nvim_buf_set_lines(chat.chat_input.bufnr, 0, -1, false, {})
-  local user_input = utils.process_user_input(chat, lines)
+  UserMessage.render_from_request(chat, lines)
+  local assistant = AssistantMessage.new(chat)
 
   local spinner = Spinner.new(
     "Senpai thinking",
     -- update
     function(message)
-      utils.set_winbar(chat.chat_input.winid, message)
+      utils.set_winbar(chat.input_area.winid, message)
     end,
     -- finish
     function(message)
       chat.is_sending = false
-      utils.set_winbar(chat.chat_input.winid, message)
+      utils.set_winbar(chat.input_area.winid, message)
       vim.defer_fn(function()
-        utils.set_winbar(chat.chat_input.winid, "Ask Senpai")
+        utils.set_winbar(chat.input_area.winid, "Ask Senpai")
       end, 2000)
     end
   )
@@ -46,12 +54,11 @@ function M.execute(chat)
         return
       end
       if part.type == "0" then
-        utils.set_text_at_last(
-          chat.chat_log.bufnr,
-          part.content --[[@as string]]
-        )
-        utils.scroll_when_invisible(chat)
+        assistant:render_from_response(part)
+      elseif part.type == "a" then
+        ToolResultMessage.render_from_response(chat, part)
       end
+      utils.scroll_when_invisible(chat)
     end,
     callback = function()
       spinner:stop()

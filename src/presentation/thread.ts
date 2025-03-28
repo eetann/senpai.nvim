@@ -3,6 +3,7 @@ import { providerSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
 import { DeleteThreadsUseCase } from "@/usecase/DeleteThreadsUseCase";
 import { GetMessagesUseCase } from "@/usecase/GetMessagesUseCase";
+import { GetThreadByIdUseCase } from "@/usecase/GetThreadByIdUseCase";
 import { GetThreadsUseCase } from "@/usecase/GetThreadsUseCase";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
@@ -37,6 +38,31 @@ app.openapi(
 	async (c) => {
 		const threads = await new GetThreadsUseCase(memory).execute();
 		return c.json(threads);
+	},
+);
+
+app.openapi(
+	createRoute({
+		method: "get",
+		path: "/{id}",
+		request: {
+			params: z.object({ id: z.string() }),
+		},
+		responses: {
+			200: {
+				description: "a thread",
+				content: {
+					"application/json": {
+						schema: threadSchema,
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const { id } = c.req.valid("param");
+		const thread = await new GetThreadByIdUseCase(memory).execute(id);
+		return c.json(thread);
 	},
 );
 

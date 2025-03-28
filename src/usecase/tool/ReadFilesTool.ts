@@ -1,15 +1,23 @@
-import {
-	type IGetFiles,
-	inputSchema,
-	outputSchema,
-} from "@/usecase/shared/IGetFiles";
 import { createTool } from "@mastra/core/tools";
+import type { DataContent } from "ai";
 import { globby } from "globby";
-import type { z } from "zod";
+import { z } from "zod";
 
 async function glob(pattern: string) {
 	return await globby([`**/${pattern}`], { gitignore: true });
 }
+
+export const inputSchema = z.object({
+	filenames: z.array(z.string()),
+});
+export const outputSchema = z.array(
+	z.object({
+		filepath: z.string(),
+		type: z.literal("file"),
+		data: z.custom<DataContent>(),
+		mimeType: z.string(),
+	}),
+);
 
 export async function getFiles(
 	iGlob: (pattern: string) => Promise<string[]>,
@@ -23,6 +31,7 @@ export async function getFiles(
 			if (await file.exists()) {
 				const data = await file.bytes();
 				result.push({
+					filepath: Bun.resolveSync(filename, process.cwd()),
 					type: "file",
 					data,
 					mimeType: file.type,
@@ -42,6 +51,7 @@ export async function getFiles(
 				if (file.exists()) {
 					const data = await file.bytes();
 					result.push({
+						filepath: Bun.resolveSync(filename, process.cwd()),
 						type: "file",
 						data,
 						mimeType: file.type,
@@ -53,12 +63,13 @@ export async function getFiles(
 	return result;
 }
 
-export const GetFiles = createTool({
+export const ReadFilesTool = createTool({
 	id: "get-files",
-	description: "get files",
+	description: `Read files. \
+Since this uses a glob, the argument for this does not have to be an exact filename.`,
 	inputSchema,
 	outputSchema,
 	execute: async ({ context: { filenames } }) => {
 		return await getFiles(glob, filenames);
 	},
-}) as IGetFiles;
+});

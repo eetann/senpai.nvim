@@ -23,23 +23,12 @@ local win_options = {
   -- listchars = "eol: ",
 }
 
----@module 'plenary.job'
-
----@class senpai.ChatWindow: senpai.ChatWindow.Config
----@field keymaps senpai.chat.Keymaps
----@field is_sending boolean
----@field job? Job
+---@class senpai.ChatWindow: senpai.IChatWindow
 local M = {}
 M.__index = M
 
----@class senpai.ChatWindowNewArgs
----@field provider? senpai.Config.provider.name|senpai.Config.provider
----@field system_prompt? string
----@field thread_id? string
-
 -- TODO: nuiのlayoutへ置き換える
 
----@nodoc
 ---@param args senpai.ChatWindowNewArgs
 ---@return senpai.ChatWindow|nil
 function M.new(args)
@@ -56,14 +45,15 @@ function M.new(args)
 
   self.system_prompt = args.system_prompt or ""
 
-  self.hidden = true
-  self.keymaps = Keymaps.new(self)
   self.is_sending = false
+  self.edit_file_results = {}
+  self.replace_file_results = {}
   return self
 end
 
-function M:create_chat_log()
-  self.chat_log = Split({
+--- @param keymaps table<string, senpai.Config.chat.keymap>
+function M:create_log_area(keymaps)
+  self.log_area = Split({
     relative = "editor",
     position = "right",
     win_options = vim.tbl_deep_extend("force", win_options, {
@@ -73,24 +63,25 @@ function M:create_chat_log()
       filetype = "senpai_chat_log",
     },
   })
-  for key, value in pairs(self.keymaps.log_area) do
+  for key, value in pairs(keymaps) do
     if type(value.mode) == "string" then
-      self.chat_log:map(value.mode--[[@as string]], key, value[1])
+      self.log_area:map(value.mode--[[@as string]], key, value[1])
     else
       for _, mode in
         pairs(value.mode--[=[@as string[]]=])
       do
-        self.chat_log:map(mode, key, value[1])
+        self.log_area:map(mode, key, value[1])
       end
     end
   end
 end
 
-function M:create_chat_input()
-  self.chat_input = Split({
+---@param keymaps table<string, senpai.Config.chat.keymap>
+function M:create_input_area(keymaps)
+  self.input_area = Split({
     relative = "win",
     position = "bottom",
-    size = "40%",
+    size = "25%",
     win_options = vim.tbl_deep_extend("force", win_options, {
       winbar = create_winbar_text("Ask Senpai"),
     }),
@@ -98,39 +89,40 @@ function M:create_chat_input()
       filetype = "senpai_chat_input",
     },
   })
-  for key, value in pairs(self.keymaps.input_area) do
+  for key, value in pairs(keymaps) do
     if type(value.mode) == "string" then
-      self.chat_input:map(value.mode--[[@as string]], key, value[1])
+      self.input_area:map(value.mode--[[@as string]], key, value[1])
     else
       for _, mode in
         pairs(value.mode--[=[@as string[]]=])
       do
-        self.chat_input:map(mode, key, value[1])
+        self.input_area:map(mode, key, value[1])
       end
     end
   end
 end
 
----@param winid? number
 function M:show(winid)
-  if not self.chat_log then
-    self:create_chat_log()
+  local resolved_keymaps
+  if not self.log_area then
+    resolved_keymaps = Keymaps.new(self)
+    self:create_log_area(resolved_keymaps.log_area)
     if winid then
-      self.chat_log.winid = winid
-      vim.api.nvim_win_set_buf(self.chat_log.winid, self.chat_log.bufnr)
+      self.log_area.winid = winid
+      vim.api.nvim_win_set_buf(self.log_area.winid, self.log_area.bufnr)
       ---@diagnostic disable-next-line: invisible
-      for name, value in pairs(self.chat_log._.win_options) do
+      for name, value in pairs(self.log_area._.win_options) do
         vim.api.nvim_set_option_value(
           name,
           value,
-          { scope = "local", win = self.chat_log.winid }
+          { scope = "local", win = self.log_area.winid }
         )
       end
-      vim.api.nvim_set_current_win(self.chat_log.winid)
+      vim.api.nvim_set_current_win(self.log_area.winid)
     end
-    self.chat_log:mount()
+    self.log_area:mount()
     utils.set_text_at_last(
-      self.chat_log.bufnr,
+      self.log_area.bufnr,
       string.format(
         [[
 ---
@@ -146,42 +138,52 @@ thread_id: "%s"
     )
     set_messages.execute(self)
   else
-    self.chat_log:show()
+    self.log_area:show()
   end
 
-  if not self.chat_input then
-    self:create_chat_input()
-    self.chat_input:mount()
+  if not self.input_area then
+    if not resolved_keymaps then
+      resolved_keymaps = Keymaps.new(self)
+    end
+    self:create_input_area(resolved_keymaps.input_area)
+    self.input_area:mount()
   else
-    self.chat_input:update_layout({
+    self.input_area:update_layout({
       relative = "win",
       position = "bottom",
     })
-    self.chat_input:show()
+    self.input_area:show()
   end
 
-  vim.api.nvim_set_current_buf(self.chat_input.bufnr)
+  vim.api.nvim_set_current_buf(self.input_area.bufnr)
   vim.cmd("normal G$")
-  self.hidden = false
 end
 
 function M:hide()
-  self.chat_log:hide()
-  self.chat_input:hide()
-  self.hidden = true
+  self.log_area:hide()
+  self.input_area:hide()
 end
 
 function M:destroy()
-  self.hidden = true
-  self.chat_log:unmount()
-  self.chat_input:unmount()
+  self.log_area:unmount()
+  self.input_area:unmount()
 end
 
 function M:toggle()
-  if self.hidden then
-    self:show()
-  else
+  local winid = self.log_area.winid
+  if winid and vim.api.nvim_win_is_valid(winid) then
     self:hide()
+  else
+    self:show()
+  end
+end
+
+function M:toggle_input()
+  local winid = self.input_area.winid
+  if winid and vim.api.nvim_win_is_valid(winid) then
+    self.input_area:hide()
+  else
+    self.input_area:show()
   end
 end
 

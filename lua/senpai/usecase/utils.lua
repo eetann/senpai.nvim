@@ -1,3 +1,5 @@
+local Path = require("plenary.path")
+
 local M = {}
 
 ---@param winid number
@@ -27,6 +29,13 @@ function M.set_text_at_last(buffer, text)
   vim.api.nvim_buf_set_text(buffer, -1, -1, -1, -1, lines)
 end
 
+---@param buffer number
+---@param text string
+function M.replace_text_at_last(buffer, text)
+  local lines = vim.split(text, "\n")
+  vim.api.nvim_buf_set_text(buffer, -1, 0, -1, -1, lines)
+end
+
 ---set winbar
 ---@param winid number|nil
 ---@param text string
@@ -44,101 +53,20 @@ function M.set_winbar(winid, text)
   )
 end
 
----@param chat senpai.ChatWindow
+---@param chat senpai.IChatWindow
 function M.scroll_when_invisible(chat)
-  local winid = chat.chat_log.winid
+  local winid = chat.log_area.winid
   local last_buffer_line = vim.fn.line("$", winid)
   local last_visible_line = vim.fn.line("w$", winid)
   if last_visible_line < last_buffer_line then
-    vim.api.nvim_win_call(chat.chat_log.winid, function()
+    vim.api.nvim_win_call(chat.log_area.winid, function()
       vim.cmd("normal! G")
     end)
   end
 end
 
----@param chat senpai.ChatWindow
----@param user_input string|string[]
----@return string user_input
-function M.process_user_input(chat, user_input)
-  local start_row = vim.fn.line("$", chat.chat_log.winid)
-  local line_number = 1
-  if type(user_input) == "table" then
-    line_number = #user_input
-    user_input = table.concat(user_input, "\n")
-  else
-    line_number = #vim.split(user_input, "\n")
-  end
-  local render_text = string.format(
-    [[
-
-<SenpaiUserInput>
-
-%s
-
-</SenpaiUserInput>
-]],
-    user_input
-  )
-
-  -- user input
-  M.set_text_at_last(chat.chat_log.bufnr, render_text)
-  M.create_borders(chat.chat_log.bufnr, start_row, line_number)
-  M.scroll_when_invisible(chat)
-  return user_input
-end
-
-function M.create_borders(bufnr, start_row, user_input_row_length)
-  local namespace = vim.api.nvim_create_namespace("sepnai-chat")
-  local start_index = start_row - 1 -- 0 based
-
-  local startTagIndex = start_index + 1
-  local endTagIndex = start_index + 2 + user_input_row_length + 2
-  -- NOTE: I want to use only virt_text to put indent,
-  -- but it shifts during `set wrap`, so I also use sign_text.
-
-  -- border top
-  vim.api.nvim_buf_set_extmark(
-    bufnr,
-    namespace,
-    startTagIndex, -- 0-based
-    0,
-    {
-      sign_text = "╭",
-      sign_hl_group = "FloatBorder",
-      virt_text = { { string.rep("─", 150), "FloatBorder" } },
-      virt_text_pos = "overlay",
-      virt_text_hide = true,
-    }
-  )
-
-  -- border left
-  for i = startTagIndex + 1, endTagIndex - 1 do
-    vim.api.nvim_buf_set_extmark(
-      bufnr,
-      namespace,
-      i, -- 0-based
-      0,
-      {
-        sign_text = "│",
-        sign_hl_group = "FloatBorder",
-      }
-    )
-  end
-
-  -- border bottom
-  vim.api.nvim_buf_set_extmark(
-    bufnr,
-    namespace,
-    endTagIndex, -- 0-based
-    0,
-    {
-      sign_text = "╰",
-      sign_hl_group = "FloatBorder",
-      virt_text = { { string.rep("─", 150), "FloatBorder" } },
-      virt_text_pos = "overlay",
-      virt_text_hide = true,
-    }
-  )
+function M.get_relative_path(absolute_path)
+  return Path:new({ absolute_path }):make_relative(vim.uv.cwd())
 end
 
 -- https://gist.github.com/liukun/f9ce7d6d14fa45fe9b924a3eed5c3d99
@@ -154,6 +82,47 @@ function M.encode_url(url)
   url = url:gsub("([^%w _%%%-%.~])", char_to_hex)
   url = url:gsub(" ", "+")
   return url
+end
+
+---@param winid number
+---@param text string
+---@return { start_line:number, end_line:number }
+function M.get_range_by_search(winid, text)
+  -- Simply `end` is confusing due to the grammar, so `end_line` is used.
+  local result = { start_line = 0, end_line = 0 }
+  local escaped_text, _ = text:gsub("\n", "\\_.")
+  vim.api.nvim_win_call(winid, function()
+    result.start_line = vim.fn.search(escaped_text) or 0
+  end)
+  result.end_line = result.start_line + #vim.split(text, "\n")
+  return result
+end
+
+-- https://gist.github.com/haggen/2fd643ea9a261fea2094
+math.randomseed(os.clock() ^ 5)
+local charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+function M.create_random_id(length)
+  local ret = {}
+  local r
+  for _ = 1, length do
+    r = math.random(1, #charset)
+    table.insert(ret, charset:sub(r, r))
+  end
+  return table.concat(ret)
+end
+
+-- https://github.com/neovim/neovim/issues/27265
+---@param filepath string
+function M.get_filetype(filepath)
+  local filetype = vim.filetype.match({
+    filename = filepath,
+  }) or ""
+  if filetype == "" then
+    if filepath:find(".ts$") then
+      return "typescript"
+    end
+  end
+  return filetype
 end
 
 return M

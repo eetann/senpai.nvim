@@ -28,6 +28,16 @@ it will be recognized.<br/>
 Right now it's automatic, but eventually I'm going to make it controllable.
 
 
+### replace file
+You can also edit the file.<br/>
+
+<img width="891" alt="Image" src="https://github.com/user-attachments/assets/c3981de9-3bb4-476d-9e30-1fc5dbf1cafd" />
+
+In the area called `Replace File`, press `a` to display the diff. This diff uses Neovim's built-in function `diffthis`, so you can apply the diff with `do` or `dp`.
+
+Related help `:help copy-diffs`.
+
+
 ## History
 Select a past thread and load it again as a chat.<br/>
 **You can continue the conversation**.
@@ -102,8 +112,9 @@ The default config are as follows.
       keymaps = {
         ["<C-c>"] = "abort",
         ["?"] = "help",
+        gi = "toggle_input",
         gl = "load_thread",
-        gx = "new_chat",
+        gx = "new_thread",
         q = "close"
       }
     },
@@ -113,7 +124,9 @@ The default config are as follows.
       }
     },
     log_area = {
-      keymaps = {}
+      keymaps = {
+        a = "apply"
+      }
     }
   },
   commit_message = {
@@ -196,17 +209,23 @@ AI generate conventional commit message of commitizen convention format.
 ## load_thread
 ```lua
 senpai.load_thread()
+senpai.load_thread(thread)
 ```
 detail -> |senpai-feature-history|
 
 
-_No arguments_
+
+| Name | Type | Description |
+|------|------|-------------|
+| thread_id | string? | If you do not specify the id of the thread you want to read, the finder will open.
+ |
+
 &nbsp;
 
 
-## new_chat
+## new_thread
 ```lua
-senpai.new_chat()
+senpai.new_thread()
 ```
 Open new chat.
 
@@ -317,12 +336,12 @@ _No arguments_
 &nbsp;
 
 
-## newChat
+## newThread
 ```
-:Senapi newChat
+:Senapi newThread
 ```
 
-detail -> |senpai-api-new_chat|
+detail -> |senpai-api-new_thread|
 
 _No arguments_
 &nbsp;
@@ -382,7 +401,7 @@ _No arguments_
 `*senpai.Config.chat.keymap*`
 ```lua
 ---@class senpai.Config.chat.keymap
----@field [1]? string|fun(self: senpai.ChatWindow.Config):nil
+---@field [1]? string|fun(self: senpai.IChatWindow):nil
 ---@field key? string
 ---@field mode? string|string[]
 ---@field desc string
@@ -447,3 +466,12 @@ _No arguments_
 <!-- panvimdoc-ignore-start -->
 </details>
 <!-- panvimdoc-ignore-end -->
+
+# Acknowledgements
+This plugin was inspired by the following.
+
+- [codecompanion.nvim](https://github.com/olimorris/codecompanion.nvim): Default keymaps and Implementation of diff display
+- [avante.nvim](https://github.com/yetone/avante.nvim): Use of winbar and virt text in chat windows
+- [nvim-deck: nvim-deck](https://github.com/hrsh7th/nvim-deck): Scripts for creating README and Help
+
+Thanks to all those involved in these.

@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 March 21
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 March 27
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -16,7 +16,7 @@ Table of Contents                                   *senpai-table-of-contents*
   - delete_thread                                   |senpai-api-delete_thread|
   - generate_commit_message               |senpai-api-generate_commit_message|
   - load_thread                                       |senpai-api-load_thread|
-  - new_chat                                             |senpai-api-new_chat|
+  - new_thread                                         |senpai-api-new_thread|
   - setup                                                   |senpai-api-setup|
   - toggle_chat                                       |senpai-api-toggle_chat|
   - write_commit_message                     |senpai-api-write_commit_message|
@@ -25,9 +25,10 @@ Table of Contents                                   *senpai-table-of-contents*
   - _helloStream                                |senpai-commands-_hellostream|
   - commitMessage                              |senpai-commands-commitmessage|
   - loadThread                                    |senpai-commands-loadthread|
-  - newChat                                          |senpai-commands-newchat|
+  - newThread                                      |senpai-commands-newthread|
   - toggleChat                                    |senpai-commands-togglechat|
 8. Type                                                          |senpai-type|
+9. Acknowledgements                                  |senpai-acknowledgements|
 
 ==============================================================================
 1. senpai.nvim                                            *senpai-senpai.nvim*
@@ -62,6 +63,19 @@ If you write the file name, it will automatically read it. If you write
 searches `**/buz.txt` for files under git control).
 
 Right now it’s automatic, but eventually I’m going to make it controllable.
+
+
+REPLACE FILE ~
+
+You can also edit the file.
+
+
+
+In the area called `Replace File`, press `a` to display the diff. This diff
+uses Neovim’s built-in function `diffthis`, so you can apply the diff with
+`do` or `dp`.
+
+Related help `:help copy-diffs`.
 
 
 HISTORY                                               *senpai-feature-history*
@@ -143,8 +157,9 @@ The default config are as follows.
           keymaps = {
             ["<C-c>"] = "abort",
             ["?"] = "help",
+            gi = "toggle_input",
             gl = "load_thread",
-            gx = "new_chat",
+            gx = "new_thread",
             q = "close"
           }
         },
@@ -154,7 +169,9 @@ The default config are as follows.
           }
         },
         log_area = {
-          keymaps = {}
+          keymaps = {
+            a = "apply"
+          }
         }
       },
       commit_message = {
@@ -235,17 +252,27 @@ LOAD_THREAD                                           *senpai-api-load_thread*
 
 >lua
     senpai.load_thread()
+    senpai.load_thread(thread)
 <
 
 detail -> |senpai-feature-history|
 
-_No arguments_  
+  ------------------------------------------------------------------------
+  Name              Type              Description
+  ----------------- ----------------- ------------------------------------
+  thread_id         string?           If you do not specify the id of the
+                                      thread you want to read, the finder
+                                      will open.
+
+                                      
+  ------------------------------------------------------------------------
+ 
 
 
-NEW_CHAT                                                 *senpai-api-new_chat*
+NEW_THREAD                                             *senpai-api-new_thread*
 
 >lua
-    senpai.new_chat()
+    senpai.new_thread()
 <
 
 Open new chat.
@@ -346,13 +373,13 @@ detail -> |senpai-feature-history|
 _No arguments_  
 
 
-NEWCHAT                                              *senpai-commands-newchat*
+NEWTHREAD                                          *senpai-commands-newthread*
 
 >
-    :Senapi newChat
+    :Senapi newThread
 <
 
-detail -> |senpai-api-new_chat|
+detail -> |senpai-api-new_thread|
 
 _No arguments_  
 
@@ -407,7 +434,7 @@ _No arguments_  
 
 >lua
     ---@class senpai.Config.chat.keymap
-    ---@field [1]? string|fun(self: senpai.ChatWindow.Config):nil
+    ---@field [1]? string|fun(self: senpai.IChatWindow):nil
     ---@field key? string
     ---@field mode? string|string[]
     ---@field desc string
@@ -467,6 +494,18 @@ _No arguments_  
     ---     jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
     --- <
 <
+
+
+==============================================================================
+9. Acknowledgements                                  *senpai-acknowledgements*
+
+This plugin was inspired by the following.
+
+- codecompanion.nvim <https://github.com/olimorris/codecompanion.nvim>Default keymaps and Implementation of diff display
+- avante.nvim <https://github.com/yetone/avante.nvim>Use of winbar and virt text in chat windows
+- nvim-deck: nvim-deck <https://github.com/hrsh7th/nvim-deck>Scripts for creating README and Help
+
+Thanks to all those involved in these.
 
 Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
 
