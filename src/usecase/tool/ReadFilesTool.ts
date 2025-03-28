@@ -65,8 +65,7 @@ export async function getFiles(
 
 export const ReadFilesTool = createTool({
 	id: "get-files",
-	description: `Read files. \
-Since this uses a glob, the argument for this does not have to be an exact filename.`,
+	description: "Read files",
 	inputSchema,
 	outputSchema,
 	execute: async ({ context: { filenames } }) => {

@@ -90,6 +90,7 @@ Critical rules:
 ## Tool
 ### ReadFilesTool
 read files. If you want to actually edit the file, use \`replace_file\` tag instead of the tool.
+Use it only when the user asks for it.
 
 ${system_prompt}
 `;
