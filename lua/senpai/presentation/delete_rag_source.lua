@@ -9,6 +9,13 @@ local M = {}
 ---@field source string url
 ---@field title string
 
+local function call_with_spinner(source)
+  local spinner = Spinner.new("[senpai] Deleting...")
+  spinner:start()
+  delete_rag_source.execute(source)
+  spinner:stop()
+end
+
 ---@param item senpai.RAG.Source
 local function make_item_text(item)
   if not item.title then
@@ -32,9 +39,42 @@ local function load_thread_native()
   }, function(item)
     if item then
       ---@cast item senpai.RAG.Source
-      delete_rag_source.execute(item.source)
+      call_with_spinner(item.source)
     end
   end)
+end
+
+local function load_thread_snacks()
+  require("snacks.picker")({
+    ---@return snacks.picker.Item[]
+    finder = function()
+      local spinner = Spinner.new("[senpai] I'm trying to remember...")
+      spinner:start()
+      local sources = get_rag_sources.execute()
+      spinner:stop()
+      local items = {}
+      local i = 1
+      for _, source_item in pairs(sources) do
+        ---@return snacks.picker.Item
+        local item = {
+          idx = i,
+          score = 0,
+          text = source_item.source,
+          preview = { text = source_item.title, ft = "txt" },
+        }
+        table.insert(items, item)
+        i = i + 1
+      end
+      return items
+    end,
+    ---@type snacks.picker.Action.spec
+    confirm = function(the_picker, choice)
+      the_picker:close()
+      call_with_spinner(choice.text)
+    end,
+    format = "text",
+    preview = "preview",
+  })
 end
 
 --[=[@doc
@@ -57,11 +97,16 @@ If you do not specify the id of the source you want to delete, the finder will o
 --]=]
 ---@param source string
 function M.delete_rag_source(source)
-  if source and source ~= "" then
-    delete_rag_source.execute(source)
+  if type(source) == "string" and source ~= "" then
+    call_with_spinner(source)
     return
   end
-  load_thread_native()
+  local ok, _ = pcall(require, "snacks.picker")
+  if not ok then
+    load_thread_native()
+  else
+    load_thread_snacks()
+  end
 end
 
 return M

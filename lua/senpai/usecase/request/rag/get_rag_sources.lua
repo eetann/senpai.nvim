@@ -2,7 +2,7 @@ local RequestHandler = require("senpai.usecase.request.request_handler")
 
 local M = {}
 
----@return table<string, string> # <index_name: title>
+---@return {source: string, title: string}[]
 function M.execute()
   local response = RequestHandler.request_without_callback({
     method = "get",
