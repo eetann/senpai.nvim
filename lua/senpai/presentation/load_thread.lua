@@ -121,9 +121,7 @@ detail -> |senpai-feature-history|
   [[args]]
   name = "thread_id"
   type = "string?"
-  desc = """
-If you do not specify the id of the thread you want to read, the finder will open.
-"""
+  desc = "If not specified, the finder will open"
 --]=]
 ---@param thread_id? string
 function M.load_thread(thread_id)

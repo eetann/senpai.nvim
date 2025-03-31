@@ -6,6 +6,7 @@ Senpai is super reliable Neovim AI plugin!
 
 - 💬 Chat
 - 📜 History: You can continue the conversation
+- 📚 RAG
 - ✅ Generate commit message
 
 
@@ -51,6 +52,23 @@ The selection UI supports the following methods.<br/>
 ### delete thread from history
 In case of snacks, switch to normal mode and enter `dd` to delete the specified thread.<br/>
 You can also delete using the API `senpai.delete_thread(thread_id)`.
+
+
+## RAG
+RAG(Retrieval-Augmented Generation) is avaiable.
+
+Supported types:
+
+- URL
+
+URL can be registered with RAG in two ways.
+
+- default keymap `gR` in Chat input area (Key is customizable)
+- API `senpai.regist_url_at_rag`
+
+Unnecessary items can be deleted.
+
+<img width="500" alt="Senpai deleteRagSource" src="https://github.com/user-attachments/assets/4adfef4d-92d2-4361-a9b0-f45f0ad7c7c1" />
 
 
 # Requirements
@@ -120,7 +138,8 @@ The default config are as follows.
     },
     input_area = {
       keymaps = {
-        ["<CR>"] = "submit"
+        ["<CR>"] = "submit",
+        gR = "regist_url_at_rag"
       }
     },
     log_area = {
@@ -175,6 +194,22 @@ require("senpai").setup({
 <!-- panvimdoc-ignore-end -->
 <!-- auto-generate-s:api -->
 
+## delete_rag_source
+```lua
+senpai.delete_rag_source()
+senpai.delete_rag_source(source)
+```
+detail -> |senpai-feature-rag|
+
+
+
+| Name | Type | Description |
+|------|------|-------------|
+| source | string? | If not specified, the finder will open |
+
+&nbsp;
+
+
 ## delete_thread
 ```lua
 senpai.delete_thread(thread_id)
@@ -217,8 +252,7 @@ detail -> |senpai-feature-history|
 
 | Name | Type | Description |
 |------|------|-------------|
-| thread_id | string? | If you do not specify the id of the thread you want to read, the finder will open.
- |
+| thread_id | string? | If not specified, the finder will open |
 
 &nbsp;
 
@@ -231,6 +265,23 @@ Open new chat.
 
 
 _No arguments_
+&nbsp;
+
+
+## regist_url_at_rag
+```lua
+senpai.regist_url_at_rag()
+senpai.regist_url_at_rag(url)
+```
+Fetch URL and save to RAG.
+
+
+
+| Name | Type | Description |
+|------|------|-------------|
+| use_cache | boolean | Use cache if cache is available |
+| url | string\|nil | URL |
+
 &nbsp;
 
 
@@ -322,6 +373,17 @@ detail -> |senpai-api-write_commit_message|
 |------|-------------|
 | language | language |
 
+&nbsp;
+
+
+## deleteRagSource
+```
+:Senapi deleteRagSource
+```
+
+detail -> |senpai-feature-rag|
+
+_No arguments_
 &nbsp;
 
 
@@ -472,6 +534,7 @@ This plugin was inspired by the following.
 
 - [codecompanion.nvim](https://github.com/olimorris/codecompanion.nvim): Default keymaps and Implementation of diff display
 - [avante.nvim](https://github.com/yetone/avante.nvim): Use of winbar and virt text in chat windows
-- [nvim-deck: nvim-deck](https://github.com/hrsh7th/nvim-deck): Scripts for creating README and Help
+- [nvim-deck](https://github.com/hrsh7th/nvim-deck): Scripts for creating README and Help
+- [cline](https://github.com/cline/cline): How to prompt and edit files
 
-Thanks to all those involved in these.
+Thanks to all those involved in these!

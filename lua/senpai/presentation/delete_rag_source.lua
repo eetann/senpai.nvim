@@ -91,9 +91,7 @@ detail -> |senpai-feature-rag|
   [[args]]
   name = "source"
   type = "string?"
-  desc = """
-If you do not specify the id of the source you want to delete, the finder will open.
-"""
+  desc = "If not specified, the finder will open"
 --]=]
 ---@param source string
 function M.delete_rag_source(source)
