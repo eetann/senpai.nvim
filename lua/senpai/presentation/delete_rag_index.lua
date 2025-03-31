@@ -6,7 +6,7 @@ local M = {}
 ---@param index_name string
 ---@param response senpai.RequestHandler.return
 local function process_response(index_name, response)
-  if response.status == "204" then
+  if response.status == 204 then
     vim.notify("[senpai] Deleted from RAG: " .. index_name, vim.log.levels.INFO)
     return
   end
