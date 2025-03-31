@@ -1,14 +1,20 @@
 import { Agent, type AgentConfig } from "@mastra/core/agent";
+import type { LibSQLVector } from "@mastra/core/vector/libsql";
 import type { Memory } from "@mastra/memory";
+import { LIBSQL_PROMPT } from "@mastra/rag";
+import type { EmbeddingModel } from "ai";
 import { z } from "zod";
 import { ReadFilesTool } from "../tool/ReadFilesTool";
+import { VectorQueryTool } from "../tool/VectorQueryTool";
 
 export const ChatSchema = z.string();
 
 export class ChatAgent extends Agent {
 	constructor(
 		memory: Memory,
+		vector: LibSQLVector,
 		model: AgentConfig["model"],
+		embeddingModel: EmbeddingModel<string>,
 		system_prompt: string,
 	) {
 		const prompt = `
@@ -92,6 +98,9 @@ Critical rules:
 read files. If you want to actually edit the file, use \`replace_file\` tag instead of the tool.
 Use it only when the user asks for it.
 
+### VectorQueryTool
+${LIBSQL_PROMPT}
+
 ${system_prompt}
 `;
 		super({
@@ -101,6 +110,8 @@ ${system_prompt}
 			tools: {
 				// PascalCase name
 				ReadFilesTool,
+				// @ts-ignore
+				VectorQueryTool: VectorQueryTool(vector, embeddingModel),
 			},
 			memory,
 		});

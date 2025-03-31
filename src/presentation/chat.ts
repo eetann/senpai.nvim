@@ -1,5 +1,6 @@
-import { getModel, providerSchema } from "@/infra/GetModel";
+import { embeddingModel, getModel, providerSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
+import { vector } from "@/infra/Vector";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
@@ -35,7 +36,13 @@ app.openapi(
 	async (c) => {
 		const command = c.req.valid("json");
 		const model = getModel(command.provider);
-		const agent = new ChatAgent(memory, model, command.system_prompt);
+		const agent = new ChatAgent(
+			memory,
+			vector,
+			model,
+			embeddingModel,
+			command.system_prompt,
+		);
 		const thread = await memory.getThreadById({ threadId: command.thread_id });
 		let isFirstMessage = false;
 		if (thread == null) {
