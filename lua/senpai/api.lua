@@ -2,6 +2,7 @@ local ChatWindowManager = require("senpai.presentation.chat.window_manager")
 local RequestHandler = require("senpai.usecase.request.request_handler")
 local utils = require("senpai.usecase.utils")
 local delete_threads = require("senpai.usecase.request.delete_threads")
+local delete_rag_index = require("senpai.usecase.request.delete_rag_index")
 
 local M = {}
 
@@ -96,5 +97,6 @@ return setmetatable(M, {
   __index = function(_, k)
     return require("senpai.presentation.commit_message")[k]
       or require("senpai.presentation.load_thread")[k]
+      or require("senpai.presentation.delete_rag_index")[k]
   end,
 })

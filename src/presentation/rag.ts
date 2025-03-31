@@ -1,4 +1,5 @@
 import { vector } from "@/infra/Vector";
+import { DeleteRagUrlUseCase } from "@/usecase/DeleteRagUrlUseCase";
 import { FetchAndStoreUseCase } from "@/usecase/FetchAndStoreUseCase";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
@@ -72,30 +73,28 @@ app.openapi(
 app.openapi(
 	createRoute({
 		method: "delete",
-		path: "/",
+		path: "/{indexName}",
 		request: {
-			body: {
-				required: true,
-				content: {
-					"application/json": {
-						schema: ragSchema,
-					},
-				},
-			},
+			params: z.object({ indexName: z.string() }),
 		},
 		responses: {
 			204: {
 				description: "delete specific index from RAG",
 			},
+			404: {
+				description:
+					"faild. Maybe you are specifying a resource that doesn't exist.",
+			},
 		},
 	}),
 	async (c) => {
-		const content = c.req.valid("json");
-		let message = "";
-		if (content.type === "url") {
-			// TODO: 要実装
-			// message = await new FetchAndStoreUseCase(vector).execute(content.url);
+		const { indexName } = c.req.valid("param");
+		const result = await new DeleteRagUrlUseCase(vector).execute(indexName);
+		if (result) {
+			return new Response(undefined, { status: 204 });
 		}
-		return new Response(undefined, { status: 204 });
+		return new Response(undefined, { status: 404 });
 	},
 );
+
+export default app;

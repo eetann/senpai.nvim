@@ -2,6 +2,7 @@ import { openai } from "@ai-sdk/openai";
 import type { LibSQLVector } from "@mastra/core/vector/libsql";
 import { MDocument } from "@mastra/rag";
 import { embed, embedMany } from "ai";
+import { formatValidIndexName } from "./shared/utils";
 
 // NOTE: The following error warns :(
 // `llamaindex was already imported. This breaks constructor checks and will lead to issues!`
@@ -9,35 +10,9 @@ import { embed, embedMany } from "ai";
 
 const embedModel = openai.embedding("text-embedding-3-small");
 
-function formatValidIndexName(input: string): string {
-	if (!input) return "_";
-
-	let result = input;
-
-	if (!/^[a-zA-Z_]/.test(result)) {
-		result = `_${result}`;
-	}
-
-	result = result.replace(/[^a-zA-Z0-9_]/g, "_");
-
-	return result;
-}
-
-function isValidUrl(url: string): boolean {
-	try {
-		new URL(url);
-		return true;
-	} catch (error) {
-		return false;
-	}
-}
-
 export class FetchAndStoreUseCase {
 	constructor(private vector: LibSQLVector) {}
 	async execute(url: string) {
-		if (!isValidUrl(url)) {
-			return `Not a valid URL: ${url}`;
-		}
 		// TODO: キャッシュ使うときはすでにデータがあるかチェック
 		const indexName = formatValidIndexName(url);
 
