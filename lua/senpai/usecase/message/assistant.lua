@@ -45,7 +45,10 @@ function M:process_chunk(text)
   for i = 1, length do
     local chunk = lines[i]
     self.line = self.line .. chunk
-    if chunk ~= "" and length > 1 and i ~= length then
+    -- chunk: `foo` newline=0
+    -- chunk: `foo\nbar` newline=1,0
+    -- chunk: `foo\n\nbar` newline=1,1,0
+    if length > 1 and i ~= length then
       chunk = chunk .. "\n"
     end
     self:process_line(chunk)
