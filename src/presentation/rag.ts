@@ -1,3 +1,4 @@
+import { embeddingModel } from "@/infra/GetModel";
 import { vector } from "@/infra/Vector";
 import { DeleteFromRagUseCase } from "@/usecase/rag/DeleteFromRagUseCase";
 import { FetchAndStoreUseCase } from "@/usecase/rag/FetchAndStoreUseCase";
@@ -68,7 +69,9 @@ app.openapi(
 		const content = c.req.valid("json");
 		let message = "";
 		if (content.type === "url") {
-			message = await new FetchAndStoreUseCase(vector).execute(content.url);
+			message = await new FetchAndStoreUseCase(vector, embeddingModel).execute(
+				content.url,
+			);
 		}
 		return c.json({ message });
 	},

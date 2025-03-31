@@ -1,13 +1,11 @@
-import { openai } from "@ai-sdk/openai";
 import type { LibSQLVector } from "@mastra/core/vector/libsql";
 import { MDocument } from "@mastra/rag";
+import type { EmbeddingModel } from "ai";
 import { embedMany } from "ai";
 
 // NOTE: The following error warns :(
 // `llamaindex was already imported. This breaks constructor checks and will lead to issues!`
 // https://github.com/mastra-ai/mastra/issues/2861
-
-const embedModel = openai.embedding("text-embedding-3-small");
 
 function extract_title(text: string, url: string) {
 	const match = text.match(/<title>([^<]*)<\/title>/);
@@ -16,7 +14,10 @@ function extract_title(text: string, url: string) {
 }
 
 export class FetchAndStoreUseCase {
-	constructor(private vector: LibSQLVector) {}
+	constructor(
+		private vector: LibSQLVector,
+		private model: EmbeddingModel<string>,
+	) {}
 	async execute(url: string) {
 		// TODO: キャッシュ使うときはすでにデータがあるかチェック
 		const response = await fetch(url);
@@ -27,12 +28,11 @@ export class FetchAndStoreUseCase {
 		const title = extract_title(html, url);
 
 		const doc = MDocument.fromHTML(html);
-		// TODO: 拡張子で変えたい
 		const chunks = await doc.chunk({
 			strategy: "recursive",
 		});
 		const { embeddings } = await embedMany({
-			model: embedModel,
+			model: this.model,
 			values: chunks.map((chunk) => chunk.text),
 		});
 
