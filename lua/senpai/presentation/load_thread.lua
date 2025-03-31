@@ -51,7 +51,7 @@ local function load_thread_snacks()
   require("snacks.picker")({
     ---@return snacks.picker.Item[]
     finder = function()
-      local spinner = Spinner.new("[senpai] I'm still trying to remember...")
+      local spinner = Spinner.new("[senpai] I'm trying to remember...")
       spinner:start()
       local threads = get_threads.execute()
       spinner:stop()

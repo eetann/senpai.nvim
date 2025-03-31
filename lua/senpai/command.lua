@@ -54,12 +54,12 @@ local subcmd_tbl = {
   },
   --[=[@doc
   category = "command"
-  name = "deleteRagIndex"
+  name = "deleteRagSource"
   desc = "detail -> |senpai-feature-rag|"
   --]=]
-  deleteRagIndex = {
+  deleteRagSource = {
     impl = function(args)
-      require("senpai.api").delete_rag_index(args[1])
+      require("senpai.api").delete_rag_source(args[1])
     end,
   },
   --[=[@doc

@@ -22,7 +22,7 @@ app.openapi(
 		path: "/",
 		responses: {
 			200: {
-				description: "get all RAG",
+				description: "get sources",
 				content: {
 					"application/json": {
 						schema: ragSourcesSchema,
