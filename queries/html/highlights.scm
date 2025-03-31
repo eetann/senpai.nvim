@@ -12,5 +12,4 @@
      ) @end
    ]
   (#set! conceal "")
-  (#set! conceal_lines "")
   )

@@ -4,12 +4,13 @@ local M = {}
 -- index: content
 -- x: [[
 -- 0:
--- 1: <SenpaiUserInput>
--- 2:
--- 3: %s
--- 4:
--- 5: </SenpaiUserInput>
--- 6: ]],
+-- 1:
+-- 2: <SenpaiUserInput>
+-- 3:
+-- 4: %s
+-- 5:
+-- 6: </SenpaiUserInput>
+-- 7: ]],
 
 ---@param bufnr number
 ---@param start_row number
@@ -18,8 +19,8 @@ function M.render_border(bufnr, start_row, user_input_row_length)
   local namespace = vim.api.nvim_create_namespace("sepnai-chat")
   local start_index = start_row - 1 -- 0 based
 
-  local start_tag_index = start_index + 1
-  local end_tag_index = start_index + 2 + user_input_row_length + 2
+  local start_tag_index = start_index + 2
+  local end_tag_index = start_index + 3 + user_input_row_length + 2
   -- NOTE: I want to use only virt_text to put indent,
   -- but it shifts during `set wrap`, so I also use sign_text.
 
@@ -27,7 +28,7 @@ function M.render_border(bufnr, start_row, user_input_row_length)
   vim.api.nvim_buf_set_extmark(
     bufnr,
     namespace,
-    start_tag_index, -- 0-based
+    start_tag_index + 1, -- 0-based
     0,
     {
       sign_text = "╭",
@@ -39,7 +40,7 @@ function M.render_border(bufnr, start_row, user_input_row_length)
   )
 
   -- border left
-  for i = start_tag_index + 1, end_tag_index - 1 do
+  for i = start_tag_index + 2, end_tag_index - 2 do
     vim.api.nvim_buf_set_extmark(
       bufnr,
       namespace,
@@ -56,7 +57,7 @@ function M.render_border(bufnr, start_row, user_input_row_length)
   vim.api.nvim_buf_set_extmark(
     bufnr,
     namespace,
-    end_tag_index, -- 0-based
+    end_tag_index - 1, -- 0-based
     0,
     {
       sign_text = "╰",
@@ -76,6 +77,7 @@ local function base_render(chat, user_input)
   local texts = table.concat(user_input, "\n")
   local render_text = string.format(
     [[
+
 
 <SenpaiUserInput>
 
@@ -97,14 +99,20 @@ end
 function M.render_from_memory(chat, message)
   local content = message.content
   if type(content) == "string" then
-    base_render(chat, { content })
+    local lines = {}
+    for _, text in pairs(vim.split(content, "\n")) do
+      table.insert(lines, text)
+    end
+    base_render(chat, lines)
     return
   end
   -- content is `senpai.chat.message.user.part[]`
   local lines = {}
   for _, part in pairs(content) do
     if part.type == "text" then
-      table.insert(lines, unpack(vim.split(part.text, "\n")))
+      for _, text in pairs(vim.split(part.text, "\n")) do
+        table.insert(lines, text)
+      end
     end
   end
   base_render(chat, lines)
