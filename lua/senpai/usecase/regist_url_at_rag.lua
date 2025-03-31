@@ -5,6 +5,7 @@ local M = {}
 local function process_rag_registration(use_cache, url)
   local spinner = Spinner.new("[senpai] Registering")
   spinner:start()
+  -- TODO: キャッシュがあるか確認
   post_rag_index.execute({
     type = "url",
     url = url,

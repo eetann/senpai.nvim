@@ -1,5 +1,6 @@
 import { embeddingModel } from "@/infra/GetModel";
 import { vector } from "@/infra/Vector";
+import { CheckHasCacheUseCase } from "@/usecase/rag/CheckHasCacheUseCase";
 import { DeleteFromRagUseCase } from "@/usecase/rag/DeleteFromRagUseCase";
 import { FetchAndStoreUseCase } from "@/usecase/rag/FetchAndStoreUseCase";
 import {
@@ -33,7 +34,10 @@ app.openapi(
 		},
 	}),
 	async (c) => {
-		const result = await new GetRagSourcesUseCase(vector).execute();
+		const result = await new GetRagSourcesUseCase(
+			vector,
+			embeddingModel,
+		).execute();
 		return c.json(result);
 	},
 );
@@ -103,8 +107,45 @@ app.openapi(
 	}),
 	async (c) => {
 		const { source } = c.req.valid("json");
-		await new DeleteFromRagUseCase(vector).execute(source);
+		await new DeleteFromRagUseCase(vector, embeddingModel).execute(source);
 		return new Response(undefined, { status: 204 });
+	},
+);
+
+app.openapi(
+	createRoute({
+		method: "post",
+		path: "/check-cache",
+		request: {
+			body: {
+				required: true,
+				content: {
+					"application/json": {
+						schema: z.object({ source: z.string() }),
+					},
+				},
+			},
+		},
+		responses: {
+			200: {
+				description: "check if source has cache",
+				content: {
+					"application/json": {
+						schema: z.object({
+							hasCache: z.boolean(),
+						}),
+					},
+				},
+			},
+		},
+	}),
+	async (c) => {
+		const { source } = c.req.valid("json");
+		const result = await new CheckHasCacheUseCase(
+			vector,
+			embeddingModel,
+		).execute(source);
+		return c.json({ hasCache: result });
 	},
 );
 

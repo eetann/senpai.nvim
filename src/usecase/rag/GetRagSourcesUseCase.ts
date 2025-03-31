@@ -1,7 +1,6 @@
-import { openai } from "@ai-sdk/openai";
 import { z } from "@hono/zod-openapi";
 import type { LibSQLVector } from "@mastra/core/vector/libsql";
-import { embed } from "ai";
+import { type EmbeddingModel, embed } from "ai";
 
 export const ragSourcesSchema = z.array(
 	z.object({ source: z.string(), title: z.string() }),
@@ -10,10 +9,13 @@ export const ragSourcesSchema = z.array(
 type RagSources = z.infer<typeof ragSourcesSchema>;
 
 export class GetRagSourcesUseCase {
-	constructor(private vector: LibSQLVector) {}
+	constructor(
+		private vector: LibSQLVector,
+		private model: EmbeddingModel<string>,
+	) {}
 	async execute(): Promise<RagSources> {
 		const { embedding } = await embed({
-			model: openai.embedding("text-embedding-3-small"),
+			model: this.model,
 			value: ".",
 		});
 		const indexes = await this.vector.query({

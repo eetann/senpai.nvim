@@ -1,7 +1,7 @@
 import type { LibSQLVector } from "@mastra/core/vector/libsql";
 import { type EmbeddingModel, embed } from "ai";
 
-export class DeleteFromRagUseCase {
+export class CheckHasCacheUseCase {
 	constructor(
 		private vector: LibSQLVector,
 		private model: EmbeddingModel<string>,
@@ -14,17 +14,14 @@ export class DeleteFromRagUseCase {
 		const indexes = await this.vector.query({
 			indexName: "store",
 			queryVector: embedding,
-			topK: 10000,
+			topK: 1,
 			filter: {
 				source,
 			},
 		});
-		for (const index of indexes) {
-			try {
-				await this.vector.deleteIndexById("store", index.id);
-			} catch (error) {
-				console.log(`[senpai] delete failed: id ${index.id}`);
-			}
+		if (indexes.length === 0) {
+			return false;
 		}
+		return true;
 	}
 }
