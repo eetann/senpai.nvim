@@ -1,6 +1,10 @@
 import { vector } from "@/infra/Vector";
-import { DeleteRagUrlUseCase } from "@/usecase/DeleteRagUrlUseCase";
-import { FetchAndStoreUseCase } from "@/usecase/FetchAndStoreUseCase";
+import { DeleteFromRagUseCase } from "@/usecase/rag/DeleteFromRagUseCase";
+import { FetchAndStoreUseCase } from "@/usecase/rag/FetchAndStoreUseCase";
+import {
+	GetRagSourcesUseCase,
+	ragSourcesSchema,
+} from "@/usecase/rag/GetRagSourcesUseCase";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
 const app = new OpenAPIHono().basePath("/rag");
@@ -21,15 +25,15 @@ app.openapi(
 				description: "get all RAG",
 				content: {
 					"application/json": {
-						schema: z.array(z.string()),
+						schema: ragSourcesSchema,
 					},
 				},
 			},
 		},
 	}),
 	async (c) => {
-		const indexes = await vector.listIndexes();
-		return c.json(indexes);
+		const result = await new GetRagSourcesUseCase(vector).execute();
+		return c.json(result);
 	},
 );
 
@@ -73,13 +77,20 @@ app.openapi(
 app.openapi(
 	createRoute({
 		method: "delete",
-		path: "/{indexName}",
+		path: "/",
 		request: {
-			params: z.object({ indexName: z.string() }),
+			body: {
+				required: true,
+				content: {
+					"application/json": {
+						schema: z.object({ source: z.string() }),
+					},
+				},
+			},
 		},
 		responses: {
 			204: {
-				description: "delete specific index from RAG",
+				description: "delete specific id from RAG",
 			},
 			404: {
 				description:
@@ -88,12 +99,9 @@ app.openapi(
 		},
 	}),
 	async (c) => {
-		const { indexName } = c.req.valid("param");
-		const result = await new DeleteRagUrlUseCase(vector).execute(indexName);
-		if (result) {
-			return new Response(undefined, { status: 204 });
-		}
-		return new Response(undefined, { status: 404 });
+		const { source } = c.req.valid("json");
+		await new DeleteFromRagUseCase(vector).execute(source);
+		return new Response(undefined, { status: 204 });
 	},
 );
 
