@@ -2,7 +2,7 @@ local post_rag_index = require("senpai.usecase.request.post_rag_index")
 local Spinner = require("senpai.presentation.shared.spinner")
 local M = {}
 
-local function process_rag_registration(url, use_cache)
+local function process_rag_registration(use_cache, url)
   local spinner = Spinner.new("[senpai] Registering")
   spinner:start()
   post_rag_index.execute({
@@ -34,14 +34,18 @@ local function process_rag_registration(url, use_cache)
 end
 
 ---@param use_cache boolean
-function M.execute(use_cache)
+---@param url? string
+function M.execute(use_cache, url)
+  if not url and url ~= "" then
+    process_rag_registration(use_cache, url)
+  end
   vim.ui.input({
     prompt = "URL",
-  }, function(url)
-    if not url or url == "" then
+  }, function(text)
+    if not text or text == "" then
       return
     end
-    process_rag_registration(url, use_cache)
+    process_rag_registration(use_cache, text)
   end)
 end
 

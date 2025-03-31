@@ -3,6 +3,7 @@ local RequestHandler = require("senpai.usecase.request.request_handler")
 local utils = require("senpai.usecase.utils")
 local delete_threads = require("senpai.usecase.request.delete_threads")
 local delete_rag_index = require("senpai.usecase.request.delete_rag_index")
+local regist_url_at_rag = require("senpai.usecase.regist_url_at_rag")
 
 local M = {}
 
@@ -91,6 +92,31 @@ function M.delete_thread(thread_id)
   delete_threads.execute(thread_id, function()
     vim.notify("[senpai] Successfully deleted thread " .. thread_id)
   end)
+end
+
+--[=[@doc
+  category = "api"
+  name = "regist_url_at_rag"
+  desc = """
+```lua
+senpai.regist_url_at_rag()
+senpai.regist_url_at_rag(url)
+```
+Fetch URL and save to RAG.
+"""
+
+  [[args]]
+  name = "use_cache"
+  type = "boolean"
+  desc = "Use cache if cache is available"
+
+  [[args]]
+  name = "url"
+  type = "string|nil"
+  desc = "URL"
+--]=]
+function M.regist_url_at_rag(use_cache, url)
+  regist_url_at_rag.execute(use_cache, url)
 end
 
 return setmetatable(M, {
