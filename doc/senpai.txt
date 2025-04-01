@@ -15,6 +15,7 @@ Table of Contents                                   *senpai-table-of-contents*
 5. config                                                      |senpai-config|
   - default config                              |senpai-config-default-config|
   - changing the chat keymap          |senpai-config-changing-the-chat-keymap|
+  - generate commit message            |senpai-config-generate-commit-message|
 6. API                                                            |senpai-api|
   - delete_rag_source                           |senpai-api-delete_rag_source|
   - delete_thread                                   |senpai-api-delete_thread|
@@ -171,6 +172,10 @@ as a chat.
 - curl
 - Bun <https://bun.sh/>
     - Forgive me if the dependence is frustrating for you, but it’s easy to install.
+- Dependent Plugins
+    - nui.nvim <https://github.com/MunifTanjim/nui.nvim>
+    - plenary.nvim <https://github.com/nvim-lua/plenary.nvim>
+    - nvim-treesitter <https://github.com/nvim-treesitter/nvim-treesitter>
 
 
 PROVIDER                                        *senpai-requirements-provider*
@@ -218,6 +223,12 @@ with Lazy.nvim <https://github.com/folke/lazy.nvim>
 >lua
     {
         "eetann/senpai.nvim", 
+        build = "bun install",
+        dependencies = {
+          "MunifTanjim/nui.nvim",
+          "nvim-lua/plenary.nvim",
+          "nvim-treesitter/nvim-treesitter",
+        },
         opts = {config}
     }
 <
@@ -227,6 +238,12 @@ with packer.nvim <https://github.com/wbthomason/packer.nvim>
 >lua
     {
         "eetann/senpai.nvim", 
+        run = "bun install",
+        requires = {
+          "MunifTanjim/nui.nvim",
+          "nvim-lua/plenary.nvim",
+          "nvim-treesitter/nvim-treesitter",
+        },
         opt = true,
         config = function()
             require("senpai").setup({config}) 
@@ -330,6 +347,23 @@ Assign `false` if you want to delete the keymap.
         },
     })
 <
+
+
+GENERATE COMMIT MESSAGE                *senpai-config-generate-commit-message*
+
+Here’s a code of my setup in `.config/nvim/after/ftplugin/gitcommit.lua`.
+
+>lua
+    vim.keymap.set("n", "<C-g><C-g>", function()
+        if vim.env.COMMIT_MESSAGE_ENGLISH == "1" then
+            vim.cmd("Senpai commitMessage English")
+        else
+            vim.cmd("Senpai commitMessage Japanese")
+        end
+    end, { buffer = true, desc = "Senpai commitMessage" })
+<
+
+If this doesn’t work, then git diff is most likely failing.
 
 
 ==============================================================================
