@@ -6,6 +6,7 @@ Senpai is super reliable Neovim AI plugin!
 
 - 💬 Chat
 - 📜 History: You can continue the conversation
+- 📚 RAG
 - ✅ Generate commit message
 
 
@@ -51,6 +52,25 @@ The selection UI supports the following methods.<br/>
 ### delete thread from history
 In case of snacks, switch to normal mode and enter `dd` to delete the specified thread.<br/>
 You can also delete using the API `senpai.delete_thread(thread_id)`.
+
+
+## RAG
+RAG(Retrieval-Augmented Generation) is avaiable.
+
+Supported types:
+
+- URL
+
+URL can be registered with RAG in two ways.
+
+- default keymap `gR` in Chat input area (Key is customizable)
+- API `senpai.regist_url_at_rag`
+
+Unnecessary items can be deleted.
+
+<img width="500" alt="Senpai deleteRagSource" src="https://github.com/user-attachments/assets/4adfef4d-92d2-4361-a9b0-f45f0ad7c7c1" />
+
+Cache control can be configured in |`senpai.Config.rag.cache_strategy`|.
 
 
 # Requirements
@@ -120,7 +140,8 @@ The default config are as follows.
     },
     input_area = {
       keymaps = {
-        ["<CR>"] = "submit"
+        ["<CR>"] = "submit",
+        gR = "regist_url_at_rag"
       }
     },
     log_area = {
@@ -143,6 +164,9 @@ The default config are as follows.
     openrouter = {
       model_id = "anthropic/claude-3.7-sonnet"
     }
+  },
+  rag = {
+    cache_strategy = "ask"
   }
 }
 ```
@@ -174,6 +198,22 @@ require("senpai").setup({
     <summary>API</summary>
 <!-- panvimdoc-ignore-end -->
 <!-- auto-generate-s:api -->
+
+## delete_rag_source
+```lua
+senpai.delete_rag_source()
+senpai.delete_rag_source(source)
+```
+detail -> |senpai-feature-rag|
+
+
+
+| Name | Type | Description |
+|------|------|-------------|
+| source | string? | If not specified, the finder will open |
+
+&nbsp;
+
 
 ## delete_thread
 ```lua
@@ -217,8 +257,7 @@ detail -> |senpai-feature-history|
 
 | Name | Type | Description |
 |------|------|-------------|
-| thread_id | string? | If you do not specify the id of the thread you want to read, the finder will open.
- |
+| thread_id | string? | If not specified, the finder will open |
 
 &nbsp;
 
@@ -234,6 +273,24 @@ _No arguments_
 &nbsp;
 
 
+## regist_url_at_rag
+```lua
+senpai.regist_url_at_rag()
+senpai.regist_url_at_rag(url)
+```
+Fetch URL and save to RAG.
+Cache control can be configured in \|senpai.Config.rag.cache_strategy\|.
+
+
+
+| Name | Type | Description |
+|------|------|-------------|
+| url | string\|nil | URL. If not specified, the input UI will open |
+| no_cache | boolean\|nil | If set to true, no cache is used regardless of Config. |
+
+&nbsp;
+
+
 ## setup
 ```lua
 senpai.setup({...})
@@ -244,7 +301,7 @@ Setup senpai
 
 | Name | Type | Description |
 |------|------|-------------|
-| config | `\|senpai.Config\|` | Setup senpai |
+| config | \|`senpai.Config`\| | Setup senpai |
 
 &nbsp;
 
@@ -325,6 +382,17 @@ detail -> |senpai-api-write_commit_message|
 &nbsp;
 
 
+## deleteRagSource
+```
+:Senapi deleteRagSource
+```
+
+detail -> |senpai-feature-rag|
+
+_No arguments_
+&nbsp;
+
+
 ## loadThread
 ```
 :Senapi loadThread
@@ -372,6 +440,7 @@ _No arguments_
 ---@field providers? senpai.Config.providers
 ---@field commit_message? senpai.Config.commit_message
 ---@field chat? senpai.Config.chat
+---@field rag? senpai.Config.rag
 ```
 
 
@@ -462,6 +531,13 @@ _No arguments_
 --- <
 ```
 
+
+`*senpai.Config.rag*`
+```lua
+---@class senpai.Config.rag
+---@field cache_strategy? senpai.Config.rag.cache_strategy
+```
+
 <!-- auto-generate-e:type -->
 <!-- panvimdoc-ignore-start -->
 </details>
@@ -472,6 +548,7 @@ This plugin was inspired by the following.
 
 - [codecompanion.nvim](https://github.com/olimorris/codecompanion.nvim): Default keymaps and Implementation of diff display
 - [avante.nvim](https://github.com/yetone/avante.nvim): Use of winbar and virt text in chat windows
-- [nvim-deck: nvim-deck](https://github.com/hrsh7th/nvim-deck): Scripts for creating README and Help
+- [nvim-deck](https://github.com/hrsh7th/nvim-deck): Scripts for creating README and Help
+- [cline](https://github.com/cline/cline): How to prompt and edit files
 
-Thanks to all those involved in these.
+Thanks to all those involved in these!

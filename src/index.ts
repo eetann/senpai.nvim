@@ -4,6 +4,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import chat from "./presentation/chat";
 import generateCommitMessage from "./presentation/generateCommitMessage";
 import hello from "./presentation/hello";
+import rag from "./presentation/rag";
 import thread from "./presentation/thread";
 
 const { values } = parseArgs({
@@ -36,6 +37,7 @@ app.route("/", hello);
 app.route("/", generateCommitMessage);
 app.route("/", chat);
 app.route("/", thread);
+app.route("/", rag);
 
 export default {
 	idleTimeout: 60,

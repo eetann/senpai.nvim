@@ -41,16 +41,14 @@ end
 ---@param text string
 function M:process_chunk(text)
   local lines = vim.split(text, "\n", { plain = true })
-  -- TODO: 描画の分岐
-  -- searchタグ中は描画させたくない 引数不要 改行なし
-  -- 普通のコンテンツは描画 chunk必要 最終行以外は改行あり
-  -- search以外のreplace_file中は置き換えの発生あり line必要 改行制御あり 最終行は不要
-
   local length = #lines
   for i = 1, length do
     local chunk = lines[i]
     self.line = self.line .. chunk
-    if chunk ~= "" and length > 1 and i ~= length then
+    -- chunk: `foo` newline=0
+    -- chunk: `foo\nbar` newline=1,0
+    -- chunk: `foo\n\nbar` newline=1,1,0
+    if length > 1 and i ~= length then
       chunk = chunk .. "\n"
     end
     self:process_line(chunk)

@@ -51,7 +51,7 @@ local function load_thread_snacks()
   require("snacks.picker")({
     ---@return snacks.picker.Item[]
     finder = function()
-      local spinner = Spinner.new("[senpai] I'm still trying to remember...")
+      local spinner = Spinner.new("[senpai] I'm trying to remember...")
       spinner:start()
       local threads = get_threads.execute()
       spinner:stop()
@@ -121,9 +121,7 @@ detail -> |senpai-feature-history|
   [[args]]
   name = "thread_id"
   type = "string?"
-  desc = """
-If you do not specify the id of the thread you want to read, the finder will open.
-"""
+  desc = "If not specified, the finder will open"
 --]=]
 ---@param thread_id? string
 function M.load_thread(thread_id)

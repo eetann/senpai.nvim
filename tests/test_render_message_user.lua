@@ -79,7 +79,7 @@ T["render_border creates proper extmarks"] = function()
 
   -- The left text should exist for the number of lines
   --  between the top and bottom frames
-  eq(left_border_count >= 3, true)
+  eq(left_border_count == 1, true)
 end
 
 T["render_border positions borders correctly"] = function()
@@ -116,8 +116,8 @@ T["render_border positions borders correctly"] = function()
     { buffer, namespace, 0, -1, { details = true } }
   )
 
-  local top_border_row = -1
-  local bottom_border_row = -1
+  local top_border_index = -1
+  local bottom_border_index = -1
 
   for _, mark in ipairs(extmarks) do
     -- { 1, 5, 0, -- extmark_id, row, col
@@ -137,25 +137,16 @@ T["render_border positions borders correctly"] = function()
     local details = mark[4]
 
     if details.sign_text:find("╭") then
-      top_border_row = row
+      top_border_index = row
     elseif details.sign_text:find("╰") then
-      bottom_border_row = row
+      bottom_border_index = row
     end
   end
 
-  eq(
-    child.api.nvim_buf_get_lines(0, top_border_row, top_border_row + 1, true)[1],
-    "<SenpaiUserInput>"
-  )
-  eq(
-    child.api.nvim_buf_get_lines(
-      0,
-      bottom_border_row,
-      bottom_border_row + 1,
-      true
-    )[1],
-    "</SenpaiUserInput>"
-  )
+  eq(Helpers.get_line(child, 0, top_border_index - 1), "<SenpaiUserInput>")
+  eq(Helpers.get_line(child, 0, top_border_index), "")
+  eq(Helpers.get_line(child, 0, bottom_border_index), "")
+  eq(Helpers.get_line(child, 0, bottom_border_index + 1), "</SenpaiUserInput>")
 end
 
 return T

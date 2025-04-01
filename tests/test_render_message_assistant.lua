@@ -118,4 +118,18 @@ example foo bar.
   eq(Helpers.get_line(child, bufnr, 17), "example foo bar.")
 end
 
+T["assistant two newline"] = function()
+  child.lua([[chat=require("senpai.presentation.chat.window").new({})]])
+  child.lua([[chat:show()]])
+  local bufnr = child.lua_get([[chat.log_area.bufnr]])
+  child.lua("assistant=M.new(chat)")
+  eq(Helpers.get_line(child, bufnr, 5), "---")
+
+  child.lua("assistant:process_chunk(...)", { "plain text \n\n" })
+  eq(Helpers.get_line(child, bufnr, 6), "plain text ")
+  eq(Helpers.get_line(child, bufnr, 7), "")
+  eq(Helpers.get_line(child, bufnr, 8), "")
+  eq(Helpers.get_line(child, bufnr, 9), nil)
+end
+
 return T

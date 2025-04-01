@@ -26,3 +26,5 @@ export function getModel(provider?: Provider) {
 	}
 	throw new Error("unknown model");
 }
+
+export const embeddingModel = openai.embedding("text-embedding-3-small");

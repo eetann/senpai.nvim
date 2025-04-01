@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 March 27
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 01
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -7,16 +7,19 @@ Table of Contents                                   *senpai-table-of-contents*
 2. Feature                                                    |senpai-feature|
   - Chat                                                 |senpai-feature-chat|
   - History                                           |senpai-feature-history|
+  - RAG                                                   |senpai-feature-rag|
 3. Requirements                                          |senpai-requirements|
 4. Installation                                          |senpai-installation|
 5. config                                                      |senpai-config|
   - default config                              |senpai-config-default-config|
   - changing the chat keymap          |senpai-config-changing-the-chat-keymap|
 6. API                                                            |senpai-api|
+  - delete_rag_source                           |senpai-api-delete_rag_source|
   - delete_thread                                   |senpai-api-delete_thread|
   - generate_commit_message               |senpai-api-generate_commit_message|
   - load_thread                                       |senpai-api-load_thread|
   - new_thread                                         |senpai-api-new_thread|
+  - regist_url_at_rag                           |senpai-api-regist_url_at_rag|
   - setup                                                   |senpai-api-setup|
   - toggle_chat                                       |senpai-api-toggle_chat|
   - write_commit_message                     |senpai-api-write_commit_message|
@@ -24,6 +27,7 @@ Table of Contents                                   *senpai-table-of-contents*
   - _hello                                            |senpai-commands-_hello|
   - _helloStream                                |senpai-commands-_hellostream|
   - commitMessage                              |senpai-commands-commitmessage|
+  - deleteRagSource                          |senpai-commands-deleteragsource|
   - loadThread                                    |senpai-commands-loadthread|
   - newThread                                      |senpai-commands-newthread|
   - toggleChat                                    |senpai-commands-togglechat|
@@ -41,6 +45,7 @@ Senpai is super reliable Neovim AI plugin!
 
 - Chat
 - History: You can continue the conversation
+- RAG
 - Generate commit message
 
 
@@ -93,6 +98,26 @@ DELETE THREAD FROM HISTORY ~
 
 In case of snacks, switch to normal mode and enter `dd` to delete the specified
 thread. You can also delete using the API `senpai.delete_thread(thread_id)`.
+
+
+RAG                                                       *senpai-feature-rag*
+
+RAG(Retrieval-Augmented Generation) is avaiable.
+
+Supported types:
+
+- URL
+
+URL can be registered with RAG in two ways.
+
+- default keymap `gR` in Chat input area (Key is customizable)
+- API `senpai.regist_url_at_rag`
+
+Unnecessary items can be deleted.
+
+
+
+Cache control can be configured in |`senpai.Config.rag.cache_strategy`|.
 
 
 ==============================================================================
@@ -165,7 +190,8 @@ The default config are as follows.
         },
         input_area = {
           keymaps = {
-            ["<CR>"] = "submit"
+            ["<CR>"] = "submit",
+            gR = "regist_url_at_rag"
           }
         },
         log_area = {
@@ -188,6 +214,9 @@ The default config are as follows.
         openrouter = {
           model_id = "anthropic/claude-3.7-sonnet"
         }
+      },
+      rag = {
+        cache_strategy = "ask"
       }
     }
 <
@@ -213,6 +242,21 @@ Assign `false` if you want to delete the keymap.
 
 ==============================================================================
 6. API                                                            *senpai-api*
+
+
+DELETE_RAG_SOURCE                               *senpai-api-delete_rag_source*
+
+>lua
+    senpai.delete_rag_source()
+    senpai.delete_rag_source(source)
+<
+
+detail -> |senpai-feature-rag|
+
+  Name     Type      Description
+  -------- --------- ----------------------------------------
+  source   string?   If not specified, the finder will open
+ 
 
 
 DELETE_THREAD                                       *senpai-api-delete_thread*
@@ -257,15 +301,9 @@ LOAD_THREAD                                           *senpai-api-load_thread*
 
 detail -> |senpai-feature-history|
 
-  ------------------------------------------------------------------------
-  Name              Type              Description
-  ----------------- ----------------- ------------------------------------
-  thread_id         string?           If you do not specify the id of the
-                                      thread you want to read, the finder
-                                      will open.
-
-                                      
-  ------------------------------------------------------------------------
+  Name        Type      Description
+  ----------- --------- ----------------------------------------
+  thread_id   string?   If not specified, the finder will open
  
 
 
@@ -280,6 +318,28 @@ Open new chat.
 _No arguments_  
 
 
+REGIST_URL_AT_RAG                               *senpai-api-regist_url_at_rag*
+
+>lua
+    senpai.regist_url_at_rag()
+    senpai.regist_url_at_rag(url)
+<
+
+Fetch URL and save to RAG. Cache control can be configured in
+|senpai.Config.rag.cache_strategy|.
+
+  ------------------------------------------------------------------------
+  Name              Type              Description
+  ----------------- ----------------- ------------------------------------
+  url               string|nil        URL. If not specified, the input UI
+                                      will open
+
+  no_cache          boolean|nil       If set to true, no cache is used
+                                      regardless of Config.
+  ------------------------------------------------------------------------
+ 
+
+
 SETUP                                                       *senpai-api-setup*
 
 >lua
@@ -288,9 +348,9 @@ SETUP                                                       *senpai-api-setup*
 
 Setup senpai
 
-  Name     Type                Description
-  -------- ------------------- --------------
-  config   \|senpai.Config\|   Setup senpai
+  Name     Type              Description
+  -------- ----------------- --------------
+  config   |senpai.Config|   Setup senpai
  
 
 
@@ -362,6 +422,17 @@ detail -> |senpai-api-write_commit_message|
  
 
 
+DELETERAGSOURCE                              *senpai-commands-deleteragsource*
+
+>
+    :Senapi deleteRagSource
+<
+
+detail -> |senpai-feature-rag|
+
+_No arguments_  
+
+
 LOADTHREAD                                        *senpai-commands-loadthread*
 
 >
@@ -405,6 +476,7 @@ _No arguments_  
     ---@field providers? senpai.Config.providers
     ---@field commit_message? senpai.Config.commit_message
     ---@field chat? senpai.Config.chat
+    ---@field rag? senpai.Config.rag
 <
 
 `*senpai.Config.chat*`
@@ -495,6 +567,13 @@ _No arguments_  
     --- <
 <
 
+`*senpai.Config.rag*`
+
+>lua
+    ---@class senpai.Config.rag
+    ---@field cache_strategy? senpai.Config.rag.cache_strategy
+<
+
 
 ==============================================================================
 9. Acknowledgements                                  *senpai-acknowledgements*
@@ -503,9 +582,10 @@ This plugin was inspired by the following.
 
 - codecompanion.nvim <https://github.com/olimorris/codecompanion.nvim>Default keymaps and Implementation of diff display
 - avante.nvim <https://github.com/yetone/avante.nvim>Use of winbar and virt text in chat windows
-- nvim-deck: nvim-deck <https://github.com/hrsh7th/nvim-deck>Scripts for creating README and Help
+- nvim-deck <https://github.com/hrsh7th/nvim-deck>Scripts for creating README and Help
+- cline <https://github.com/cline/cline>How to prompt and edit files
 
-Thanks to all those involved in these.
+Thanks to all those involved in these!
 
 Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
 

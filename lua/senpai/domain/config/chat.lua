@@ -46,6 +46,7 @@ M.default_config = {
   input_area = {
     keymaps = {
       ["<CR>"] = "submit",
+      gR = "regist_url_at_rag",
     },
   },
 }

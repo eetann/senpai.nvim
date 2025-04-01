@@ -12,7 +12,7 @@ Setup senpai
 
   [[args]]
   name = "config"
-  type = "`|senpai.Config|`"
+  type = "|`senpai.Config`|"
   desc = "Setup senpai"
 --]=]
 ---@param opts? senpai.Config see |senpai-config|

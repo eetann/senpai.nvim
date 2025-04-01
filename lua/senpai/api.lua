@@ -2,6 +2,7 @@ local ChatWindowManager = require("senpai.presentation.chat.window_manager")
 local RequestHandler = require("senpai.usecase.request.request_handler")
 local utils = require("senpai.usecase.utils")
 local delete_threads = require("senpai.usecase.request.delete_threads")
+local regist_url_at_rag = require("senpai.usecase.regist_url_at_rag")
 
 local M = {}
 
@@ -92,9 +93,36 @@ function M.delete_thread(thread_id)
   end)
 end
 
+--[=[@doc
+  category = "api"
+  name = "regist_url_at_rag"
+  desc = """
+```lua
+senpai.regist_url_at_rag()
+senpai.regist_url_at_rag(url)
+```
+Fetch URL and save to RAG.
+Cache control can be configured in \|senpai.Config.rag.cache_strategy\|.
+"""
+
+  [[args]]
+  name = "url"
+  type = "string|nil"
+  desc = "URL. If not specified, the input UI will open"
+
+  [[args]]
+  name = "no_cache"
+  type = "boolean|nil"
+  desc = "If set to true, no cache is used regardless of Config."
+--]=]
+function M.regist_url_at_rag(url, no_cache)
+  regist_url_at_rag.execute(url, no_cache)
+end
+
 return setmetatable(M, {
   __index = function(_, k)
     return require("senpai.presentation.commit_message")[k]
       or require("senpai.presentation.load_thread")[k]
+      or require("senpai.presentation.delete_rag_source")[k]
   end,
 })

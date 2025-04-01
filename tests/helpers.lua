@@ -23,7 +23,7 @@ Helpers.get_line = function(child, bufnr, row)
   return child.api.nvim_buf_get_lines(bufnr, row - 1, row, false)[1]
 end
 
-Helpers.get_all_line = function(child, bufnr)
+Helpers.get_all_lines = function(child, bufnr)
   return child.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 end
 
