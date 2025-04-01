@@ -54,6 +54,7 @@ function M.prompt_launcher()
     ---@class _.launcher_item
     local new_launcher = vim.deepcopy(launcher)
     new_launcher.name = key
+    new_launcher.priority = launcher.priority or 50
     table.insert(items, new_launcher)
   end
   table.sort(items, function(a, b)

@@ -65,7 +65,13 @@ local plugins = {
     keys = {
       { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
     },
-    opts = {},
+    opts = {
+      prompt_launchers = {
+        ["test message"] = {
+          user = "test message. Hello!",
+        },
+      },
+    },
   },
 }
 

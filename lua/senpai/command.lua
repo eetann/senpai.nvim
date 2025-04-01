@@ -74,6 +74,16 @@ local subcmd_tbl = {
   },
   --[=[@doc
   category = "command"
+  name = "promptLauncher"
+  desc = "detail -> |senpai-api-prompt-launcher|"
+  --]=]
+  promptLauncher = {
+    impl = function()
+      require("senpai.api").prompt_launcher()
+    end,
+  },
+  --[=[@doc
+  category = "command"
   name = "_hello"
   desc = """
 For developers.

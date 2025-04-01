@@ -9,11 +9,12 @@ function M.execute(chat)
     content = "*No system prompt*"
   end
 
+  local keys = { "<ESC>", "q", "<C-c>", "<CR>" }
   local popup = Popup({
     relative = "editor",
     position = "50%",
     size = {
-      width = "60%",
+      width = "40%",
       height = "80%",
     },
     border = {
@@ -25,7 +26,7 @@ function M.execute(chat)
       },
       style = "rounded",
       text = {
-        top = "System prompt",
+        top = "System prompt (" .. table.concat(keys, "/") .. "...close)",
         top_align = "center",
       },
     },
@@ -38,7 +39,6 @@ function M.execute(chat)
   vim.api.nvim_buf_set_lines(popup.bufnr, 0, 1, false, vim.split(content, "\n"))
   vim.bo[popup.bufnr].modifiable = false
   vim.bo[popup.bufnr].readonly = true
-  local keys = { "<esc>", "q", "<C-c>", "<CR>" }
   for _, key in pairs(keys) do
     popup:map("n", key, function()
       popup:unmount()
