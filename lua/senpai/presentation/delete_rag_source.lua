@@ -24,7 +24,7 @@ local function make_item_text(item)
   return item.title .. " (" .. item.source .. ""
 end
 
-local function load_thread_native()
+local function load_rag_source_native()
   local spinner = Spinner.new("[senpai] I'm trying to remember...")
   spinner:start()
   local sources = get_rag_sources.execute()
@@ -44,7 +44,7 @@ local function load_thread_native()
   end)
 end
 
-local function load_thread_snacks()
+local function load_rag_source_snacks()
   require("snacks.picker")({
     ---@return snacks.picker.Item[]
     finder = function()
@@ -101,9 +101,9 @@ function M.delete_rag_source(source)
   end
   local ok, _ = pcall(require, "snacks.picker")
   if not ok then
-    load_thread_native()
+    load_rag_source_native()
   else
-    load_thread_snacks()
+    load_rag_source_snacks()
   end
 end
 

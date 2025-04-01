@@ -6,6 +6,7 @@ local send_text = require("senpai.usecase.send_text")
 local abort_request = require("senpai.usecase.abort_request")
 local apply_replace_file = require("senpai.usecase.apply_replace_file")
 local regist_url_at_rag = require("senpai.usecase.regist_url_at_rag")
+local show_system_prompt = require("senpai.usecase.show_system_prompt")
 
 ---@class senpai.chat.Keymaps.keymaps
 
@@ -82,6 +83,9 @@ function M:execute_action(name)
     end,
     regist_url_at_rag = function()
       regist_url_at_rag.execute()
+    end,
+    show_system_prompt = function()
+      show_system_prompt.execute(self.chat)
     end,
     submit = function()
       send_text.execute(self.chat)

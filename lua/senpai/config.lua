@@ -8,6 +8,7 @@ local RagConfig = require("senpai.domain.config.rag")
 ---@field commit_message? senpai.Config.commit_message
 ---@field chat? senpai.Config.chat
 ---@field rag? senpai.Config.rag
+---@field prompt_launchers? senpai.Config.prompt_launchers
 
 ---@doc.type
 ---@class senpai.Config.commit_message
@@ -32,6 +33,16 @@ local default_config = {
   },
   chat = ChatConfig.default_config,
   rag = RagConfig.default_config,
+  prompt_launchers = {
+    ["Tsundere"] = {
+      system = "Answers should be tsundere style.",
+      priority = 100,
+    },
+    ["Senpai"] = {
+      system = "Answer as a senpai with a crazy casual tone.",
+      priority = 99,
+    },
+  },
 }
 
 ---@type senpai.Config

@@ -9,13 +9,15 @@ Senpai is super reliable Neovim AI plugin!
 - 📚 RAG
 - ✅ Generate commit message
 
+Powered by [Mastra](https://mastra.ai/) and [Vercel AI SDK](https://sdk.vercel.ai/).
+
 
 ## Chat
 <img width="1756" alt="chat" src="https://github.com/user-attachments/assets/e981ad2c-1d63-4f45-a30a-80885f557d26" />
 You can chat with AI.<br/>
 
 ### chat help
-You can open keymap help with `?`.<br/>
+**You can open keymap help with `?`**.<br/>
 <img width="312" alt="keymap help for chat" src="https://github.com/user-attachments/assets/8ee2bf91-1602-4441-aedd-59875fe22a83" />
 
 By default, send to AI with `<CR>`.<br/>
@@ -32,11 +34,26 @@ Right now it's automatic, but eventually I'm going to make it controllable.
 ### replace file
 You can also edit the file.<br/>
 
-<img width="891" alt="Image" src="https://github.com/user-attachments/assets/c3981de9-3bb4-476d-9e30-1fc5dbf1cafd" />
+<img width="750" alt="Image" src="https://github.com/user-attachments/assets/c3981de9-3bb4-476d-9e30-1fc5dbf1cafd" />
 
 In the area called `Replace File`, press `a` to display the diff. This diff uses Neovim's built-in function `diffthis`, so you can apply the diff with `do` or `dp`.
 
 Related help `:help copy-diffs`.
+
+
+### system prompt
+If you want to write a system prompt, you can configure it as follows.
+
+```lua
+require("senpai").setup({
+    chat = {
+        system_prompt = "Answers should be in Japanese."
+    }
+})
+```
+
+To see the system prompt, type `gs` in the chat log area (Key is customizable).<br/>
+<img width="772" alt="Image" src="https://github.com/user-attachments/assets/04ba00bd-1c39-470b-9b83-6c3607fb16ba" />
 
 
 ## History
@@ -73,12 +90,67 @@ Unnecessary items can be deleted.
 Cache control can be configured in |`senpai.Config.rag.cache_strategy`|.
 
 
+## Prompt Launcher
+You can chat with customized prompts.
+
+```lua
+require("senpai").setup({
+  prompt_launchers = {
+    ["Tsundere"] = {
+      system = "Answers should be tsundere style.",
+      priority = 100,
+    },
+    ["test message"] = {
+      user = "test message. Hello!",
+    },
+  },
+}) 
+```
+
+Command `:Senpai promptLauncher` opens the selection UI. The chosen one opens as a chat.<br/>
+<img width="800" alt="Senpai promptLauncher" src="https://github.com/user-attachments/assets/3db4369f-9579-4d5a-8f9b-e737735b937b" />
+
+
 # Requirements
 
 - Neovim
 - curl
 - [Bun](https://bun.sh/)
     - Forgive me if the dependence is frustrating for you, but it's easy to install.
+
+## Provider
+Currently supported providers are as follows.
+
+| name         | Environment variable for API token |
+|--------------|------------------------------------|
+| `openai`     | `OPENAI_API_KEY`                   |
+| `openrouter` | `OPENROUTER_API_KEY`               |
+
+The default provider is written in `providers.default`.
+```lua
+require("senpai").setup({
+  providers = {
+    default = "openrouter",
+  },
+})
+```
+
+The model specifications should be written in the `model_id` of each provider.
+```lua
+require("senpai").setup({
+  providers = {
+    default = "openrouter",
+    openrouter = { model_id = "openai/chatgpt-4o-latest" },
+  },
+})
+```
+
+You can find how to write `model_id` in the following links (most of them are in the Vercel AI SDK documentation).
+
+- [OpenAI](https://sdk.vercel.ai/providers/ai-sdk-providers/openai#model-capabilities)
+- ...
+- [OpenRouter](https://openrouter.ai/models)
+
 
 
 # Installation
@@ -146,12 +218,23 @@ The default config are as follows.
     },
     log_area = {
       keymaps = {
-        a = "apply"
+        a = "apply",
+        gs = "show_system_prompt"
       }
     }
   },
   commit_message = {
     language = "English"
+  },
+  prompt_launchers = {
+    Senpai = {
+      priority = 99,
+      system = "Answer as a senpai with a crazy casual tone."
+    },
+    Tsundere = {
+      priority = 100,
+      system = "Answers should be tsundere style."
+    }
   },
   providers = {
     anthropic = {
@@ -267,6 +350,17 @@ detail -> |senpai-feature-history|
 senpai.new_thread()
 ```
 Open new chat.
+
+
+_No arguments_
+&nbsp;
+
+
+## prompt_launcher
+```lua
+senpai.prompt_launcher()
+```
+Select and launch the prompt_launcher set in \|senpai.Config.prompt_launchers\|.
 
 
 _No arguments_
@@ -415,6 +509,17 @@ _No arguments_
 &nbsp;
 
 
+## promptLauncher
+```
+:Senapi promptLauncher
+```
+
+detail -> |senpai-api-prompt-launcher|
+
+_No arguments_
+&nbsp;
+
+
 ## toggleChat
 ```
 :Senapi toggleChat
@@ -441,6 +546,7 @@ _No arguments_
 ---@field commit_message? senpai.Config.commit_message
 ---@field chat? senpai.Config.chat
 ---@field rag? senpai.Config.rag
+---@field prompt_launchers? senpai.Config.prompt_launchers
 ```
 
 
@@ -450,6 +556,7 @@ _No arguments_
 ---@field common? senpai.Config.chat.common
 ---@field log_area? senpai.Config.chat.log_area
 ---@field input_area? senpai.Config.chat.input_area
+---@field system_prompt? string
 ```
 
 

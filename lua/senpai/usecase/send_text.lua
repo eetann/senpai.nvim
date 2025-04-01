@@ -10,12 +10,19 @@ M.__index = M
 
 ---send chat to LLM
 ---@param chat senpai.IChatWindow
-function M.execute(chat)
+---@param user_input? string
+function M.execute(chat, user_input)
   if chat.is_sending then
     return
   end
-  local lines = vim.api.nvim_buf_get_lines(chat.input_area.bufnr, 0, -1, false)
-  local user_input = table.concat(lines, "\n")
+  --@type string[]
+  local lines
+  if type(user_input) == "string" then
+    lines = vim.split(user_input, "\n")
+  else
+    lines = vim.api.nvim_buf_get_lines(chat.input_area.bufnr, 0, -1, false)
+    user_input = table.concat(lines, "\n")
+  end
   if user_input == "" then
     return
   end
@@ -40,15 +47,16 @@ function M.execute(chat)
     end
   )
   spinner:start()
+  local body = {
+    thread_id = chat.thread_id,
+    provider = chat.provider,
+    text = user_input,
+    system_prompt = chat.system_prompt,
+  }
   chat.job = RequestHandler.streamRequest({
     method = "post",
     route = "/chat",
-    body = {
-      thread_id = chat.thread_id,
-      provider = chat.provider,
-      system_prompt = chat.system_prompt,
-      text = user_input,
-    },
+    body = body,
     stream = function(_, part)
       if not part or not part.type or part.content == "" then
         return
