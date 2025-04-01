@@ -117,6 +117,11 @@ Command `:Senpai promptLauncher` opens the selection UI. The chosen one opens as
 - curl
 - [Bun](https://bun.sh/)
     - Forgive me if the dependence is frustrating for you, but it's easy to install.
+- Dependent Plugins
+    - [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
+    - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
+    - [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
+
 
 ## Provider
 Currently supported providers are as follows.
@@ -158,6 +163,12 @@ with [Lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
 {
     "eetann/senpai.nvim", 
+    build = "bun install",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
 	opts = {config}
 }
 ```
@@ -165,6 +176,12 @@ with [packer.nvim](https://github.com/wbthomason/packer.nvim)
 ```lua
 {
     "eetann/senpai.nvim", 
+    run = "bun install",
+    requires = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
 	opt = true,
     config = function()
         require("senpai").setup({config}) 
