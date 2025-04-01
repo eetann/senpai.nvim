@@ -292,6 +292,22 @@ require("senpai").setup({
 })
 ```
 
+
+## generate commit message
+Here's a code of my setup in `.config/nvim/after/ftplugin/gitcommit.lua`.
+```lua
+vim.keymap.set("n", "<C-g><C-g>", function()
+	if vim.env.COMMIT_MESSAGE_ENGLISH == "1" then
+		vim.cmd("Senpai commitMessage English")
+	else
+		vim.cmd("Senpai commitMessage Japanese")
+	end
+end, { buffer = true, desc = "Senpai commitMessage" })
+```
+
+
+If this doesn't work, then git diff is most likely failing.
+
 # API
 <!-- panvimdoc-ignore-start -->
 <details>

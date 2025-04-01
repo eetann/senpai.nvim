@@ -15,6 +15,7 @@ Table of Contents                                   *senpai-table-of-contents*
 5. config                                                      |senpai-config|
   - default config                              |senpai-config-default-config|
   - changing the chat keymap          |senpai-config-changing-the-chat-keymap|
+  - generate commit message            |senpai-config-generate-commit-message|
 6. API                                                            |senpai-api|
   - delete_rag_source                           |senpai-api-delete_rag_source|
   - delete_thread                                   |senpai-api-delete_thread|
@@ -346,6 +347,23 @@ Assign `false` if you want to delete the keymap.
         },
     })
 <
+
+
+GENERATE COMMIT MESSAGE                *senpai-config-generate-commit-message*
+
+Here’s a code of my setup in `.config/nvim/after/ftplugin/gitcommit.lua`.
+
+>lua
+    vim.keymap.set("n", "<C-g><C-g>", function()
+        if vim.env.COMMIT_MESSAGE_ENGLISH == "1" then
+            vim.cmd("Senpai commitMessage English")
+        else
+            vim.cmd("Senpai commitMessage Japanese")
+        end
+    end, { buffer = true, desc = "Senpai commitMessage" })
+<
+
+If this doesn’t work, then git diff is most likely failing.
 
 
 ==============================================================================
