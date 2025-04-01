@@ -43,8 +43,5 @@ bun run scripts/doc/generate.ts \
 [tasks.dev-server]
 run ="bun run src/index.ts --port 9942"
 
-[tasks.generate-openapi]
-run ="curl --no-buffer -X GET 'http://localhost:9942/doc' | jq > ./openapi.json"
-
 [env]
 COMMIT_MESSAGE_ENGLISH = 1
