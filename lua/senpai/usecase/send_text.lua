@@ -40,15 +40,18 @@ function M.execute(chat)
     end
   )
   spinner:start()
+  local body = {
+    thread_id = chat.thread_id,
+    provider = chat.provider,
+    text = user_input,
+  }
+  if chat.system_prompt ~= "" then
+    body.system_prompt = chat.system_prompt
+  end
   chat.job = RequestHandler.streamRequest({
     method = "post",
     route = "/chat",
-    body = {
-      thread_id = chat.thread_id,
-      provider = chat.provider,
-      system_prompt = chat.system_prompt,
-      text = user_input,
-    },
+    body = body,
     stream = function(_, part)
       if not part or not part.type or part.content == "" then
         return
@@ -64,6 +67,8 @@ function M.execute(chat)
       spinner:stop()
     end,
   })
+  -- Delete after the first time
+  chat.system_prompt = ""
 end
 
 return M

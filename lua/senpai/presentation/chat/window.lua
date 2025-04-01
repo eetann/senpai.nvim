@@ -43,7 +43,12 @@ function M.new(args)
   self.thread_id = args.thread_id
     or vim.fn.getcwd() .. "-" .. os.date("%Y%m%d%H%M%S")
 
-  self.system_prompt = args.system_prompt or ""
+  self.system_prompt = ""
+  if args.system_prompt then
+    self.system_prompt = args.system_prompt
+  elseif Config.chat.system_prompt then
+    self.system_prompt = Config.chat.system_prompt
+  end
 
   self.is_sending = false
   self.edit_file_results = {}

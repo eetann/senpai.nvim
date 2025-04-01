@@ -27,6 +27,7 @@ local M = {}
 ---@field common? senpai.Config.chat.common
 ---@field log_area? senpai.Config.chat.log_area
 ---@field input_area? senpai.Config.chat.input_area
+---@field system_prompt? string
 
 ---@type senpai.Config.chat
 M.default_config = {
