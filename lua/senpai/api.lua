@@ -102,20 +102,21 @@ senpai.regist_url_at_rag()
 senpai.regist_url_at_rag(url)
 ```
 Fetch URL and save to RAG.
+Cache control can be configured in \|senpai.Config.rag.cache_strategy\|.
 """
-
-  [[args]]
-  name = "use_cache"
-  type = "boolean"
-  desc = "Use cache if cache is available"
 
   [[args]]
   name = "url"
   type = "string|nil"
-  desc = "URL"
+  desc = "URL. If not specified, the input UI will open"
+
+  [[args]]
+  name = "no_cache"
+  type = "boolean|nil"
+  desc = "If set to true, no cache is used regardless of Config."
 --]=]
-function M.regist_url_at_rag(use_cache, url)
-  regist_url_at_rag.execute(use_cache, url)
+function M.regist_url_at_rag(url, no_cache)
+  regist_url_at_rag.execute(url, no_cache)
 end
 
 return setmetatable(M, {

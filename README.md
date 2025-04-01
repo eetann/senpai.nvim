@@ -70,6 +70,8 @@ Unnecessary items can be deleted.
 
 <img width="500" alt="Senpai deleteRagSource" src="https://github.com/user-attachments/assets/4adfef4d-92d2-4361-a9b0-f45f0ad7c7c1" />
 
+Cache control can be configured in |`senpai.Config.rag.cache_strategy`|.
+
 
 # Requirements
 
@@ -162,6 +164,9 @@ The default config are as follows.
     openrouter = {
       model_id = "anthropic/claude-3.7-sonnet"
     }
+  },
+  rag = {
+    cache_strategy = "ask"
   }
 }
 ```
@@ -274,13 +279,14 @@ senpai.regist_url_at_rag()
 senpai.regist_url_at_rag(url)
 ```
 Fetch URL and save to RAG.
+Cache control can be configured in \|senpai.Config.rag.cache_strategy\|.
 
 
 
 | Name | Type | Description |
 |------|------|-------------|
-| use_cache | boolean | Use cache if cache is available |
-| url | string\|nil | URL |
+| url | string\|nil | URL. If not specified, the input UI will open |
+| no_cache | boolean\|nil | If set to true, no cache is used regardless of Config. |
 
 &nbsp;
 
@@ -295,7 +301,7 @@ Setup senpai
 
 | Name | Type | Description |
 |------|------|-------------|
-| config | `\|senpai.Config\|` | Setup senpai |
+| config | \|`senpai.Config`\| | Setup senpai |
 
 &nbsp;
 
@@ -434,6 +440,7 @@ _No arguments_
 ---@field providers? senpai.Config.providers
 ---@field commit_message? senpai.Config.commit_message
 ---@field chat? senpai.Config.chat
+---@field rag? senpai.Config.rag
 ```
 
 
@@ -522,6 +529,13 @@ _No arguments_
 ---   curl https://openrouter.ai/api/v1/models | \
 ---     jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
 --- <
+```
+
+
+`*senpai.Config.rag*`
+```lua
+---@class senpai.Config.rag
+---@field cache_strategy? senpai.Config.rag.cache_strategy
 ```
 
 <!-- auto-generate-e:type -->

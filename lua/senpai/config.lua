@@ -1,11 +1,13 @@
 local Provider = require("senpai.domain.config.provider")
 local ChatConfig = require("senpai.domain.config.chat")
+local RagConfig = require("senpai.domain.config.rag")
 
 ---@doc.type
 ---@class senpai.Config
 ---@field providers? senpai.Config.providers
 ---@field commit_message? senpai.Config.commit_message
 ---@field chat? senpai.Config.chat
+---@field rag? senpai.Config.rag
 
 ---@doc.type
 ---@class senpai.Config.commit_message
@@ -29,6 +31,7 @@ local default_config = {
     language = "English",
   },
   chat = ChatConfig.default_config,
+  rag = RagConfig.default_config,
 }
 
 ---@type senpai.Config

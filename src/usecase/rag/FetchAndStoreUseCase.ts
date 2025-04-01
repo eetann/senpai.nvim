@@ -19,7 +19,6 @@ export class FetchAndStoreUseCase {
 		private model: EmbeddingModel<string>,
 	) {}
 	async execute(url: string) {
-		// TODO: キャッシュ使うときはすでにデータがあるかチェック
 		const response = await fetch(url);
 		if (!response.ok) {
 			return "Fetch failed.";

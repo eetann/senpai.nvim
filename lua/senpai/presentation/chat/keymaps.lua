@@ -81,7 +81,7 @@ function M:execute_action(name)
       vim.cmd("Senpai newThread")
     end,
     regist_url_at_rag = function()
-      regist_url_at_rag.execute(true)
+      regist_url_at_rag.execute()
     end,
     submit = function()
       send_text.execute(self.chat)

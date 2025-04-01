@@ -7,7 +7,7 @@ local M = {}
 function M.execute(source)
   local response = RequestHandler.request_without_callback({
     method = "post",
-    route = "/rag",
+    route = "/rag/check-cache",
     body = { source = source },
   })
   if response.exit ~= 0 or response.status ~= 200 then
