@@ -5,6 +5,7 @@
     "@hono/zod-openapi": "^0.19.2",
     "@hono/zod-validator": "^0.4.3",
     "@mastra/core": "^0.6.0",
+    "@mastra/mcp": "^0.3.6",
     "@mastra/memory": "^0.2.1",
     "@mastra/rag": "^0.1.14",
     "@openrouter/ai-sdk-provider": "^0.4.3",

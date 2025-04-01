@@ -3,6 +3,7 @@ import { memory } from "@/infra/Memory";
 import { vector } from "@/infra/Vector";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
+import { MCPConfiguration } from "@mastra/mcp";
 
 const app = new OpenAPIHono().basePath("/chat");
 
@@ -36,11 +37,25 @@ app.openapi(
 	async (c) => {
 		const command = c.req.valid("json");
 		const model = getModel(command.provider);
+		const mcp = new MCPConfiguration({
+			servers: {
+				sequential: {
+					command: "bunx",
+					args: ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+				},
+				mastra: {
+					command: "bunx",
+					args: ["-y", "@mastra/mcp-docs-server@latest"],
+				},
+			},
+		});
+		const mcpTools = await mcp.getTools();
 		const agent = new ChatAgent(
 			memory,
 			vector,
 			model,
 			embeddingModel,
+			mcpTools,
 			command.system_prompt,
 		);
 		const thread = await memory.getThreadById({ threadId: command.thread_id });

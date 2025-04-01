@@ -15,6 +15,7 @@ export class ChatAgent extends Agent {
 		vector: LibSQLVector,
 		model: AgentConfig["model"],
 		embeddingModel: EmbeddingModel<string>,
+		mcpTools: Record<string, unknown>,
 		system_prompt: string,
 	) {
 		const prompt = `
@@ -112,6 +113,7 @@ ${system_prompt}
 				ReadFilesTool,
 				// @ts-ignore
 				VectorQueryTool: VectorQueryTool(vector, embeddingModel),
+				...mcpTools,
 			},
 			memory,
 		});
