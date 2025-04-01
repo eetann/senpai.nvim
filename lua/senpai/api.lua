@@ -124,5 +124,6 @@ return setmetatable(M, {
     return require("senpai.presentation.commit_message")[k]
       or require("senpai.presentation.load_thread")[k]
       or require("senpai.presentation.delete_rag_source")[k]
+      or require("senpai.presentation.prompt_launcher")[k]
   end,
 })
