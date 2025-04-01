@@ -107,6 +107,7 @@ function M:create_input_area(keymaps)
   end
 end
 
+---@param winid? number
 function M:show(winid)
   local resolved_keymaps
   if not self.log_area then
