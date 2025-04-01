@@ -43,6 +43,7 @@ M.default_config = {
   },
   log_area = { keymaps = {
     a = "apply",
+    gs = "show_system_prompt",
   } },
   input_area = {
     keymaps = {
