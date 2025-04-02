@@ -21,6 +21,7 @@ M.default_config = {
   servers = {},
 }
 
+-- TODO: serversのkeyの文字列に空白を入れない
 -- ---@param target any
 -- ---@return senpai.Config.mcp
 -- function M.validate(target)

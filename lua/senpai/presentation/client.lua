@@ -51,10 +51,15 @@ function M.start_server()
       "--port",
       tostring(M.port),
       "--mcp",
-      "'" .. mcp .. "'",
+      mcp,
     }, {
       cwd = cwd,
       stdout = vim.schedule_wrap(function(_, data)
+        if Config.log_window then
+          Config.log_window:write(data)
+        end
+      end),
+      stderr = vim.schedule_wrap(function(_, data)
         if Config.log_window then
           Config.log_window:write(data)
         end

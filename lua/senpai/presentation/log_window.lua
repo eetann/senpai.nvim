@@ -34,7 +34,7 @@ function M:mount()
 end
 
 function M:write(text)
-  utils.set_text_at_last(self.buf, vim.inspect(text) .. "\n")
+  utils.set_text_at_last(self.buf, text .. "\n")
 end
 
 return M

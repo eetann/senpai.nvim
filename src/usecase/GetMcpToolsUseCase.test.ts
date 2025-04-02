@@ -67,6 +67,23 @@ test("GetMcpToolsUseCase should process valid configuration with StdioServer par
 	expect(result).toEqual(expected);
 });
 
+test("GetMcpToolsUseCase should process valid", async () => {
+	const useCase = new GetMcpToolsUseCase();
+
+	const expected = {
+		mastra: {
+			command: "bunx",
+			args: ["-y", "@mastra/mcp-docs-server"],
+		},
+	};
+	const validConfig =
+		'{"mastra":{"command":"bunx","args":["-y","@mastra/mcp-docs-server"]}}';
+
+	const result = useCase.parse(validConfig);
+
+	expect(result).toEqual(expected);
+});
+
 test("GetMcpToolsUseCase should process valid configuration with SSEClient parameters", async () => {
 	const useCase = new GetMcpToolsUseCase();
 
