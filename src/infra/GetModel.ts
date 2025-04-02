@@ -1,4 +1,5 @@
 import { openai } from "@ai-sdk/openai";
+import type { AgentConfig } from "@mastra/core/agent";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { z } from "zod";
 
@@ -9,7 +10,7 @@ export const providerSchema = z.object({
 
 export type Provider = z.infer<typeof providerSchema>;
 
-export function getModel(provider?: Provider) {
+export function getModel(provider?: Provider): AgentConfig["model"] {
 	if (!provider) {
 		throw new Error("unknown model");
 	}

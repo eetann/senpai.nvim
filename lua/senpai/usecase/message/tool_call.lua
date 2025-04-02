@@ -8,14 +8,14 @@ local function render_base(chat, content)
   if type(content.toolName) ~= "string" or content.toolName == "" then
     return
   end
-  local render_text = "\nTool Call: " .. content.toolName
+  local render_text = "\n\nTool Call: `" .. content.toolName .. "`"
   if type(content.args) == "table" and next(content.args) ~= nil then
     render_text = render_text
       .. "\n  args: `"
       .. vim.inspect(content.args)
       .. "`"
   end
-  render_text = render_text .. "\n"
+  render_text = render_text .. "\n\n"
   utils.set_text_at_last(chat.log_area.bufnr, render_text)
 end
 
