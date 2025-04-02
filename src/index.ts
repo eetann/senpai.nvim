@@ -15,6 +15,9 @@ const { values } = parseArgs({
 		port: {
 			type: "string",
 		},
+		cwd: {
+			type: "string",
+		},
 		mcp: {
 			type: "string",
 		},
@@ -27,15 +30,21 @@ let port = Number(values.port);
 if (Number.isNaN(port)) {
 	port = 0;
 }
+let cwd = values.cwd;
+if (cwd === "") {
+	cwd = process.cwd();
+}
 const mcpTools = await new GetMcpToolsUseCase().execute(values.mcp);
 
 type Variables = {
+	cwd: string;
 	mcpTools: Record<string, unknown>;
 };
 
 const app = new OpenAPIHono<{ Variables: Variables }>();
 
 app.use(async (c, next) => {
+	c.set("cwd", cwd);
 	c.set("mcpTools", mcpTools);
 	await next();
 });

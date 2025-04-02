@@ -48,6 +48,8 @@ function M.start_server()
       "bun",
       "run",
       "src/index.ts",
+      "--cwd",
+      vim.fn.getcwd(),
       "--port",
       tostring(M.port),
       "--mcp",
