@@ -3,9 +3,12 @@ import { memory } from "@/infra/Memory";
 import { vector } from "@/infra/Vector";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import { MCPConfiguration } from "@mastra/mcp";
 
-const app = new OpenAPIHono().basePath("/chat");
+type Variables = {
+	mcpTools: Record<string, unknown>;
+};
+
+const app = new OpenAPIHono<{ Variables: Variables }>().basePath("/chat");
 
 const chatControllerSchema = z.object({
 	thread_id: z.string(),
@@ -37,19 +40,7 @@ app.openapi(
 	async (c) => {
 		const command = c.req.valid("json");
 		const model = getModel(command.provider);
-		const mcp = new MCPConfiguration({
-			servers: {
-				sequential: {
-					command: "bunx",
-					args: ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-				},
-				mastra: {
-					command: "bunx",
-					args: ["-y", "@mastra/mcp-docs-server@latest"],
-				},
-			},
-		});
-		const mcpTools = await mcp.getTools();
+		const mcpTools = c.get("mcpTools");
 		const agent = new ChatAgent(
 			memory,
 			vector,

@@ -4,13 +4,18 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import chat from "./presentation/chat";
 import generateCommitMessage from "./presentation/generateCommitMessage";
 import hello from "./presentation/hello";
+import mcp from "./presentation/mcp";
 import rag from "./presentation/rag";
 import thread from "./presentation/thread";
+import { GetMcpToolsUseCase } from "./usecase/GetMcpToolsUseCase";
 
 const { values } = parseArgs({
 	args: Bun.argv,
 	options: {
 		port: {
+			type: "string",
+		},
+		mcp: {
 			type: "string",
 		},
 	},
@@ -22,8 +27,18 @@ let port = Number(values.port);
 if (Number.isNaN(port)) {
 	port = 0;
 }
+const mcpTools = await new GetMcpToolsUseCase().execute();
 
-const app = new OpenAPIHono();
+type Variables = {
+	mcpTools: Record<string, unknown>;
+};
+
+const app = new OpenAPIHono<{ Variables: Variables }>();
+
+app.use(async (c, next) => {
+	c.set("mcpTools", mcpTools);
+	await next();
+});
 
 app.doc31("/openapi.json", {
 	openapi: "3.1.0",
@@ -38,6 +53,7 @@ app.route("/", generateCommitMessage);
 app.route("/", chat);
 app.route("/", thread);
 app.route("/", rag);
+app.route("/", mcp);
 
 export default {
 	idleTimeout: 60,
