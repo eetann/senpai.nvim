@@ -1,6 +1,6 @@
-import type { MastraMemory } from "@mastra/core";
 import { Agent, type AgentConfig } from "@mastra/core/agent";
 import type { LibSQLVector } from "@mastra/core/vector/libsql";
+import type { Memory } from "@mastra/memory";
 import { LIBSQL_PROMPT } from "@mastra/rag";
 import type { EmbeddingModel } from "ai";
 import { z } from "zod";
@@ -11,7 +11,7 @@ export const ChatSchema = z.string();
 
 export class ChatAgent extends Agent {
 	constructor(
-		memory: MastraMemory,
+		memory: Memory,
 		vector: LibSQLVector,
 		model: AgentConfig["model"],
 		embeddingModel: EmbeddingModel<string>,
