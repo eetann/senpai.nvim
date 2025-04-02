@@ -1,4 +1,5 @@
 local Helpers = dofile("tests/helpers.lua")
+---@type NvimChild
 local child = Helpers.new_child_neovim()
 local expect, eq = Helpers.expect, Helpers.expect.equality
 
