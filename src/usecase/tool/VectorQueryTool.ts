@@ -30,7 +30,7 @@ export const VectorQueryTool = (
 			const { embedding } = await embed({
 				value: queryText,
 				model,
-				maxRetries: 2,
+				maxRetries: 1,
 			});
 
 			try {
@@ -50,14 +50,3 @@ export const VectorQueryTool = (
 			}
 		},
 	});
-
-// import { embeddingModel } from "@/infra/GetModel";
-// import { vector } from "@/infra/Vector";
-// async function main() {
-// 	const vectorQueryTool = VectorQueryTool(vector, embeddingModel);
-// 	const result = await vectorQueryTool.execute({
-// 		context: { queryText: "Mastra" },
-// 	});
-// 	console.log(result);
-// }
-// main();

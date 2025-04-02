@@ -11,9 +11,9 @@ local function render_base(chat, content)
   local render_text = "\n\nTool Call: `" .. content.toolName .. "`"
   if type(content.args) == "table" and next(content.args) ~= nil then
     render_text = render_text
-      .. "\n  args: `"
+      .. '\n```lua title="tool args"\n'
       .. vim.inspect(content.args)
-      .. "`"
+      .. "\n```"
   end
   render_text = render_text .. "\n\n"
   utils.set_text_at_last(chat.log_area.bufnr, render_text)
