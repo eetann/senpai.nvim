@@ -21,11 +21,20 @@ M.default_config = {
   servers = {},
 }
 
--- TODO: serversのkeyの文字列に空白を入れない
--- ---@param target any
--- ---@return senpai.Config.mcp
--- function M.validate(target)
---   return
--- end
+---@param target any
+function M.validate(target)
+  vim.validate("servers", target.servers, function(servers)
+    if type(servers) ~= "table" then
+      return false, "mcp.servers should be a `table|nil`"
+    end
+    for name, server in pairs(servers) do
+      if name:match("[^0-9a-zA-Z%-_]") then
+        return false,
+          "The string that can be used for the name MCP server is as follows: `[0-9a-zA-Z-_]`"
+      end
+    end
+    return true
+  end)
+end
 
 return M
