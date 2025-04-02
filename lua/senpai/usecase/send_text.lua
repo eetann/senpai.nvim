@@ -3,7 +3,9 @@ local RequestHandler = require("senpai.usecase.request.request_handler")
 local utils = require("senpai.usecase.utils")
 local UserMessage = require("senpai.usecase.message.user")
 local AssistantMessage = require("senpai.usecase.message.assistant")
+local ErrorMessage = require("senpai.usecase.message.error")
 local ToolResultMessage = require("senpai.usecase.message.tool_result")
+local ToolCallMessage = require("senpai.usecase.message.tool_call")
 
 local M = {}
 M.__index = M
@@ -63,6 +65,10 @@ function M.execute(chat, user_input)
       end
       if part.type == "0" then
         assistant:render_from_response(part)
+      elseif part.type == "3" then
+        ErrorMessage.render_from_response(chat, part)
+      elseif part.type == "9" then
+        ToolCallMessage.render_from_response(chat, part)
       elseif part.type == "a" then
         ToolResultMessage.render_from_response(chat, part)
       end
