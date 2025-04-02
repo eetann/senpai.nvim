@@ -1,6 +1,8 @@
 local Provider = require("senpai.domain.config.provider")
 local ChatConfig = require("senpai.domain.config.chat")
 local RagConfig = require("senpai.domain.config.rag")
+local McpConfig = require("senpai.domain.config.mcp")
+local LogWindow = require("senpai.presentation.log_window")
 
 ---@doc.type
 ---@class senpai.Config
@@ -9,6 +11,8 @@ local RagConfig = require("senpai.domain.config.rag")
 ---@field chat? senpai.Config.chat
 ---@field rag? senpai.Config.rag
 ---@field prompt_launchers? senpai.Config.prompt_launchers
+---@field mcp? senpai.Config.mcp
+---@field debug? boolean
 
 ---@doc.type
 ---@class senpai.Config.commit_message
@@ -43,6 +47,8 @@ local default_config = {
       priority = 99,
     },
   },
+  mcp = McpConfig.default_config,
+  debug = false,
 }
 
 ---@type senpai.Config
@@ -50,6 +56,9 @@ local options
 
 ---@class senpai.Config.mod: senpai.Config
 local M = {}
+
+---@type senpai.LogWindow?
+M.log_window = nil
 
 -- use in doc
 function M._format_default()
@@ -145,6 +154,9 @@ function M.setup(opts)
   vim.schedule(function()
     M.validate_option_providers(options.providers)
   end)
+  if opts.debug then
+    M.log_window = LogWindow.new()
+  end
 end
 
 return setmetatable(M, {

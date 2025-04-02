@@ -27,7 +27,7 @@ let port = Number(values.port);
 if (Number.isNaN(port)) {
 	port = 0;
 }
-const mcpTools = await new GetMcpToolsUseCase().execute();
+const mcpTools = await new GetMcpToolsUseCase().execute(values.mcp);
 
 type Variables = {
 	mcpTools: Record<string, unknown>;

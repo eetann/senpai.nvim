@@ -85,6 +85,11 @@ function M:execute_action(name)
     regist_url_at_rag = function()
       regist_url_at_rag.execute()
     end,
+    show_log = function()
+      if Config.log_window then
+        Config.log_window:mount()
+      end
+    end,
     show_mcp_tools = function()
       show_mcp_tools.execute()
     end,

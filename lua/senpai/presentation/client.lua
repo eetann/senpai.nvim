@@ -1,3 +1,5 @@
+local Config = require("senpai.config")
+
 local M = {}
 
 ---@type vim.SystemObj?
@@ -29,6 +31,7 @@ function M.start_server()
     vim.api.nvim_get_runtime_file("lua/senpai", false)[1],
     ":h:h"
   )
+  local mcp = vim.json.encode(Config.mcp.servers or {})
 
   local max_attempts = 10
   local attempts = 0
@@ -41,24 +44,30 @@ function M.start_server()
     end
     M.port = math.random(1024, 49151)
 
-    M.job = vim.system(
-      { "bun", "run", "src/index.ts", "--port", tostring(M.port) },
-      {
-        cwd = cwd,
-        stdout = vim.schedule_wrap(function(_, data)
-          --
-        end),
-      },
-      function(obj)
-        if obj.code ~= 0 and obj.stderr:find("EADDRINUSE") then
-          M.job = nil
-          vim.schedule(try_start_server)
-          return
+    M.job = vim.system({
+      "bun",
+      "run",
+      "src/index.ts",
+      "--port",
+      tostring(M.port),
+      "--mcp",
+      "'" .. mcp .. "'",
+    }, {
+      cwd = cwd,
+      stdout = vim.schedule_wrap(function(_, data)
+        if Config.log_window then
+          Config.log_window:write(data)
         end
+      end),
+    }, function(obj)
+      if obj.code ~= 0 and obj.stderr:find("EADDRINUSE") then
         M.job = nil
-        M.port = nil
+        vim.schedule(try_start_server)
+        return
       end
-    )
+      M.job = nil
+      M.port = nil
+    end)
   end
 
   math.randomseed(os.time())
