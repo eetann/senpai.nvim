@@ -1,4 +1,4 @@
-local Provider = require("senpai.domain.config.provider")
+local ProviderConfig = require("senpai.domain.config.provider")
 local ChatConfig = require("senpai.domain.config.chat")
 local RagConfig = require("senpai.domain.config.rag")
 local McpConfig = require("senpai.domain.config.mcp")
@@ -82,82 +82,18 @@ end
 ---@param provider? senpai.Config.provider.name|senpai.Config.provider
 ---@return senpai.Config.provider?
 function M.get_provider(provider)
-  local error = Provider.validate_provider(provider)
-  if error == "" then
-    return provider --[[@as senpai.Config.provider]]
-  elseif type(provider) == "table" then
-    vim.notify(
-      "[senpai] " .. error .. vim.inspect(provider),
-      vim.log.levels.ERROR
-    )
-    return nil
-  end
-
-  local name = provider --[[@as senpai.Config.provider.name]]
-    or options.providers.default
-  if name == "" then
-    vim.notify("[senpai] please write `providers.default", vim.log.levels.ERROR)
-    return nil
-  end
-
-  ---@class senpai.Config.provider
-  local option_provider = options.providers[name]
-  if not option_provider then
-    vim.notify(
-      "[senpai] please write `providers." .. name .. "`",
-      vim.log.levels.ERROR
-    )
-    return nil
-  end
-  option_provider.name = name
-  if not Provider.validate_provider(option_provider) then
-    vim.notify(
-      "[senpai] please fix `providers." .. name .. "` to the correct structure",
-      vim.log.levels.ERROR
-    )
-    return nil
-  end
-  return option_provider
-end
-
-function M.validate_option_providers(option_providers)
-  for key, provider in pairs(option_providers) do
-    if key == "default" then
-      goto continue
-    end
-    if not Provider.validate_provider(provider) then
-      vim.notify(
-        "[senpai] please fix `providers." .. key .. "` to the correct structure",
-        vim.log.levels.ERROR
-      )
-    end
-    ::continue::
-  end
+  return ProviderConfig.resove_provider(options.providers, provider)
 end
 
 ---@param opts? senpai.Config
 function M.setup(opts)
   opts = opts or {}
   options = vim.tbl_deep_extend("force", default_config, opts)
-  if options.providers.default == "openai" and not vim.env.OPENAI_API_KEY then
-    vim.schedule(function()
-      vim.notify("[senpai]: OPENAI_API_KEY is not set", vim.log.levels.WARN)
-    end)
-  end
-  if
-    options.providers.default == "openrouter" and not vim.env.OPENROUTER_API_KEY
-  then
-    vim.schedule(function()
-      vim.notify("[senpai]: OPENROUTER_API_KEY is not set", vim.log.levels.WARN)
-    end)
-  end
-  vim.schedule(function()
-    M.validate_option_providers(options.providers)
-  end)
+  ProviderConfig.validate_option_providers(options.providers)
+  McpConfig.validate(options.mcp)
   if opts.debug then
     M.log_window = LogWindow.new()
   end
-  McpConfig.validate(options.mcp)
 end
 
 return setmetatable(M, {
