@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 01
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 03
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -7,15 +7,16 @@ Table of Contents                                   *senpai-table-of-contents*
 2. Feature                                                    |senpai-feature|
   - Chat                                                 |senpai-feature-chat|
   - History                                           |senpai-feature-history|
+  - MCP                                                   |senpai-feature-mcp|
   - RAG                                                   |senpai-feature-rag|
   - Prompt Launcher                           |senpai-feature-prompt-launcher|
+  - Generate commit message           |senpai-feature-generate-commit-message|
 3. Requirements                                          |senpai-requirements|
   - Provider                                    |senpai-requirements-provider|
 4. Installation                                          |senpai-installation|
 5. config                                                      |senpai-config|
   - default config                              |senpai-config-default-config|
   - changing the chat keymap          |senpai-config-changing-the-chat-keymap|
-  - generate commit message            |senpai-config-generate-commit-message|
 6. API                                                            |senpai-api|
   - delete_rag_source                           |senpai-api-delete_rag_source|
   - delete_thread                                   |senpai-api-delete_thread|
@@ -50,7 +51,9 @@ Senpai is super reliable Neovim AI plugin!
 
 - Chat
 - History: You can continue the conversation
-- RAG
+- MCP (Model Context Protocol)
+- RAG (Retrieval Augmented Generation)
+- ‍ Prompt Launcher: Open chat with pre-defined prompts
 - Generate commit message
 
 Powered by Mastra <https://mastra.ai/> and Vercel AI SDK
@@ -123,6 +126,33 @@ In case of snacks, switch to normal mode and enter `dd` to delete the specified
 thread. You can also delete using the API `senpai.delete_thread(thread_id)`.
 
 
+MCP                                                       *senpai-feature-mcp*
+
+MCP(Model Context Protocol) is avaiable.
+
+You can set up servers in `mcp.servers` like this:
+
+>lua
+    require("senpai").setup({
+        mcp = {
+            servers = {
+                sequential = {
+                    command = "bunx",
+                    args = { "-y", "@modelcontextprotocol/server-sequential-thinking" },
+                },
+                mastra = {
+                    command = "bunx",
+                    args = { "-y", "@mastra/mcp-docs-server" }
+                },
+            },
+        },
+    }) 
+<
+
+You can find detailed writing instructions in the type list
+|`senpai.Config.mcp`|.
+
+
 RAG                                                       *senpai-feature-rag*
 
 RAG(Retrieval-Augmented Generation) is avaiable.
@@ -145,7 +175,7 @@ Cache control can be configured in |`senpai.Config.rag.cache_strategy`|.
 
 PROMPT LAUNCHER                               *senpai-feature-prompt-launcher*
 
-You can chat with customized prompts.
+‍You can chat with customized prompts.
 
 >lua
     require("senpai").setup({
@@ -163,6 +193,35 @@ You can chat with customized prompts.
 
 Command `:Senpai promptLauncher` opens the selection UI. The chosen one opens
 as a chat.
+
+
+GENERATE COMMIT MESSAGE               *senpai-feature-generate-commit-message*
+
+You can generate a conventional commit message with the following command.
+
+>
+    :Senpai commitMessage
+    :Senpai commitMessage Japanese
+<
+
+Language names need not be exact. They are free. For example, you can use
+something like this. :)
+
+>
+    :Senpai commitMessage English(Tsundere)
+<
+
+Here’s a code of my setup in `.config/nvim/after/ftplugin/gitcommit.lua`.
+
+>lua
+    vim.keymap.set("n", "<C-g><C-g>", function()
+        if vim.env.COMMIT_MESSAGE_ENGLISH == "1" then
+            vim.cmd("Senpai commitMessage English")
+        else
+            vim.cmd("Senpai commitMessage Japanese")
+        end
+    end, { buffer = true, desc = "Senpai commitMessage" })
+<
 
 
 ==============================================================================
@@ -302,6 +361,10 @@ The default config are as follows.
       commit_message = {
         language = "English"
       },
+      debug = false,
+      mcp = {
+        servers = {}
+      },
       prompt_launchers = {
         Senpai = {
           priority = 99,
@@ -347,23 +410,6 @@ Assign `false` if you want to delete the keymap.
         },
     })
 <
-
-
-GENERATE COMMIT MESSAGE                *senpai-config-generate-commit-message*
-
-Here’s a code of my setup in `.config/nvim/after/ftplugin/gitcommit.lua`.
-
->lua
-    vim.keymap.set("n", "<C-g><C-g>", function()
-        if vim.env.COMMIT_MESSAGE_ENGLISH == "1" then
-            vim.cmd("Senpai commitMessage English")
-        else
-            vim.cmd("Senpai commitMessage Japanese")
-        end
-    end, { buffer = true, desc = "Senpai commitMessage" })
-<
-
-If this doesn’t work, then git diff is most likely failing.
 
 
 ==============================================================================
@@ -626,6 +672,8 @@ _No arguments_  
     ---@field chat? senpai.Config.chat
     ---@field rag? senpai.Config.rag
     ---@field prompt_launchers? senpai.Config.prompt_launchers
+    ---@field mcp? senpai.Config.mcp
+    ---@field debug? boolean
 <
 
 `*senpai.Config.chat*`
@@ -680,6 +728,33 @@ _No arguments_  
     ---   That means the AI can write it in a tsundere style as well.
     ---   Like this.
     ---     `:Senpai commitMessage English(Tsundere)`
+<
+
+`*senpai.Config.mcp*`
+
+>lua
+    ---@class senpai.Config.mcp
+    ---@field servers? table<string, senpai.Config.mcp.server>
+    --- server name is as follows: `[0-9a-zA-Z-_]`
+    --- OK: `mastraDocs`
+    --- NG: `mastra docs`
+<
+
+`*senpai.Config.mcp.server.sse*`
+
+>lua
+    ---@class senpai.Config.mcp.server.sse
+    ---@field url string
+<
+
+`*senpai.Config.mcp.server.stdio*`
+
+>lua
+    ---@class senpai.Config.mcp.server.stdio
+    ---@field command string
+    ---@field args? string[]
+    ---@field env? table<string, string>
+    ---@field cwd? string
 <
 
 `*senpai.Config.provider.anthropic*`

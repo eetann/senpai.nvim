@@ -30,7 +30,7 @@ local function show_thread(thread)
   local args = {
     thread_id = thread.id,
   }
-  if thread.metadata then
+  if thread.metadata and thread.metadata ~= vim.NIL then
     args.provider = thread.metadata.provider
     args.system_prompt = thread.metadata.system_prompt
   end

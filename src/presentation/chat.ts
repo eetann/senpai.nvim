@@ -4,7 +4,11 @@ import { vector } from "@/infra/Vector";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
-const app = new OpenAPIHono().basePath("/chat");
+type Variables = {
+	mcpTools: Record<string, unknown>;
+};
+
+const app = new OpenAPIHono<{ Variables: Variables }>().basePath("/chat");
 
 const chatControllerSchema = z.object({
 	thread_id: z.string(),
@@ -36,11 +40,13 @@ app.openapi(
 	async (c) => {
 		const command = c.req.valid("json");
 		const model = getModel(command.provider);
+		const mcpTools = c.get("mcpTools");
 		const agent = new ChatAgent(
 			memory,
 			vector,
 			model,
 			embeddingModel,
+			mcpTools,
 			command.system_prompt,
 		);
 		const thread = await memory.getThreadById({ threadId: command.thread_id });
@@ -58,21 +64,24 @@ app.openapi(
 			{
 				threadId: command.thread_id,
 				resourceId: "senpai",
+				onFinish: async () => {
+					if (isFirstMessage) {
+						// insert metadata
+						const thread = await memory.getThreadById({
+							threadId: command.thread_id,
+						});
+						await memory.updateThread({
+							id: command.thread_id,
+							title: thread.title,
+							metadata: {
+								provider: command.provider,
+								system_prompt: command.system_prompt ?? "",
+							},
+						});
+					}
+				},
 			},
 		);
-		if (isFirstMessage) {
-			const thread = await memory.getThreadById({
-				threadId: command.thread_id,
-			});
-			await memory.updateThread({
-				id: command.thread_id,
-				title: thread.title,
-				metadata: {
-					provider: command.provider,
-					system_prompt: command.system_prompt,
-				},
-			});
-		}
 		return agentStream.toDataStreamResponse();
 	},
 );

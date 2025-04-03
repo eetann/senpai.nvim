@@ -2,16 +2,23 @@ local Helpers = {}
 
 Helpers.expect = vim.deepcopy(MiniTest.expect)
 
+---@class NvimChild: MiniTest.child
+---@field setup function
+---@field load function
+local nvimChild = {}
+nvimChild.api = vim.api
+nvimChild.fn = vim.fn
+
+---@return NvimChild
 Helpers.new_child_neovim = function()
+  ---@class NvimChild
   local child = MiniTest.new_child_neovim()
 
-  ---@diagnostic disable-next-line: inject-field
   child.setup = function()
     child.restart({ "-u", "scripts/test/minimal_init.lua" })
     child.bo.readonly = false
   end
 
-  ---@diagnostic disable-next-line: inject-field
   child.load = function(config)
     child.lua("require('senpai').setup(...)", { config })
   end

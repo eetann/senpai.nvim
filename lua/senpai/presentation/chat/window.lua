@@ -24,6 +24,7 @@ local win_options = {
 }
 
 ---@class senpai.ChatWindow: senpai.IChatWindow
+---@field is_new boolean
 local M = {}
 M.__index = M
 
@@ -40,8 +41,13 @@ function M.new(args)
   end
   self.provider = provider
 
-  self.thread_id = args.thread_id
-    or vim.fn.getcwd() .. "-" .. os.date("%Y%m%d%H%M%S")
+  if args.thread_id then
+    self.thread_id = args.thread_id
+    self.is_new = false
+  else
+    self.thread_id = vim.fn.getcwd() .. "-" .. os.date("%Y%m%d%H%M%S")
+    self.is_new = true
+  end
 
   self.system_prompt = ""
   if args.system_prompt then
@@ -142,7 +148,9 @@ thread_id: "%s"
         self.thread_id
       )
     )
-    set_messages.execute(self)
+    if not self.is_new then
+      set_messages.execute(self)
+    end
   else
     self.log_area:show()
   end

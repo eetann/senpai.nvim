@@ -6,15 +6,17 @@ Senpai is super reliable Neovim AI plugin!
 
 - 💬 Chat
 - 📜 History: You can continue the conversation
-- 📚 RAG
-- ✅ Generate commit message
+- 🔌 MCP (Model Context Protocol)
+- 📚 RAG (Retrieval Augmented Generation)
+- 👨‍🔧 Prompt Launcher: Open chat with pre-defined prompts
+- ✏️ Generate commit message
 
 Powered by [Mastra](https://mastra.ai/) and [Vercel AI SDK](https://sdk.vercel.ai/).
 
 
 ## Chat
+💬You can chat with AI.<br/>
 <img width="1756" alt="chat" src="https://github.com/user-attachments/assets/e981ad2c-1d63-4f45-a30a-80885f557d26" />
-You can chat with AI.<br/>
 
 ### chat help
 **You can open keymap help with `?`**.<br/>
@@ -34,7 +36,7 @@ Right now it's automatic, but eventually I'm going to make it controllable.
 ### replace file
 You can also edit the file.<br/>
 
-<img width="750" alt="Image" src="https://github.com/user-attachments/assets/c3981de9-3bb4-476d-9e30-1fc5dbf1cafd" />
+<img width="650" alt="Image" src="https://github.com/user-attachments/assets/c3981de9-3bb4-476d-9e30-1fc5dbf1cafd" />
 
 In the area called `Replace File`, press `a` to display the diff. This diff uses Neovim's built-in function `diffthis`, so you can apply the diff with `do` or `dp`.
 
@@ -57,7 +59,7 @@ To see the system prompt, type `gs` in the chat log area (Key is customizable).<
 
 
 ## History
-Select a past thread and load it again as a chat.<br/>
+📜Select a past thread and load it again as a chat.<br/>
 **You can continue the conversation**.
 The selection UI supports the following methods.<br/>
 
@@ -71,8 +73,32 @@ In case of snacks, switch to normal mode and enter `dd` to delete the specified 
 You can also delete using the API `senpai.delete_thread(thread_id)`.
 
 
+## MCP
+🔌MCP(Model Context Protocol) is avaiable.
+
+You can set up servers in `mcp.servers` like this:
+```lua
+require("senpai").setup({
+    mcp = {
+        servers = {
+            sequential = {
+                command = "bunx",
+                args = { "-y", "@modelcontextprotocol/server-sequential-thinking" },
+            },
+            mastra = {
+                command = "bunx",
+                args = { "-y", "@mastra/mcp-docs-server" }
+            },
+        },
+    },
+}) 
+```
+
+You can find detailed writing instructions in the type list |`senpai.Config.mcp`|.
+
+
 ## RAG
-RAG(Retrieval-Augmented Generation) is avaiable.
+📚RAG(Retrieval-Augmented Generation) is avaiable.
 
 Supported types:
 
@@ -91,7 +117,7 @@ Cache control can be configured in |`senpai.Config.rag.cache_strategy`|.
 
 
 ## Prompt Launcher
-You can chat with customized prompts.
+👨‍🔧You can chat with customized prompts.
 
 ```lua
 require("senpai").setup({
@@ -109,6 +135,30 @@ require("senpai").setup({
 
 Command `:Senpai promptLauncher` opens the selection UI. The chosen one opens as a chat.<br/>
 <img width="800" alt="Senpai promptLauncher" src="https://github.com/user-attachments/assets/3db4369f-9579-4d5a-8f9b-e737735b937b" />
+
+
+## Generate commit message
+✏️You can generate a conventional commit message with the following command.
+```
+:Senpai commitMessage
+:Senpai commitMessage Japanese
+```
+
+Language names need not be exact. They are free. For example, you can use something like this. :)
+```
+:Senpai commitMessage English(Tsundere)
+```
+
+Here's a code of my setup in `.config/nvim/after/ftplugin/gitcommit.lua`.
+```lua
+vim.keymap.set("n", "<C-g><C-g>", function()
+	if vim.env.COMMIT_MESSAGE_ENGLISH == "1" then
+		vim.cmd("Senpai commitMessage English")
+	else
+		vim.cmd("Senpai commitMessage Japanese")
+	end
+end, { buffer = true, desc = "Senpai commitMessage" })
+```
 
 
 # Requirements
@@ -243,6 +293,10 @@ The default config are as follows.
   commit_message = {
     language = "English"
   },
+  debug = false,
+  mcp = {
+    servers = {}
+  },
   prompt_launchers = {
     Senpai = {
       priority = 99,
@@ -292,21 +346,6 @@ require("senpai").setup({
 })
 ```
 
-
-## generate commit message
-Here's a code of my setup in `.config/nvim/after/ftplugin/gitcommit.lua`.
-```lua
-vim.keymap.set("n", "<C-g><C-g>", function()
-	if vim.env.COMMIT_MESSAGE_ENGLISH == "1" then
-		vim.cmd("Senpai commitMessage English")
-	else
-		vim.cmd("Senpai commitMessage Japanese")
-	end
-end, { buffer = true, desc = "Senpai commitMessage" })
-```
-
-
-If this doesn't work, then git diff is most likely failing.
 
 # API
 <!-- panvimdoc-ignore-start -->
@@ -580,6 +619,8 @@ _No arguments_
 ---@field chat? senpai.Config.chat
 ---@field rag? senpai.Config.rag
 ---@field prompt_launchers? senpai.Config.prompt_launchers
+---@field mcp? senpai.Config.mcp
+---@field debug? boolean
 ```
 
 
@@ -634,6 +675,33 @@ _No arguments_
 ---   That means the AI can write it in a tsundere style as well.
 ---   Like this.
 ---     `:Senpai commitMessage English(Tsundere)`
+```
+
+
+`*senpai.Config.mcp*`
+```lua
+---@class senpai.Config.mcp
+---@field servers? table<string, senpai.Config.mcp.server>
+--- server name is as follows: `[0-9a-zA-Z-_]`
+--- OK: `mastraDocs`
+--- NG: `mastra docs`
+```
+
+
+`*senpai.Config.mcp.server.sse*`
+```lua
+---@class senpai.Config.mcp.server.sse
+---@field url string
+```
+
+
+`*senpai.Config.mcp.server.stdio*`
+```lua
+---@class senpai.Config.mcp.server.stdio
+---@field command string
+---@field args? string[]
+---@field env? table<string, string>
+---@field cwd? string
 ```
 
 

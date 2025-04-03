@@ -4,7 +4,11 @@ import { GenerateCommitMessageUseCase } from "@/usecase/GenerateCommitMessageUse
 import { z } from "@hono/zod-openapi";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 
-const app = new OpenAPIHono().basePath("/agent");
+type Variables = {
+	cwd: string;
+};
+
+const app = new OpenAPIHono<{ Variables: Variables }>().basePath("/agent");
 
 const generateCommitMessageSchema = z.object({
 	provider: providerSchema,
@@ -33,9 +37,10 @@ app.openapi(
 	}),
 	async (c) => {
 		const command = c.req.valid("json");
+		const cwd = c.get("cwd");
 		const model = getModel(command.provider);
 		return c.text(
-			await new GenerateCommitMessageUseCase(model, GitDiff).execute(
+			await new GenerateCommitMessageUseCase(model, GitDiff(cwd)).execute(
 				command.language,
 			),
 		);
