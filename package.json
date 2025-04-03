@@ -9,7 +9,6 @@
     "@mastra/memory": "^0.2.6",
     "@mastra/rag": "^0.1.14",
     "@openrouter/ai-sdk-provider": "^0.4.5",
-    "@qnighy/dedent": "npm:@jsr/qnighy__dedent",
     "ai": "^4.2.10",
     "globby": "^14.1.0",
     "hono": "^4.7.5",
@@ -17,6 +16,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@qnighy/dedent": "npm:@jsr/qnighy__dedent",
     "@types/bun": "^1.2.8",
     "toml": "^3.0.0",
     "valibot": "^1.0.0"
