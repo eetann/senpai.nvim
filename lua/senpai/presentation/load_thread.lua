@@ -25,8 +25,11 @@ local function make_item_text(thread)
   return text
 end
 
----@param thread senpai.chat.thread
+---@param thread? senpai.chat.thread
 local function show_thread(thread)
+  if not thread then
+    return
+  end
   local args = {
     thread_id = thread.id,
   }
