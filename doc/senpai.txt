@@ -16,7 +16,6 @@ Table of Contents                                   *senpai-table-of-contents*
 4. Installation                                          |senpai-installation|
 5. config                                                      |senpai-config|
   - default config                              |senpai-config-default-config|
-  - changing the chat keymap          |senpai-config-changing-the-chat-keymap|
 6. API                                                            |senpai-api|
   - delete_rag_source                           |senpai-api-delete_rag_source|
   - delete_thread                                   |senpai-api-delete_thread|
@@ -107,6 +106,70 @@ If you want to write a system prompt, you can configure it as follows.
 <
 
 To see the system prompt, type `gs` in the chat log area (Key is customizable).
+
+
+KEYMAPS ~
+
+You can set up a keymap for Chat with the following three.
+
+- `chat.common.keymaps`common in log area and input area
+- `chat.log_area.keymaps`for log area
+- `chat.input_area.keymaps`for input area
+
+>lua
+    require("senpai").setup({
+        chat = {
+            input_area = {
+                keymaps = {
+                    ["gT"] = "load_thread",
+                    ["<CR><CR>"] = "submit",
+                    ["<CR>"] = false,
+                },
+            },
+        },
+    })
+<
+
+Assign `false` if you want to delete the keymap.
+
+The names of the actions that can be written in the keymaps table are.
+
+- `abort`
+    - Abort the current interaction with the LLM
+    - default: `<C-c>`
+- `apply`
+    - Apply the contents of the `Replace File` block to a file
+    - default: `a` in log area
+- `close`
+    - close chat
+    - default: `q`
+- `foo`
+    - Toggle display of input area
+    - default: `gi`
+- `help`
+    - show chat’s keymap help
+    - default: `?`
+- `load_thread`
+    - load thread. detail -> |senpai-feature-history|
+    - default: `gl`
+- `new_thread`
+    - replace new thread. detail -> |senpai-api-new_thread|
+    - default: `gx`
+- `regist_url_at_rag`
+    - Fetch URL and save to RAG
+    - default: `gR` in input area
+- `show_log`
+    - _For Developers._ show internal API log
+    - default: none
+- `show_mcp_tools`
+    - _For Developers._ show MCP Tools
+    - default: none
+- `show_system_prompt`
+    - Show system prompt associated with current chat
+    - default: `gs` in log area
+- `submit`
+    - Send the text in the input area to the LLM
+    - default: `<CR>` in input area
 
 
 HISTORY                                               *senpai-feature-history*
@@ -391,24 +454,6 @@ The default config are as follows.
         cache_strategy = "ask"
       }
     }
-<
-
-
-CHANGING THE CHAT KEYMAP              *senpai-config-changing-the-chat-keymap*
-
-Assign `false` if you want to delete the keymap.
-
->lua
-    require("senpai").setup({
-        chat = {
-            input_area = {
-                keymaps = {
-                    ["<CR>"] = false,
-                    ["<CR><CR>"] = "submit",
-                },
-            },
-        },
-    })
 <
 
 
@@ -790,6 +835,23 @@ _No arguments_  
     ---   curl https://openrouter.ai/api/v1/models | \
     ---     jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
     --- <
+<
+
+`*senpai.Config.provider.settings*`
+
+>lua
+    ---@class senpai.Config.provider.settings
+    ---@field openai? senpai.Config.provider.openai
+    ---@field anthropic? senpai.Config.provider.anthropic
+    ---@field openrouter? senpai.Config.provider.openrouter
+    ---@field [string] senpai.Config.provider.base
+<
+
+`*senpai.Config.providers*`
+
+>lua
+    ---@class senpai.Config.providers: senpai.Config.provider.settings
+    ---@field default senpai.Config.provider.name|string
 <
 
 `*senpai.Config.rag*`
