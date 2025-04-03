@@ -37,9 +37,10 @@ const DocSchema = union([
 		example: optional(string()),
 	}),
 	object({
-		category: literal("action"),
+		category: literal("chat_action"),
 		name: string(),
 		desc: string(),
+		default_key: optional(string()),
 	}),
 	object({
 		category: literal("command"),
@@ -112,6 +113,15 @@ async function main() {
 
 	texts = replace(
 		texts,
+		"<!-- auto-generate-s:chat_action -->",
+		"<!-- auto-generate-e:chat_action -->",
+		docs
+			.filter((doc) => doc.category === "chat_action")
+			.map(renderChatActionDoc),
+	);
+
+	texts = replace(
+		texts,
 		"<!-- auto-generate-s:api -->",
 		"<!-- auto-generate-e:api -->",
 		docs.filter((doc) => doc.category === "api").map(renderApiDoc),
@@ -135,13 +145,13 @@ async function main() {
 }
 
 /**
- * render action documentation.
+ * render chat action documentation.
  */
-function renderActionDoc(doc: Doc & { category: "action" }) {
+function renderChatActionDoc(doc: Doc & { category: "chat_action" }) {
 	return dedent`
     - \`${doc.name}\`
       - ${doc.desc}
-  `;
+      - default: ${doc.default_key ?? "none"}`;
 }
 
 /**
@@ -217,7 +227,6 @@ function renderApiDoc(doc: Doc & { category: "api" }) {
 	return dedent`
   ## ${doc.name}
   ${doc.desc}
-
   ${args}
   &nbsp;
   `;

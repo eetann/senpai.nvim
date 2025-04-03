@@ -58,6 +58,81 @@ To see the system prompt, type `gs` in the chat log area (Key is customizable).<
 <img width="772" alt="Image" src="https://github.com/user-attachments/assets/04ba00bd-1c39-470b-9b83-6c3607fb16ba" />
 
 
+### keymaps
+You can set up a keymap for Chat with the following three.
+
+- `chat.common.keymaps`: common in log area and input area
+- `chat.log_area.keymaps`: for log area
+- `chat.input_area.keymaps`: for input area
+
+```lua
+require("senpai").setup({
+    chat = {
+        input_area = {
+            keymaps = {
+                ["gT"] = "load_thread",
+                ["<CR><CR>"] = "submit",
+                ["<CR>"] = false,
+            },
+        },
+    },
+})
+```
+Assign `false` if you want to delete the keymap.
+
+The names of the actions that can be written in the keymaps table are.
+<!-- auto-generate-s:chat_action -->
+
+- `abort`
+  - Abort the current interaction with the LLM
+  - default: `<C-c>`
+
+- `apply`
+  - Apply the contents of the `Replace File` block to a file
+  - default: `a` in log area
+
+- `close`
+  - close chat
+  - default: `q`
+
+- `foo`
+  - Toggle display of input area
+  - default: `gi`
+
+- `help`
+  - show chat's keymap help
+  - default: `?`
+
+- `load_thread`
+  - load thread. detail -> |senpai-feature-history|
+  - default: `gl`
+
+- `new_thread`
+  - replace new thread. detail -> |senpai-api-new_thread|
+  - default: `gx`
+
+- `regist_url_at_rag`
+  - Fetch URL and save to RAG
+  - default: `gR` in input area
+
+- `show_log`
+  - *For Developers.* show internal API log
+  - default: none
+
+- `show_mcp_tools`
+  - *For Developers.* show MCP Tools
+  - default: none
+
+- `show_system_prompt`
+  - Show system prompt associated with current chat
+  - default: `gs` in log area
+
+- `submit`
+  - Send the text in the input area to the LLM
+  - default: `<CR>` in input area
+<!-- auto-generate-e:chat_action -->
+
+
 ## History
 📜Select a past thread and load it again as a chat.<br/>
 **You can continue the conversation**.
@@ -330,23 +405,6 @@ The default config are as follows.
 </details>
 <!-- panvimdoc-ignore-end -->
 
-## changing the chat keymap
-
-Assign `false` if you want to delete the keymap.
-```lua
-require("senpai").setup({
-    chat = {
-        input_area = {
-            keymaps = {
-                ["<CR>"] = false,
-                ["<CR><CR>"] = "submit",
-            },
-        },
-    },
-})
-```
-
-
 # API
 <!-- panvimdoc-ignore-start -->
 <details>
@@ -360,7 +418,6 @@ senpai.delete_rag_source()
 senpai.delete_rag_source(source)
 ```
 detail -> |senpai-feature-rag|
-
 
 
 | Name | Type | Description |
@@ -377,7 +434,6 @@ senpai.delete_thread(thread_id)
 Delete the specified thread.
 
 
-
 | Name | Type | Description |
 |------|------|-------------|
 | thread_id | string | thread_id |
@@ -390,7 +446,6 @@ Delete the specified thread.
 senpai.generate_commit_message(language)
 ```
 AI generate conventional commit message of commitizen convention format.
-
 
 
 | Name | Type | Description |
@@ -409,7 +464,6 @@ senpai.load_thread(thread)
 detail -> |senpai-feature-history|
 
 
-
 | Name | Type | Description |
 |------|------|-------------|
 | thread_id | string? | If not specified, the finder will open |
@@ -423,7 +477,6 @@ senpai.new_thread()
 ```
 Open new chat.
 
-
 _No arguments_
 &nbsp;
 
@@ -433,7 +486,6 @@ _No arguments_
 senpai.prompt_launcher()
 ```
 Select and launch the prompt_launcher set in \|senpai.Config.prompt_launchers\|.
-
 
 _No arguments_
 &nbsp;
@@ -446,7 +498,6 @@ senpai.regist_url_at_rag(url)
 ```
 Fetch URL and save to RAG.
 Cache control can be configured in \|senpai.Config.rag.cache_strategy\|.
-
 
 
 | Name | Type | Description |
@@ -464,7 +515,6 @@ senpai.setup({...})
 Setup senpai
 
 
-
 | Name | Type | Description |
 |------|------|-------------|
 | config | \|`senpai.Config`\| | Setup senpai |
@@ -478,7 +528,6 @@ senpai.toggle_chat()
 ```
 Toggle chat.
 
-
 _No arguments_
 &nbsp;
 
@@ -488,7 +537,6 @@ _No arguments_
 senpai.write_commit_message(language)
 ```
 AI write conventional commit message of commitizen convention format.
-
 
 
 | Name | Type | Description |
@@ -737,6 +785,23 @@ _No arguments_
 ---   curl https://openrouter.ai/api/v1/models | \
 ---     jq '.data[] | select(.id == "deepseek/deepseek-r1:free") | .'
 --- <
+```
+
+
+`*senpai.Config.provider.settings*`
+```lua
+---@class senpai.Config.provider.settings
+---@field openai? senpai.Config.provider.openai
+---@field anthropic? senpai.Config.provider.anthropic
+---@field openrouter? senpai.Config.provider.openrouter
+---@field [string] senpai.Config.provider.base
+```
+
+
+`*senpai.Config.providers*`
+```lua
+---@class senpai.Config.providers: senpai.Config.provider.settings
+---@field default senpai.Config.provider.name|string
 ```
 
 
