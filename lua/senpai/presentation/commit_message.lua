@@ -37,13 +37,13 @@ AI generate conventional commit message of commitizen convention format.
 ---@param language string
 ---@param callback senpai.RequestHandler.callback_fun
 ---@param finish_callback fun():nil For example, stopping a spinner.
----@return nil
+---@return Job?
 function M.generate_commit_message(language, callback, finish_callback)
   local provider = Config.get_provider()
   if not provider then
-    return
+    return nil
   end
-  RequestHandler.request({
+  return RequestHandler.request({
     method = "post",
     route = "/agent/generate-commit-message",
     body = {
@@ -77,7 +77,8 @@ function M.write_commit_message(language)
 
   local spinner = Spinner.new("[senpai] AI thinking")
   spinner:start()
-  M.generate_commit_message(lang, function(response)
+  -- TODO: これだとcurlに失敗したときにスピナーを止められない
+  local job = M.generate_commit_message(lang, function(response)
     if response.exit ~= 0 then
       vim.notify("[senpai] write_commit_message failed")
       return
@@ -86,6 +87,9 @@ function M.write_commit_message(language)
   end, function()
     spinner:stop()
   end)
+  if not job then
+    spinner:stop(true)
+  end
 end
 
 return M

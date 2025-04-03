@@ -56,7 +56,11 @@ local function load_thread_snacks()
     finder = function()
       local spinner = Spinner.new("[senpai] I'm trying to remember...")
       spinner:start()
-      local threads = get_threads.execute()
+      local ok, threads = pcall(get_threads.execute)
+      if not ok then
+        spinner:stop(true)
+        return {}
+      end
       spinner:stop()
       local items = {}
       local i = 1
