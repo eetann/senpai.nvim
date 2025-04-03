@@ -64,21 +64,24 @@ app.openapi(
 			{
 				threadId: command.thread_id,
 				resourceId: "senpai",
+				onFinish: async () => {
+					if (isFirstMessage) {
+						// insert metadata
+						const thread = await memory.getThreadById({
+							threadId: command.thread_id,
+						});
+						await memory.updateThread({
+							id: command.thread_id,
+							title: thread.title,
+							metadata: {
+								provider: command.provider,
+								system_prompt: command.system_prompt ?? "",
+							},
+						});
+					}
+				},
 			},
 		);
-		if (isFirstMessage) {
-			const thread = await memory.getThreadById({
-				threadId: command.thread_id,
-			});
-			await memory.updateThread({
-				id: command.thread_id,
-				title: thread.title,
-				metadata: {
-					provider: command.provider,
-					system_prompt: command.system_prompt,
-				},
-			});
-		}
 		return agentStream.toDataStreamResponse();
 	},
 );
