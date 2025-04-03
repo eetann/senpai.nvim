@@ -157,6 +157,7 @@ function M.setup(opts)
   if opts.debug then
     M.log_window = LogWindow.new()
   end
+  McpConfig.validate(options.mcp)
 end
 
 return setmetatable(M, {
