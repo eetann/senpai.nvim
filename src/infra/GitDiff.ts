@@ -14,7 +14,8 @@ export const GitDiff = (cwd: string) =>
 		outputSchema,
 		execute: async () => {
 			try {
-				const result = await $`git -C ${cwd} --no-pager diff --staged`.text();
+				$.cwd(cwd);
+				const result = await $`git --no-pager diff --staged`.text();
 				return result;
 			} catch (err) {
 				throw new Error(`Failed GitDiff: ${err}`);
