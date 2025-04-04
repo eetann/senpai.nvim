@@ -63,26 +63,40 @@ Always adhere to this format for the XML Sechema Output use to ensure proper par
 ### replace_file
 Description: Request to replace content to a file at the specified path. If you are asked to edit a file, refactor it, etc., you can output this schema instead of calling the tool.
 Parameters:
-- path: (required) The path of the file to edit
-- search: (required) content must match the associated file section to find EXACTLY:
+- path: (required. 1 line) The path of the file to edit
+- search: (required. multiple lines) content must match the associated file section to find EXACTLY:
    * Match character-for-character including whitespace, indentation, line endings
    * Include all comments, docstrings, etc.
-- replace: (required) new content
+- replace: (required. multiple lines) new content
 
 Critical rules:
 - \`search\`/\`replace\` will ONLY replace the first match occurrence.
-   * Including multiple unique \`search\`/\`replace\` if you need to make multiple changes.
-   * Include *just* enough lines in each \`search\` section to uniquely match each set of lines that need to change.
-   * When using multiple \`search\`/\`replace\`, list them in the order they appear in the file.
+  * Including multiple unique \`search\`/\`replace\` if you need to make multiple changes.
+  * Include *just* enough lines in each \`search\` section to uniquely match each set of lines that need to change.
+  * When using multiple \`search\`/\`replace\`, list them in the order they appear in the file.
 - Keep \`search\`/\`replace\` concise:
-   * Break large \`search\`/\`replace\` into a series of smaller that each change a small portion of the file.
-   * Include just the changing lines, and a few surrounding lines if needed for uniqueness.
-   * Do not include long runs of unchanging lines in \`search\`/\`replace\`.
-   * Each line must be complete. Never truncate lines mid-way through as this can cause matching failures.
+  * Break large \`search\`/\`replace\` into a series of smaller that each change a small portion of the file.
+  * Include just the changing lines, and a few surrounding lines if needed for uniqueness.
+  * Do not include long runs of unchanging lines in \`search\`/\`replace\`.
+  * Each line must be complete. Never truncate lines mid-way through as this can cause matching failures.
 - Special operations:
-   * To move code: Use two \`search\`/\`replace\` (one to delete from original + one to insert at new location)
-   * To delete code: Use empty \`replace\` section
+  * To move code: Use two \`search\`/\`replace\` (one to delete from original + one to insert at new location)
+  * To delete code: Use empty \`replace\` section
+  * \`search\`/\`replace\` must have a line break before and after the tag like a code block
 
+Bad case:
+<replace_file>
+<path>
+src/main.js</path>
+<search>  return a - b;
+</search>
+<replace>
+  return a + b;</replace>
+</replace_file>
+
+The above example is \`path\` is not on one line, no line breaks before or after \`search\`/\`replace\`
+
+Good case:
 <replace_file>
 <path>src/main.js</path>
 <search>
