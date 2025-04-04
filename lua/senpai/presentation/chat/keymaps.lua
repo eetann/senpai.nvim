@@ -63,7 +63,7 @@ function M:show_help()
 end
 
 function M:execute_action(name)
-  ---@type senpai.Config.chat.actions
+  ---@type table<senpai.Config.chat.actions, function>
   local actions = {
     abort = function()
       abort_request.execute(self.chat)

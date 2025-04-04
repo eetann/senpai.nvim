@@ -6,6 +6,7 @@ Table of Contents                                   *senpai-table-of-contents*
 1. senpai.nvim                                            |senpai-senpai.nvim|
 2. Feature                                                    |senpai-feature|
   - Chat                                                 |senpai-feature-chat|
+  - Chat Keymaps                                 |senpai-feature-chat-keymaps|
   - History                                           |senpai-feature-history|
   - MCP                                                   |senpai-feature-mcp|
   - RAG                                                   |senpai-feature-rag|
@@ -63,6 +64,8 @@ CHAT                                                     *senpai-feature-chat*
 
 You can chat with AI.
 
+You can toggle the chat window with `:Senpai toggleChat`.
+
 
 CHAT HELP ~
 
@@ -108,7 +111,7 @@ If you want to write a system prompt, you can configure it as follows.
 To see the system prompt, type `gs` in the chat log area (Key is customizable).
 
 
-KEYMAPS ~
+CHAT KEYMAPS                                     *senpai-feature-chat-keymaps*
 
 You can set up a keymap for Chat with the following three.
 
@@ -155,6 +158,9 @@ The names of the actions that can be written in the keymaps table are.
 - `new_thread`
     - replace new thread. detail -> |senpai-api-new_thread|
     - default: `gx`
+- `open_api_doc`
+    - _For Developers._ Open internal API docs. You can call the API immediately!
+    - default: none
 - `regist_url_at_rag`
     - Fetch URL and save to RAG
     - default: `gR` in input area
@@ -175,7 +181,9 @@ The names of the actions that can be written in the keymaps table are.
 HISTORY                                               *senpai-feature-history*
 
 Select a past thread and load it again as a chat. **You can continue the
-conversation**. The selection UI supports the following methods.
+conversation**. `:Senpai loadThread` opens the chat list.
+
+The selection UI supports the following methods.
 
 - Native (vim.ui.select)
 - snacks.nvim <https://github.com/folke/snacks.nvim> picker
@@ -191,7 +199,8 @@ thread. You can also delete using the API `senpai.delete_thread(thread_id)`.
 
 MCP                                                       *senpai-feature-mcp*
 
-MCP(Model Context Protocol) is avaiable.
+MCP(Model Context Protocol) is avaiable. The AI will think of the MCP tool
+calls in the chat on its own.
 
 You can set up servers in `mcp.servers` like this:
 
@@ -218,7 +227,8 @@ You can find detailed writing instructions in the type list
 
 RAG                                                       *senpai-feature-rag*
 
-RAG(Retrieval-Augmented Generation) is avaiable.
+RAG(Retrieval-Augmented Generation) is avaiable. The AI will think of query in
+the chat on its own.
 
 Supported types:
 
@@ -260,7 +270,8 @@ as a chat.
 
 GENERATE COMMIT MESSAGE               *senpai-feature-generate-commit-message*
 
-You can generate a conventional commit message with the following command.
+You can generate a conventional commit message with the following command in
+`.git/COMMIT_EDITMSG`.
 
 >
     :Senpai commitMessage
@@ -731,6 +742,15 @@ _No arguments_  
     ---@field system_prompt? string
 <
 
+`*senpai.Config.chat.action*`
+
+>lua
+    ---@alias senpai.Config.chat.action
+    ---|false
+    ---|senpai.Config.chat.actions # detail -> |senpai-feature-chat-keymaps|
+    ---|senpai.Config.chat.keymap
+<
+
 `*senpai.Config.chat.common*`
 
 >lua
@@ -753,6 +773,12 @@ _No arguments_  
     ---@field key? string
     ---@field mode? string|string[]
     ---@field desc string
+<
+
+`*senpai.Config.chat.keymaps table<string, senpai.Config.chat.action>*`
+
+>lua
+    ---@alias senpai.Config.chat.keymaps table<string, senpai.Config.chat.action>
 <
 
 `*senpai.Config.chat.log_area*`
@@ -783,6 +809,14 @@ _No arguments_  
     --- server name is as follows: `[0-9a-zA-Z-_]`
     --- OK: `mastraDocs`
     --- NG: `mastra docs`
+<
+
+`*senpai.Config.mcp.server*`
+
+>lua
+    ---@alias senpai.Config.mcp.server
+    ---| senpai.Config.mcp.server.stdio
+    ---| senpai.Config.mcp.server.sse
 <
 
 `*senpai.Config.mcp.server.sse*`
@@ -859,6 +893,15 @@ _No arguments_  
 >lua
     ---@class senpai.Config.rag
     ---@field cache_strategy? senpai.Config.rag.cache_strategy
+<
+
+`*senpai.Config.rag.cache_strategy*`
+
+>lua
+    ---@alias senpai.Config.rag.cache_strategy
+    ---| "use_cache"
+    ---| "no_cache"
+    ---| "ask"
 <
 
 

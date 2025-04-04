@@ -61,7 +61,7 @@ To see the system prompt, type `gs` in the chat log area (Key is customizable).<
 <img width="772" alt="Image" src="https://github.com/user-attachments/assets/04ba00bd-1c39-470b-9b83-6c3607fb16ba" />
 
 
-### keymaps
+## Chat Keymaps
 You can set up a keymap for Chat with the following three.
 
 - `chat.common.keymaps`: common in log area and input area
@@ -113,6 +113,10 @@ The names of the actions that can be written in the keymaps table are.
 - `new_thread`
   - replace new thread. detail -> |senpai-api-new_thread|
   - default: `gx`
+
+- `open_api_doc`
+  - *For Developers.* Open internal API docs. You can call the API immediately!
+  - default: none
 
 - `regist_url_at_rag`
   - Fetch URL and save to RAG
@@ -691,6 +695,15 @@ _No arguments_
 ```
 
 
+`*senpai.Config.chat.action*`
+```lua
+---@alias senpai.Config.chat.action
+---|false
+---|senpai.Config.chat.actions # detail -> |senpai-feature-chat-keymaps|
+---|senpai.Config.chat.keymap
+```
+
+
 `*senpai.Config.chat.common*`
 ```lua
 ---@class senpai.Config.chat.common
@@ -712,6 +725,12 @@ _No arguments_
 ---@field key? string
 ---@field mode? string|string[]
 ---@field desc string
+```
+
+
+`*senpai.Config.chat.keymaps table<string, senpai.Config.chat.action>*`
+```lua
+---@alias senpai.Config.chat.keymaps table<string, senpai.Config.chat.action>
 ```
 
 
@@ -742,6 +761,14 @@ _No arguments_
 --- server name is as follows: `[0-9a-zA-Z-_]`
 --- OK: `mastraDocs`
 --- NG: `mastra docs`
+```
+
+
+`*senpai.Config.mcp.server*`
+```lua
+---@alias senpai.Config.mcp.server
+---| senpai.Config.mcp.server.stdio
+---| senpai.Config.mcp.server.sse
 ```
 
 
@@ -818,6 +845,15 @@ _No arguments_
 ```lua
 ---@class senpai.Config.rag
 ---@field cache_strategy? senpai.Config.rag.cache_strategy
+```
+
+
+`*senpai.Config.rag.cache_strategy*`
+```lua
+---@alias senpai.Config.rag.cache_strategy
+---| "use_cache"
+---| "no_cache"
+---| "ask"
 ```
 
 <!-- auto-generate-e:type -->

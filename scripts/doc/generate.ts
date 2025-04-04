@@ -316,8 +316,15 @@ async function getDocs(path: string) {
 			} else if (state.body !== null && /^$/.test(line)) {
 				const definition = state.body.trim();
 				if (definition) {
-					// @class .* や @alias .* を取り出す
-					const name = definition.match(/@class\s+([^:\n]+)/)?.[1];
+					let name = definition.match(/@class\s+([^:\n]+)/)?.[1];
+					if (name) {
+						docs.push({
+							category: "type",
+							name: name,
+							definition: definition,
+						});
+					}
+					name = definition.match(/@alias\s+([^:\n]+)/)?.[1];
 					if (name) {
 						docs.push({
 							category: "type",
