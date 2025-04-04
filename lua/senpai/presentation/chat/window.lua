@@ -43,7 +43,9 @@ function M.new(args)
     self.thread_id = args.thread_id
     self.is_new = false
   else
-    self.thread_id = vim.fn.getcwd() .. "-" .. os.date("%Y%m%d%H%M%S")
+    self.thread_id = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
+      .. "-"
+      .. os.date("%Y%m%d%H%M%S")
     self.is_new = true
   end
 
