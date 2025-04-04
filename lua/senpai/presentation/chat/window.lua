@@ -4,9 +4,6 @@ local utils = require("senpai.usecase.utils")
 local set_messages = require("senpai.usecase.set_messages")
 local Keymaps = require("senpai.presentation.chat.keymaps")
 
-vim.treesitter.language.register("markdown", "senpai_chat_log")
-vim.treesitter.language.register("markdown", "senpai_chat_input")
-
 local function create_winbar_text(text)
   return "%#Nomal#%=" .. text .. "%="
 end
