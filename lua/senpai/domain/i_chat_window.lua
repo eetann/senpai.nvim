@@ -1,3 +1,5 @@
+local M = {}
+
 ---@module "nui.split"
 ---@module 'plenary.job'
 
@@ -31,3 +33,7 @@ function IChatWindow:hide() end
 function IChatWindow:destory() end
 function IChatWindow:toggle() end
 function IChatWindow:toggle_input() end
+
+M.input_winbar_text = "Ask Senpai (?: help)"
+
+return M

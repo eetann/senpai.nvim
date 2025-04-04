@@ -3,6 +3,7 @@ local Split = require("nui.split")
 local utils = require("senpai.usecase.utils")
 local set_messages = require("senpai.usecase.set_messages")
 local Keymaps = require("senpai.presentation.chat.keymaps")
+local IChatWindow = require("senpai.domain.i_chat_window")
 
 local function create_winbar_text(text)
   return "%#Nomal#%=" .. text .. "%="
@@ -91,7 +92,7 @@ function M:create_input_area(keymaps)
     position = "bottom",
     size = "25%",
     win_options = vim.tbl_deep_extend("force", win_options, {
-      winbar = create_winbar_text("Ask Senpai"),
+      winbar = create_winbar_text(IChatWindow.input_winbar_text),
     }),
     buf_options = {
       filetype = "senpai_chat_input",
