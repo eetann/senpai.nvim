@@ -295,11 +295,20 @@ It is useful to set `:Senpai toggleChat`!
 ```lua
 {
     "eetann/senpai.nvim", 
-	keys = {
-		{ "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
-	},
-	cmd = { "Senpai" },
-	opts = {config}
+    keys = {
+        { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
+        { "<space>sl", "<Cmd>Senpai promptLauncher<CR>" },
+        {
+            "<space>sv",
+            function()
+                require("senpai.api").transfer_visual_to_chat()
+            end,
+            mode = "v",
+			desc = "[senpai] transfer_visual_to_chat",
+        },
+    },
+    cmd = { "Senpai" },
+    opts = {config}
 }
 ```
 
@@ -418,7 +427,75 @@ The default config are as follows.
 </details>
 <!-- panvimdoc-ignore-end -->
 
+## transfer keymap
+You can transfer the selection to the chat input area by setting up a keymap as follows.
+```lua
+vim.keymap.set("v", "<space>sv", 
+    function()
+        require("senpai.api").transfer_visual_to_chat()
+    end,
+    { desc = "[senpai] transfer_visual_to_chat" }
+)
+```
+
+
+For lazy.nvim, it is convenient to write in `keys`.
+```lua
+{
+    "eetann/senpai.nvim", 
+    keys = {
+        -- ...
+        {
+            "<space>sv",
+            function()
+                require("senpai.api").transfer_visual_to_chat()
+            end,
+            mode = "v",
+			desc = "[senpai] transfer_visual_to_chat",
+        },
+    },
+}
+```
+
+
+## with render-markdown.nvim
+If you are using a plugin that renders markdown like [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim), 
+it would be useful to add the following file type specification.
+
+```lua
+return {
+	"MeanderingProgrammer/render-markdown.nvim",
+	ft = { "markdown", "mdx", "senpai_chat_log", "senpai_chat_input" },
+    -- ...
+}
+```
+
+
+## with status plugin
+If you have a status plugin or winbar set up,
+I recommend that you do not set it up in the senpai.nvim buffer.
+
+For example, for [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim), you could set the following
+```lua
+require("lualine").setup({
+    options = {
+        disabled_filetypes = {
+            winbar = {
+                "senpai_chat_log",
+                "senpai_chat_input",
+            },
+        },
+    },
+})
+```
+
+
 # API
+For simplicity, this document uses the following definition:
+```lua
+local senpai = require("senpai.api")
+```
+
 <!-- panvimdoc-ignore-start -->
 <details>
     <summary>API</summary>
@@ -540,6 +617,17 @@ Setup senpai
 senpai.toggle_chat()
 ```
 Toggle chat.
+
+_No arguments_
+&nbsp;
+
+
+## transfer_visual_to_chat
+```lua
+senpai.transfer_visual_to_chat()
+```
+Transfers the selected range in visual mode to the chat input area.
+If the chat buffer is not open, it will be opened.
 
 _No arguments_
 &nbsp;

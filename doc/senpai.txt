@@ -17,6 +17,9 @@ Table of Contents                                   *senpai-table-of-contents*
   - Provider                                    |senpai-installation-provider|
 5. config                                                      |senpai-config|
   - default config                              |senpai-config-default-config|
+  - transfer keymap                            |senpai-config-transfer-keymap|
+  - with render-markdown.nvim        |senpai-config-with-render-markdown.nvim|
+  - with status plugin                      |senpai-config-with-status-plugin|
 6. API                                                            |senpai-api|
   - delete_rag_source                           |senpai-api-delete_rag_source|
   - delete_thread                                   |senpai-api-delete_thread|
@@ -27,6 +30,7 @@ Table of Contents                                   *senpai-table-of-contents*
   - regist_url_at_rag                           |senpai-api-regist_url_at_rag|
   - setup                                                   |senpai-api-setup|
   - toggle_chat                                       |senpai-api-toggle_chat|
+  - transfer_visual_to_chat               |senpai-api-transfer_visual_to_chat|
   - write_commit_message                     |senpai-api-write_commit_message|
 7. Commands                                                  |senpai-commands|
   - _hello                                            |senpai-commands-_hello|
@@ -354,6 +358,15 @@ with packer.nvim <https://github.com/wbthomason/packer.nvim>
         "eetann/senpai.nvim", 
         keys = {
             { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
+            { "<space>sl", "<Cmd>Senpai promptLauncher<CR>" },
+            {
+                "<space>sv",
+                function()
+                    require("senpai.api").transfer_visual_to_chat()
+                end,
+                mode = "v",
+                desc = "[senpai] transfer_visual_to_chat",
+            },
         },
         cmd = { "Senpai" },
         opts = {config}
@@ -468,8 +481,85 @@ The default config are as follows.
 <
 
 
+TRANSFER KEYMAP                                *senpai-config-transfer-keymap*
+
+You can transfer the selection to the chat input area by setting up a keymap as
+follows.
+
+>lua
+    vim.keymap.set("v", "<space>sv", 
+        function()
+            require("senpai.api").transfer_visual_to_chat()
+        end,
+        { desc = "[senpai] transfer_visual_to_chat" }
+    )
+<
+
+For lazy.nvim, it is convenient to write in `keys`.
+
+>lua
+    {
+        "eetann/senpai.nvim", 
+        keys = {
+            -- ...
+            {
+                "<space>sv",
+                function()
+                    require("senpai.api").transfer_visual_to_chat()
+                end,
+                mode = "v",
+                desc = "[senpai] transfer_visual_to_chat",
+            },
+        },
+    }
+<
+
+
+WITH RENDER-MARKDOWN.NVIM            *senpai-config-with-render-markdown.nvim*
+
+If you are using a plugin that renders markdown like render-markdown.nvim
+<https://github.com/MeanderingProgrammer/render-markdown.nvim>, it would be
+useful to add the following file type specification.
+
+>lua
+    return {
+        "MeanderingProgrammer/render-markdown.nvim",
+        ft = { "markdown", "mdx", "senpai_chat_log", "senpai_chat_input" },
+        -- ...
+    }
+<
+
+
+WITH STATUS PLUGIN                          *senpai-config-with-status-plugin*
+
+If you have a status plugin or winbar set up, I recommend that you do not set
+it up in the senpai.nvim buffer.
+
+For example, for lualine.nvim <https://github.com/nvim-lualine/lualine.nvim>,
+you could set the following
+
+>lua
+    require("lualine").setup({
+        options = {
+            disabled_filetypes = {
+                winbar = {
+                    "senpai_chat_log",
+                    "senpai_chat_input",
+                },
+            },
+        },
+    })
+<
+
+
 ==============================================================================
 6. API                                                            *senpai-api*
+
+For simplicity, this document uses the following definition:
+
+>lua
+    local senpai = require("senpai.api")
+<
 
 
 DELETE_RAG_SOURCE                               *senpai-api-delete_rag_source*
@@ -600,6 +690,18 @@ TOGGLE_CHAT                                           *senpai-api-toggle_chat*
 <
 
 Toggle chat.
+
+_No arguments_  
+
+
+TRANSFER_VISUAL_TO_CHAT                   *senpai-api-transfer_visual_to_chat*
+
+>lua
+    senpai.transfer_visual_to_chat()
+<
+
+Transfers the selected range in visual mode to the chat input area. If the chat
+buffer is not open, it will be opened.
 
 _No arguments_  
 
