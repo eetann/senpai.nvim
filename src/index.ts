@@ -34,7 +34,11 @@ let cwd = values.cwd;
 if (cwd === "") {
 	cwd = process.cwd();
 }
-const mcpTools = await new GetMcpToolsUseCase().execute(values.mcp);
+let mcpTools: Record<string, unknown>;
+// `await` slows down the server startup, so it should be done in IIFE
+(async () => {
+	mcpTools = await new GetMcpToolsUseCase().execute(values.mcp);
+})();
 
 type Variables = {
 	cwd: string;
