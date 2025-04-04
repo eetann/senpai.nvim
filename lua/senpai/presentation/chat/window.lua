@@ -183,9 +183,16 @@ function M:destroy()
   self.input_area:unmount()
 end
 
-function M:toggle()
+function M:is_hidden()
   local winid = self.log_area.winid
   if winid and vim.api.nvim_win_is_valid(winid) then
+    return false
+  end
+  return true
+end
+
+function M:toggle()
+  if self:is_hidden() then
     self:hide()
   else
     self:show()
