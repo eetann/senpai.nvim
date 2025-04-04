@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 03
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 04
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -12,8 +12,8 @@ Table of Contents                                   *senpai-table-of-contents*
   - Prompt Launcher                           |senpai-feature-prompt-launcher|
   - Generate commit message           |senpai-feature-generate-commit-message|
 3. Requirements                                          |senpai-requirements|
-  - Provider                                    |senpai-requirements-provider|
 4. Installation                                          |senpai-installation|
+  - Provider                                    |senpai-installation-provider|
 5. config                                                      |senpai-config|
   - default config                              |senpai-config-default-config|
 6. API                                                            |senpai-api|
@@ -300,7 +300,57 @@ Here’s a code of my setup in `.config/nvim/after/ftplugin/gitcommit.lua`.
     - nvim-treesitter <https://github.com/nvim-treesitter/nvim-treesitter>
 
 
-PROVIDER                                        *senpai-requirements-provider*
+==============================================================================
+4. Installation                                          *senpai-installation*
+
+with Lazy.nvim <https://github.com/folke/lazy.nvim>
+
+>lua
+    {
+        "eetann/senpai.nvim", 
+        build = "bun install",
+        dependencies = {
+          "MunifTanjim/nui.nvim",
+          "nvim-lua/plenary.nvim",
+          "nvim-treesitter/nvim-treesitter",
+        },
+        opts = {}
+    }
+<
+
+with packer.nvim <https://github.com/wbthomason/packer.nvim>
+
+>lua
+    {
+        "eetann/senpai.nvim", 
+        run = "bun install",
+        requires = {
+          "MunifTanjim/nui.nvim",
+          "nvim-lua/plenary.nvim",
+          "nvim-treesitter/nvim-treesitter",
+        },
+        opt = true,
+        config = function()
+            require("senpai").setup({}) 
+        end
+    }
+<
+
+**Example of lazy.nvim lazy loading** It is useful to set `:Senpai toggleChat`!
+
+>lua
+    {
+        "eetann/senpai.nvim", 
+        keys = {
+            { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
+        },
+        cmd = { "Senpai" },
+        opts = {config}
+    }
+<
+
+
+PROVIDER                                        *senpai-installation-provider*
 
 Currently supported providers are as follows.
 
@@ -335,56 +385,6 @@ in the Vercel AI SDK documentation).
 - OpenAI <https://sdk.vercel.ai/providers/ai-sdk-providers/openai#model-capabilities>
 - …
 - OpenRouter <https://openrouter.ai/models>
-
-
-==============================================================================
-4. Installation                                          *senpai-installation*
-
-with Lazy.nvim <https://github.com/folke/lazy.nvim>
-
->lua
-    {
-        "eetann/senpai.nvim", 
-        build = "bun install",
-        dependencies = {
-          "MunifTanjim/nui.nvim",
-          "nvim-lua/plenary.nvim",
-          "nvim-treesitter/nvim-treesitter",
-        },
-        opts = {config}
-    }
-<
-
-with packer.nvim <https://github.com/wbthomason/packer.nvim>
-
->lua
-    {
-        "eetann/senpai.nvim", 
-        run = "bun install",
-        requires = {
-          "MunifTanjim/nui.nvim",
-          "nvim-lua/plenary.nvim",
-          "nvim-treesitter/nvim-treesitter",
-        },
-        opt = true,
-        config = function()
-            require("senpai").setup({config}) 
-        end
-    }
-<
-
-**Example of lazy.nvim lazy loading** It is useful to set `:Senpai toggleChat`!
-
->lua
-    {
-        "eetann/senpai.nvim", 
-        keys = {
-            { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
-        },
-        cmd = { "Senpai" },
-        opts = {config}
-    }
-<
 
 
 ==============================================================================

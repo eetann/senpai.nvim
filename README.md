@@ -18,6 +18,9 @@ Powered by [Mastra](https://mastra.ai/) and [Vercel AI SDK](https://sdk.vercel.a
 💬You can chat with AI.<br/>
 <img width="1756" alt="chat" src="https://github.com/user-attachments/assets/e981ad2c-1d63-4f45-a30a-80885f557d26" />
 
+You can toggle the chat window with `:Senpai toggleChat`.
+
+
 ### chat help
 **You can open keymap help with `?`**.<br/>
 <img width="312" alt="keymap help for chat" src="https://github.com/user-attachments/assets/8ee2bf91-1602-4441-aedd-59875fe22a83" />
@@ -136,6 +139,8 @@ The names of the actions that can be written in the keymaps table are.
 ## History
 📜Select a past thread and load it again as a chat.<br/>
 **You can continue the conversation**.
+`:Senpai loadThread` opens the chat list.
+
 The selection UI supports the following methods.<br/>
 
 - Native (vim.ui.select)
@@ -143,13 +148,14 @@ The selection UI supports the following methods.<br/>
 
 <img width="1671" alt="Senpai loadThread" src="https://github.com/user-attachments/assets/5289e694-c942-496a-ac5c-0786e726c166" />
 
+
 ### delete thread from history
 In case of snacks, switch to normal mode and enter `dd` to delete the specified thread.<br/>
 You can also delete using the API `senpai.delete_thread(thread_id)`.
 
 
 ## MCP
-🔌MCP(Model Context Protocol) is avaiable.
+🔌MCP(Model Context Protocol) is avaiable. The AI will think of the MCP tool calls in the chat on its own.
 
 You can set up servers in `mcp.servers` like this:
 ```lua
@@ -173,7 +179,7 @@ You can find detailed writing instructions in the type list |`senpai.Config.mcp`
 
 
 ## RAG
-📚RAG(Retrieval-Augmented Generation) is avaiable.
+📚RAG(Retrieval-Augmented Generation) is avaiable. The AI will think of query in the chat on its own.
 
 Supported types:
 
@@ -213,7 +219,7 @@ Command `:Senpai promptLauncher` opens the selection UI. The chosen one opens as
 
 
 ## Generate commit message
-✏️You can generate a conventional commit message with the following command.
+✏️You can generate a conventional commit message with the following command in `.git/COMMIT_EDITMSG`.
 ```
 :Senpai commitMessage
 :Senpai commitMessage Japanese
@@ -246,6 +252,52 @@ end, { buffer = true, desc = "Senpai commitMessage" })
     - [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
     - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
     - [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
+
+
+# Installation
+with [Lazy.nvim](https://github.com/folke/lazy.nvim)
+```lua
+{
+    "eetann/senpai.nvim", 
+    build = "bun install",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+	opts = {}
+}
+```
+with [packer.nvim](https://github.com/wbthomason/packer.nvim)
+```lua
+{
+    "eetann/senpai.nvim", 
+    run = "bun install",
+    requires = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+	opt = true,
+    config = function()
+        require("senpai").setup({}) 
+    end
+}
+```
+
+**Example of lazy.nvim lazy loading**
+It is useful to set `:Senpai toggleChat`!
+
+```lua
+{
+    "eetann/senpai.nvim", 
+	keys = {
+		{ "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
+	},
+	cmd = { "Senpai" },
+	opts = {config}
+}
+```
 
 
 ## Provider
@@ -283,50 +335,7 @@ You can find how to write `model_id` in the following links (most of them are in
 
 
 
-# Installation
-with [Lazy.nvim](https://github.com/folke/lazy.nvim)
-```lua
-{
-    "eetann/senpai.nvim", 
-    build = "bun install",
-    dependencies = {
-      "MunifTanjim/nui.nvim",
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-	opts = {config}
-}
-```
-with [packer.nvim](https://github.com/wbthomason/packer.nvim)
-```lua
-{
-    "eetann/senpai.nvim", 
-    run = "bun install",
-    requires = {
-      "MunifTanjim/nui.nvim",
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-	opt = true,
-    config = function()
-        require("senpai").setup({config}) 
-    end
-}
-```
 
-**Example of lazy.nvim lazy loading**
-It is useful to set `:Senpai toggleChat`!
-
-```lua
-{
-    "eetann/senpai.nvim", 
-	keys = {
-		{ "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
-	},
-	cmd = { "Senpai" },
-	opts = {config}
-}
-```
 
 # config
 
