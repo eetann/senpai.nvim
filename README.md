@@ -316,6 +316,9 @@ Currently supported providers are as follows.
 
 | name         | Environment variable for API token |
 |--------------|------------------------------------|
+| `anthropic`  | `ANTHROPIC_API_KEY`                |
+| `deepseek`   | `DEEPSEEK_API_KEY`                 |
+| `google`     | `GOOGLE_GENERATIVE_AI_API_KEY`     |
 | `openai`     | `OPENAI_API_KEY`                   |
 | `openrouter` | `OPENROUTER_API_KEY`               |
 
@@ -340,6 +343,9 @@ require("senpai").setup({
 
 You can find how to write `model_id` in the following links (most of them are in the Vercel AI SDK documentation).
 
+- [Anthropic](https://sdk.vercel.ai/providers/ai-sdk-providers/anthropic#model-capabilities)
+- [DeepSeek](https://sdk.vercel.ai/providers/ai-sdk-providers/deepseek#model-capabilities)
+- [Google](https://sdk.vercel.ai/providers/ai-sdk-providers/google-generative-ai#model-capabilities)
 - [OpenAI](https://sdk.vercel.ai/providers/ai-sdk-providers/openai#model-capabilities)
 - ...
 - [OpenRouter](https://openrouter.ai/models)
@@ -406,7 +412,13 @@ The default config are as follows.
     anthropic = {
       model_id = "claude-3-7-sonnet-20250219"
     },
+    deepseek = {
+      model_id = "deepseek-chat"
+    },
     default = "openrouter",
+    google = {
+      model_id = "gemini-1.5-pro"
+    },
     openai = {
       model_id = "gpt-4o"
     },
@@ -889,7 +901,7 @@ _No arguments_
 `*senpai.Config.provider.anthropic*`
 ```lua
 ---@class senpai.Config.provider.anthropic: senpai.Config.provider.base
----@field model_id ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022"|string)
+---@field model_id ("claude-3-7-sonnet-20250219"|"claude-3-5-sonnet-20241022"|string)
 ```
 
 
@@ -900,10 +912,37 @@ _No arguments_
 ```
 
 
+`*senpai.Config.provider.deepseek*`
+```lua
+---@class senpai.Config.provider.deepseek: senpai.Config.provider.base
+---@field model_id ("deepseek-chat"|"deepseek-reasoner"|string)
+--- deepseek-reasoner is DeepSeek-R1. Since structured output is not possible,
+--- commit message generation cannot be used with deepseek-reasoner.
+```
+
+
+`*senpai.Config.provider.google*`
+```lua
+---@class senpai.Config.provider.google: senpai.Config.provider.base
+---@field model_id ("gemini-2.5-pro-exp-03-25"|"gemini-2.0-flash-001"|string)
+```
+
+
+`*senpai.Config.provider.name*`
+```lua
+---@alias senpai.Config.provider.name
+---| "anthropic"
+---| "deepseek"
+---| "google"
+---| "openai"
+---| "openrouter"
+```
+
+
 `*senpai.Config.provider.openai*`
 ```lua
 ---@class senpai.Config.provider.openai: senpai.Config.provider.base
----@field model_id ("gpt-4o" | "gpt-4o-mini"|string)
+---@field model_id ("gpt-4o"|"gpt-4o-mini"|string)
 ```
 
 
@@ -924,8 +963,10 @@ _No arguments_
 `*senpai.Config.provider.settings*`
 ```lua
 ---@class senpai.Config.provider.settings
----@field openai? senpai.Config.provider.openai
 ---@field anthropic? senpai.Config.provider.anthropic
+---@field deepseek? senpai.Config.provider.deepseek
+---@field google? senpai.Config.provider.google
+---@field openai? senpai.Config.provider.openai
 ---@field openrouter? senpai.Config.provider.openrouter
 ---@field [string] senpai.Config.provider.base
 ```
@@ -935,6 +976,14 @@ _No arguments_
 ```lua
 ---@class senpai.Config.providers: senpai.Config.provider.settings
 ---@field default senpai.Config.provider.name|string
+M.default_config = {
+default = "openrouter",
+anthropic = { model_id = "claude-3-7-sonnet-20250219" },
+deepseek = { model_id = "deepseek-chat" },
+google = { model_id = "gemini-1.5-pro" },
+openai = { model_id = "gpt-4o" },
+openrouter = { model_id = "anthropic/claude-3.7-sonnet" },
+}
 ```
 
 

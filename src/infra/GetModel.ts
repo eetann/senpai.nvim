@@ -1,3 +1,6 @@
+import { anthropic } from "@ai-sdk/anthropic";
+import { deepseek } from "@ai-sdk/deepseek";
+import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
 import type { AgentConfig } from "@mastra/core/agent";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
@@ -13,6 +16,15 @@ export type Provider = z.infer<typeof providerSchema>;
 export function getModel(provider?: Provider): AgentConfig["model"] {
 	if (!provider) {
 		throw new Error("unknown model");
+	}
+	if (provider.name === "anthropic") {
+		return anthropic(provider.model_id);
+	}
+	if (provider.name === "deepseek") {
+		return deepseek(provider.model_id);
+	}
+	if (provider.name === "google") {
+		return google(provider.model_id);
 	}
 	if (provider.name === "openai") {
 		return openai(provider.model_id);
