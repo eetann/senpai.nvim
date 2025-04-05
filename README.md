@@ -1,5 +1,6 @@
 # senpai.nvim
-Senpai is super reliable Neovim AI plugin!
+Senpai is super reliable Neovim AI plugin!<br/>
+<img width="800" alt="chat" src="https://github.com/user-attachments/assets/4f80c65c-01f7-49aa-a6e5-4963be75666f" />
 
 
 # Feature
@@ -16,7 +17,10 @@ Powered by [Mastra](https://mastra.ai/) and [Vercel AI SDK](https://sdk.vercel.a
 
 ## Chat
 💬You can chat with AI.<br/>
-<img width="1756" alt="chat" src="https://github.com/user-attachments/assets/e981ad2c-1d63-4f45-a30a-80885f557d26" />
+
+<video controls width="800" muted=true loop=true autoplay=true>
+  <source src="https://github.com/user-attachments/assets/52731339-518a-4964-ad36-3959fe51238e" type="video/mp4" />
+</video>
 
 You can toggle the chat window with `:Senpai toggleChat`.
 
@@ -26,6 +30,7 @@ You can toggle the chat window with `:Senpai toggleChat`.
 <img width="312" alt="keymap help for chat" src="https://github.com/user-attachments/assets/8ee2bf91-1602-4441-aedd-59875fe22a83" />
 
 By default, send to AI with `<CR>`.<br/>
+
 
 ### read file
 If you write the file name, it will automatically read it.
@@ -38,12 +43,15 @@ Right now it's automatic, but eventually I'm going to make it controllable.
 
 ### replace file
 You can also edit the file.<br/>
-
 <img width="650" alt="Image" src="https://github.com/user-attachments/assets/c3981de9-3bb4-476d-9e30-1fc5dbf1cafd" />
 
-In the area called `Replace File`, press `a` to display the diff. This diff uses Neovim's built-in function `diffthis`, so you can apply the diff with `do` or `dp`.
-
+In the area called `Replace File`, press `a` to display the diff.
+This diff uses Neovim's built-in function `diffthis`, so you can apply the diff with `do` or `dp`.
 Related help `:help copy-diffs`.
+
+<video controls width="800" muted=true loop=true autoplay=true>
+  <source src="https://github.com/user-attachments/assets/fa13beb7-3b79-4fb0-9e97-25ee16f81ee0" type="video/mp4" />
+</video>
 
 
 ### system prompt
@@ -144,6 +152,10 @@ The names of the actions that can be written in the keymaps table are.
 📜Select a past thread and load it again as a chat.<br/>
 **You can continue the conversation**.
 `:Senpai loadThread` opens the chat list.
+
+<video controls width="800" muted=true loop=true autoplay=true>
+  <source src="https://github.com/user-attachments/assets/1ba4b2e6-2a7d-4b1f-ac88-72aab92a95ff" type="video/mp4" />
+</video>
 
 The selection UI supports the following methods.<br/>
 
