@@ -6,6 +6,7 @@ local AssistantMessage = require("senpai.usecase.message.assistant")
 local ErrorMessage = require("senpai.usecase.message.error")
 local ToolResultMessage = require("senpai.usecase.message.tool_result")
 local ToolCallMessage = require("senpai.usecase.message.tool_call")
+local IChatWindow = require("senpai.domain.i_chat_window")
 
 local M = {}
 M.__index = M
@@ -44,7 +45,7 @@ function M.execute(chat, user_input)
       chat.is_sending = false
       utils.set_winbar(chat.input_area.winid, message)
       vim.defer_fn(function()
-        utils.set_winbar(chat.input_area.winid, "Ask Senpai")
+        utils.set_winbar(chat.input_area.winid, IChatWindow.input_winbar_text)
       end, 2000)
     end
   )

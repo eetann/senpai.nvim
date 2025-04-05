@@ -10,17 +10,15 @@ M.current = nil
 M.chats = {}
 
 ---@param args senpai.ChatWindowNewArgs
+---@return senpai.ChatWindow?
 function M.add(args)
-  if M.chats[args.thread_id] then
-    M.current = args.thread_id
-    return
-  end
   local chat = Chat.new(args)
   if not chat then
     return
   end
   M.chats[chat.thread_id] = chat
   M.current = chat.thread_id
+  return chat
 end
 
 --- @param thread_id string

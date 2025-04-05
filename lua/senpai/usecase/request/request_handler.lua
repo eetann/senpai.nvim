@@ -47,7 +47,11 @@ local M = {}
 ---@param args senapi.RequestHandler.base_args
 ---@return senpai.RequestHandler.opts?
 local function create_opts(args)
-  Client.start_server()
+  local ok, message = pcall(Client.start_server)
+  if not ok then
+    vim.notify("[senpai] " .. message, vim.log.levels.ERROR)
+    return nil
+  end
   if not Client.port then
     vim.notify(
       "[senpai] Server startup failed. Please try again.",
@@ -71,6 +75,9 @@ end
 ---@return Job?
 function M._request_base(args, finish_callback, use_stream)
   local opts = create_opts(args)
+  if not opts then
+    return nil
+  end
   if use_stream then
     opts.raw = { "--no-buffer" }
     opts.stream = function(error, data)
@@ -134,6 +141,9 @@ end
 ---@return senpai.RequestHandler.return
 function M.request_without_callback(args)
   local opts = create_opts(args)
+  if not opts then
+    return { exit = 1, status = 503, headers = {}, body = {} }
+  end
   return curl.request(opts) --[[@as senpai.RequestHandler.return]]
 end
 

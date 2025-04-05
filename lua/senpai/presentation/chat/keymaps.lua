@@ -8,6 +8,7 @@ local apply_replace_file = require("senpai.usecase.apply_replace_file")
 local regist_url_at_rag = require("senpai.usecase.regist_url_at_rag")
 local show_system_prompt = require("senpai.usecase.show_system_prompt")
 local show_mcp_tools = require("senpai.usecase.show_mcp_tools")
+local open_api_doc = require("senpai.usecase.open_api_doc")
 
 ---@class senpai.chat.Keymaps.keymaps
 
@@ -62,7 +63,7 @@ function M:show_help()
 end
 
 function M:execute_action(name)
-  ---@type senpai.Config.chat.actions
+  ---@type table<senpai.Config.chat.actions, function>
   local actions = {
     abort = function()
       abort_request.execute(self.chat)
@@ -84,6 +85,9 @@ function M:execute_action(name)
     end,
     regist_url_at_rag = function()
       regist_url_at_rag.execute()
+    end,
+    open_api_doc = function()
+      open_api_doc.execute()
     end,
     show_log = function()
       if Config.log_window then

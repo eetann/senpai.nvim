@@ -12,12 +12,11 @@ function M.new()
     error("Failed to create buffer")
   end
   vim.api.nvim_buf_set_name(self.buf, "senpai_develop_log")
-
-  -- vim.cmd("split")
-  -- local win = vim.api.nvim_get_current_win()
-  -- vim.api.nvim_win_set_buf(win, self.buf)
-
-  vim.cmd("setfiletype senpai_develop_log")
+  vim.api.nvim_set_option_value(
+    "filetype",
+    "senpai_develop_log",
+    { buf = self.buf }
+  )
   vim.keymap.set(
     "n",
     "q",

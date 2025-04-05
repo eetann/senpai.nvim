@@ -3,9 +3,7 @@ local Split = require("nui.split")
 local utils = require("senpai.usecase.utils")
 local set_messages = require("senpai.usecase.set_messages")
 local Keymaps = require("senpai.presentation.chat.keymaps")
-
-vim.treesitter.language.register("markdown", "senpai_chat_log")
-vim.treesitter.language.register("markdown", "senpai_chat_input")
+local IChatWindow = require("senpai.domain.i_chat_window")
 
 local function create_winbar_text(text)
   return "%#Nomal#%=" .. text .. "%="
@@ -45,7 +43,9 @@ function M.new(args)
     self.thread_id = args.thread_id
     self.is_new = false
   else
-    self.thread_id = vim.fn.getcwd() .. "-" .. os.date("%Y%m%d%H%M%S")
+    self.thread_id = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
+      .. "-"
+      .. os.date("%Y%m%d%H%M%S")
     self.is_new = true
   end
 
@@ -94,7 +94,7 @@ function M:create_input_area(keymaps)
     position = "bottom",
     size = "25%",
     win_options = vim.tbl_deep_extend("force", win_options, {
-      winbar = create_winbar_text("Ask Senpai"),
+      winbar = create_winbar_text(IChatWindow.input_winbar_text),
     }),
     buf_options = {
       filetype = "senpai_chat_input",
@@ -183,9 +183,16 @@ function M:destroy()
   self.input_area:unmount()
 end
 
-function M:toggle()
+function M:is_hidden()
   local winid = self.log_area.winid
   if winid and vim.api.nvim_win_is_valid(winid) then
+    return false
+  end
+  return true
+end
+
+function M:toggle()
+  if self:is_hidden() then
     self:hide()
   else
     self:show()

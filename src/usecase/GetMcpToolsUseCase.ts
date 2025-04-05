@@ -1,19 +1,6 @@
 import { mastraMCPConfigurationSchema } from "@/domain/MCPSchema";
 import { MCPConfiguration, type MastraMCPServerDefinition } from "@mastra/mcp";
 
-export const example = {
-	servers: {
-		sequential: {
-			command: "bunx",
-			args: ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-		},
-		mastra: {
-			command: "bunx",
-			args: ["-y", "@mastra/mcp-docs-server@latest"],
-		},
-	},
-};
-
 type Servers = Record<string, MastraMCPServerDefinition>;
 
 export class GetMcpToolsUseCase {

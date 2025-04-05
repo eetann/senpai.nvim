@@ -1,5 +1,6 @@
 # senpai.nvim
-Senpai is super reliable Neovim AI plugin!
+Senpai is super reliable Neovim AI plugin!<br/>
+<img width="800" alt="chat" src="https://github.com/user-attachments/assets/4f80c65c-01f7-49aa-a6e5-4963be75666f" />
 
 
 # Feature
@@ -16,13 +17,20 @@ Powered by [Mastra](https://mastra.ai/) and [Vercel AI SDK](https://sdk.vercel.a
 
 ## Chat
 💬You can chat with AI.<br/>
-<img width="1756" alt="chat" src="https://github.com/user-attachments/assets/e981ad2c-1d63-4f45-a30a-80885f557d26" />
+
+<video controls width="800" muted=true loop=true autoplay=true>
+  <source src="https://github.com/user-attachments/assets/52731339-518a-4964-ad36-3959fe51238e" type="video/mp4" />
+</video>
+
+You can toggle the chat window with `:Senpai toggleChat`.
+
 
 ### chat help
 **You can open keymap help with `?`**.<br/>
 <img width="312" alt="keymap help for chat" src="https://github.com/user-attachments/assets/8ee2bf91-1602-4441-aedd-59875fe22a83" />
 
 By default, send to AI with `<CR>`.<br/>
+
 
 ### read file
 If you write the file name, it will automatically read it.
@@ -35,12 +43,15 @@ Right now it's automatic, but eventually I'm going to make it controllable.
 
 ### replace file
 You can also edit the file.<br/>
-
 <img width="650" alt="Image" src="https://github.com/user-attachments/assets/c3981de9-3bb4-476d-9e30-1fc5dbf1cafd" />
 
-In the area called `Replace File`, press `a` to display the diff. This diff uses Neovim's built-in function `diffthis`, so you can apply the diff with `do` or `dp`.
-
+In the area called `Replace File`, press `a` to display the diff.
+This diff uses Neovim's built-in function `diffthis`, so you can apply the diff with `do` or `dp`.
 Related help `:help copy-diffs`.
+
+<video controls width="800" muted=true loop=true autoplay=true>
+  <source src="https://github.com/user-attachments/assets/fa13beb7-3b79-4fb0-9e97-25ee16f81ee0" type="video/mp4" />
+</video>
 
 
 ### system prompt
@@ -58,7 +69,7 @@ To see the system prompt, type `gs` in the chat log area (Key is customizable).<
 <img width="772" alt="Image" src="https://github.com/user-attachments/assets/04ba00bd-1c39-470b-9b83-6c3607fb16ba" />
 
 
-### keymaps
+## Chat Keymaps
 You can set up a keymap for Chat with the following three.
 
 - `chat.common.keymaps`: common in log area and input area
@@ -111,6 +122,10 @@ The names of the actions that can be written in the keymaps table are.
   - replace new thread. detail -> |senpai-api-new_thread|
   - default: `gx`
 
+- `open_api_doc`
+  - *For Developers.* Open internal API docs. You can call the API immediately!
+  - default: none
+
 - `regist_url_at_rag`
   - Fetch URL and save to RAG
   - default: `gR` in input area
@@ -136,6 +151,12 @@ The names of the actions that can be written in the keymaps table are.
 ## History
 📜Select a past thread and load it again as a chat.<br/>
 **You can continue the conversation**.
+`:Senpai loadThread` opens the chat list.
+
+<video controls width="800" muted=true loop=true autoplay=true>
+  <source src="https://github.com/user-attachments/assets/1ba4b2e6-2a7d-4b1f-ac88-72aab92a95ff" type="video/mp4" />
+</video>
+
 The selection UI supports the following methods.<br/>
 
 - Native (vim.ui.select)
@@ -143,13 +164,14 @@ The selection UI supports the following methods.<br/>
 
 <img width="1671" alt="Senpai loadThread" src="https://github.com/user-attachments/assets/5289e694-c942-496a-ac5c-0786e726c166" />
 
+
 ### delete thread from history
 In case of snacks, switch to normal mode and enter `dd` to delete the specified thread.<br/>
 You can also delete using the API `senpai.delete_thread(thread_id)`.
 
 
 ## MCP
-🔌MCP(Model Context Protocol) is avaiable.
+🔌MCP(Model Context Protocol) is avaiable. The AI will think of the MCP tool calls in the chat on its own.
 
 You can set up servers in `mcp.servers` like this:
 ```lua
@@ -173,7 +195,7 @@ You can find detailed writing instructions in the type list |`senpai.Config.mcp`
 
 
 ## RAG
-📚RAG(Retrieval-Augmented Generation) is avaiable.
+📚RAG(Retrieval-Augmented Generation) is avaiable. The AI will think of query in the chat on its own.
 
 Supported types:
 
@@ -213,7 +235,7 @@ Command `:Senpai promptLauncher` opens the selection UI. The chosen one opens as
 
 
 ## Generate commit message
-✏️You can generate a conventional commit message with the following command.
+✏️You can generate a conventional commit message with the following command in `.git/COMMIT_EDITMSG`.
 ```
 :Senpai commitMessage
 :Senpai commitMessage Japanese
@@ -246,6 +268,61 @@ end, { buffer = true, desc = "Senpai commitMessage" })
     - [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
     - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
     - [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
+
+
+# Installation
+with [Lazy.nvim](https://github.com/folke/lazy.nvim)
+```lua
+{
+    "eetann/senpai.nvim", 
+    build = "bun install",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+	opts = {}
+}
+```
+with [packer.nvim](https://github.com/wbthomason/packer.nvim)
+```lua
+{
+    "eetann/senpai.nvim", 
+    run = "bun install",
+    requires = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+	opt = true,
+    config = function()
+        require("senpai").setup({}) 
+    end
+}
+```
+
+**Example of lazy.nvim lazy loading**
+It is useful to set `:Senpai toggleChat`!
+
+```lua
+{
+    "eetann/senpai.nvim", 
+    keys = {
+        { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
+        { "<space>sl", "<Cmd>Senpai promptLauncher<CR>" },
+        {
+            "<space>sv",
+            function()
+                require("senpai.api").transfer_visual_to_chat()
+            end,
+            mode = "v",
+			desc = "[senpai] transfer_visual_to_chat",
+        },
+    },
+    cmd = { "Senpai" },
+    opts = {config}
+}
+```
 
 
 ## Provider
@@ -283,50 +360,7 @@ You can find how to write `model_id` in the following links (most of them are in
 
 
 
-# Installation
-with [Lazy.nvim](https://github.com/folke/lazy.nvim)
-```lua
-{
-    "eetann/senpai.nvim", 
-    build = "bun install",
-    dependencies = {
-      "MunifTanjim/nui.nvim",
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-	opts = {config}
-}
-```
-with [packer.nvim](https://github.com/wbthomason/packer.nvim)
-```lua
-{
-    "eetann/senpai.nvim", 
-    run = "bun install",
-    requires = {
-      "MunifTanjim/nui.nvim",
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-	opt = true,
-    config = function()
-        require("senpai").setup({config}) 
-    end
-}
-```
 
-**Example of lazy.nvim lazy loading**
-It is useful to set `:Senpai toggleChat`!
-
-```lua
-{
-    "eetann/senpai.nvim", 
-	keys = {
-		{ "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
-	},
-	cmd = { "Senpai" },
-	opts = {config}
-}
-```
 
 # config
 
@@ -405,7 +439,75 @@ The default config are as follows.
 </details>
 <!-- panvimdoc-ignore-end -->
 
+## transfer keymap
+You can transfer the selection to the chat input area by setting up a keymap as follows.
+```lua
+vim.keymap.set("v", "<space>sv", 
+    function()
+        require("senpai.api").transfer_visual_to_chat()
+    end,
+    { desc = "[senpai] transfer_visual_to_chat" }
+)
+```
+
+
+For lazy.nvim, it is convenient to write in `keys`.
+```lua
+{
+    "eetann/senpai.nvim", 
+    keys = {
+        -- ...
+        {
+            "<space>sv",
+            function()
+                require("senpai.api").transfer_visual_to_chat()
+            end,
+            mode = "v",
+			desc = "[senpai] transfer_visual_to_chat",
+        },
+    },
+}
+```
+
+
+## with render-markdown.nvim
+If you are using a plugin that renders markdown like [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim), 
+it would be useful to add the following file type specification.
+
+```lua
+return {
+	"MeanderingProgrammer/render-markdown.nvim",
+	ft = { "markdown", "mdx", "senpai_chat_log", "senpai_chat_input" },
+    -- ...
+}
+```
+
+
+## with status plugin
+If you have a status plugin or winbar set up,
+I recommend that you do not set it up in the senpai.nvim buffer.
+
+For example, for [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim), you could set the following
+```lua
+require("lualine").setup({
+    options = {
+        disabled_filetypes = {
+            winbar = {
+                "senpai_chat_log",
+                "senpai_chat_input",
+            },
+        },
+    },
+})
+```
+
+
 # API
+For simplicity, this document uses the following definition:
+```lua
+local senpai = require("senpai.api")
+```
+
 <!-- panvimdoc-ignore-start -->
 <details>
     <summary>API</summary>
@@ -527,6 +629,17 @@ Setup senpai
 senpai.toggle_chat()
 ```
 Toggle chat.
+
+_No arguments_
+&nbsp;
+
+
+## transfer_visual_to_chat
+```lua
+senpai.transfer_visual_to_chat()
+```
+Transfers the selected range in visual mode to the chat input area.
+If the chat buffer is not open, it will be opened.
 
 _No arguments_
 &nbsp;
@@ -682,6 +795,15 @@ _No arguments_
 ```
 
 
+`*senpai.Config.chat.action*`
+```lua
+---@alias senpai.Config.chat.action
+---|false
+---|senpai.Config.chat.actions # detail -> |senpai-feature-chat-keymaps|
+---|senpai.Config.chat.keymap
+```
+
+
 `*senpai.Config.chat.common*`
 ```lua
 ---@class senpai.Config.chat.common
@@ -703,6 +825,12 @@ _No arguments_
 ---@field key? string
 ---@field mode? string|string[]
 ---@field desc string
+```
+
+
+`*senpai.Config.chat.keymaps table<string, senpai.Config.chat.action>*`
+```lua
+---@alias senpai.Config.chat.keymaps table<string, senpai.Config.chat.action>
 ```
 
 
@@ -733,6 +861,14 @@ _No arguments_
 --- server name is as follows: `[0-9a-zA-Z-_]`
 --- OK: `mastraDocs`
 --- NG: `mastra docs`
+```
+
+
+`*senpai.Config.mcp.server*`
+```lua
+---@alias senpai.Config.mcp.server
+---| senpai.Config.mcp.server.stdio
+---| senpai.Config.mcp.server.sse
 ```
 
 
@@ -809,6 +945,15 @@ _No arguments_
 ```lua
 ---@class senpai.Config.rag
 ---@field cache_strategy? senpai.Config.rag.cache_strategy
+```
+
+
+`*senpai.Config.rag.cache_strategy*`
+```lua
+---@alias senpai.Config.rag.cache_strategy
+---| "use_cache"
+---| "no_cache"
+---| "ask"
 ```
 
 <!-- auto-generate-e:type -->

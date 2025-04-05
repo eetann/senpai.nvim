@@ -14,10 +14,11 @@ local function wait_to_setup_server()
     local result =
       vim.system({ "curl", "-s", "http://localhost:" .. M.port }):wait()
     if result.code == 0 then
-      break
+      return
     end
     vim.cmd("sleep 200ms")
   end
+  error("Could not connect to internal server")
 end
 
 ---start server
@@ -39,7 +40,7 @@ function M.start_server()
   local function try_start_server()
     attempts = attempts + 1
     if attempts > max_attempts then
-      vim.notify("[senpai] Server startup failed.", vim.log.levels.ERROR)
+      error("Server startup failed")
       return
     end
     M.port = math.random(1024, 49151)

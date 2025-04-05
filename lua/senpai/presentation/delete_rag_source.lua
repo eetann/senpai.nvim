@@ -12,7 +12,11 @@ local M = {}
 local function call_with_spinner(source)
   local spinner = Spinner.new("[senpai] Deleting...")
   spinner:start()
-  delete_rag_source.execute(source)
+  local ok = pcall(delete_rag_source.execute, source)
+  if not ok then
+    spinner:stop(true)
+    return
+  end
   spinner:stop()
 end
 
@@ -27,8 +31,11 @@ end
 local function load_rag_source_native()
   local spinner = Spinner.new("[senpai] I'm trying to remember...")
   spinner:start()
-  local sources = get_rag_sources.execute()
+  local ok, sources = pcall(get_rag_sources.execute)
   spinner:stop()
+  if not ok then
+    return
+  end
   if #sources == 0 then
     vim.notify("[senpai] There is nothing in the RAG.")
     return
@@ -50,7 +57,11 @@ local function load_rag_source_snacks()
     finder = function()
       local spinner = Spinner.new("[senpai] I'm trying to remember...")
       spinner:start()
-      local sources = get_rag_sources.execute()
+      local ok, sources = pcall(get_rag_sources.execute)
+      if not ok then
+        spinner:stop(true)
+        return {}
+      end
       spinner:stop()
       local items = {}
       local i = 1
