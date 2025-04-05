@@ -9,17 +9,17 @@ Senpai is super reliable Neovim AI plugin!<br/>
 - 📜 History: You can continue the conversation
 - 🔌 MCP (Model Context Protocol)
 - 📚 RAG (Retrieval Augmented Generation)
-- 👨‍🔧 Prompt Launcher: Open chat with pre-defined prompts
-- ✏️ Generate commit message
+- 🧩 Prompt Launcher: Open chat with pre-defined prompts
+- 🪄 Generate commit message
 
 Powered by [Mastra](https://mastra.ai/) and [Vercel AI SDK](https://sdk.vercel.ai/).
 
 
 ## Chat
 💬You can chat with AI.<br/>
-
-https://github.com/user-attachments/assets/52731339-518a-4964-ad36-3959fe51238e
-
+<!-- panvimdoc-ignore-start -->
+https://github.com/user-attachments/assets/52731339-518a-4964-ad36-3959fe51238e  
+<!-- panvimdoc-ignore-end -->
 You can toggle the chat window with `:Senpai toggleChat`.
 
 
@@ -46,9 +46,9 @@ You can also edit the file.<br/>
 In the area called `Replace File`, press `a` to display the diff.
 This diff uses Neovim's built-in function `diffthis`, so you can apply the diff with `do` or `dp`.
 Related help `:help copy-diffs`.
-
-https://github.com/user-attachments/assets/fa13beb7-3b79-4fb0-9e97-25ee16f81ee0
-
+<!-- panvimdoc-ignore-start -->
+https://github.com/user-attachments/assets/fa13beb7-3b79-4fb0-9e97-25ee16f81ee0  
+<!-- panvimdoc-ignore-end -->
 
 ### system prompt
 If you want to write a system prompt, you can configure it as follows.
@@ -147,17 +147,16 @@ The names of the actions that can be written in the keymaps table are.
 ## History
 📜Select a past thread and load it again as a chat.<br/>
 **You can continue the conversation**.
-`:Senpai loadThread` opens the chat list.
-
-https://github.com/user-attachments/assets/1ba4b2e6-2a7d-4b1f-ac88-72aab92a95ff
-
-The selection UI supports the following methods.<br/>
+`:Senpai loadThread` opens the chat list.  
+<!-- panvimdoc-ignore-start -->
+https://github.com/user-attachments/assets/1ba4b2e6-2a7d-4b1f-ac88-72aab92a95ff  
+<!-- panvimdoc-ignore-end -->
+The selection UI supports the following methods.  
 
 - Native (vim.ui.select)
 - [snacks.nvim](https://github.com/folke/snacks.nvim) picker
 
 <img width="1671" alt="Senpai loadThread" src="https://github.com/user-attachments/assets/5289e694-c942-496a-ac5c-0786e726c166" />
-
 
 ### delete thread from history
 In case of snacks, switch to normal mode and enter `dd` to delete the specified thread.<br/>
@@ -208,7 +207,7 @@ Cache control can be configured in |`senpai.Config.rag.cache_strategy`|.
 
 
 ## Prompt Launcher
-👨‍🔧You can chat with customized prompts.
+🧩You can chat with customized prompts.
 
 ```lua
 require("senpai").setup({
@@ -229,7 +228,7 @@ Command `:Senpai promptLauncher` opens the selection UI. The chosen one opens as
 
 
 ## Generate commit message
-✏️You can generate a conventional commit message with the following command in `.git/COMMIT_EDITMSG`.
+🪄You can generate a conventional commit message with the following command in `.git/COMMIT_EDITMSG`.
 ```
 :Senpai commitMessage
 :Senpai commitMessage Japanese
@@ -304,14 +303,7 @@ It is useful to set `:Senpai toggleChat`!
     keys = {
         { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
         { "<space>sl", "<Cmd>Senpai promptLauncher<CR>" },
-        {
-            "<space>sv",
-            function()
-                require("senpai.api").transfer_visual_to_chat()
-            end,
-            mode = "v",
-			desc = "[senpai] transfer_visual_to_chat",
-        },
+		{ "<space>sv", "<Cmd>Senpai transferToChat<CR>", mode = "v" },
     },
     cmd = { "Senpai" },
     opts = {config}
@@ -741,7 +733,7 @@ _No arguments_
 :Senapi promptLauncher
 ```
 
-detail -> |senpai-api-prompt-launcher|
+detail -> |senpai-api-prompt_launcher|
 
 _No arguments_
 &nbsp;
@@ -753,6 +745,17 @@ _No arguments_
 ```
 
 detail -> |senpai-feature-chat|
+
+_No arguments_
+&nbsp;
+
+
+## transferToChat
+```
+:Senapi transferToChat
+```
+
+detail -> |senpai-api-transfer_visual_to_chat|
 
 _No arguments_
 &nbsp;

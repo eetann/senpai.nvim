@@ -41,6 +41,7 @@ Table of Contents                                   *senpai-table-of-contents*
   - newThread                                      |senpai-commands-newthread|
   - promptLauncher                            |senpai-commands-promptlauncher|
   - toggleChat                                    |senpai-commands-togglechat|
+  - transferToChat                            |senpai-commands-transfertochat|
 8. Type                                                          |senpai-type|
 9. Acknowledgements                                  |senpai-acknowledgements|
 
@@ -57,7 +58,7 @@ Senpai is super reliable Neovim AI plugin!
 - History: You can continue the conversation
 - MCP (Model Context Protocol)
 - RAG (Retrieval Augmented Generation)
-- ‍ Prompt Launcher: Open chat with pre-defined prompts
+- Prompt Launcher: Open chat with pre-defined prompts
 - Generate commit message
 
 Powered by Mastra <https://mastra.ai/> and Vercel AI SDK
@@ -66,9 +67,7 @@ Powered by Mastra <https://mastra.ai/> and Vercel AI SDK
 
 CHAT                                                     *senpai-feature-chat*
 
-You can chat with AI.
-
-You can toggle the chat window with `:Senpai toggleChat`.
+You can chat with AI. Youcan toggle the chat window with `:Senpai toggleChat`.
 
 
 CHAT HELP ~
@@ -96,7 +95,7 @@ uses Neovim’s built-in function `diffthis`, so you can apply the diff with
 `do` or `dp`. Related help `:help copy-diffs`.
 
 
-SYSTEM PROMPT ~
+SYSTEMPROMPT ~
 
 If you want to write a system prompt, you can configure it as follows.
 
@@ -181,9 +180,8 @@ The names of the actions that can be written in the keymaps table are.
 HISTORY                                               *senpai-feature-history*
 
 Select a past thread and load it again as a chat. **You can continue the
-conversation**. `:Senpai loadThread` opens the chat list.
-
-The selection UI supports the following methods.
+conversation**. `:Senpai loadThread` opens the chat list. Theselection UI
+supports the following methods.
 
 - Native (vim.ui.select)
 - snacks.nvim <https://github.com/folke/snacks.nvim> picker
@@ -248,7 +246,7 @@ Cache control can be configured in |`senpai.Config.rag.cache_strategy`|.
 
 PROMPT LAUNCHER                               *senpai-feature-prompt-launcher*
 
-‍You can chat with customized prompts.
+You can chat with customized prompts.
 
 >lua
     require("senpai").setup({
@@ -355,14 +353,7 @@ with packer.nvim <https://github.com/wbthomason/packer.nvim>
         keys = {
             { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
             { "<space>sl", "<Cmd>Senpai promptLauncher<CR>" },
-            {
-                "<space>sv",
-                function()
-                    require("senpai.api").transfer_visual_to_chat()
-                end,
-                mode = "v",
-                desc = "[senpai] transfer_visual_to_chat",
-            },
+            { "<space>sv", "<Cmd>Senpai transferToChat<CR>", mode = "v" },
         },
         cmd = { "Senpai" },
         opts = {config}
@@ -798,7 +789,7 @@ PROMPTLAUNCHER                                *senpai-commands-promptlauncher*
     :Senapi promptLauncher
 <
 
-detail -> |senpai-api-prompt-launcher|
+detail -> |senpai-api-prompt_launcher|
 
 _No arguments_  
 
@@ -810,6 +801,17 @@ TOGGLECHAT                                        *senpai-commands-togglechat*
 <
 
 detail -> |senpai-feature-chat|
+
+_No arguments_  
+
+
+TRANSFERTOCHAT                                *senpai-commands-transfertochat*
+
+>
+    :Senapi transferToChat
+<
+
+detail -> |senpai-api-transfer_visual_to_chat|
 
 _No arguments_  
 
