@@ -30,7 +30,7 @@ docker build --platform linux/arm64/v8 \
 [tasks.generate-doc]
 run = """
 bun run scripts/doc/generate.ts \
-&& docker run -v $(PWD):/data -i panvimdoc \
+&& docker run -v $PWD:/data -i panvimdoc \
   --project-name senpai \
   --input-file README.md \
   --vim-version "NVIM v0.10.0" \
