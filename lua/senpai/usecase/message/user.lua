@@ -3,24 +3,20 @@ local M = {}
 
 -- index: content
 -- x: [[
--- 0:
+-- 0: <SenpaiUserInput>
 -- 1:
--- 2: <SenpaiUserInput>
+-- 2: %s
 -- 3:
--- 4: %s
--- 5:
--- 6: </SenpaiUserInput>
--- 7: ]],
+-- 4: </SenpaiUserInput>
+-- 5: ]],
 
 ---@param bufnr number
 ---@param start_row number
 ---@param user_input_row_length number
 function M.render_border(bufnr, start_row, user_input_row_length)
   local namespace = vim.api.nvim_create_namespace("sepnai-chat")
-  local start_index = start_row - 1 -- 0 based
-
-  local start_tag_index = start_index + 2
-  local end_tag_index = start_index + 3 + user_input_row_length + 2
+  local start_tag_index = start_row - 1 -- 0 based
+  local end_tag_index = start_tag_index + 1 + user_input_row_length + 2
   -- NOTE: I want to use only virt_text to put indent,
   -- but it shifts during `set wrap`, so I also use sign_text.
 
@@ -77,8 +73,6 @@ local function base_render(chat, user_input)
   local texts = table.concat(user_input, "\n")
   local render_text = string.format(
     [[
-
-
 <SenpaiUserInput>
 
 %s
