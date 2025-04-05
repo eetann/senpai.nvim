@@ -18,9 +18,7 @@ Powered by [Mastra](https://mastra.ai/) and [Vercel AI SDK](https://sdk.vercel.a
 ## Chat
 💬You can chat with AI.<br/>
 
-<video controls width="800" muted=true loop=true autoplay=true>
-  <source src="https://github.com/user-attachments/assets/52731339-518a-4964-ad36-3959fe51238e" type="video/mp4" />
-</video>
+https://github.com/user-attachments/assets/52731339-518a-4964-ad36-3959fe51238e
 
 You can toggle the chat window with `:Senpai toggleChat`.
 
@@ -49,9 +47,7 @@ In the area called `Replace File`, press `a` to display the diff.
 This diff uses Neovim's built-in function `diffthis`, so you can apply the diff with `do` or `dp`.
 Related help `:help copy-diffs`.
 
-<video controls width="800" muted=true loop=true autoplay=true>
-  <source src="https://github.com/user-attachments/assets/fa13beb7-3b79-4fb0-9e97-25ee16f81ee0" type="video/mp4" />
-</video>
+https://github.com/user-attachments/assets/fa13beb7-3b79-4fb0-9e97-25ee16f81ee0
 
 
 ### system prompt
@@ -153,9 +149,7 @@ The names of the actions that can be written in the keymaps table are.
 **You can continue the conversation**.
 `:Senpai loadThread` opens the chat list.
 
-<video controls width="800" muted=true loop=true autoplay=true>
-  <source src="https://github.com/user-attachments/assets/1ba4b2e6-2a7d-4b1f-ac88-72aab92a95ff" type="video/mp4" />
-</video>
+https://github.com/user-attachments/assets/1ba4b2e6-2a7d-4b1f-ac88-72aab92a95ff
 
 The selection UI supports the following methods.<br/>
 
