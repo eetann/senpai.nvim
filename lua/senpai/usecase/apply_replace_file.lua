@@ -15,7 +15,6 @@ function M.execute(chat)
   ---@cast id string
 
   local result = chat.replace_file_results[id]
-  vim.print(result)
   vim.cmd("wincmd h")
   vim.cmd("edit " .. result.path)
   local original_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
