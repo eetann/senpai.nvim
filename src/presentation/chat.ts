@@ -33,6 +33,20 @@ app.openapi(
 		},
 		responses: {
 			200: {
+				headers: {
+					"Transfer-Encoding": {
+						schema: {
+							type: "string",
+						},
+						description: "chunked",
+					},
+					"X-Vercel-AI-Data-Stream": {
+						schema: {
+							type: "string",
+							example: "v1",
+						},
+					},
+				},
 				description: "chat",
 			},
 		},
