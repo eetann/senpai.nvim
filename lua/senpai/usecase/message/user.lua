@@ -81,6 +81,12 @@ local function base_render(chat, user_input)
 ]],
     texts
   )
+  if chat.is_first_message then
+    chat.is_first_message = false
+  else
+    render_text = "\n\n" .. render_text
+    start_row = start_row + 2
+  end
 
   -- user input
   utils.set_text_at_last(chat.log_area.bufnr, render_text)
