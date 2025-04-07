@@ -731,7 +731,7 @@ AI write conventional commit message of commitizen convention format.
 _HELLO                                                *senpai-commands-_hello*
 
 >
-    :Senapi _hello
+    :Senpai _hello
 <
 
 For developers. To check communication with internal servers.
@@ -742,7 +742,7 @@ _No arguments_  
 _HELLOSTREAM                                    *senpai-commands-_hellostream*
 
 >
-    :Senapi _helloStream
+    :Senpai _helloStream
 <
 
 For developers. To check that streams are received correctly from the internal
@@ -754,7 +754,7 @@ _No arguments_  
 COMMITMESSAGE                                  *senpai-commands-commitmessage*
 
 >
-    :Senapi commitMessage
+    :Senpai commitMessage
 <
 
 detail -> |senpai-api-write_commit_message|
@@ -768,7 +768,7 @@ detail -> |senpai-api-write_commit_message|
 DELETERAGSOURCE                              *senpai-commands-deleteragsource*
 
 >
-    :Senapi deleteRagSource
+    :Senpai deleteRagSource
 <
 
 detail -> |senpai-feature-rag|
@@ -779,7 +779,7 @@ _No arguments_  
 LOADTHREAD                                        *senpai-commands-loadthread*
 
 >
-    :Senapi loadThread
+    :Senpai loadThread
 <
 
 detail -> |senpai-feature-history|
@@ -790,7 +790,7 @@ _No arguments_  
 NEWTHREAD                                          *senpai-commands-newthread*
 
 >
-    :Senapi newThread
+    :Senpai newThread
 <
 
 detail -> |senpai-api-new_thread|
@@ -801,7 +801,7 @@ _No arguments_  
 PROMPTLAUNCHER                                *senpai-commands-promptlauncher*
 
 >
-    :Senapi promptLauncher
+    :Senpai promptLauncher
 <
 
 detail -> |senpai-api-prompt_launcher|
@@ -812,7 +812,7 @@ _No arguments_  
 TOGGLECHAT                                        *senpai-commands-togglechat*
 
 >
-    :Senapi toggleChat
+    :Senpai toggleChat
 <
 
 detail -> |senpai-feature-chat|
@@ -823,7 +823,7 @@ _No arguments_  
 TRANSFERTOCHAT                                *senpai-commands-transfertochat*
 
 >
-    :Senapi transferToChat
+    :Senpai transferToChat
 <
 
 detail -> |senpai-api-transfer_visual_to_chat|

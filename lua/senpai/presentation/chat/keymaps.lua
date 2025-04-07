@@ -38,7 +38,7 @@ function M:show_help()
       style = "rounded",
       padding = { 1, 2 },
       text = {
-        top = "[senapi] help",
+        top = "[senpai] help",
         top_align = "center",
       },
     },

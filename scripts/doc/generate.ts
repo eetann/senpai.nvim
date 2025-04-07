@@ -250,7 +250,7 @@ function renderCommandDoc(doc: Doc & { category: "command" }) {
 	return dedent`
   ## ${doc.name}
   \`\`\`
-  :Senapi ${doc.name}
+  :Senpai ${doc.name}
   \`\`\`
 
   ${doc.desc}

@@ -30,7 +30,7 @@ app.openapi(helloStreamRoute, () => {
 		simulateReadableStream({
 			chunks: [
 				`f:{"messageId":"step_123"}\n`,
-				`0:"[senapi] "\n`,
+				`0:"[senpai] "\n`,
 				`0:"Hello!\\nThis "\n`,
 				`0:"is example."\n`,
 				`e:{"finishReason":"stop","usage":{"promptTokens":20,"completionTokens":50},"isContinued":false}\n`,

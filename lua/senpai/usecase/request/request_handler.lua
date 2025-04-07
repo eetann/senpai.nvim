@@ -33,18 +33,18 @@ local M = {}
 ---@field callback? senpai.RequestHandler.callback_fun
 ---@field stream? fun(error: string, data: string|nil): nil
 
----@class senapi.RequestHandler.base_args
+---@class senpai.RequestHandler.base_args
 ---@field method "get"|"post"|"put"|"head"|"patch"|"delete"
 ---@field route string
 ---@field body table|nil
 
----@class senapi.RequestHandler.callback_args : senapi.RequestHandler.base_args
+---@class senpai.RequestHandler.callback_args : senpai.RequestHandler.base_args
 ---@field callback senpai.RequestHandler.callback_fun
 
----@class senapi.RequestHandler.stream_args : senapi.RequestHandler.base_args
+---@class senpai.RequestHandler.stream_args : senpai.RequestHandler.base_args
 ---@field stream senpai.RequestHandler.stream_fun
 
----@param args senapi.RequestHandler.base_args
+---@param args senpai.RequestHandler.base_args
 ---@return senpai.RequestHandler.opts?
 local function create_opts(args)
   local ok, message = pcall(Client.start_server)
@@ -69,7 +69,7 @@ local function create_opts(args)
   }
 end
 
----@param args senapi.RequestHandler.callback_args|senapi.RequestHandler.stream_args
+---@param args senpai.RequestHandler.callback_args|senpai.RequestHandler.stream_args
 ---@param finish_callback fun():nil For example, stopping a spinner.
 ---@param use_stream boolean
 ---@return Job?
@@ -98,7 +98,7 @@ function M._request_base(args, finish_callback, use_stream)
   return curl.request(opts)
 end
 
----@param args senapi.RequestHandler.callback_args
+---@param args senpai.RequestHandler.callback_args
 ---@param finish_callback? fun():nil For example, stopping a spinner.
 ---@return Job?
 function M.request(args, finish_callback)
@@ -130,14 +130,14 @@ function M.parse_stream_part(stream_part)
   }
 end
 
----@param args senapi.RequestHandler.stream_args
+---@param args senpai.RequestHandler.stream_args
 ---@param finish_callback? fun():nil For example, stopping a spinner.
 ---@return Job?
 function M.streamRequest(args, finish_callback)
   return M._request_base(args, finish_callback or function() end, true)
 end
 
----@param args senapi.RequestHandler.base_args
+---@param args senpai.RequestHandler.base_args
 ---@return senpai.RequestHandler.return
 function M.request_without_callback(args)
   local opts = create_opts(args)
