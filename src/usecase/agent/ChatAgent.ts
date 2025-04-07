@@ -65,8 +65,9 @@ Description: Request to replace content to a file at the specified path. If you 
 Parameters:
 - path: (required. 1 line) The path of the file to edit
 - search: (required. multiple lines) content must match the associated file section to find EXACTLY:
-   * Match character-for-character including whitespace, indentation, line endings
-   * Include all comments, docstrings, etc.
+  * Match character-for-character including whitespace, indentation, line endings
+  * Include all comments, docstrings, etc.
+  * Spelling mistakes are also described as is
 - replace: (required. multiple lines) new content
 
 Critical rules:

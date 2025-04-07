@@ -31,7 +31,7 @@ local IChatWindow = {}
 ---@diagnostic disable-next-line: unused-local
 function IChatWindow:show(winid) end
 function IChatWindow:hide() end
-function IChatWindow:destory() end
+function IChatWindow:destroy() end
 function IChatWindow:toggle() end
 function IChatWindow:toggle_input() end
 
