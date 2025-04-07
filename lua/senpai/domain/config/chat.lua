@@ -144,6 +144,9 @@ M.actions = {
 ---@doc.type
 ---@class senpai.Config.chat.common
 ---@field keymaps? senpai.Config.chat.keymaps
+---@field width? number|string column number or width percentage string for chat window
+---  width = 50 -- 50 column number
+---  width = 40% -- 40% chat window width relative to editor
 
 ---@doc.type
 ---@class senpai.Config.chat.log_area
@@ -152,9 +155,9 @@ M.actions = {
 ---@doc.type
 ---@class senpai.Config.chat.input_area
 ---@field keymaps? senpai.Config.chat.keymaps
----@field size? number|string row number or height percentage string for input area
----  size = 5 -- 5 row number
----  size = 20% -- 25% input area height relative to chat window
+---@field height? number|string row number or height percentage string for input area
+---  height = 5 -- 5 row number
+---  height = 25% -- 25% input area height relative to chat window
 
 ---@doc.type
 ---@class senpai.Config.chat
@@ -174,6 +177,7 @@ M.default_config = {
       gi = "toggle_input",
       ["<C-c>"] = "abort",
     },
+    width = 80,
   },
   log_area = {
     keymaps = {
@@ -186,7 +190,7 @@ M.default_config = {
       ["<CR>"] = "submit",
       gR = "regist_url_at_rag",
     },
-    size = "25%",
+    height = "25%",
   },
 }
 

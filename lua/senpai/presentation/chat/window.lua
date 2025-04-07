@@ -84,6 +84,7 @@ function M:create_log_area(keymaps)
   self.log_area = Split({
     relative = "editor",
     position = "right",
+    size = Config.chat.common.width or 80,
     win_options = vim.tbl_deep_extend("force", win_options, {
       winbar = create_winbar_text("Conversations with Senpai"),
     }),
@@ -99,7 +100,7 @@ function M:create_input_area(keymaps)
   self.input_area = Split({
     relative = "win",
     position = "bottom",
-    size = Config.chat.input_area.size or "25%",
+    size = Config.chat.input_area.height or "25%",
     win_options = vim.tbl_deep_extend("force", win_options, {
       winbar = create_winbar_text(IChatWindow.input_winbar_text),
     }),
