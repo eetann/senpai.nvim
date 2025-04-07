@@ -9,7 +9,7 @@ local M = {}
 
 ---@enum (key) senpai.Config.chat.actions
 ---@diagnostic disable-next-line: unused-local
-local actions = {
+M.actions = {
   --[=[@doc
   category = "chat_action"
   name = "abort"
@@ -82,11 +82,11 @@ local actions = {
 
   --[=[@doc
   category = "chat_action"
-  name = "show_log"
+  name = "show_internal_log"
   desc = "*For Developers.* show internal API log"
   --]=]
   --
-  show_log = false,
+  show_internal_log = false,
 
   --[=[@doc
   category = "chat_action"
@@ -144,6 +144,9 @@ local actions = {
 ---@doc.type
 ---@class senpai.Config.chat.common
 ---@field keymaps? senpai.Config.chat.keymaps
+---@field width? number|string column number or width percentage string for chat window
+---  width = 50 -- 50 column number
+---  width = 40% -- 40% chat window width relative to editor
 
 ---@doc.type
 ---@class senpai.Config.chat.log_area
@@ -152,6 +155,9 @@ local actions = {
 ---@doc.type
 ---@class senpai.Config.chat.input_area
 ---@field keymaps? senpai.Config.chat.keymaps
+---@field height? number|string row number or height percentage string for input area
+---  height = 5 -- 5 row number
+---  height = 25% -- 25% input area height relative to chat window
 
 ---@doc.type
 ---@class senpai.Config.chat
@@ -171,16 +177,20 @@ M.default_config = {
       gi = "toggle_input",
       ["<C-c>"] = "abort",
     },
+    width = 80,
   },
-  log_area = { keymaps = {
-    a = "apply",
-    gs = "show_system_prompt",
-  } },
+  log_area = {
+    keymaps = {
+      a = "apply",
+      gs = "show_system_prompt",
+    },
+  },
   input_area = {
     keymaps = {
       ["<CR>"] = "submit",
       gR = "regist_url_at_rag",
     },
+    height = "25%",
   },
 }
 

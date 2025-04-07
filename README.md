@@ -87,6 +87,8 @@ require("senpai").setup({
 ```
 Assign `false` if you want to delete the keymap.
 
+All actions can be performed from Help(`?`).
+
 The names of the actions that can be written in the keymaps table are.
 <!-- auto-generate-s:chat_action -->
 
@@ -126,7 +128,7 @@ The names of the actions that can be written in the keymaps table are.
   - Fetch URL and save to RAG
   - default: `gR` in input area
 
-- `show_log`
+- `show_internal_log`
   - *For Developers.* show internal API log
   - default: none
 
@@ -380,9 +382,11 @@ The default config are as follows.
         gl = "load_thread",
         gx = "new_thread",
         q = "close"
-      }
+      },
+      width = 80
     },
     input_area = {
+      height = "25%",
       keymaps = {
         ["<CR>"] = "submit",
         gR = "regist_url_at_rag"
@@ -821,6 +825,9 @@ _No arguments_
 ```lua
 ---@class senpai.Config.chat.common
 ---@field keymaps? senpai.Config.chat.keymaps
+---@field width? number|string column number or width percentage string for chat window
+---  width = 50 -- 50 column number
+---  width = 40% -- 40% chat window width relative to editor
 ```
 
 
@@ -828,6 +835,9 @@ _No arguments_
 ```lua
 ---@class senpai.Config.chat.input_area
 ---@field keymaps? senpai.Config.chat.keymaps
+---@field height? number|string row number or height percentage string for input area
+---  height = 5 -- 5 row number
+---  height = 25% -- 25% input area height relative to chat window
 ```
 
 
