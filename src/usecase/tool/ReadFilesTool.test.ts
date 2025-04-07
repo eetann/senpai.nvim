@@ -5,15 +5,15 @@ import { getFiles } from "./ReadFilesTool";
 beforeAll(() => {
 	spyOn(global.Bun, "file").mockImplementation((path, _) => {
 		let bytes = "foo";
-		if (path === "foo.txt") {
+		if (path === "/workspace/foo.txt") {
 			bytes = "hello";
-		} else if (path === "piyo.txt") {
+		} else if (path === "/workspace/piyo.txt") {
 			return {
 				exists: () => Promise.resolve(false),
 				bytes: () => Promise.resolve(""),
 				type: "text/plain; charset=UTF-8",
 			} as unknown as BunFile;
-		} else if (path === "bar/piyo.txt") {
+		} else if (path === "/workspace/bar/piyo.txt") {
 			bytes = "world";
 		}
 		return {
@@ -22,20 +22,20 @@ beforeAll(() => {
 			type: "text/plain; charset=UTF-8",
 		} as unknown as BunFile;
 	});
-	spyOn(global.Bun, "resolveSync").mockImplementation((moduleId, _) => {
-		return `/workspace/${moduleId}`;
+	spyOn(global.Bun, "resolveSync").mockImplementation((moduleId, cwd) => {
+		return `${cwd}/${moduleId.replace(/^\.\//, "")}`;
 	});
 });
 
 test("works", async () => {
-	const glob = async (path: string) => {
+	const glob = async (cwd: string, path: string) => {
 		if (path === "foo.txt") {
 			return ["foo.txt"];
 		}
 		return ["bar/piyo.txt"];
 	};
 
-	const result = await getFiles(glob, ["foo.txt", "piyo.txt"]);
+	const result = await getFiles("/workspace", glob, ["foo.txt", "piyo.txt"]);
 	expect(result).toEqual([
 		{
 			filepath: "/workspace/foo.txt",

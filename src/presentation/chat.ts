@@ -5,6 +5,7 @@ import { ChatAgent } from "@/usecase/agent/ChatAgent";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
 type Variables = {
+	cwd: string;
 	mcpTools: Record<string, unknown>;
 };
 
@@ -54,8 +55,10 @@ app.openapi(
 	async (c) => {
 		const command = c.req.valid("json");
 		const model = getModel(command.provider);
+		const cwd = c.get("cwd");
 		const mcpTools = c.get("mcpTools");
 		const agent = new ChatAgent(
+			cwd,
 			memory,
 			vector,
 			model,
