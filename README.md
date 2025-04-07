@@ -134,6 +134,10 @@ The names of the actions that can be written in the keymaps table are.
   - *For Developers.* show MCP Tools
   - default: none
 
+- `show_replace_content`
+  - *For Developers.* show Replace File content.
+  - default: none
+
 - `show_system_prompt`
   - Show system prompt associated with current chat
   - default: `gs` in log area
@@ -976,14 +980,6 @@ _No arguments_
 ```lua
 ---@class senpai.Config.providers: senpai.Config.provider.settings
 ---@field default senpai.Config.provider.name|string
-M.default_config = {
-default = "openrouter",
-anthropic = { model_id = "claude-3-7-sonnet-20250219" },
-deepseek = { model_id = "deepseek-chat" },
-google = { model_id = "gemini-1.5-pro" },
-openai = { model_id = "gpt-4o" },
-openrouter = { model_id = "anthropic/claude-3.7-sonnet" },
-}
 ```
 
 

@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 05
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 07
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -168,6 +168,9 @@ The names of the actions that can be written in the keymaps table are.
     - default: none
 - `show_mcp_tools`
     - _For Developers._ show MCP Tools
+    - default: none
+- `show_replace_content`
+    - _For Developers._ show Replace File content.
     - default: none
 - `show_system_prompt`
     - Show system prompt associated with current chat
@@ -1027,14 +1030,6 @@ _No arguments_  
 >lua
     ---@class senpai.Config.providers: senpai.Config.provider.settings
     ---@field default senpai.Config.provider.name|string
-    M.default_config = {
-    default = "openrouter",
-    anthropic = { model_id = "claude-3-7-sonnet-20250219" },
-    deepseek = { model_id = "deepseek-chat" },
-    google = { model_id = "gemini-1.5-pro" },
-    openai = { model_id = "gpt-4o" },
-    openrouter = { model_id = "anthropic/claude-3.7-sonnet" },
-    }
 <
 
 `*senpai.Config.rag*`
