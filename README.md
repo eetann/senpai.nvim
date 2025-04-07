@@ -128,7 +128,7 @@ The names of the actions that can be written in the keymaps table are.
   - Fetch URL and save to RAG
   - default: `gR` in input area
 
-- `show_log`
+- `show_internal_log`
   - *For Developers.* show internal API log
   - default: none
 

@@ -91,7 +91,7 @@ function M:execute_action(name)
     open_api_doc = function()
       open_api_doc.execute()
     end,
-    show_log = function()
+    show_internal_log = function()
       if Config.log_window then
         Config.log_window:mount()
       end

@@ -82,11 +82,11 @@ M.actions = {
 
   --[=[@doc
   category = "chat_action"
-  name = "show_log"
+  name = "show_internal_log"
   desc = "*For Developers.* show internal API log"
   --]=]
   --
-  show_log = false,
+  show_internal_log = false,
 
   --[=[@doc
   category = "chat_action"
