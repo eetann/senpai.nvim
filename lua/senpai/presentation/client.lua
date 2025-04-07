@@ -58,13 +58,13 @@ function M.start_server()
     }, {
       cwd = cwd,
       stdout = vim.schedule_wrap(function(_, data)
-        if Config.log_window then
-          Config.log_window:write(data)
+        if Config.internal_log then
+          Config.internal_log:write(data)
         end
       end),
       stderr = vim.schedule_wrap(function(_, data)
-        if Config.log_window then
-          Config.log_window:write(data)
+        if Config.internal_log then
+          Config.internal_log:write(data)
         end
       end),
     }, function(obj)

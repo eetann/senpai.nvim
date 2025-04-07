@@ -1,6 +1,6 @@
 local utils = require("senpai.usecase.utils")
 
----@class senpai.LogWindow
+---@class senpai.InternalLog
 ---@field buf integer
 local M = {}
 M.__index = M

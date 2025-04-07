@@ -2,7 +2,7 @@ local ProviderConfig = require("senpai.domain.config.provider")
 local ChatConfig = require("senpai.domain.config.chat")
 local RagConfig = require("senpai.domain.config.rag")
 local McpConfig = require("senpai.domain.config.mcp")
-local LogWindow = require("senpai.presentation.log_window")
+local InternalLog = require("senpai.presentation.internal_log")
 
 ---@doc.type
 ---@class senpai.Config
@@ -52,8 +52,8 @@ local options
 ---@class senpai.Config.mod: senpai.Config
 local M = {}
 
----@type senpai.LogWindow?
-M.log_window = nil
+---@type senpai.InternalLog?
+M.internal_log = nil
 
 -- use in doc
 function M._format_default()
@@ -87,7 +87,7 @@ function M.setup(opts)
   ProviderConfig.validate_option_providers(options.providers)
   McpConfig.validate(options.mcp)
   if opts.debug then
-    M.log_window = LogWindow.new()
+    M.internal_log = InternalLog.new()
   end
 end
 

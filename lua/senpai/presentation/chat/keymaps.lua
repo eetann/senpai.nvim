@@ -92,8 +92,12 @@ function M:execute_action(name)
       open_api_doc.execute()
     end,
     show_internal_log = function()
-      if Config.log_window then
-        Config.log_window:mount()
+      if not Config.debug then
+        vim.notify("[senpai] Set config to `debug=true`", vim.log.levels.INFO)
+        return
+      end
+      if Config.internal_log then
+        Config.internal_log:mount()
       end
     end,
     show_mcp_tools = function()
