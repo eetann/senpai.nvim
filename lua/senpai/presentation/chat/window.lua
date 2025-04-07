@@ -99,7 +99,7 @@ function M:create_input_area(keymaps)
   self.input_area = Split({
     relative = "win",
     position = "bottom",
-    size = "25%",
+    size = Config.chat.input_area.size or "25%",
     win_options = vim.tbl_deep_extend("force", win_options, {
       winbar = create_winbar_text(IChatWindow.input_winbar_text),
     }),

@@ -152,6 +152,9 @@ M.actions = {
 ---@doc.type
 ---@class senpai.Config.chat.input_area
 ---@field keymaps? senpai.Config.chat.keymaps
+---@field size? number|string row number or height percentage string for input area
+---  size = 5 -- 5 row number
+---  size = 20% -- 25% input area height relative to chat window
 
 ---@doc.type
 ---@class senpai.Config.chat
@@ -172,15 +175,18 @@ M.default_config = {
       ["<C-c>"] = "abort",
     },
   },
-  log_area = { keymaps = {
-    a = "apply",
-    gs = "show_system_prompt",
-  } },
+  log_area = {
+    keymaps = {
+      a = "apply",
+      gs = "show_system_prompt",
+    },
+  },
   input_area = {
     keymaps = {
       ["<CR>"] = "submit",
       gR = "regist_url_at_rag",
     },
+    size = "25%",
   },
 }
 
