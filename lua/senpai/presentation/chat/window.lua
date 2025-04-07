@@ -57,9 +57,26 @@ function M.new(args)
   end
 
   self.is_sending = false
+  self.is_first_message = true
   self.edit_file_results = {}
   self.replace_file_results = {}
   return self
+end
+
+---@param area NuiSplit
+---@param keymaps table<string, senpai.Config.chat.keymap>
+function M:apply_keymaps(area, keymaps)
+  for key, value in pairs(keymaps) do
+    if type(value.mode) == "string" then
+      area:map(value.mode--[[@as string]], key, value[1])
+    else
+      for _, mode in
+        pairs(value.mode--[=[@as string[]]=])
+      do
+        area:map(mode, key, value[1])
+      end
+    end
+  end
 end
 
 --- @param keymaps table<string, senpai.Config.chat.keymap>
@@ -74,17 +91,7 @@ function M:create_log_area(keymaps)
       filetype = "senpai_chat_log",
     },
   })
-  for key, value in pairs(keymaps) do
-    if type(value.mode) == "string" then
-      self.log_area:map(value.mode--[[@as string]], key, value[1])
-    else
-      for _, mode in
-        pairs(value.mode--[=[@as string[]]=])
-      do
-        self.log_area:map(mode, key, value[1])
-      end
-    end
-  end
+  self:apply_keymaps(self.log_area, keymaps)
 end
 
 ---@param keymaps table<string, senpai.Config.chat.keymap>
@@ -100,54 +107,56 @@ function M:create_input_area(keymaps)
       filetype = "senpai_chat_input",
     },
   })
-  for key, value in pairs(keymaps) do
-    if type(value.mode) == "string" then
-      self.input_area:map(value.mode--[[@as string]], key, value[1])
-    else
-      for _, mode in
-        pairs(value.mode--[=[@as string[]]=])
-      do
-        self.input_area:map(mode, key, value[1])
-      end
+  self:apply_keymaps(self.input_area, keymaps)
+end
+
+function M:setup_log_area(winid)
+  if winid then
+    self.log_area.winid = winid
+    vim.api.nvim_win_set_buf(self.log_area.winid, self.log_area.bufnr)
+    --- @diagnostic disable-next-line: invisible
+    for name, value in pairs(self.log_area._.win_options) do
+      vim.api.nvim_set_option_value(
+        name,
+        value,
+        { scope = "local", win = self.log_area.winid }
+      )
     end
+    vim.api.nvim_set_current_win(self.log_area.winid)
   end
 end
 
----@param winid? number
-function M:show(winid)
-  local resolved_keymaps
-  if not self.log_area then
-    resolved_keymaps = Keymaps.new(self)
-    self:create_log_area(resolved_keymaps.log_area)
-    if winid then
-      self.log_area.winid = winid
-      vim.api.nvim_win_set_buf(self.log_area.winid, self.log_area.bufnr)
-      ---@diagnostic disable-next-line: invisible
-      for name, value in pairs(self.log_area._.win_options) do
-        vim.api.nvim_set_option_value(
-          name,
-          value,
-          { scope = "local", win = self.log_area.winid }
-        )
-      end
-      vim.api.nvim_set_current_win(self.log_area.winid)
-    end
-    self.log_area:mount()
-    utils.set_text_at_last(
-      self.log_area.bufnr,
-      string.format(
-        [[
+function M:display_chat_info()
+  utils.set_text_at_last(
+    self.log_area.bufnr,
+    string.format(
+      [[
 ---
 name: "%s"
 model_id: "%s"
 thread_id: "%s"
 ---
 ]],
-        self.provider.name,
-        self.provider.model_id,
-        self.thread_id
-      )
+      self.provider.name,
+      self.provider.model_id,
+      self.thread_id
     )
+  )
+end
+
+---@param winid? number
+function M:show(winid)
+  local resolved_keymaps
+  if
+    not self.log_area or not vim.api.nvim_buf_is_loaded(self.log_area.bufnr)
+  then
+    resolved_keymaps = Keymaps.new(self)
+    self:create_log_area(resolved_keymaps.log_area)
+    if winid then
+      self:setup_log_area(winid)
+    end
+    self.log_area:mount()
+    self:display_chat_info()
     if not self.is_new then
       set_messages.execute(self)
     end
@@ -155,7 +164,9 @@ thread_id: "%s"
     self.log_area:show()
   end
 
-  if not self.input_area then
+  if
+    not self.input_area or not vim.api.nvim_buf_is_loaded(self.input_area.bufnr)
+  then
     if not resolved_keymaps then
       resolved_keymaps = Keymaps.new(self)
     end
@@ -193,15 +204,21 @@ end
 
 function M:toggle()
   if self:is_hidden() then
-    self:hide()
-  else
     self:show()
+  else
+    self:hide()
   end
 end
 
 function M:toggle_input()
   local winid = self.input_area.winid
-  if winid and vim.api.nvim_win_is_valid(winid) then
+  if
+    not self.input_area or not vim.api.nvim_buf_is_loaded(self.input_area.bufnr)
+  then
+    local resolved_keymaps = Keymaps.new(self)
+    self:create_input_area(resolved_keymaps.input_area)
+    self.input_area:mount()
+  elseif winid and vim.api.nvim_win_is_valid(winid) then
     self.input_area:hide()
   else
     self.input_area:show()

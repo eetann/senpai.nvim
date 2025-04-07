@@ -85,6 +85,17 @@ function M.encode_url(url)
   return url
 end
 
+---@return string # id
+function M.get_replace_file_id()
+  -- example: <SenpaiReplaceFile id="01YXj1vvRdFUHhf7Q58VGrJy">
+  vim.cmd("?^<SenpaiReplaceFile.*")
+  local id = vim.fn.getline("."):match('^<SenpaiReplaceFile.*id="([^"]+)"')
+  if not id then
+    return ""
+  end
+  return id
+end
+
 ---@param winid number
 ---@param text string
 ---@return { start_line:number, end_line:number }
@@ -92,6 +103,7 @@ function M.get_range_by_search(winid, text)
   -- Simply `end` is confusing due to the grammar, so `end_line` is used.
   local result = { start_line = 0, end_line = 0 }
   local escaped_text, _ = text:gsub("\n", "\\_.")
+  -- TODO: 他にもエスケープが必要かも
   vim.api.nvim_win_call(winid, function()
     result.start_line = vim.fn.search(escaped_text) or 0
   end)

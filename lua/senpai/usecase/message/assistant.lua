@@ -45,21 +45,30 @@ function M:process_chunk(text)
   for i = 1, length do
     local chunk = lines[i]
     self.line = self.line .. chunk
+    local is_lastline = i == length
     -- chunk: `foo` newline=0
     -- chunk: `foo\nbar` newline=1,0
     -- chunk: `foo\n\nbar` newline=1,1,0
-    if length > 1 and i ~= length then
+    if length > 1 and not is_lastline then
       chunk = chunk .. "\n"
     end
-    self:process_line(chunk)
-    if i ~= length then
+    -- TODO: これだと改行が次に入るパターンで失敗する
+    -- ---
+    -- 0:"...</path>"
+    -- 0:"\n</search>"
+    -- ---
+    -- 0:"<replace>"
+    -- 0:"local utils"
+    self:process_line(chunk, is_lastline)
+    if not is_lastline then
       self.line = ""
     end
   end
 end
 
 ---@param chunk string
-function M:process_line(chunk)
+---@param is_lastline boolean
+function M:process_line(chunk, is_lastline)
   local lower_line = string.lower(self.line)
   if self.replace_file_current.id == "" then
     if lower_line:match("<replace_file>") then
@@ -70,19 +79,21 @@ function M:process_line(chunk)
     return
   end
 
-  local tag_handlers = {
-    ["</replace_file>"] = self.process_end_replace_file,
-    ["<path>.*</path>"] = self.process_path_tag,
-    ["<search>"] = self.process_start_search_tag,
-    ["</search>"] = self.process_end_search_tag,
-    ["<replace>"] = self.process_start_replace_tag,
-    ["</replace>"] = self.process_end_replace_tag,
-  }
+  if not is_lastline then
+    local tag_handlers = {
+      ["</replace_file>"] = self.process_end_replace_file,
+      ["<path>.*</path>"] = self.process_path_tag,
+      ["<search>"] = self.process_start_search_tag,
+      ["</search>"] = self.process_end_search_tag,
+      ["<replace>"] = self.process_start_replace_tag,
+      ["</replace>"] = self.process_end_replace_tag,
+    }
 
-  for pattern, handler in pairs(tag_handlers) do
-    if lower_line:match(pattern) then
-      handler(self)
-      return
+    for pattern, handler in pairs(tag_handlers) do
+      if lower_line:match(pattern) then
+        handler(self)
+        return
+      end
     end
   end
 
@@ -119,6 +130,52 @@ function M:process_start_replace_file()
   )
 end
 
+function M:process_path_tag()
+  local path = utils.get_relative_path(self.line:sub(7, -8))
+  self.replace_file_current.path = path
+  self.replace_file_current.tag = nil
+  self.current_content = ""
+  self.line = ""
+  utils.replace_text_at_last(
+    self.chat.log_area.bufnr,
+    "filepath: " .. path .. "\n"
+  )
+end
+
+function M:process_start_search_tag()
+  self.replace_file_current.tag = "search"
+  self.current_content = ""
+  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
+  -- TODO: 検索スピナーの開始
+end
+
+function M:process_end_search_tag()
+  self.replace_file_current.search =
+    vim.split(self.current_content:gsub("\n$", ""), "\n")
+  self.replace_file_current.tag = nil
+  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
+  -- TODO: 検索スピナーの終了
+  self.line = ""
+end
+
+function M:process_start_replace_tag()
+  self.replace_file_current.tag = "replace"
+  self.current_content = ""
+  local filetype = utils.get_filetype(self.replace_file_current.path)
+  utils.replace_text_at_last(
+    self.chat.log_area.bufnr,
+    "```" .. filetype .. "\n"
+  )
+  self.line = ""
+end
+
+function M:process_end_replace_tag()
+  self.replace_file_current.replace =
+    vim.split(self.current_content:gsub("\n$", ""), "\n")
+  self.replace_file_current.tag = nil
+  utils.replace_text_at_last(self.chat.log_area.bufnr, "```" .. "\n")
+end
+
 function M:process_end_replace_file()
   self.chat.replace_file_results[self.replace_file_current.id] = vim.deepcopy({
     path = self.replace_file_current.path,
@@ -127,7 +184,7 @@ function M:process_end_replace_file()
   })
   utils.replace_text_at_last(
     self.chat.log_area.bufnr,
-    "\n</SenpaiReplaceFile>\n\n"
+    "\n</SenpaiReplaceFile>\n"
   )
   vim.api.nvim_buf_set_extmark(
     self.chat.log_area.bufnr,
@@ -135,7 +192,7 @@ function M:process_end_replace_file()
     self.replace_file_current.start_line - 1,
     0,
     {
-      virt_text = { { "apply [a/A]" } },
+      virt_text = { { "apply [a]" } },
       virt_text_pos = "right_align",
     }
   )
@@ -157,49 +214,6 @@ function M:process_end_replace_file()
   self.replace_file_current =
     { id = "", path = "", search = {}, replace = {}, start_line = 0 }
   self.replace_file_current.tag = nil
-end
-
-function M:process_path_tag()
-  local path = utils.get_relative_path(self.line:sub(7, -8))
-  self.replace_file_current.path = path
-  self.replace_file_current.tag = nil
-  self.current_content = ""
-  utils.replace_text_at_last(
-    self.chat.log_area.bufnr,
-    "filepath: " .. path .. "\n"
-  )
-end
-
-function M:process_start_search_tag()
-  self.replace_file_current.tag = "search"
-  self.current_content = ""
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
-  -- TODO: 検索スピナーの開始
-end
-
-function M:process_end_search_tag()
-  self.replace_file_current.search =
-    vim.split(self.current_content:gsub("\n$", ""), "\n")
-  self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
-  -- TODO: 検索スピナーの終了
-end
-
-function M:process_start_replace_tag()
-  self.replace_file_current.tag = "replace"
-  self.current_content = ""
-  local filetype = utils.get_filetype(self.replace_file_current.path)
-  utils.replace_text_at_last(
-    self.chat.log_area.bufnr,
-    "```" .. filetype .. "\n"
-  )
-end
-
-function M:process_end_replace_tag()
-  self.replace_file_current.replace =
-    vim.split(self.current_content:gsub("\n$", ""), "\n")
-  self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "```" .. "\n")
 end
 
 function M:process_content_line(chunk)

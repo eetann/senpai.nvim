@@ -75,11 +75,21 @@ local subcmd_tbl = {
   --[=[@doc
   category = "command"
   name = "promptLauncher"
-  desc = "detail -> |senpai-api-prompt-launcher|"
+  desc = "detail -> |senpai-api-prompt_launcher|"
   --]=]
   promptLauncher = {
     impl = function()
       require("senpai.api").prompt_launcher()
+    end,
+  },
+  --[=[@doc
+  category = "command"
+  name = "transferToChat"
+  desc = "detail -> |senpai-api-transfer_visual_to_chat|"
+  --]=]
+  transferToChat = {
+    impl = function()
+      require("senpai.api").transfer_visual_to_chat()
     end,
   },
   --[=[@doc

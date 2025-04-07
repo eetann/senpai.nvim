@@ -17,7 +17,6 @@ local T = MiniTest.new_set({
 T["render_border creates proper extmarks"] = function()
   local buffer = child.api.nvim_get_current_buf()
   local lines = {
-    "",
     "<SenpaiUserInput>",
     "",
     "foooooooooooooo",
@@ -78,9 +77,10 @@ T["render_border creates proper extmarks"] = function()
     end
   end
 
+  expect.reference_screenshot(child.get_screenshot())
   -- The left text should exist for the number of lines
   --  between the top and bottom frames
-  eq(left_border_count == 1, true)
+  eq(left_border_count, 1)
 end
 
 T["render_border positions borders correctly"] = function()
@@ -92,7 +92,6 @@ T["render_border positions borders correctly"] = function()
   for i = 1, start_row - 1 do
     table.insert(lines, "foo" .. i)
   end
-  table.insert(lines, "")
   table.insert(lines, "<SenpaiUserInput>")
   table.insert(lines, "")
   table.insert(lines, "foooooooooooooooooo")
@@ -117,8 +116,8 @@ T["render_border positions borders correctly"] = function()
     { buffer, namespace, 0, -1, { details = true } }
   )
 
-  local top_border_index = -1
-  local bottom_border_index = -1
+  local top_border_row = -1
+  local bottom_border_row = -1
 
   for _, mark in ipairs(extmarks) do
     -- { 1, 5, 0, -- extmark_id, row, col
@@ -138,16 +137,16 @@ T["render_border positions borders correctly"] = function()
     local details = mark[4]
 
     if details.sign_text:find("╭") then
-      top_border_index = row
+      top_border_row = row + 1
     elseif details.sign_text:find("╰") then
-      bottom_border_index = row
+      bottom_border_row = row + 1
     end
   end
-
-  eq(Helpers.get_line(child, 0, top_border_index - 1), "<SenpaiUserInput>")
-  eq(Helpers.get_line(child, 0, top_border_index), "")
-  eq(Helpers.get_line(child, 0, bottom_border_index), "")
-  eq(Helpers.get_line(child, 0, bottom_border_index + 1), "</SenpaiUserInput>")
+  expect.reference_screenshot(child.get_screenshot())
+  eq(Helpers.get_line(child, 0, top_border_row - 1), "<SenpaiUserInput>")
+  eq(Helpers.get_line(child, 0, top_border_row), "")
+  eq(Helpers.get_line(child, 0, bottom_border_row), "")
+  eq(Helpers.get_line(child, 0, bottom_border_row + 1), "</SenpaiUserInput>")
 end
 
 return T

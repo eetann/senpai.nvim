@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 05
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 07
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -41,6 +41,7 @@ Table of Contents                                   *senpai-table-of-contents*
   - newThread                                      |senpai-commands-newthread|
   - promptLauncher                            |senpai-commands-promptlauncher|
   - toggleChat                                    |senpai-commands-togglechat|
+  - transferToChat                            |senpai-commands-transfertochat|
 8. Type                                                          |senpai-type|
 9. Acknowledgements                                  |senpai-acknowledgements|
 
@@ -57,7 +58,7 @@ Senpai is super reliable Neovim AI plugin!
 - History: You can continue the conversation
 - MCP (Model Context Protocol)
 - RAG (Retrieval Augmented Generation)
-- ‍ Prompt Launcher: Open chat with pre-defined prompts
+- Prompt Launcher: Open chat with pre-defined prompts
 - Generate commit message
 
 Powered by Mastra <https://mastra.ai/> and Vercel AI SDK
@@ -66,9 +67,7 @@ Powered by Mastra <https://mastra.ai/> and Vercel AI SDK
 
 CHAT                                                     *senpai-feature-chat*
 
-You can chat with AI.
-
-You can toggle the chat window with `:Senpai toggleChat`.
+You can chat with AI. Youcan toggle the chat window with `:Senpai toggleChat`.
 
 
 CHAT HELP ~
@@ -96,7 +95,7 @@ uses Neovim’s built-in function `diffthis`, so you can apply the diff with
 `do` or `dp`. Related help `:help copy-diffs`.
 
 
-SYSTEM PROMPT ~
+SYSTEMPROMPT ~
 
 If you want to write a system prompt, you can configure it as follows.
 
@@ -170,6 +169,9 @@ The names of the actions that can be written in the keymaps table are.
 - `show_mcp_tools`
     - _For Developers._ show MCP Tools
     - default: none
+- `show_replace_content`
+    - _For Developers._ show Replace File content.
+    - default: none
 - `show_system_prompt`
     - Show system prompt associated with current chat
     - default: `gs` in log area
@@ -181,9 +183,8 @@ The names of the actions that can be written in the keymaps table are.
 HISTORY                                               *senpai-feature-history*
 
 Select a past thread and load it again as a chat. **You can continue the
-conversation**. `:Senpai loadThread` opens the chat list.
-
-The selection UI supports the following methods.
+conversation**. `:Senpai loadThread` opens the chat list. Theselection UI
+supports the following methods.
 
 - Native (vim.ui.select)
 - snacks.nvim <https://github.com/folke/snacks.nvim> picker
@@ -248,7 +249,7 @@ Cache control can be configured in |`senpai.Config.rag.cache_strategy`|.
 
 PROMPT LAUNCHER                               *senpai-feature-prompt-launcher*
 
-‍You can chat with customized prompts.
+You can chat with customized prompts.
 
 >lua
     require("senpai").setup({
@@ -355,14 +356,7 @@ with packer.nvim <https://github.com/wbthomason/packer.nvim>
         keys = {
             { "<space>ss", "<Cmd>Senpai toggleChat<CR>" },
             { "<space>sl", "<Cmd>Senpai promptLauncher<CR>" },
-            {
-                "<space>sv",
-                function()
-                    require("senpai.api").transfer_visual_to_chat()
-                end,
-                mode = "v",
-                desc = "[senpai] transfer_visual_to_chat",
-            },
+            { "<space>sv", "<Cmd>Senpai transferToChat<CR>", mode = "v" },
         },
         cmd = { "Senpai" },
         opts = {config}
@@ -376,6 +370,9 @@ Currently supported providers are as follows.
 
   name         Environment variable for API token
   ------------ ------------------------------------
+  anthropic    ANTHROPIC_API_KEY
+  deepseek     DEEPSEEK_API_KEY
+  google       GOOGLE_GENERATIVE_AI_API_KEY
   openai       OPENAI_API_KEY
   openrouter   OPENROUTER_API_KEY
 The default provider is written in `providers.default`.
@@ -402,6 +399,9 @@ The model specifications should be written in the `model_id` of each provider.
 You can find how to write `model_id` in the following links (most of them are
 in the Vercel AI SDK documentation).
 
+- Anthropic <https://sdk.vercel.ai/providers/ai-sdk-providers/anthropic#model-capabilities>
+- DeepSeek <https://sdk.vercel.ai/providers/ai-sdk-providers/deepseek#model-capabilities>
+- Google <https://sdk.vercel.ai/providers/ai-sdk-providers/google-generative-ai#model-capabilities>
 - OpenAI <https://sdk.vercel.ai/providers/ai-sdk-providers/openai#model-capabilities>
 - …
 - OpenRouter <https://openrouter.ai/models>
@@ -462,7 +462,13 @@ The default config are as follows.
         anthropic = {
           model_id = "claude-3-7-sonnet-20250219"
         },
+        deepseek = {
+          model_id = "deepseek-chat"
+        },
         default = "openrouter",
+        google = {
+          model_id = "gemini-1.5-pro"
+        },
         openai = {
           model_id = "gpt-4o"
         },
@@ -798,7 +804,7 @@ PROMPTLAUNCHER                                *senpai-commands-promptlauncher*
     :Senapi promptLauncher
 <
 
-detail -> |senpai-api-prompt-launcher|
+detail -> |senpai-api-prompt_launcher|
 
 _No arguments_  
 
@@ -810,6 +816,17 @@ TOGGLECHAT                                        *senpai-commands-togglechat*
 <
 
 detail -> |senpai-feature-chat|
+
+_No arguments_  
+
+
+TRANSFERTOCHAT                                *senpai-commands-transfertochat*
+
+>
+    :Senapi transferToChat
+<
+
+detail -> |senpai-api-transfer_visual_to_chat|
 
 _No arguments_  
 
@@ -938,7 +955,7 @@ _No arguments_  
 
 >lua
     ---@class senpai.Config.provider.anthropic: senpai.Config.provider.base
-    ---@field model_id ("claude-3-7-sonnet-20250219" | "claude-3-5-sonnet-20241022"|string)
+    ---@field model_id ("claude-3-7-sonnet-20250219"|"claude-3-5-sonnet-20241022"|string)
 <
 
 `*senpai.Config.provider.base*`
@@ -948,11 +965,38 @@ _No arguments_  
     ---@field model_id string
 <
 
+`*senpai.Config.provider.deepseek*`
+
+>lua
+    ---@class senpai.Config.provider.deepseek: senpai.Config.provider.base
+    ---@field model_id ("deepseek-chat"|"deepseek-reasoner"|string)
+    --- deepseek-reasoner is DeepSeek-R1. Since structured output is not possible,
+    --- commit message generation cannot be used with deepseek-reasoner.
+<
+
+`*senpai.Config.provider.google*`
+
+>lua
+    ---@class senpai.Config.provider.google: senpai.Config.provider.base
+    ---@field model_id ("gemini-2.5-pro-exp-03-25"|"gemini-2.0-flash-001"|string)
+<
+
+`*senpai.Config.provider.name*`
+
+>lua
+    ---@alias senpai.Config.provider.name
+    ---| "anthropic"
+    ---| "deepseek"
+    ---| "google"
+    ---| "openai"
+    ---| "openrouter"
+<
+
 `*senpai.Config.provider.openai*`
 
 >lua
     ---@class senpai.Config.provider.openai: senpai.Config.provider.base
-    ---@field model_id ("gpt-4o" | "gpt-4o-mini"|string)
+    ---@field model_id ("gpt-4o"|"gpt-4o-mini"|string)
 <
 
 `*senpai.Config.provider.openrouter*`
@@ -973,8 +1017,10 @@ _No arguments_  
 
 >lua
     ---@class senpai.Config.provider.settings
-    ---@field openai? senpai.Config.provider.openai
     ---@field anthropic? senpai.Config.provider.anthropic
+    ---@field deepseek? senpai.Config.provider.deepseek
+    ---@field google? senpai.Config.provider.google
+    ---@field openai? senpai.Config.provider.openai
     ---@field openrouter? senpai.Config.provider.openrouter
     ---@field [string] senpai.Config.provider.base
 <

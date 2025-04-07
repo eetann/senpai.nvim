@@ -21,6 +21,7 @@ local M = {}
 ---@field input_area NuiSplit|nil
 ---@field keymaps senpai.chat.Keymaps
 ---@field is_sending boolean
+---@field is_first_message boolean
 ---@field job? Job
 ---@field edit_file_results table<string, senpai.tool.EditFile.result> # <[toolCallId]: reuslt>
 ---@field replace_file_results table<string, senpai.XML.replace_file> # <id: reuslt>
@@ -30,7 +31,7 @@ local IChatWindow = {}
 ---@diagnostic disable-next-line: unused-local
 function IChatWindow:show(winid) end
 function IChatWindow:hide() end
-function IChatWindow:destory() end
+function IChatWindow:destroy() end
 function IChatWindow:toggle() end
 function IChatWindow:toggle_input() end
 

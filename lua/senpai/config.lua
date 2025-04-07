@@ -26,12 +26,7 @@ local LogWindow = require("senpai.presentation.log_window")
 
 ---@type senpai.Config
 local default_config = {
-  providers = {
-    default = "openrouter",
-    openai = { model_id = "gpt-4o" },
-    anthropic = { model_id = "claude-3-7-sonnet-20250219" },
-    openrouter = { model_id = "anthropic/claude-3.7-sonnet" },
-  },
+  providers = ProviderConfig.default_config,
   commit_message = {
     language = "English",
   },

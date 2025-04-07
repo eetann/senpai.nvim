@@ -2,7 +2,7 @@ local Config = require("senpai.config")
 local post_rag_index = require("senpai.usecase.request.rag.post_rag_index")
 local Spinner = require("senpai.presentation.shared.spinner")
 local check_has_cache = require("senpai.usecase.request.rag.check_has_cache")
-local YesnoPopup = require("senpai.usecase.yesno_popup")
+local YesnoPopup = require("senpai.usecase.popup.yesno_popup")
 
 local M = {}
 
