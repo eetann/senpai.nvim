@@ -130,12 +130,11 @@ T["assistant <replace_file> real"] = function()
     "assistant:process_chunk(...)",
     { "\n</replace>\n</replace_file>\n\nhello" }
   )
-  eq(Helpers.get_line(child, bufnr, -8), "local M = {}")
-  eq(Helpers.get_line(child, bufnr, -7), "")
-  eq(Helpers.get_line(child, bufnr, -6), "```")
-  eq(Helpers.get_line(child, bufnr, -5), "")
-  eq(Helpers.get_line(child, bufnr, -4), "</SenpaiReplaceFile>")
-  eq(Helpers.get_line(child, bufnr, -3), "")
+  eq(Helpers.get_line(child, bufnr, -7), "local M = {}")
+  eq(Helpers.get_line(child, bufnr, -6), "")
+  eq(Helpers.get_line(child, bufnr, -5), "```")
+  eq(Helpers.get_line(child, bufnr, -4), "")
+  eq(Helpers.get_line(child, bufnr, -3), "</SenpaiReplaceFile>")
   eq(Helpers.get_line(child, bufnr, -2), "")
   eq(Helpers.get_line(child, bufnr, -1), "hello")
   expect.reference_screenshot(child.get_screenshot())
@@ -161,7 +160,6 @@ T["assistant <replace_file> real"] = function()
     count = count + 1
   end
   eq(count, 1)
-  -- eq(Helpers.get_line(child, bufnr, 19), nil)
 end
 
 T["assistant <replace_file> from message"] = function()

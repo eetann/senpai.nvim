@@ -184,7 +184,7 @@ function M:process_end_replace_file()
   })
   utils.replace_text_at_last(
     self.chat.log_area.bufnr,
-    "\n</SenpaiReplaceFile>\n\n"
+    "\n</SenpaiReplaceFile>\n"
   )
   vim.api.nvim_buf_set_extmark(
     self.chat.log_area.bufnr,
