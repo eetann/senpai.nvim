@@ -1,4 +1,5 @@
 local Config = require("senpai.config")
+local ChatConfig = require("senpai.domain.config.chat")
 local Text = require("nui.text")
 local Line = require("nui.line")
 local Menu = require("nui.menu")
@@ -176,6 +177,14 @@ end
 
 ---@param keymap senpai.Config.chat.keymap
 local function create_item(keymap)
+  if keymap.key == "" then
+    return Menu.item(
+      Line({
+        Text(keymap.desc),
+      }),
+      keymap
+    )
+  end
   return Menu.item(
     Line({
       Text(keymap.key, "@constant.builtin"),
@@ -186,6 +195,7 @@ local function create_item(keymap)
 end
 
 function M:create_items()
+  local actions = vim.deepcopy(ChatConfig.actions)
   ---@type NuiTree.Node[]
   local items = {
     Menu.separator("j/k/<CR>/q/<ESC>", { char = " " }),
@@ -193,12 +203,14 @@ function M:create_items()
   }
   for _, keymap in pairs(self.common) do
     table.insert(items, create_item(keymap))
+    actions[keymap.desc] = true
   end
 
   table.insert(items, Menu.separator(Text("log area", "@markup.heading")))
   for key, keymap in pairs(self.log_area) do
     if not self.common[key] then
       table.insert(items, create_item(keymap))
+      actions[keymap.desc] = true
     end
   end
 
@@ -206,7 +218,26 @@ function M:create_items()
   for key, keymap in pairs(self.input_area) do
     if not self.common[key] then
       table.insert(items, create_item(keymap))
+      actions[keymap.desc] = true
     end
+  end
+
+  table.insert(items, Menu.separator(Text("No keymap", "@markup.heading")))
+  for action, value in pairs(actions) do
+    if value then
+      goto continue
+    end
+    table.insert(
+      items,
+      create_item({
+        function()
+          self:execute_action(action)
+        end,
+        key = "",
+        desc = action,
+      })
+    )
+    ::continue::
   end
   return items
 end

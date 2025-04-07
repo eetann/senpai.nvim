@@ -9,7 +9,7 @@ local M = {}
 
 ---@enum (key) senpai.Config.chat.actions
 ---@diagnostic disable-next-line: unused-local
-local actions = {
+M.actions = {
   --[=[@doc
   category = "chat_action"
   name = "abort"

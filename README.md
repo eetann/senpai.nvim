@@ -87,6 +87,8 @@ require("senpai").setup({
 ```
 Assign `false` if you want to delete the keymap.
 
+All actions can be performed from Help(`?`).
+
 The names of the actions that can be written in the keymaps table are.
 <!-- auto-generate-s:chat_action -->
 
