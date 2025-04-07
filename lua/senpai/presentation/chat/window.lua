@@ -147,7 +147,9 @@ end
 ---@param winid? number
 function M:show(winid)
   local resolved_keymaps
-  if not self.log_area then
+  if
+    not self.log_area or not vim.api.nvim_buf_is_loaded(self.log_area.bufnr)
+  then
     resolved_keymaps = Keymaps.new(self)
     self:create_log_area(resolved_keymaps.log_area)
     if winid then
@@ -162,7 +164,9 @@ function M:show(winid)
     self.log_area:show()
   end
 
-  if not self.input_area then
+  if
+    not self.input_area or not vim.api.nvim_buf_is_loaded(self.input_area.bufnr)
+  then
     if not resolved_keymaps then
       resolved_keymaps = Keymaps.new(self)
     end
@@ -200,15 +204,21 @@ end
 
 function M:toggle()
   if self:is_hidden() then
-    self:hide()
-  else
     self:show()
+  else
+    self:hide()
   end
 end
 
 function M:toggle_input()
   local winid = self.input_area.winid
-  if winid and vim.api.nvim_win_is_valid(winid) then
+  if
+    not self.input_area or not vim.api.nvim_buf_is_loaded(self.input_area.bufnr)
+  then
+    local resolved_keymaps = Keymaps.new(self)
+    self:create_input_area(resolved_keymaps.input_area)
+    self.input_area:mount()
+  elseif winid and vim.api.nvim_win_is_valid(winid) then
     self.input_area:hide()
   else
     self.input_area:show()
