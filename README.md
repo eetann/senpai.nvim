@@ -25,7 +25,7 @@ You can toggle the chat window with `:Senpai toggleChat`.
 
 ### chat help
 **You can open keymap help with `?`**.<br/>
-<img width="312" alt="keymap help for chat" src="https://github.com/user-attachments/assets/8ee2bf91-1602-4441-aedd-59875fe22a83" />
+<img width="317" alt="keymap help for chat" src="https://github.com/user-attachments/assets/67151e6d-a339-4ea4-9587-f2706af1eb8c" />
 
 By default, send to AI with `<CR>`.<br/>
 
