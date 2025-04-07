@@ -192,7 +192,7 @@ function M:process_end_replace_file()
     self.replace_file_current.start_line - 1,
     0,
     {
-      virt_text = { { "apply [a/A]" } },
+      virt_text = { { "apply [a]" } },
       virt_text_pos = "right_align",
     }
   )

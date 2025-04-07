@@ -8,7 +8,7 @@
 07|  here:                                                     
 08|                                                            
 09|                                                            
-10|󰬲 Replace File                                   apply [a/A]
+10|󰬲 Replace File                                     apply [a]
 11|▕                                                           
 12|▕ filepath: lua/senpai/usecase/message/tool_call.lua        
 13|▕ ```lua                                                    
