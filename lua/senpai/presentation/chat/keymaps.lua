@@ -9,6 +9,7 @@ local regist_url_at_rag = require("senpai.usecase.regist_url_at_rag")
 local show_system_prompt = require("senpai.usecase.show_system_prompt")
 local show_mcp_tools = require("senpai.usecase.show_mcp_tools")
 local open_api_doc = require("senpai.usecase.open_api_doc")
+local show_replace_content = require("senpai.usecase.show_replace_content")
 
 ---@class senpai.chat.Keymaps.keymaps
 
@@ -96,6 +97,9 @@ function M:execute_action(name)
     end,
     show_mcp_tools = function()
       show_mcp_tools.execute()
+    end,
+    show_replace_content = function()
+      show_replace_content.execute(self.chat)
     end,
     show_system_prompt = function()
       show_system_prompt.execute(self.chat)

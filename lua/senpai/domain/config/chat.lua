@@ -98,6 +98,14 @@ local actions = {
 
   --[=[@doc
   category = "chat_action"
+  name = "show_replace_content"
+  desc = "*For Developers.* show Replace File content."
+  --]=]
+  --
+  show_replace_content = false,
+
+  --[=[@doc
+  category = "chat_action"
   name = "show_system_prompt"
   desc = "Show system prompt associated with current chat"
   default_key = "`gs` in log area"
