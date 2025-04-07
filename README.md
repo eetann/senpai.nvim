@@ -672,7 +672,7 @@ AI write conventional commit message of commitizen convention format.
 
 ## _hello
 ```
-:Senapi _hello
+:Senpai _hello
 ```
 
 For developers.
@@ -685,7 +685,7 @@ _No arguments_
 
 ## _helloStream
 ```
-:Senapi _helloStream
+:Senpai _helloStream
 ```
 
 For developers.
@@ -698,7 +698,7 @@ _No arguments_
 
 ## commitMessage
 ```
-:Senapi commitMessage
+:Senpai commitMessage
 ```
 
 detail -> |senpai-api-write_commit_message|
@@ -713,7 +713,7 @@ detail -> |senpai-api-write_commit_message|
 
 ## deleteRagSource
 ```
-:Senapi deleteRagSource
+:Senpai deleteRagSource
 ```
 
 detail -> |senpai-feature-rag|
@@ -724,7 +724,7 @@ _No arguments_
 
 ## loadThread
 ```
-:Senapi loadThread
+:Senpai loadThread
 ```
 
 detail -> |senpai-feature-history|
@@ -735,7 +735,7 @@ _No arguments_
 
 ## newThread
 ```
-:Senapi newThread
+:Senpai newThread
 ```
 
 detail -> |senpai-api-new_thread|
@@ -746,7 +746,7 @@ _No arguments_
 
 ## promptLauncher
 ```
-:Senapi promptLauncher
+:Senpai promptLauncher
 ```
 
 detail -> |senpai-api-prompt_launcher|
@@ -757,7 +757,7 @@ _No arguments_
 
 ## toggleChat
 ```
-:Senapi toggleChat
+:Senpai toggleChat
 ```
 
 detail -> |senpai-feature-chat|
@@ -768,7 +768,7 @@ _No arguments_
 
 ## transferToChat
 ```
-:Senapi transferToChat
+:Senpai transferToChat
 ```
 
 detail -> |senpai-api-transfer_visual_to_chat|

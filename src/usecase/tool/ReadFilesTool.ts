@@ -3,8 +3,8 @@ import type { DataContent } from "ai";
 import { globby } from "globby";
 import { z } from "zod";
 
-async function glob(pattern: string) {
-	return await globby([`**/${pattern}`], { gitignore: true });
+async function glob(cwd: string, pattern: string) {
+	return await globby([`**/${pattern}`], { cwd, gitignore: true, dot: true });
 }
 
 export const inputSchema = z.object({
@@ -20,18 +20,20 @@ export const outputSchema = z.array(
 );
 
 export async function getFiles(
-	iGlob: (pattern: string) => Promise<string[]>,
+	cwd: string,
+	iGlob: (cwd: string, pattern: string) => Promise<string[]>,
 	filenames: string[],
 ): Promise<z.infer<typeof outputSchema>> {
 	const result: z.infer<typeof outputSchema> = [];
 	const notFounds: string[] = [];
 	for (const filename of filenames) {
 		try {
-			const file = Bun.file(filename);
+			const filepath = Bun.resolveSync(`./${filename}`, cwd);
+			const file = Bun.file(filepath);
 			if (await file.exists()) {
 				const data = await file.bytes();
 				result.push({
-					filepath: Bun.resolveSync(filename, process.cwd()),
+					filepath,
 					type: "file",
 					data,
 					mimeType: file.type,
@@ -46,16 +48,21 @@ export async function getFiles(
 
 	if (notFounds.length > 0) {
 		for (const notFound of notFounds) {
-			for (const filename of await iGlob(notFound)) {
-				const file = Bun.file(filename);
-				if (file.exists()) {
-					const data = await file.bytes();
-					result.push({
-						filepath: Bun.resolveSync(filename, process.cwd()),
-						type: "file",
-						data,
-						mimeType: file.type,
-					});
+			for (const filename of await iGlob(cwd, notFound)) {
+				try {
+					const filepath = Bun.resolveSync(`./${filename}`, cwd);
+					const file = Bun.file(filepath);
+					if (file.exists()) {
+						const data = await file.bytes();
+						result.push({
+							filepath,
+							type: "file",
+							data,
+							mimeType: file.type,
+						});
+					}
+				} catch (error) {
+					console.log(`[senpai] ReadFilesTool error: ${error}`);
 				}
 			}
 		}
@@ -63,12 +70,13 @@ export async function getFiles(
 	return result;
 }
 
-export const ReadFilesTool = createTool({
-	id: "get-files",
-	description: "Read files",
-	inputSchema,
-	outputSchema,
-	execute: async ({ context: { filenames } }) => {
-		return await getFiles(glob, filenames);
-	},
-});
+export const ReadFilesTool = (cwd: string) =>
+	createTool({
+		id: "get-files",
+		description: "Read files",
+		inputSchema,
+		outputSchema,
+		execute: async ({ context: { filenames } }) => {
+			return await getFiles(cwd, glob, filenames);
+		},
+	});

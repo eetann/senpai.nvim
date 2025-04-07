@@ -11,6 +11,7 @@ export const ChatSchema = z.string();
 
 export class ChatAgent extends Agent {
 	constructor(
+		cwd: string,
 		memory: Memory,
 		vector: LibSQLVector,
 		model: AgentConfig["model"],
@@ -125,7 +126,7 @@ ${system_prompt}
 			model,
 			tools: {
 				// PascalCase name
-				ReadFilesTool,
+				ReadFilesTool: ReadFilesTool(cwd),
 				// @ts-ignore
 				VectorQueryTool: VectorQueryTool(vector, embeddingModel),
 				...mcpTools,
