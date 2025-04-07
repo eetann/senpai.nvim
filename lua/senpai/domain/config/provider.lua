@@ -56,6 +56,8 @@ local M = {}
 ---@doc.type
 ---@class senpai.Config.providers: senpai.Config.provider.settings
 ---@field default senpai.Config.provider.name|string
+
+---@type senpai.Config.providers
 M.default_config = {
   default = "openrouter",
   anthropic = { model_id = "claude-3-7-sonnet-20250219" },
