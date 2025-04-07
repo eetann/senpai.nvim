@@ -59,7 +59,7 @@ function M:process_chunk(text)
     -- ---
     -- 0:"<replace>"
     -- 0:"local utils"
-    self:process_line(chunk)
+    self:process_line(chunk, is_lastline)
     if not is_lastline then
       self.line = ""
     end
@@ -67,7 +67,8 @@ function M:process_chunk(text)
 end
 
 ---@param chunk string
-function M:process_line(chunk)
+---@param is_lastline boolean
+function M:process_line(chunk, is_lastline)
   local lower_line = string.lower(self.line)
   if self.replace_file_current.id == "" then
     if lower_line:match("<replace_file>") then
@@ -78,19 +79,21 @@ function M:process_line(chunk)
     return
   end
 
-  local tag_handlers = {
-    ["</replace_file>"] = self.process_end_replace_file,
-    ["<path>.*</path>"] = self.process_path_tag,
-    ["<search>"] = self.process_start_search_tag,
-    ["</search>"] = self.process_end_search_tag,
-    ["<replace>"] = self.process_start_replace_tag,
-    ["</replace>"] = self.process_end_replace_tag,
-  }
+  if not is_lastline then
+    local tag_handlers = {
+      ["</replace_file>"] = self.process_end_replace_file,
+      ["<path>.*</path>"] = self.process_path_tag,
+      ["<search>"] = self.process_start_search_tag,
+      ["</search>"] = self.process_end_search_tag,
+      ["<replace>"] = self.process_start_replace_tag,
+      ["</replace>"] = self.process_end_replace_tag,
+    }
 
-  for pattern, handler in pairs(tag_handlers) do
-    if lower_line:match(pattern) then
-      handler(self)
-      return
+    for pattern, handler in pairs(tag_handlers) do
+      if lower_line:match(pattern) then
+        handler(self)
+        return
+      end
     end
   end
 

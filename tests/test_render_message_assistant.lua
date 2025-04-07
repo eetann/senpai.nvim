@@ -93,10 +93,9 @@ T["assistant <replace_file> real"] = function()
   )
   child.lua("assistant:process_chunk(...)", { "/senpai/usecase/message/" })
   child.lua("assistant:process_chunk(...)", { "tool_call.lua</path>" })
-  eq(child.lua_get([[assistant.line]]), "")
   eq(
-    Helpers.get_line(child, bufnr, -2),
-    "filepath: lua/senpai/usecase/message/tool_call.lua"
+    child.lua_get([[assistant.line]]),
+    "<path>lua/senpai/usecase/message/tool_call.lua</path>"
   )
   child.lua(
     "assistant:process_chunk(...)",
@@ -112,11 +111,16 @@ T["assistant <replace_file> real"] = function()
   child.lua("assistant:process_chunk(...)", { 'ai.usecase.utils")' })
   child.lua("assistant:process_chunk(...)", { "\n\nlocal M = {}\n" })
   child.lua("assistant:process_chunk(...)", { "\n</search>\n<replace>" })
-  eq(Helpers.get_line(child, bufnr, -2), "```lua")
+  eq(
+    Helpers.get_line(child, bufnr, -2),
+    "filepath: lua/senpai/usecase/message/tool_call.lua"
+  )
   child.lua(
     "assistant:process_chunk(...)",
     { '\nlocal utils = require("senpai.use' }
   )
+  eq(Helpers.get_line(child, bufnr, -2), "```lua")
+  eq(Helpers.get_line(child, bufnr, -1), 'local utils = require("senpai.use')
   child.lua(
     "assistant:process_chunk(...)",
     { 'case.utils")\n\n---@class ToolCall' }
