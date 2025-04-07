@@ -45,14 +45,22 @@ function M:process_chunk(text)
   for i = 1, length do
     local chunk = lines[i]
     self.line = self.line .. chunk
+    local is_lastline = i == length
     -- chunk: `foo` newline=0
     -- chunk: `foo\nbar` newline=1,0
     -- chunk: `foo\n\nbar` newline=1,1,0
-    if length > 1 and i ~= length then
+    if length > 1 and not is_lastline then
       chunk = chunk .. "\n"
     end
+    -- TODO: これだと改行が次に入るパターンで失敗する
+    -- ---
+    -- 0:"...</path>"
+    -- 0:"\n</search>"
+    -- ---
+    -- 0:"<replace>"
+    -- 0:"local utils"
     self:process_line(chunk)
-    if i ~= length then
+    if not is_lastline then
       self.line = ""
     end
   end
@@ -119,6 +127,52 @@ function M:process_start_replace_file()
   )
 end
 
+function M:process_path_tag()
+  local path = utils.get_relative_path(self.line:sub(7, -8))
+  self.replace_file_current.path = path
+  self.replace_file_current.tag = nil
+  self.current_content = ""
+  self.line = ""
+  utils.replace_text_at_last(
+    self.chat.log_area.bufnr,
+    "filepath: " .. path .. "\n"
+  )
+end
+
+function M:process_start_search_tag()
+  self.replace_file_current.tag = "search"
+  self.current_content = ""
+  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
+  -- TODO: 検索スピナーの開始
+end
+
+function M:process_end_search_tag()
+  self.replace_file_current.search =
+    vim.split(self.current_content:gsub("\n$", ""), "\n")
+  self.replace_file_current.tag = nil
+  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
+  -- TODO: 検索スピナーの終了
+  self.line = ""
+end
+
+function M:process_start_replace_tag()
+  self.replace_file_current.tag = "replace"
+  self.current_content = ""
+  local filetype = utils.get_filetype(self.replace_file_current.path)
+  utils.replace_text_at_last(
+    self.chat.log_area.bufnr,
+    "```" .. filetype .. "\n"
+  )
+  self.line = ""
+end
+
+function M:process_end_replace_tag()
+  self.replace_file_current.replace =
+    vim.split(self.current_content:gsub("\n$", ""), "\n")
+  self.replace_file_current.tag = nil
+  utils.replace_text_at_last(self.chat.log_area.bufnr, "```" .. "\n")
+end
+
 function M:process_end_replace_file()
   self.chat.replace_file_results[self.replace_file_current.id] = vim.deepcopy({
     path = self.replace_file_current.path,
@@ -157,49 +211,6 @@ function M:process_end_replace_file()
   self.replace_file_current =
     { id = "", path = "", search = {}, replace = {}, start_line = 0 }
   self.replace_file_current.tag = nil
-end
-
-function M:process_path_tag()
-  local path = utils.get_relative_path(self.line:sub(7, -8))
-  self.replace_file_current.path = path
-  self.replace_file_current.tag = nil
-  self.current_content = ""
-  utils.replace_text_at_last(
-    self.chat.log_area.bufnr,
-    "filepath: " .. path .. "\n"
-  )
-end
-
-function M:process_start_search_tag()
-  self.replace_file_current.tag = "search"
-  self.current_content = ""
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
-  -- TODO: 検索スピナーの開始
-end
-
-function M:process_end_search_tag()
-  self.replace_file_current.search =
-    vim.split(self.current_content:gsub("\n$", ""), "\n")
-  self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
-  -- TODO: 検索スピナーの終了
-end
-
-function M:process_start_replace_tag()
-  self.replace_file_current.tag = "replace"
-  self.current_content = ""
-  local filetype = utils.get_filetype(self.replace_file_current.path)
-  utils.replace_text_at_last(
-    self.chat.log_area.bufnr,
-    "```" .. filetype .. "\n"
-  )
-end
-
-function M:process_end_replace_tag()
-  self.replace_file_current.replace =
-    vim.split(self.current_content:gsub("\n$", ""), "\n")
-  self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "```" .. "\n")
 end
 
 function M:process_content_line(chunk)

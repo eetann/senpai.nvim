@@ -17,6 +17,13 @@ Helpers.new_child_neovim = function()
   child.setup = function()
     child.restart({ "-u", "scripts/test/minimal_init.lua" })
     child.bo.readonly = false
+    -- Don't conceal code blocks on Markdown for screenshot
+    -- https://github.com/nvim-treesitter/nvim-treesitter/issues/5751#issuecomment-2311310008
+    child.lua("require('vim.treesitter.query').set(...)", {
+      "markdown",
+      "highlights",
+      ";From MDeiml/tree-sitter-markdown\n[(fenced_code_block_delimiter)] @punctuation.delimiter",
+    })
   end
 
   child.load = function(config)
