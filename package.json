@@ -15,6 +15,17 @@
 		"ai": "^4.2.10",
 		"globby": "^14.1.0",
 		"hono": "^4.7.5",
+		"mdast": "^3.0.0",
+		"remark-frontmatter": "^5.0.0",
+		"remark-mdx": "^3.1.0",
+		"remark-mdx-frontmatter": "^5.1.0",
+		"remark-parse": "^11.0.0",
+		"remark-stringify": "^11.0.0",
+		"unified": "^11.0.5",
+		"unist": "^0.0.1",
+		"unist-util-visit": "^5.0.0",
+		"vfile": "^6.0.3",
+		"vfile-matter": "^5.0.1",
 		"zod": "^3.24.2"
 	},
 	"overrides": {
