@@ -202,7 +202,14 @@ function M:create_items()
   local actions = vim.deepcopy(ChatConfig.actions)
   ---@type NuiTree.Node[]
   local items = {
-    Menu.separator("j/k/<CR>/q/<ESC>", { char = " " }),
+    Menu.separator(
+      Line({
+        Text("j/k  q/<ESC>  "),
+        Text("<CR>", "@constant.builtin"),
+        Text(":execute"),
+      }),
+      { char = " " }
+    ),
     Menu.separator(Text("common", "@markup.heading")),
   }
   for _, keymap in pairs(self.common) do

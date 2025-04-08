@@ -34,7 +34,7 @@ let cwd = values.cwd;
 if (cwd === "") {
 	cwd = process.cwd();
 }
-let mcpTools: Record<string, unknown>;
+let mcpTools: Record<string, unknown> = { loading: {} };
 // `await` slows down the server startup, so it should be done in IIFE
 (async () => {
 	mcpTools = await new GetMcpToolsUseCase().execute(values.mcp);
