@@ -23,11 +23,17 @@ function M.execute()
     or tools == ""
   then
     content = "*No MCP Tools*"
+  elseif tools.loading then
+    vim.notify(
+      "[senpai] MCP Tools is loading. Please wait some time and execute again.",
+      vim.log.levels.INFO
+    )
+    return
   else
     content = vim.inspect(tools)
   end
 
-  content_popup.execute("MCP Tools", content)
+  content_popup.execute("MCP Tools", content, "lua")
 end
 
 return M

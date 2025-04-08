@@ -4,7 +4,8 @@ local M = {}
 
 ---@param title string
 ---@param content string
-function M.execute(title, content)
+---@param filetype? string
+function M.execute(title, content, filetype)
   local keys = { "<ESC>", "q", "<C-c>", "<CR>" }
   local popup = Popup({
     relative = "editor",
@@ -27,7 +28,7 @@ function M.execute(title, content)
       },
     },
     buf_options = {
-      filetype = "markdown",
+      filetype = filetype and filetype or "markdown",
     },
     enter = true,
   })
