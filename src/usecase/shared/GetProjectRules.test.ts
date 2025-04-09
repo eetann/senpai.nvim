@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import path from "node:path";
 import { GetProjectRules } from "./GetProjectRules";
 
 test("GetProjectRules parse works", async () => {
@@ -17,7 +18,7 @@ Ohayo!`;
 			description: "Front-end side of senpai.nvim",
 			globs: "lua/senpai/**/*.lua",
 		},
-		content: "\nOhayo!\n",
+		content: "Ohayo!\n",
 	});
 });
 
@@ -33,11 +34,33 @@ Ohayo!`;
 	const result = await usecase.parse(text);
 	expect(result).toEqual({
 		frontmatter: {},
-		content: "\nOhayo!\n",
+		content: "Ohayo!\n",
 	});
 });
 
-test("GetProjectRules parse with expression", async () => {
+test("GetProjectRules parse with good expression", async () => {
+	const usecase = new GetProjectRules(process.cwd());
+
+	const text = `\
+---
+description: "Front-end side of senpai.nvim"
+globs: "lua/senpai/**/*.lua"
+---
+
+export const foo = "Ohayo"
+
+{foo}!`;
+	const result = await usecase.parse(text);
+	expect(result).toEqual({
+		frontmatter: {
+			description: "Front-end side of senpai.nvim",
+			globs: "lua/senpai/**/*.lua",
+		},
+		content: "Ohayo!\n",
+	});
+});
+
+test("GetProjectRules parse with bad expression", async () => {
 	const usecase = new GetProjectRules(process.cwd());
 
 	const text = `\
@@ -55,6 +78,22 @@ const foo = "Ohayo"
 			description: "Front-end side of senpai.nvim",
 			globs: "lua/senpai/**/*.lua",
 		},
-		content: "\nOhayo!\n",
+		content: "",
+	});
+});
+
+test("GetProjectRules execute", async () => {
+	const usecase = new GetProjectRules(process.cwd());
+
+	const text = await Bun.file(
+		path.join(process.cwd(), ".senpai/prompts/front_end.mdx"),
+	).text();
+	const result = await usecase.parse(text);
+	expect(result).toEqual({
+		frontmatter: {
+			description: "Front-end side of senpai.nvim",
+			globs: "lua/senpai/**/*.lua",
+		},
+		content: "baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 	});
 });

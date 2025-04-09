@@ -1,77 +1,20 @@
 import { readdir } from "node:fs/promises";
 import path from "node:path";
-import type { Node, Text } from "mdast";
+import { compileSync, evaluateSync, runSync } from "@mdx-js/mdx";
+import type { Node } from "mdast";
+import { createElement } from "preact";
+import renderToString from "preact-render-to-string";
+import * as runtime from "preact/jsx-runtime";
+import rehypeParse from "rehype-parse";
+import rehypeRemark from "rehype-remark";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdx from "remark-mdx";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
-import remarkParse from "remark-parse";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
-import type { Parent } from "unist";
-import { SKIP, visit } from "unist-util-visit";
 import type { VFile } from "vfile";
 import { matter } from "vfile-matter";
 import { z } from "zod";
-
-interface NodeWithValue extends Node {
-	value?: string;
-}
-
-function processMdxFlowExpression() {
-	return (tree: Node) => {
-		// importを削除
-		visit(tree, "mdxjsEsm", (_, index, parent: Parent) => {
-			if (parent && index !== null) {
-				parent.children.splice(index, 1);
-				return [SKIP, index];
-			}
-		});
-		// JSX要素のテキストコンテンツを抽出して保持
-		visit(
-			tree,
-			["mdxJsxFlowElement", "mdxJsxTextElement"],
-			(node, index, parent: Parent) => {
-				if (!parent || index === null) return;
-
-				// テキストノードを収集
-				const textNodes: Text[] = [];
-				visit(node, "text", (textNode) => {
-					textNodes.push(textNode);
-				});
-
-				// テキストノードがあれば、それらを親に直接追加
-				if (textNodes.length > 0) {
-					const newNodes = textNodes.map((n) => ({
-						type: "text",
-						value: n.value,
-					}));
-					parent.children.splice(index, 1, ...newNodes);
-					return [SKIP, index];
-				}
-				// テキストノードがなければ削除
-				parent.children.splice(index, 1);
-				return [SKIP, index];
-			},
-		);
-
-		// 式を処理
-		// TODO: これだと変数の評価ができてない
-		// visit(
-		// 	tree,
-		// 	["mdxFlowExpression", "mdxTextExpression"],
-		// 	(node, index, parent: Parent) => {
-		// 		if (parent && index !== null) {
-		// 			const newNode: Text = {
-		// 				type: "text",
-		// 				value: (node as NodeWithValue).value || "",
-		// 			};
-		// 			parent.children.splice(index, 1, newNode);
-		// 			return index;
-		// 		}
-		// 	},
-		// );
-	};
-}
 
 const frontmatterSchema = z.object({
 	description: z.string(),
@@ -110,26 +53,49 @@ export class GetProjectRules {
 		}
 	}
 	async parse(text: string): Promise<ProjectRule> {
-		const processor = unified()
-			.use(remarkParse)
-			.use(remarkFrontmatter)
-			.use(remarkMdxFrontmatter)
-			.use(remarkMdx)
-			.use(() => {
-				return (_tree: Node, file: VFile) => {
-					matter(file);
-				};
-			})
-			.use(processMdxFlowExpression)
-			.use(remarkStringify);
-
-		const file = await processor.process(text);
-		let content = String(file);
-		content = content.replace(/^\n\n---\n[\s\S]*?\n---\n/, "");
 		let frontmatter = {};
-		const parsed = frontmatterSchema.safeParse(file.data.matter);
-		if (parsed.success) {
-			frontmatter = parsed.data;
+		let content = "";
+		try {
+			const compiledCode = compileSync(text, {
+				development: true,
+				providerImportSource: "preact",
+				outputFormat: "program",
+				pragma: "Precat.createElement",
+				jsxImportSource: "preact",
+				baseUrl: `file://${this.dir}`,
+				remarkPlugins: [
+					remarkFrontmatter,
+					remarkMdxFrontmatter,
+					() => {
+						return (_tree: Node, file: VFile) => {
+							matter(file);
+							frontmatter = file.data.matter;
+						};
+					},
+				],
+			});
+			console.log(compiledCode.value);
+
+			// コンパイルされたコードを実行
+			const { default: mdx } = runSync(compiledCode, runtime);
+			const parsed = frontmatterSchema.safeParse(frontmatter);
+			if (parsed.success) {
+				frontmatter = parsed.data;
+			} else {
+				frontmatter = {};
+			}
+
+			const html = renderToString(createElement(mdx, {}));
+			const processor = unified()
+				.use(rehypeParse)
+				.use(remarkMdx)
+				.use(rehypeRemark)
+				.use(remarkStringify);
+
+			const file = await processor.process(html);
+			content = String(file);
+		} catch (error) {
+			console.log(`[senpai] failed to parse: ${error}`);
 		}
 
 		return { content, frontmatter };
