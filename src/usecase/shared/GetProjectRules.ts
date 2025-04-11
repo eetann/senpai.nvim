@@ -30,7 +30,7 @@ const frontmatterSchema = z.object({
 	globs: z.optional(z.union([z.string(), z.array(z.string())])),
 });
 
-type ProjectRule = {
+export type ProjectRule = {
 	content: string;
 	frontmatter: z.infer<typeof frontmatterSchema>;
 };
