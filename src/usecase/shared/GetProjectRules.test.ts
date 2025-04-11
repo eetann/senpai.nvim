@@ -18,7 +18,7 @@ Ohayo!`;
 			description: "Front-end side of senpai.nvim",
 			globs: "lua/senpai/**/*.lua",
 		},
-		content: "Ohayo!\n",
+		content: "Ohayo!",
 	});
 });
 
@@ -34,7 +34,7 @@ Ohayo!`;
 	const result = await usecase.parse(text);
 	expect(result).toEqual({
 		frontmatter: {},
-		content: "Ohayo!\n",
+		content: "Ohayo!",
 	});
 });
 
@@ -56,7 +56,7 @@ export const foo = "Ohayo"
 			description: "Front-end side of senpai.nvim",
 			globs: "lua/senpai/**/*.lua",
 		},
-		content: "Ohayo!\n",
+		content: "Ohayo!",
 	});
 });
 
@@ -74,10 +74,7 @@ const foo = "Ohayo"
 {foo}!`;
 	const result = await usecase.parse(text);
 	expect(result).toEqual({
-		frontmatter: {
-			description: "Front-end side of senpai.nvim",
-			globs: "lua/senpai/**/*.lua",
-		},
+		frontmatter: {},
 		content: "",
 	});
 });
@@ -86,14 +83,15 @@ test("GetProjectRules execute", async () => {
 	const usecase = new GetProjectRules(process.cwd());
 
 	const text = await Bun.file(
-		path.join(process.cwd(), ".senpai/prompts/front_end.mdx"),
+		path.join(process.cwd(), "src/usecase/shared/rule_test.mdx"),
 	).text();
 	const result = await usecase.parse(text);
 	expect(result).toEqual({
 		frontmatter: {
-			description: "Front-end side of senpai.nvim",
+			description: "test",
 			globs: "lua/senpai/**/*.lua",
 		},
-		content: "baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		content:
+			'When you refer to this file, greet it with "Foooooooo!"\n\nYou are a professional Neovim plugin developer and are familiar with Lua.',
 	});
 });
