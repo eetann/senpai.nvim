@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { bundleMDX } from "mdx-bundler";
-import { getMDXComponent } from "mdx-bundler/client/index.js";
+import { getMDXComponent } from "mdx-bundler/client/jsx.js";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import * as Preact from "preact";
 import renderToString from "preact-render-to-string";
@@ -37,8 +37,8 @@ type ProjectRule = {
 
 export class GetProjectRules {
 	private dir: string;
-	constructor(cwd: string) {
-		this.dir = path.join(cwd, ".senpai/prompts");
+	constructor(cwd: string, prompts_dir = ".senpai/prompts") {
+		this.dir = path.join(cwd, prompts_dir);
 	}
 
 	async execute(): Promise<ProjectRule[]> {
@@ -67,13 +67,6 @@ export class GetProjectRules {
 				source,
 				cwd: this.dir,
 				jsxConfig: jsxBundlerConfig,
-				// esbuildOptions: (esbuildOptions) => {
-				// 	return {
-				// 		...esbuildOptions,
-				// 		platform: "node",
-				// 		external: ["preact", "preact-dom"],
-				// 	};
-				// },
 			});
 			const parsed = frontmatterSchema.safeParse(frontmatter);
 			if (parsed.success) {

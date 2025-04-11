@@ -61,7 +61,7 @@ export const foo = "Ohayo"
 });
 
 test("GetProjectRules parse with bad expression", async () => {
-	const usecase = new GetProjectRules(process.cwd());
+	const usecase = new GetProjectRules(process.cwd(), "");
 
 	const text = `\
 ---
@@ -80,11 +80,10 @@ const foo = "Ohayo"
 });
 
 test("GetProjectRules execute", async () => {
-	const usecase = new GetProjectRules(process.cwd());
+	const dir = path.join(process.cwd(), "src/usecase/shared");
+	const usecase = new GetProjectRules(dir, "");
 
-	const text = await Bun.file(
-		path.join(process.cwd(), "src/usecase/shared/rule_test.mdx"),
-	).text();
+	const text = await Bun.file(path.join(dir, "rule_test.mdx")).text();
 	const result = await usecase.parse(text);
 	expect(result).toEqual({
 		frontmatter: {
