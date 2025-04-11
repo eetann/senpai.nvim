@@ -79,7 +79,7 @@ const foo = "Ohayo"
 	});
 });
 
-test("GetProjectRules execute", async () => {
+test("GetProjectRules real file", async () => {
 	const dir = path.join(process.cwd(), "src/usecase/shared");
 	const usecase = new GetProjectRules(dir, "");
 
