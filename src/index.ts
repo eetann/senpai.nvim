@@ -31,7 +31,7 @@ if (Number.isNaN(port)) {
 	port = 0;
 }
 let cwd = values.cwd;
-if (cwd === "") {
+if (!cwd || cwd === "") {
 	cwd = process.cwd();
 }
 let mcpTools: Record<string, unknown> = { loading: {} };

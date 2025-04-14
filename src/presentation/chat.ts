@@ -1,6 +1,7 @@
 import { embeddingModel, getModel, providerSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
 import { vector } from "@/infra/Vector";
+import { MakeUserMessageUseCase } from "@/usecase/MakeUserMessageUseCase";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
@@ -71,34 +72,29 @@ app.openapi(
 		if (thread == null) {
 			isFirstMessage = true;
 		}
-		const agentStream = await agent.stream(
-			[
-				{
-					role: "user",
-					content: command.text,
-				},
-			],
-			{
-				threadId: command.thread_id,
-				resourceId: "senpai",
-				onFinish: async () => {
-					if (isFirstMessage) {
-						// insert metadata
-						const thread = await memory.getThreadById({
-							threadId: command.thread_id,
-						});
-						await memory.updateThread({
-							id: command.thread_id,
-							title: thread.title,
-							metadata: {
-								provider: command.provider,
-								system_prompt: command.system_prompt ?? "",
-							},
-						});
-					}
-				},
-			},
+		const userMessage = await new MakeUserMessageUseCase(cwd).execute(
+			command.text,
 		);
+		const agentStream = await agent.stream([userMessage], {
+			threadId: command.thread_id,
+			resourceId: "senpai",
+			onFinish: async () => {
+				if (isFirstMessage) {
+					// insert metadata
+					const thread = await memory.getThreadById({
+						threadId: command.thread_id,
+					});
+					await memory.updateThread({
+						id: command.thread_id,
+						title: thread.title,
+						metadata: {
+							provider: command.provider,
+							system_prompt: command.system_prompt ?? "",
+						},
+					});
+				}
+			},
+		});
 		return agentStream.toDataStreamResponse();
 	},
 );
