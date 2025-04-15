@@ -60,10 +60,10 @@ ${await file.text()}
 	}
 
 	extractFiles(text: string): CodeBlockHeader[] {
-		const pattern = /`@([^`]+)`/g;
+		const pattern = /\[[^\]]+\]\(((\/|\.\/).+?)\)/g;
 		return [...text.matchAll(pattern)].map((m) => {
-			const filename = m[1];
-			return { language: inferLanguage(filename), filename };
+			const filepath = m[1];
+			return { language: inferLanguage(filepath), filename: filepath };
 		});
 	}
 }

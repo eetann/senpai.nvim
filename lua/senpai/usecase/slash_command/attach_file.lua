@@ -1,7 +1,14 @@
+local Path = require("plenary.path")
+
 local M = {}
 
-local function make_mention(text)
-  return "`@" .. text .. "`"
+local function make_link(filename)
+  local file_only = vim.fn.fnamemodify(filename, ":t")
+  local path = Path:new({ filename })
+  if not path:is_absolute() then
+    filename = "." .. path._sep .. filename
+  end
+  return "[" .. file_only .. "](" .. filename .. ")"
 end
 
 ---@param chat senpai.IChatWindow
@@ -10,7 +17,7 @@ local function insert2chat(chat, filenames)
   local row, col = unpack(vim.api.nvim_win_get_cursor(chat.input_area.winid))
 
   for _, filename in ipairs(filenames) do
-    local mention = make_mention(filename)
+    local mention = make_link(filename)
     vim.api.nvim_buf_set_text(
       chat.input_area.bufnr,
       row - 1,
@@ -19,21 +26,6 @@ local function insert2chat(chat, filenames)
       col,
       { mention .. " " }
     )
-    local file_only = vim.fn.fnamemodify(filename, ":t")
-    local dir_length = #filename - #file_only
-    if dir_length > 0 then
-      local namespace = vim.api.nvim_create_namespace("sepnai-chat")
-      vim.api.nvim_buf_set_extmark(
-        chat.input_area.bufnr,
-        namespace,
-        row - 1,
-        col + 2, -- after @
-        {
-          end_col = col + 2 + dir_length,
-          conceal = "",
-        }
-      )
-    end
 
     col = col + #mention + 1
   end

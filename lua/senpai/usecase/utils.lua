@@ -140,13 +140,16 @@ end
 ---@param text string
 ---@return {language:string, filename:string}[]
 function M.extract_code_block_headers(text)
-  local pattern = "`@([^`]+)`"
   local code_block_headers = {}
-  for match in string.gmatch(text, pattern) do
-    table.insert(code_block_headers, {
-      language = M.get_filetype(match),
-      filename = match,
-    })
+  local pattern = "%[([^%]]+)%]%(([^%)]+)%)"
+  for _, path in string.gmatch(text, pattern) do
+    -- start with `/` or `./`
+    if path:match("^/") or path:match("^%./") then
+      table.insert(code_block_headers, {
+        language = M.get_filetype(path),
+        filename = path,
+      })
+    end
   end
 
   return code_block_headers

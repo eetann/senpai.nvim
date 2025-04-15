@@ -32,10 +32,10 @@ By default, send to AI with `<CR>`.<br/>
 
 
 ### read file
-There are two ways to load files: "Mention Format" and "Automatic".
+There are two ways to load files: "Link format" and "Automatic".
 
 
-#### Mention Format
+#### Link format
 Entering `/file` will open the finder and allow you to preview and select the file you wish to attach. The currently supported plugins are as follows
 
 - completion plugin
@@ -43,7 +43,13 @@ Entering `/file` will open the finder and allow you to preview and select the fi
 - finder
     - [snacks.nvim](https://github.com/folke/snacks.nvim) picker
 
-You can manually mentions plug-ins, even if they are not supported. Write the file name with back quotes and the `@` symbol, such as `` `@foo/bar/buz.txt` ``
+Links can be inserted manually without a plugin.
+
+```txt
+Explain [foo.txt](/workspace/foo.txt)
+```
+
+File paths can be absolute or relative, such as starting with `./`.
 
 
 #### Automatic
