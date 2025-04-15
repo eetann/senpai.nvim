@@ -1,6 +1,12 @@
 local utils = require("senpai.usecase.utils")
 local M = {}
 
+local function removeReferenceSection(text)
+  -- \n---\n\nReference
+  local result = string.gsub(text, "\n%-%-%-\n\nReference.-$", "")
+  return result
+end
+
 -- index: content
 -- x: [[
 -- 0: <SenpaiUserInput>
@@ -100,7 +106,7 @@ function M.render_from_memory(chat, message)
   local content = message.content
   if type(content) == "string" then
     local lines = {}
-    for _, text in pairs(vim.split(content, "\n")) do
+    for _, text in pairs(vim.split(removeReferenceSection(content), "\n")) do
       table.insert(lines, text)
     end
     base_render(chat, lines)
@@ -110,7 +116,7 @@ function M.render_from_memory(chat, message)
   local lines = {}
   for _, part in pairs(content) do
     if part.type == "text" then
-      for _, text in pairs(vim.split(part.text, "\n")) do
+      for _, text in pairs(vim.split(removeReferenceSection(part.text), "\n")) do
         table.insert(lines, text)
       end
     end

@@ -1,7 +1,10 @@
 import { embeddingModel, getModel, providerSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
 import { vector } from "@/infra/Vector";
-import { MakeUserMessageUseCase } from "@/usecase/MakeUserMessageUseCase";
+import {
+	type CodeBlockHeader,
+	MakeUserMessageUseCase,
+} from "@/usecase/MakeUserMessageUseCase";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
@@ -12,11 +15,21 @@ type Variables = {
 
 const app = new OpenAPIHono<{ Variables: Variables }>().basePath("/chat");
 
+const codeBlockHeadersSchema = z.optional(
+	z.array(
+		z.object({
+			language: z.string(),
+			filename: z.string(),
+		}),
+	),
+);
+
 const chatControllerSchema = z.object({
 	thread_id: z.string(),
 	provider: providerSchema,
 	system_prompt: z.optional(z.string()),
 	text: z.string(),
+	code_block_headers: codeBlockHeadersSchema,
 });
 
 app.openapi(
@@ -74,6 +87,7 @@ app.openapi(
 		}
 		const userMessage = await new MakeUserMessageUseCase(cwd).execute(
 			command.text,
+			command.code_block_headers as CodeBlockHeader[],
 		);
 		const agentStream = await agent.stream([userMessage], {
 			threadId: command.thread_id,

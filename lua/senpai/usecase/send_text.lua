@@ -56,6 +56,11 @@ function M.execute(chat, user_input)
     text = user_input,
     system_prompt = chat.system_prompt,
   }
+  local code_block_headers = utils.extract_code_block_headers(user_input)
+  if #code_block_headers > 0 then
+    body.code_block_headers = code_block_headers
+    -- TODO: チャットにシンボルを残す
+  end
   chat.job = RequestHandler.streamRequest({
     method = "post",
     route = "/chat",

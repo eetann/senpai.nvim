@@ -13,7 +13,7 @@ function inferLanguage(filepath: string): string {
 	return "txt";
 }
 
-type CodeBlockHeader = {
+export type CodeBlockHeader = {
 	language: string;
 	filename: string;
 };
@@ -30,6 +30,7 @@ export class MakeUserMessageUseCase {
 		if (!headers) {
 			headers = this.extractFiles(text);
 		}
+		content += "\n---\n\nReference";
 		for (const header of headers) {
 			let absolute_path = header.filename;
 			try {
