@@ -20,10 +20,7 @@ function M.execute(chat)
   local original_filetype =
     vim.api.nvim_get_option_value("filetype", { buf = original_buf })
 
-  local range = utils.get_range_by_search(
-    vim.api.nvim_get_current_win(),
-    table.concat(result.search, "\n")
-  )
+  local range = utils.find_text(result.path, table.concat(result.search, "\n"))
   if range.start_line == 0 then
     vim.notify("[senpai]: Could not find code.", vim.log.levels.WARN)
     return
