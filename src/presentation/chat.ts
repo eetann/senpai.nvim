@@ -1,16 +1,19 @@
 import { embeddingModel, getModel, providerSchema } from "@/infra/GetModel";
 import { memory } from "@/infra/Memory";
 import { vector } from "@/infra/Vector";
+import { GetApplicableRules } from "@/usecase/GetApplicableRules";
 import {
 	type CodeBlockHeader,
 	MakeUserMessageUseCase,
 } from "@/usecase/MakeUserMessageUseCase";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
+import type { ProjectRule } from "@/usecase/shared/GetProjectRules";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
 type Variables = {
 	cwd: string;
 	mcpTools: Record<string, unknown>;
+	rules: ProjectRule[];
 };
 
 const app = new OpenAPIHono<{ Variables: Variables }>().basePath("/chat");
@@ -71,6 +74,16 @@ app.openapi(
 		const model = getModel(command.provider);
 		const cwd = c.get("cwd");
 		const mcpTools = c.get("mcpTools");
+		const rules = c.get("rules");
+
+		const userMessage = await new MakeUserMessageUseCase(cwd).execute(
+			command.text,
+			command.code_block_headers as CodeBlockHeader[],
+		);
+		const rulePrompt = await new GetApplicableRules(rules).execute(
+			command.code_block_headers?.map((h) => h.filename) ?? [],
+		);
+
 		const agent = new ChatAgent(
 			cwd,
 			memory,
@@ -78,17 +91,13 @@ app.openapi(
 			model,
 			embeddingModel,
 			mcpTools,
-			command.system_prompt,
+			`${command.system_prompt}\n${rulePrompt}`,
 		);
 		const thread = await memory.getThreadById({ threadId: command.thread_id });
 		let isFirstMessage = false;
 		if (thread == null) {
 			isFirstMessage = true;
 		}
-		const userMessage = await new MakeUserMessageUseCase(cwd).execute(
-			command.text,
-			command.code_block_headers as CodeBlockHeader[],
-		);
 		const agentStream = await agent.stream([userMessage], {
 			threadId: command.thread_id,
 			resourceId: "senpai",
