@@ -33,12 +33,12 @@ const filePartSchema = z.object({
 	mimeType: z.string(),
 });
 
-const userContentSchema = z.union([
+export const userContentSchema = z.union([
 	z.string(),
 	z.array(z.union([textPartSchema, imagePartSchema, filePartSchema])),
 ]);
 
-const userMessageSchema = z
+export const userMessageSchema = z
 	.object({
 		role: z.literal("user"),
 		content: userContentSchema,

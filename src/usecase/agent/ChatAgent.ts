@@ -112,7 +112,9 @@ Good case:
 
 ## Tool
 ### ReadFilesTool
-read files. If you want to actually edit the file, use \`replace_file\` tag instead of the tool.
+read files. **Basically not used.**
+If the user message says \`@foo/bar.txt\`, do not use this tool, but **silently** decode the attached base64 data. Then read it in.
+If you want to actually edit the file, use \`replace_file\` tag instead of the tool.
 Use it only when the user asks for it.
 
 ### VectorQueryTool

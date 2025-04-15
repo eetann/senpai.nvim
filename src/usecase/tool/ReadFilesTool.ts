@@ -52,7 +52,7 @@ export async function getFiles(
 				try {
 					const filepath = Bun.resolveSync(`./${filename}`, cwd);
 					const file = Bun.file(filepath);
-					if (file.exists()) {
+					if (await file.exists()) {
 						const data = await file.bytes();
 						result.push({
 							filepath,

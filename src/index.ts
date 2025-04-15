@@ -8,6 +8,7 @@ import mcp from "./presentation/mcp";
 import rag from "./presentation/rag";
 import thread from "./presentation/thread";
 import { GetMcpToolsUseCase } from "./usecase/GetMcpToolsUseCase";
+import { GetProjectRules, ProjectRule } from "./usecase/shared/GetProjectRules";
 
 const { values } = parseArgs({
 	args: Bun.argv,
@@ -31,7 +32,7 @@ if (Number.isNaN(port)) {
 	port = 0;
 }
 let cwd = values.cwd;
-if (cwd === "") {
+if (!cwd || cwd === "") {
 	cwd = process.cwd();
 }
 let mcpTools: Record<string, unknown> = { loading: {} };
@@ -40,9 +41,12 @@ let mcpTools: Record<string, unknown> = { loading: {} };
 	mcpTools = await new GetMcpToolsUseCase().execute(values.mcp);
 })();
 
+const rules = await new GetProjectRules(cwd).execute();
+
 type Variables = {
 	cwd: string;
 	mcpTools: Record<string, unknown>;
+	rules: ProjectRule[];
 };
 
 const app = new OpenAPIHono<{ Variables: Variables }>();
@@ -50,6 +54,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>();
 app.use(async (c, next) => {
 	c.set("cwd", cwd);
 	c.set("mcpTools", mcpTools);
+	c.set("rules", rules);
 	await next();
 });
 
