@@ -1,21 +1,19 @@
 import { expect, test } from "bun:test";
 import path from "node:path";
-import { file } from "valibot";
 import { MakeUserMessageUseCase } from "./MakeUserMessageUseCase";
 
 test("extracts basic filename", () => {
 	const input = "hello `@foo/bar/buz.txt` world";
-	const matches = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
-	const result = matches.map((match) => match[1]);
-	expect(result).toEqual(["foo/bar/buz.txt"]);
+	const result = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
+	expect(result[0]).toEqual({ language: "text", filename: "foo/bar/buz.txt" });
 });
 
 // Multiple filenames test
 test("extracts multiple filenames", () => {
 	const input = "hello `@foo/bar/buz.txt` `@foo/piyo.lua` world";
-	const matches = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
-	const result = matches.map((match) => match[1]);
-	expect(result).toEqual(["foo/bar/buz.txt", "foo/piyo.lua"]);
+	const result = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
+	expect(result[0]).toEqual({ language: "text", filename: "foo/bar/buz.txt" });
+	expect(result[1]).toEqual({ language: "lua", filename: "foo/piyo.lua" });
 });
 
 // Invalid patterns test
@@ -26,33 +24,35 @@ test("ignores invalid patterns", () => {
     \`john@example.com\`
     \`@\` ← this has nothing after @ so it's not a filename
   `;
-	const matches = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
-	const result = matches.map((match) => match[1]);
-	expect(result).toEqual(["foo/bar/buz.txt"]);
+	const result = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
+	expect(result[0]).toEqual({ language: "text", filename: "foo/bar/buz.txt" });
 });
 
 // Empty input test
 test("returns empty array for empty input", () => {
 	const input = "";
-	const matches = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
-	const result = matches.map((match) => match[1]);
+	const result = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
 	expect(result).toEqual([]);
 });
 
 // Special characters test
 test("handles filenames with special characters", () => {
 	const input = "Check this: `@path/with space/file-name_123.txt`";
-	const matches = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
-	const result = matches.map((match) => match[1]);
-	expect(result).toEqual(["path/with space/file-name_123.txt"]);
+	const result = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
+	expect(result[0]).toEqual({
+		language: "text",
+		filename: "path/with space/file-name_123.txt",
+	});
 });
 
 // Japanese characters test
 test("handles filenames with Japanese characters", () => {
 	const input = "日本語ファイル: `@フォルダ/ファイル名.txt`";
-	const matches = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
-	const result = matches.map((match) => match[1]);
-	expect(result).toEqual(["フォルダ/ファイル名.txt"]);
+	const result = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
+	expect(result[0]).toEqual({
+		language: "text",
+		filename: "フォルダ/ファイル名.txt",
+	});
 });
 
 // Multiline text test
@@ -62,9 +62,12 @@ test("extracts filenames from multiline text", () => {
     Second line
     Third line \`@third/file.js\`
   `;
-	const matches = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
-	const result = matches.map((match) => match[1]);
-	expect(result).toEqual(["first/file.txt", "third/file.js"]);
+	const result = new MakeUserMessageUseCase(process.cwd()).extractFiles(input);
+	expect(result[0]).toEqual({ language: "text", filename: "first/file.txt" });
+	expect(result[1]).toEqual({
+		language: "javascript",
+		filename: "third/file.js",
+	});
 });
 
 test("execute adds file content to user message", async () => {

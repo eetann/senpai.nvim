@@ -13,32 +13,43 @@ function inferLanguage(filepath: string): string {
 	return "txt";
 }
 
+type CodeBlockHeader = {
+	language: string;
+	filename: string;
+};
+
 export class MakeUserMessageUseCase {
 	constructor(private cwd: string) {}
 
-	async execute(text: string): Promise<CoreUserMessage> {
+	async execute(
+		text: string,
+		codeBlockHeaders?: CodeBlockHeader[],
+	): Promise<CoreUserMessage> {
 		let content = text;
-		const matches = this.extractFiles(text);
-		for (const match of matches) {
-			const filename = match[1];
-			let absolute_path = filename;
+		let headers = codeBlockHeaders;
+		if (!headers) {
+			headers = this.extractFiles(text);
+		}
+		for (const header of headers) {
+			let absolute_path = header.filename;
 			try {
 				if (!path.isAbsolute(absolute_path)) {
 					absolute_path = Bun.resolveSync(absolute_path, this.cwd);
 				}
 				const file = Bun.file(absolute_path);
 				if (!(await file.exists())) {
-					console.log(`[senpai] File does not exist: ${filename}`);
+					console.log(`[senpai] File does not exist: ${header.filename}`);
 					continue;
 				}
-				const language = inferLanguage(filename);
 				content += `
-\`\`\`${language} title="${filename}"
+\`\`\`${header.language} title="${header.filename}"
 ${await file.text()}
 \`\`\`
 `;
 			} catch (error) {
-				console.log(`[senpai] File read error\n target: ${filename}\n${error}`);
+				console.log(
+					`[senpai] File read error\n target: ${header.filename}\n${error}`,
+				);
 			}
 		}
 		return {
@@ -47,8 +58,11 @@ ${await file.text()}
 		};
 	}
 
-	extractFiles(text: string): RegExpMatchArray[] {
+	extractFiles(text: string): CodeBlockHeader[] {
 		const pattern = /`@([^`]+)`/g;
-		return [...text.matchAll(pattern)];
+		return [...text.matchAll(pattern)].map((m) => {
+			const filename = m[1];
+			return { language: inferLanguage(filename), filename };
+		});
 	}
 }
