@@ -10,10 +10,10 @@ M.slash_commands = {
     description = "Attach a file to a message",
     callback = "attach_file",
   },
-  help = {
-    description = "Help for slash command",
-    callback = "help_for_slash_command",
-  },
+  -- help = {
+  --   description = "Help for slash command",
+  --   callback = "help_for_slash_command",
+  -- },
 }
 
 return M
