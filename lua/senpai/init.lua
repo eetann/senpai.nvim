@@ -23,6 +23,7 @@ senpai.setup = function(opts)
   require("senpai.presentation.client").start_server()
   -- require("senpai.presentation.highlight").set_highlights()
   require("senpai.command")
+  require("senpai.presentation.completion.init")
 end
 
 return senpai

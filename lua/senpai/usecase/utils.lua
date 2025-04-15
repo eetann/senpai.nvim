@@ -1,5 +1,4 @@
 local Path = require("plenary.path")
-local async = require("plenary.async")
 
 local M = {}
 
@@ -96,19 +95,39 @@ function M.get_replace_file_id()
   return id
 end
 
----@param winid number
 ---@param text string
+---@param end_pos number
+---@return number
+local function count_newlines(text, end_pos)
+  local count = 1
+  for _ in text:sub(1, end_pos):gmatch("\n") do
+    count = count + 1
+  end
+  return count
+end
+
 ---@return { start_line:number, end_line:number }
-function M.get_range_by_search(winid, text)
+function M.find_text(filename, text)
   -- Simply `end` is confusing due to the grammar, so `end_line` is used.
   local result = { start_line = 0, end_line = 0 }
-  local escaped_text, _ = text:gsub("\n", "\\_.")
-  -- TODO: 他にもエスケープが必要かも
-  vim.api.nvim_win_call(winid, function()
-    result.start_line = vim.fn.search(escaped_text) or 0
-  end)
-  result.end_line = result.start_line + #vim.split(text, "\n")
-  return result
+  local f = io.open(filename, "r")
+  if not f then
+    return result
+  end
+  local content = f:read("*a")
+  f:close()
+
+  local start_pos = content:find(vim.pesc(text))
+  if not start_pos then
+    return result
+  end
+
+  local start_line = count_newlines(content, start_pos)
+  local end_line = start_line + #vim.split(text, "\n")
+  return {
+    start_line = start_line,
+    end_line = end_line,
+  }
 end
 
 -- https://gist.github.com/haggen/2fd643ea9a261fea2094
@@ -136,6 +155,24 @@ function M.get_filetype(filepath)
     end
   end
   return filetype
+end
+
+---@param text string
+---@return {language:string, filename:string}[]
+function M.extract_code_block_headers(text)
+  local code_block_headers = {}
+  local pattern = "%[([^%]]+)%]%(([^%)]+)%)"
+  for _, path in string.gmatch(text, pattern) do
+    -- start with `/` or `./`
+    if path:match("^/") or path:match("^%./") then
+      table.insert(code_block_headers, {
+        language = M.get_filetype(path),
+        filename = path,
+      })
+    end
+  end
+
+  return code_block_headers
 end
 
 return M

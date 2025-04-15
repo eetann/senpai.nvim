@@ -9,6 +9,7 @@ local M = {}
 ---@doc.type
 ---@class senpai.Config.rag
 ---@field cache_strategy? senpai.Config.rag.cache_strategy
+---@field mode? "mention"|"auto"
 
 -- ---@param rag_config senpai.Config.rag
 -- function M.validate(rag_config)
@@ -17,6 +18,7 @@ local M = {}
 ---@type senpai.Config.rag
 M.default_config = {
   cache_strategy = "ask",
+  mode = "mention",
 }
 
 return M

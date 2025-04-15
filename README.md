@@ -9,6 +9,7 @@ Senpai is super reliable Neovim AI plugin!<br/>
 - 📜 History: You can continue the conversation
 - 🔌 MCP (Model Context Protocol)
 - 📚 RAG (Retrieval Augmented Generation)
+- 📌 Setting Project Rules
 - 🧩 Prompt Launcher: Open chat with pre-defined prompts
 - 🪄 Generate commit message
 
@@ -31,12 +32,33 @@ By default, send to AI with `<CR>`.<br/>
 
 
 ### read file
-If you write the file name, it will automatically read it.
+There are two ways to load files: "Link format" and "Automatic".
+
+
+#### Link format
+Entering `/file` will open the finder and allow you to preview and select the file you wish to attach. The currently supported plugins are as follows
+
+- completion plugin
+    - [blink.cmp](https://github.com/Saghen/blink.cmp)
+- finder
+    - [snacks.nvim](https://github.com/folke/snacks.nvim) picker
+
+Links can be inserted manually without a plugin.
+
+```txt
+Explain [foo.txt](/workspace/foo.txt)
+```
+
+File paths can be absolute or relative, such as starting with `./`.
+
+
+#### Automatic
+If you write the file name without mention, it will automatically read it.
 If you write `foo/bar/buz.txt` as `summarize buz.txt`,
 it will be recognized.<br/>
 (internally it searches `**/buz.txt` for files under git control).<br/>
 
-Right now it's automatic, but eventually I'm going to make it controllable.
+**This one does not apply the per-file rules of the project** (explained later).
 
 
 ### replace file
@@ -194,7 +216,15 @@ You can find detailed writing instructions in the type list |`senpai.Config.mcp`
 
 
 ## RAG
-📚RAG(Retrieval-Augmented Generation) is avaiable. The AI will think of query in the chat on its own.
+📚RAG(Retrieval-Augmented Generation) is avaiable. If you want to use RAG, please make a mention like `@rag`.
+
+```txt
+@rag Tell me about mdx.
+```
+
+If you are not comfortable with mentions, set `rag.mode` to `“auto”` in the settings, \
+and the AI will determine when to use it on its own.
+But you have to understand that AI often does RAG searches for nothing.
 
 Supported types:
 
@@ -210,6 +240,38 @@ Unnecessary items can be deleted.
 <img width="500" alt="Senpai deleteRagSource" src="https://github.com/user-attachments/assets/4adfef4d-92d2-4361-a9b0-f45f0ad7c7c1" />
 
 Cache control can be configured in |`senpai.Config.rag.cache_strategy`|.
+
+
+## Project Rules
+📌Rules can be set for each project.
+
+The rule prompts are the `./senpai/prompts/` directory as mdx files.
+
+```
+./senpai/prompts/
+├── project.mdx
+├── inquiry.mdx
+└── calendar.mdx
+```
+
+Write the following.
+```markdown
+---
+description: "Front-end side of senpai.nvim"
+globs: "lua/senpai/**/*.lua"
+---
+
+First, when you refer to this sentence, greet it with "I love Neovim!"
+
+You are a professional Neovim plugin developer and are familiar with Lua.
+```
+
+The following elements can be written in the frontmatter.
+
+- description: `string`. description for human
+- (optional)globs: `string|string[]|undefined`.
+    - Write the glob of the file to which you want to apply the prompt for that file
+    - See [Supported Glob Patterns(Bun Docs)](https://bun.sh/docs/api/glob#supported-glob-patterns) for how to write supported globs
 
 
 ## Prompt Launcher
@@ -435,7 +497,8 @@ The default config are as follows.
     }
   },
   rag = {
-    cache_strategy = "ask"
+    cache_strategy = "ask",
+    mode = "mention"
   }
 }
 ```
@@ -997,6 +1060,7 @@ _No arguments_
 ```lua
 ---@class senpai.Config.rag
 ---@field cache_strategy? senpai.Config.rag.cache_strategy
+---@field mode? "mention"|"auto"
 ```
 
 

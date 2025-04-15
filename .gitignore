@@ -1,6 +1,6 @@
 .repro/
 .env
 node_modules/
-memory.db
-storage.db
-vector.db
+memory.db*
+storage.db*
+vector.db*
