@@ -52,26 +52,3 @@ export class FetchAndStoreUseCase {
 		return "";
 	}
 }
-
-// import { vector } from "@/infra/Vector";
-// async function main() {
-// 	const url = "https://mastra.ai/docs/rag/overview";
-// 	const message = await new FetchAndStoreUseCase(vector).execute(url);
-// 	console.log(message);
-//
-// 	const { embedding: queryEmbedding } = await embed({
-// 		model: embedModel,
-// 		value: "Mastra’s RAGとは",
-// 	});
-//
-// 	try {
-// 		const searchResult = await vector.query({
-// 			indexName: formatValidIndexName(url),
-// 			queryVector: queryEmbedding,
-// 		});
-// 		console.log(searchResult);
-// 	} catch (error) {
-// 		console.log(error);
-// 	}
-// }
-// main();
