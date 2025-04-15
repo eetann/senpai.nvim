@@ -1,4 +1,4 @@
-import { Agent, type AgentConfig } from "@mastra/core/agent";
+import { Agent, type AgentConfig, type ToolsInput } from "@mastra/core/agent";
 import type { LibSQLVector } from "@mastra/core/vector/libsql";
 import type { Memory } from "@mastra/memory";
 import { LIBSQL_PROMPT } from "@mastra/rag";
@@ -18,8 +18,14 @@ export class ChatAgent extends Agent {
 		embeddingModel: EmbeddingModel<string>,
 		mcpTools: Record<string, unknown>,
 		system_prompt: string,
+		useRag: boolean,
 	) {
-		const prompt = `
+		const tools: ToolsInput = {
+			// PascalCase name
+			ReadFilesTool: ReadFilesTool(cwd),
+			...mcpTools,
+		};
+		let prompt = `\
 You are a highly skilled software engineer with extensive knowledge in many programming languages, frameworks, design patterns, and best practices.
 You help the user by accessing the Tool and outputting according to the XML Schema Output.
 Be aware that output other than XML should be structured correctly as Markdown. \
@@ -116,23 +122,18 @@ read files. **Basically not used.**
 If the user message says \`@foo/bar.txt\`, do not use this tool, but **silently** decode the attached base64 data. Then read it in.
 If you want to actually edit the file, use \`replace_file\` tag instead of the tool.
 Use it only when the user asks for it.
-
-### VectorQueryTool
-${LIBSQL_PROMPT}
-
-${system_prompt}
 `;
+		if (useRag) {
+			console.log("user RAG!");
+			prompt += `\n### VectorQueryTool\n${LIBSQL_PROMPT}`;
+			tools.VectorQueryTool = VectorQueryTool(vector, embeddingModel);
+		}
+		prompt += `\n${system_prompt}`;
 		super({
 			name: "chat agent",
 			instructions: prompt,
 			model,
-			tools: {
-				// PascalCase name
-				ReadFilesTool: ReadFilesTool(cwd),
-				// @ts-ignore
-				VectorQueryTool: VectorQueryTool(vector, embeddingModel),
-				...mcpTools,
-			},
+			tools,
 			memory,
 		});
 	}

@@ -1,3 +1,4 @@
+local Config = require("senpai.config")
 local Spinner = require("senpai.presentation.shared.spinner")
 local RequestHandler = require("senpai.usecase.request.request_handler")
 local utils = require("senpai.usecase.utils")
@@ -55,6 +56,7 @@ function M.execute(chat, user_input)
     provider = chat.provider,
     text = user_input,
     system_prompt = chat.system_prompt,
+    auto_rag = Config.rag.mode == "auto",
   }
   local code_block_headers = utils.extract_code_block_headers(user_input)
   if #code_block_headers > 0 then

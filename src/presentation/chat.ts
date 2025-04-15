@@ -33,6 +33,7 @@ const chatControllerSchema = z.object({
 	system_prompt: z.optional(z.string()),
 	text: z.string(),
 	code_block_headers: codeBlockHeadersSchema,
+	auto_rag: z.boolean().default(false),
 });
 
 app.openapi(
@@ -83,6 +84,10 @@ app.openapi(
 		const rulePrompt = await new GetApplicableRules(rules).execute(
 			command.code_block_headers?.map((h) => h.filename) ?? [],
 		);
+		let useRag = false;
+		if (command.auto_rag || command.text.includes("@rag")) {
+			useRag = true;
+		}
 
 		const agent = new ChatAgent(
 			cwd,
@@ -92,6 +97,7 @@ app.openapi(
 			embeddingModel,
 			mcpTools,
 			`${command.system_prompt}\n${rulePrompt}`,
+			useRag,
 		);
 		const thread = await memory.getThreadById({ threadId: command.thread_id });
 		let isFirstMessage = false;

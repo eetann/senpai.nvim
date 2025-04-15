@@ -8,7 +8,10 @@ import mcp from "./presentation/mcp";
 import rag from "./presentation/rag";
 import thread from "./presentation/thread";
 import { GetMcpToolsUseCase } from "./usecase/GetMcpToolsUseCase";
-import { GetProjectRules, ProjectRule } from "./usecase/shared/GetProjectRules";
+import {
+	GetProjectRules,
+	type ProjectRule,
+} from "./usecase/shared/GetProjectRules";
 
 const { values } = parseArgs({
 	args: Bun.argv,

@@ -210,7 +210,15 @@ You can find detailed writing instructions in the type list |`senpai.Config.mcp`
 
 
 ## RAG
-📚RAG(Retrieval-Augmented Generation) is avaiable. The AI will think of query in the chat on its own.
+📚RAG(Retrieval-Augmented Generation) is avaiable. If you want to use RAG, please make a mention like `@rag`.
+
+```txt
+@rag Tell me about mdx.
+```
+
+If you are not comfortable with mentions, set `rag.mode` to `“auto”` in the settings, \
+and the AI will determine when to use it on its own.
+But you have to understand that AI often does RAG searches for nothing.
 
 Supported types:
 
@@ -483,7 +491,8 @@ The default config are as follows.
     }
   },
   rag = {
-    cache_strategy = "ask"
+    cache_strategy = "ask",
+    mode = "mention"
   }
 }
 ```
@@ -1045,6 +1054,7 @@ _No arguments_
 ```lua
 ---@class senpai.Config.rag
 ---@field cache_strategy? senpai.Config.rag.cache_strategy
+---@field mode? "mention"|"auto"
 ```
 
 
