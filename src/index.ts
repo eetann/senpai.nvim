@@ -44,7 +44,7 @@ let mcpTools: Record<string, unknown> = { loading: {} };
 	mcpTools = await new GetMcpToolsUseCase(cwd).execute(values.mcp);
 })();
 
-const rules = await new GetProjectRules(cwd).execute();
+let rules = await new GetProjectRules(cwd).execute();
 
 type Variables = {
 	cwd: string;
@@ -69,6 +69,11 @@ app.doc31("/openapi.json", {
 	},
 });
 app.get("/doc", swaggerUI({ url: "/openapi.json" }));
+app.get("/rule", async (c) => {
+	const newRules = await new GetProjectRules(cwd).execute();
+	rules = newRules;
+	return c.json({ rules: newRules });
+});
 app.route("/", hello);
 app.route("/", generateCommitMessage);
 app.route("/", chat);

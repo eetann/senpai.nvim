@@ -151,6 +151,7 @@ end
 
 function M:process_end_search_tag()
   self.replace_file_current.search =
+    -- TODO: 最後の手前が `</search`だったら入ってしまう
     vim.split(self.current_content:gsub("\n$", ""), "\n")
   self.replace_file_current.tag = nil
   utils.replace_text_at_last(self.chat.log_area.bufnr, "")
