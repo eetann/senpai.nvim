@@ -158,6 +158,8 @@ M.actions = {
 ---@field height? number|string row number or height percentage string for input area
 ---  height = 5 -- 5 row number
 ---  height = 25% -- 25% input area height relative to chat window
+---@field keep_file_attachment? boolean
+--- If set to true, files are automatically attached in the next message when attached.
 
 ---@doc.type
 ---@class senpai.Config.chat
@@ -191,6 +193,7 @@ M.default_config = {
       gR = "regist_url_at_rag",
     },
     height = "25%",
+    keep_file_attachment = true,
   },
 }
 

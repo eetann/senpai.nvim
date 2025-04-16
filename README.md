@@ -469,6 +469,7 @@ The default config are as follows.
     },
     input_area = {
       height = "25%",
+      keep_file_attachment = true,
       keymaps = {
         ["<CR>"] = "submit",
         gR = "regist_url_at_rag"
@@ -921,6 +922,8 @@ _No arguments_
 ---@field height? number|string row number or height percentage string for input area
 ---  height = 5 -- 5 row number
 ---  height = 25% -- 25% input area height relative to chat window
+---@field keep_file_attachment? boolean
+--- If set to true, files are automatically attached in the next message when attached.
 ```
 
 
