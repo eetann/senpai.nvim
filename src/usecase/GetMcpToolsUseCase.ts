@@ -14,11 +14,12 @@ export class GetMcpToolsUseCase {
 	}
 
 	async execute(processArg?: string) {
-		// TODO: existを追加
-		const projectConfigure = await Bun.file(
-			path.join(this.dir, "mcp.json"),
-		).text();
-		const projectServers = this.parse(projectConfigure, true);
+		const file = Bun.file(path.join(this.dir, "mcp.json"));
+		let projectServers = {};
+		if (await file.exists()) {
+			const projectConfigure = await file.text();
+			projectServers = this.parse(projectConfigure, true);
+		}
 		const editorServers = this.parse(processArg);
 		const mcp = new MCPConfiguration({
 			servers: <Servers>{ ...editorServers, ...projectServers },
