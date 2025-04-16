@@ -28,11 +28,11 @@ local M = {}
 
 ---@doc.type
 ---@class senpai.Config.provider.openai: senpai.Config.provider.base
----@field model_id ("gpt-4o"|"gpt-4o-mini"|string)
+---@field model_id ("gpt-4.1"|"gpt-4.1-mini"|"gpt-4o"|"gpt-4o-mini"|string)
 
 ---@doc.type
 ---@class senpai.Config.provider.openrouter: senpai.Config.provider.base
----@field model_id string
+---@field model_id ("openai/gpt-4.1"|string)
 ---   You can get a list of models with the following command.
 ---   >sh
 ---   curl https://openrouter.ai/api/v1/models | jq '.data[].id'
@@ -63,7 +63,7 @@ M.default_config = {
   anthropic = { model_id = "claude-3-7-sonnet-20250219" },
   deepseek = { model_id = "deepseek-chat" },
   google = { model_id = "gemini-1.5-pro" },
-  openai = { model_id = "gpt-4o" },
+  openai = { model_id = "gpt-4.1-mini" },
   openrouter = { model_id = "anthropic/claude-3.7-sonnet" },
 }
 

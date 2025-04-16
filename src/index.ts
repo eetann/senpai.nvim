@@ -41,7 +41,7 @@ if (!cwd || cwd === "") {
 let mcpTools: Record<string, unknown> = { loading: {} };
 // `await` slows down the server startup, so it should be done in IIFE
 (async () => {
-	mcpTools = await new GetMcpToolsUseCase().execute(values.mcp);
+	mcpTools = await new GetMcpToolsUseCase(cwd).execute(values.mcp);
 })();
 
 const rules = await new GetProjectRules(cwd).execute();

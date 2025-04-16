@@ -32,3 +32,7 @@ export const mastraMCPConfigurationSchema = z.record(
 	z.string(),
 	mastraMCPServerDefinitionSchema,
 );
+
+export const projectMCPConfigurationSchema = z.object({
+	mcpServers: mastraMCPConfigurationSchema,
+});

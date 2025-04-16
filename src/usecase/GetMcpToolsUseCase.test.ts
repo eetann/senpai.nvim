@@ -2,13 +2,13 @@ import { expect, spyOn, test } from "bun:test";
 import { GetMcpToolsUseCase } from "@/usecase/GetMcpToolsUseCase";
 
 test("GetMcpToolsUseCase should return empty object when no argument provided", async () => {
-	const useCase = new GetMcpToolsUseCase();
-	const result = useCase.parse();
+	const useCase = new GetMcpToolsUseCase(process.cwd());
+	const result = useCase.parse(undefined);
 	expect(result).toEqual({});
 });
 
 test("GetMcpToolsUseCase should handle JSON parsing error", async () => {
-	const useCase = new GetMcpToolsUseCase();
+	const useCase = new GetMcpToolsUseCase(process.cwd());
 	const consoleSpy = spyOn(console, "error");
 
 	const invalidJson = "{invalid json}";
@@ -25,7 +25,7 @@ test("GetMcpToolsUseCase should handle JSON parsing error", async () => {
 });
 
 test("GetMcpToolsUseCase should handle schema validation error", async () => {
-	const useCase = new GetMcpToolsUseCase();
+	const useCase = new GetMcpToolsUseCase(process.cwd());
 	const consoleSpy = spyOn(console, "error");
 
 	const invalidSchema = JSON.stringify({
@@ -41,14 +41,16 @@ test("GetMcpToolsUseCase should handle schema validation error", async () => {
 
 	expect(result).toEqual({});
 	expect(consoleSpy).toHaveBeenCalledWith(
-		expect.stringContaining("[senpai] parsing of MCP configuration failed"),
+		expect.stringContaining(
+			"[senpai] parsing of editor MCP configuration failed",
+		),
 	);
 
 	consoleSpy.mockRestore();
 });
 
 test("GetMcpToolsUseCase should process valid configuration with StdioServer parameters", async () => {
-	const useCase = new GetMcpToolsUseCase();
+	const useCase = new GetMcpToolsUseCase(process.cwd());
 
 	const expected = {
 		sequential: {
@@ -68,7 +70,7 @@ test("GetMcpToolsUseCase should process valid configuration with StdioServer par
 });
 
 test("GetMcpToolsUseCase should process valid", async () => {
-	const useCase = new GetMcpToolsUseCase();
+	const useCase = new GetMcpToolsUseCase(process.cwd());
 
 	const expected = {
 		mastra: {
@@ -85,7 +87,7 @@ test("GetMcpToolsUseCase should process valid", async () => {
 });
 
 test("GetMcpToolsUseCase should process valid configuration with SSEClient parameters", async () => {
-	const useCase = new GetMcpToolsUseCase();
+	const useCase = new GetMcpToolsUseCase(process.cwd());
 
 	const expected = {
 		sseClient: {

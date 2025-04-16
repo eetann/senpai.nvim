@@ -194,6 +194,12 @@ You can also delete using the API `senpai.delete_thread(thread_id)`.
 ## MCP
 🔌MCP(Model Context Protocol) is avaiable. The AI will think of the MCP tool calls in the chat on its own.
 
+MCP configuration can be written in two places.
+
+- `require("senpai").setup`: write configuration common to all projects in Lua
+- `.senpai/mcp.json`: Project-specific configuration in json
+
+### configuration in plugin setup
 You can set up servers in `mcp.servers` like this:
 ```lua
 require("senpai").setup({
@@ -203,16 +209,30 @@ require("senpai").setup({
                 command = "bunx",
                 args = { "-y", "@modelcontextprotocol/server-sequential-thinking" },
             },
-            mastra = {
-                command = "bunx",
-                args = { "-y", "@mastra/mcp-docs-server" }
-            },
         },
     },
 }) 
 ```
 
 You can find detailed writing instructions in the type list |`senpai.Config.mcp`|.
+
+
+### configuration in project
+You can set up servers in `.senpai/mcp.json` like this:
+```json
+{
+	"mcpServers": {
+		"mastra": {
+			"command": "bunx",
+			"args": ["-y", "@mastra/mcp-docs-server"]
+		},
+		"daisyUi": {
+			"command": "bunx",
+			"args": ["-y", "sitemcp", "https://daisyui.com", "-m", "/components/**"]
+		}
+	}
+}
+```
 
 
 ## RAG
@@ -490,7 +510,7 @@ The default config are as follows.
       model_id = "gemini-1.5-pro"
     },
     openai = {
-      model_id = "gpt-4o"
+      model_id = "gpt-4.1-mini"
     },
     openrouter = {
       model_id = "anthropic/claude-3.7-sonnet"
@@ -1019,14 +1039,14 @@ _No arguments_
 `*senpai.Config.provider.openai*`
 ```lua
 ---@class senpai.Config.provider.openai: senpai.Config.provider.base
----@field model_id ("gpt-4o"|"gpt-4o-mini"|string)
+---@field model_id ("gpt-4.1"|"gpt-4.1-mini"|"gpt-4o"|"gpt-4o-mini"|string)
 ```
 
 
 `*senpai.Config.provider.openrouter*`
 ```lua
 ---@class senpai.Config.provider.openrouter: senpai.Config.provider.base
----@field model_id string
+---@field model_id ("openai/gpt-4.1"|string)
 ---   You can get a list of models with the following command.
 ---   >sh
 ---   curl https://openrouter.ai/api/v1/models | jq '.data[].id'
