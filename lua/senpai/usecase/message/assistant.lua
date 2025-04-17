@@ -169,9 +169,10 @@ function M:process_start_replace_tag()
   self.line = ""
 end
 
-function M:process_end_replace_tag()
+function M:process_end_replace_tag(chunk)
+  self.current_content = self.current_content .. chunk
   self.replace_file_current.replace =
-    vim.split(self.current_content:gsub("\n$", ""), "\n")
+    vim.split(self.current_content:gsub("\n</replace>\n?", ""), "\n")
   self.replace_file_current.tag = nil
   utils.replace_text_at_last(self.chat.log_area.bufnr, "```" .. "\n")
 end

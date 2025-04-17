@@ -233,7 +233,7 @@ T["assistant two newline"] = function()
   eq(Helpers.get_line(child, bufnr, 9), nil)
 end
 
-T["assistant <replace_file> xml"] = function()
+T["assistant <replace_file> Line breaks in the middle of tags"] = function()
   -- for screenshot
   child.o.lines, child.o.columns = 40, 60
 
@@ -290,10 +290,8 @@ T["assistant <replace_file> xml"] = function()
     { 'case.utils")\n\n---@class ToolCall' }
   )
   child.lua("assistant:process_chunk(...)", { "Module\nlocal M = {}\n" })
-  child.lua(
-    "assistant:process_chunk(...)",
-    { "\n</replace>\n</replace_file>\n\nhello" }
-  )
+  child.lua("assistant:process_chunk(...)", { "\n</replace" })
+  child.lua("assistant:process_chunk(...)", { ">\n</replace_file>\n\nhello" })
   eq(Helpers.get_line(child, bufnr, -7), "local M = {}")
   eq(Helpers.get_line(child, bufnr, -6), "")
   eq(Helpers.get_line(child, bufnr, -5), "```")
