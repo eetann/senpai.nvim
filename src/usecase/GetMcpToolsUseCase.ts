@@ -7,6 +7,8 @@ import { MCPConfiguration, type MastraMCPServerDefinition } from "@mastra/mcp";
 
 type Servers = Record<string, MastraMCPServerDefinition>;
 
+let configuration: undefined | MCPConfiguration = undefined;
+
 export class GetMcpToolsUseCase {
 	private dir: string;
 	constructor(cwd: string, prompts_dir = ".senpai") {
@@ -21,10 +23,13 @@ export class GetMcpToolsUseCase {
 			projectServers = this.parse(projectConfigure, true);
 		}
 		const editorServers = this.parse(processArg);
-		const mcp = new MCPConfiguration({
+		if (configuration) {
+			await configuration.disconnect();
+		}
+		configuration = new MCPConfiguration({
 			servers: <Servers>{ ...editorServers, ...projectServers },
 		});
-		return await mcp.getTools();
+		return await configuration.getTools();
 	}
 
 	parse(text: string | null | undefined, isProjectConfigure = false) {

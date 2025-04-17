@@ -158,21 +158,22 @@ function M.get_filetype(filepath)
 end
 
 ---@param text string
----@return {language:string, filename:string}[]
-function M.extract_code_block_headers(text)
+---@return { links: string[], headers: {language:string, filename:string}[] }
+function M.parse_filelinks(text)
+  local links = {}
   local code_block_headers = {}
-  local pattern = "%[([^%]]+)%]%(([^%)]+)%)"
-  for _, path in string.gmatch(text, pattern) do
-    -- start with `/` or `./`
-    if path:match("^/") or path:match("^%./") then
+  local pattern = "(%[[^%]]+%]%([^%)]+%))"
+  for link in string.gmatch(text, pattern) do
+    local _, path = link:match("%[([^%]]+)%]%(([^%)]+)%)")
+    if path and (path:match("^/") or path:match("^%./")) then
+      table.insert(links, link)
       table.insert(code_block_headers, {
         language = M.get_filetype(path),
         filename = path,
       })
     end
   end
-
-  return code_block_headers
+  return { links = links, headers = code_block_headers }
 end
 
 return M

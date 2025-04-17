@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 16
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 17
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -29,6 +29,7 @@ Table of Contents                                   *senpai-table-of-contents*
   - new_thread                                         |senpai-api-new_thread|
   - prompt_launcher                               |senpai-api-prompt_launcher|
   - regist_url_at_rag                           |senpai-api-regist_url_at_rag|
+  - reload_rules                                     |senpai-api-reload_rules|
   - setup                                                   |senpai-api-setup|
   - toggle_chat                                       |senpai-api-toggle_chat|
   - transfer_visual_to_chat               |senpai-api-transfer_visual_to_chat|
@@ -41,6 +42,7 @@ Table of Contents                                   *senpai-table-of-contents*
   - loadThread                                    |senpai-commands-loadthread|
   - newThread                                      |senpai-commands-newthread|
   - promptLauncher                            |senpai-commands-promptlauncher|
+  - reloadRules                                  |senpai-commands-reloadrules|
   - toggleChat                                    |senpai-commands-togglechat|
   - transferToChat                            |senpai-commands-transfertochat|
 8. Type                                                          |senpai-type|
@@ -341,6 +343,9 @@ The following elements can be written in the frontmatter.
     - Write the glob of the file to which you want to apply the prompt for that file
     - See Supported Glob Patterns(Bun Docs) <https://bun.sh/docs/api/glob#supported-glob-patterns> for how to write supported globs
 
+If you want to rewrite and apply the project rules file, do one of the
+following - The command `:Senpai reloadRules`. - Launch Neovim again.
+
 
 PROMPT LAUNCHER                               *senpai-feature-prompt-launcher*
 
@@ -526,6 +531,7 @@ The default config are as follows.
         },
         input_area = {
           height = "25%",
+          keep_file_attachment = true,
           keymaps = {
             ["<CR>"] = "submit",
             gR = "regist_url_at_rag"
@@ -769,6 +775,17 @@ Fetch URL and save to RAG. Cache control can be configured in
  
 
 
+RELOAD_RULES                                         *senpai-api-reload_rules*
+
+>lua
+    senpai.reload_rules()
+<
+
+Reload Project rules and MCP settings
+
+_No arguments_  
+
+
 SETUP                                                       *senpai-api-setup*
 
 >lua
@@ -907,6 +924,17 @@ detail -> |senpai-api-prompt_launcher|
 _No arguments_  
 
 
+RELOADRULES                                      *senpai-commands-reloadrules*
+
+>
+    :Senpai reloadRules
+<
+
+detail -> |senpai-api-reload_rules|
+
+_No arguments_  
+
+
 TOGGLECHAT                                        *senpai-commands-togglechat*
 
 >
@@ -982,6 +1010,8 @@ _No arguments_  
     ---@field height? number|string row number or height percentage string for input area
     ---  height = 5 -- 5 row number
     ---  height = 25% -- 25% input area height relative to chat window
+    ---@field keep_file_attachment? boolean
+    --- If set to true, files are automatically attached in the next message when attached.
 <
 
 `*senpai.Config.chat.keymap*`

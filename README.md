@@ -294,6 +294,11 @@ The following elements can be written in the frontmatter.
     - See [Supported Glob Patterns(Bun Docs)](https://bun.sh/docs/api/glob#supported-glob-patterns) for how to write supported globs
 
 
+If you want to rewrite and apply the project rules file, do one of the following
+- The command `:Senpai reloadRules`
+- Restart Neovim
+
+
 ## Prompt Launcher
 🧩You can chat with customized prompts.
 
@@ -469,6 +474,7 @@ The default config are as follows.
     },
     input_area = {
       height = "25%",
+      keep_file_attachment = true,
       keymaps = {
         ["<CR>"] = "submit",
         gR = "regist_url_at_rag"
@@ -699,6 +705,16 @@ Cache control can be configured in \|senpai.Config.rag.cache_strategy\|.
 &nbsp;
 
 
+## reload_rules
+```lua
+senpai.reload_rules()
+```
+Reload Project rules and MCP settings
+
+_No arguments_
+&nbsp;
+
+
 ## setup
 ```lua
 senpai.setup({...})
@@ -842,6 +858,17 @@ _No arguments_
 &nbsp;
 
 
+## reloadRules
+```
+:Senpai reloadRules
+```
+
+detail -> |senpai-api-reload_rules|
+
+_No arguments_
+&nbsp;
+
+
 ## toggleChat
 ```
 :Senpai toggleChat
@@ -921,6 +948,8 @@ _No arguments_
 ---@field height? number|string row number or height percentage string for input area
 ---  height = 5 -- 5 row number
 ---  height = 25% -- 25% input area height relative to chat window
+---@field keep_file_attachment? boolean
+--- If set to true, files are automatically attached in the next message when attached.
 ```
 
 
