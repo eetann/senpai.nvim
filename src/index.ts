@@ -72,6 +72,7 @@ app.get("/doc", swaggerUI({ url: "/openapi.json" }));
 app.get("/rule", async (c) => {
 	const newRules = await new GetProjectRules(cwd).execute();
 	rules = newRules;
+	mcpTools = await new GetMcpToolsUseCase(cwd).execute(values.mcp);
 	return c.json({ rules: newRules });
 });
 app.route("/", hello);

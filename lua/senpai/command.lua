@@ -94,6 +94,16 @@ local subcmd_tbl = {
   },
   --[=[@doc
   category = "command"
+  name = "reloadRules"
+  desc = "detail -> |senpai-api-reload_rules|"
+  --]=]
+  reloadRules = {
+    impl = function()
+      require("senpai.api").reload_rules()
+    end,
+  },
+  --[=[@doc
+  category = "command"
   name = "_hello"
   desc = """
 For developers.

@@ -128,5 +128,6 @@ return setmetatable(M, {
       or require("senpai.presentation.delete_rag_source")[k]
       or require("senpai.presentation.prompt_launcher")[k]
       or require("senpai.presentation.transfer_visual_to_chat")[k]
+      or require("senpai.presentation.reload_rules")[k]
   end,
 })

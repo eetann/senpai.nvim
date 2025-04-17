@@ -294,6 +294,11 @@ The following elements can be written in the frontmatter.
     - See [Supported Glob Patterns(Bun Docs)](https://bun.sh/docs/api/glob#supported-glob-patterns) for how to write supported globs
 
 
+If you want to rewrite and apply the project rules file, do one of the following
+- The command `:Senpai reloadRules`
+- Restart Neovim
+
+
 ## Prompt Launcher
 🧩You can chat with customized prompts.
 
@@ -700,6 +705,16 @@ Cache control can be configured in \|senpai.Config.rag.cache_strategy\|.
 &nbsp;
 
 
+## reload_rules
+```lua
+senpai.reload_rules()
+```
+Reload Project rules and MCP settings
+
+_No arguments_
+&nbsp;
+
+
 ## setup
 ```lua
 senpai.setup({...})
@@ -838,6 +853,17 @@ _No arguments_
 ```
 
 detail -> |senpai-api-prompt_launcher|
+
+_No arguments_
+&nbsp;
+
+
+## reloadRules
+```
+:Senpai reloadRules
+```
+
+detail -> |senpai-api-reload_rules|
 
 _No arguments_
 &nbsp;
