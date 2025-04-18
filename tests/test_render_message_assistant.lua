@@ -324,4 +324,43 @@ T["assistant <replace_file> Line breaks in the middle of tags"] = function()
   eq(count, 1)
 end
 
+T["assistant end with <replace_file>"] = function()
+  child.lua(
+    [[chat=require("senpai.presentation.chat.window").new(...)]],
+    { { thread_id = "test_render_message_assistant" } }
+  )
+  child.lua([[chat:show()]])
+  child.lua("assistant=M.new(chat)")
+  child.lua("assistant:process_chunk(...)", {
+    [[
+plain text here.
+<replace_file>
+<path>src/main.js</path>
+<search>
+  return a - b;
+</search>
+<replace>
+  return a + b;
+</replace>
+</replace_file>]],
+  })
+  local result = child.lua_get("chat.replace_file_results")
+  local count = 0
+
+  for id, content in pairs(result) do
+    eq(type(id), "string")
+    eq(content.path, "src/main.js")
+    eq(content.search, { "  return a - b;" })
+    eq(content.replace, { "  return a + b;" })
+    count = count + 1
+  end
+  eq(count, 1)
+
+  local bufnr = child.lua_get([[chat.log_area.bufnr]])
+  eq(Helpers.get_line(child, bufnr, -4), "```")
+  eq(Helpers.get_line(child, bufnr, -3), "")
+  eq(Helpers.get_line(child, bufnr, -2), "</SenpaiReplaceFile>")
+  eq(Helpers.get_line(child, bufnr, -1), "")
+end
+
 return T
