@@ -11,6 +11,8 @@ local show_system_prompt = require("senpai.usecase.show_system_prompt")
 local show_mcp_tools = require("senpai.usecase.show_mcp_tools")
 local open_api_doc = require("senpai.usecase.open_api_doc")
 local show_replace_content = require("senpai.usecase.show_replace_content")
+local copy_input_or_codeblock =
+  require("senpai.usecase.copy_input_or_codeblock")
 
 ---@class senpai.chat.Keymaps.keymaps
 
@@ -75,6 +77,9 @@ function M:execute_action(name)
     end,
     close = function()
       self.chat:hide()
+    end,
+    copy_input_or_codeblock = function()
+      copy_input_or_codeblock.execute(self.chat)
     end,
     load_thread = function()
       vim.cmd("Senpai loadThread")
