@@ -13,8 +13,7 @@ end
 ---@param launcher senpai.Config.PromptLauncher.launcher
 local function launch(launcher)
   local resolved_launcher = resolve_prompt_launcher.execute(launcher)
-  ChatWindowManager.replace_new_thread(resolved_launcher)
-  local chat = ChatWindowManager.get_current_chat()
+  local chat = ChatWindowManager.replace_new_thread(resolved_launcher)
   if chat then
     send_text.execute(chat, resolved_launcher.user_prompt)
   end
