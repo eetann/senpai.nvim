@@ -126,6 +126,10 @@ The names of the actions that can be written in the keymaps table are.
   - close chat
   - default: `q`
 
+- `copy_input_or_codeblock`
+  - copy user input or codeblock
+  - default: `gy` in log area
+
 - `foo`
   - Toggle display of input area
   - default: `gi`
@@ -483,7 +487,8 @@ The default config are as follows.
     log_area = {
       keymaps = {
         a = "apply",
-        gs = "show_system_prompt"
+        gs = "show_system_prompt",
+        gy = "copy_input_or_codeblock"
       }
     }
   },

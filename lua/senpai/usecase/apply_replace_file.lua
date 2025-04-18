@@ -4,10 +4,14 @@ local M = {}
 ---@param chat senpai.IChatWindow
 function M.execute(chat)
   local id = utils.get_replace_file_id()
-  if id == "" then
+  if not id or id == "" then
     return
   end
   local result = chat.replace_file_results[id]
+  if not result then
+    vim.notify("[senpai] failed to parse <replace_file>", vim.log.levels.ERROR)
+    return
+  end
 
   local row = vim.fn.line(".", chat.log_area.winid)
   local col = vim.fn.col(".", chat.log_area.winid)

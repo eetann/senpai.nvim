@@ -93,6 +93,8 @@ function M:process_line(chunk, is_lastline)
         return
       end
     end
+  elseif lower_line:match("</replace_file>") then
+    self:process_end_replace_file()
   end
 
   if self.replace_file_current.tag then

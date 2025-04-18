@@ -44,9 +44,9 @@ function M.get_chat(thread_id)
 end
 
 --- Show the current chat window
+---@param chat? senpai.ChatWindow
 ---@param winid? number
-function M.show_current_chat(winid)
-  local chat = M.get_current_chat()
+function M.show_current_chat(chat, winid)
   if chat then
     chat:show(winid)
   end
@@ -66,8 +66,8 @@ function M.toggle_current_chat()
   if chat then
     chat:toggle()
   else
-    M.add({})
-    M.show_current_chat()
+    chat = M.add({})
+    M.show_current_chat(chat)
   end
 end
 
@@ -80,7 +80,10 @@ function M.close_current_chat()
 end
 
 ---@param args? senpai.ChatWindowNewArgs
+---@return senpai.ChatWindow?
 function M.replace_new_thread(args)
+  local row, col = 1, 0
+  local lines = {}
   local current_win = nil
   local chat = M.get_current_chat()
   if
@@ -90,12 +93,19 @@ function M.replace_new_thread(args)
     and vim.api.nvim_win_is_valid(chat.log_area.winid)
   then
     current_win = chat.log_area.winid
+    lines = vim.api.nvim_buf_get_lines(chat.input_area.bufnr, 0, -1, false)
+    row, col = unpack(vim.api.nvim_win_get_cursor(chat.input_area.winid))
     chat.input_area:hide()
     chat.log_area.winid = nil
     chat.log_area:hide()
   end
-  M.add(args or {})
-  M.show_current_chat(current_win)
+  chat = M.add(args or {})
+  M.show_current_chat(chat, current_win)
+  if chat then
+    vim.api.nvim_buf_set_lines(chat.input_area.bufnr, 0, -1, false, lines)
+    vim.api.nvim_win_set_cursor(chat.input_area.winid, { row, col })
+  end
+  return chat
 end
 
 return M

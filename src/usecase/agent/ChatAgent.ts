@@ -92,7 +92,7 @@ Critical rules:
   * To delete code: Use empty \`replace\` section
   * \`search\`/\`replace\` must have a line break before and after the tag like a code block
 
-Bad case:
+Bad case: The flollowing example is \`path\` is not on one line, no line breaks before or after \`search\`/\`replace\`
 <replace_file>
 <path>
 src/main.js</path>
@@ -102,7 +102,16 @@ src/main.js</path>
   return a + b;</replace>
 </replace_file>
 
-The above example is \`path\` is not on one line, no line breaks before or after \`search\`/\`replace\`
+Bad case: The following example has an empty \`search\`. This makes it impossible to identify the edit range.
+<replace_file>
+<path>
+src/main.js</path>
+<search>
+</search>
+<replace>
+  return a + b;</replace>
+</replace_file>
+
 
 Good case:
 <replace_file>

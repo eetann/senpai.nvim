@@ -38,6 +38,15 @@ M.actions = {
 
   --[=[@doc
   category = "chat_action"
+  name = "copy_input_or_codeblock"
+  desc = "copy user input or codeblock"
+  default_key = "`gy` in log area"
+  --]=]
+  --
+  copy_input_or_codeblock = false,
+
+  --[=[@doc
+  category = "chat_action"
   name = "load_thread"
   desc = "load thread. detail -> |senpai-feature-history|"
   default_key = "`gl`"
@@ -185,6 +194,7 @@ M.default_config = {
     keymaps = {
       a = "apply",
       gs = "show_system_prompt",
+      gy = "copy_input_or_codeblock",
     },
   },
   input_area = {

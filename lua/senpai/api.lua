@@ -3,8 +3,6 @@ local RequestHandler = require("senpai.usecase.request.request_handler")
 local utils = require("senpai.usecase.utils")
 local delete_threads = require("senpai.usecase.request.delete_threads")
 local regist_url_at_rag = require("senpai.usecase.regist_url_at_rag")
-local transfer_visual_to_chat =
-  require("senpai.presentation.transfer_visual_to_chat")
 
 local M = {}
 
