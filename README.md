@@ -240,7 +240,7 @@ You can set up servers in `.senpai/mcp.json` like this:
 
 
 ## RAG
-📚RAG(Retrieval-Augmented Generation) is avaiable. If you want to use RAG, please make a mention like `@rag`.
+📚RAG(Retrieval-Augmented Generation) is avaiable if the environment variable `OPENAI_API_KEY` is set . If you want to use RAG, please make a mention like `@rag`.
 
 ```txt
 @rag Tell me about mdx.
