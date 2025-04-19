@@ -37,9 +37,21 @@ end
 ---@param chat senpai.IChatWindow
 local function snacks(chat)
   -- local root = require("snacks.git").get_root()
-  require("snacks.picker").git_files({
-    untracked = true,
-    cwd = vim.uv.cwd(),
+  require("snacks").picker({
+    multi = {
+      {
+        finder = "buffers",
+        hidden = false,
+        unloaded = true,
+        current = true,
+        sort_lastused = true,
+      },
+      {
+        finder = "git_files",
+        untracked = true,
+        cwd = vim.uv.cwd(),
+      },
+    },
     confirm = function(the_picker)
       the_picker:close()
       local files = {}
@@ -50,6 +62,8 @@ local function snacks(chat)
       end
       insert2chat(chat, files)
     end,
+    format = "file",
+    transform = "unique_file",
   })
 end
 
