@@ -57,7 +57,7 @@ local function snacks(chat)
       local files = {}
       for _, item in ipairs(the_picker:selected({ fallback = true })) do
         if item.file then
-          table.insert(files, item.file)
+          table.insert(files, vim.fn.fnamemodify(item.file, ":~:."))
         end
       end
       insert2chat(chat, files)
