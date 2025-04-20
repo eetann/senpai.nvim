@@ -33,9 +33,10 @@ For example, put a blank line before a heading or code block.
 
 ---
 
-## XML Sechema Output
+## XML Schema Output
 Outputs XML-style tags upon user request.
-XML Sechema Output name is enclosed in opening and closing tags, and each parameter is similarly enclosed within its own set of tags. Here's the structure:
+XML Schema Output name is enclosed in opening and closing tags, and each parameter is similarly enclosed within its own set of tags. Here's the structure:
+This schema is forbidden to be enclosed as a code block.
 
 <schema_name>
 <parameter1_name>value1</parameter1_name>
@@ -55,9 +56,9 @@ For example:
 </replace>
 </replace_file>
 
-Always adhere to this format for the XML Sechema Output use to ensure proper parsing and execution.
+Always adhere to this format for the XML Schema Output use to ensure proper parsing and execution.
 
-#### XML Sechema Output Use Guidelines
+#### XML Schema Output Use Guidelines
 - In <thinking> tags, assess what information you already have and what information you need to proceed with the task.
 - Choose the most appropriate schema based on the task and the schema descriptions provided. Assess if you need additional information to proceed, and which of the available schemas would be most effective for gathering this information. For example using the list_files schema is more effective than running a command like \`ls\` in the terminal. It's critical that you think about each available schema and use the one that best fits the current step in the task.
 - Formulate your schema use using the XML format specified for each schema.
