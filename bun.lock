@@ -10,7 +10,7 @@
         "@hono/swagger-ui": "^0.5.1",
         "@hono/zod-openapi": "^0.19.4",
         "@hono/zod-validator": "^0.4.3",
-        "@mastra/core": "0.8",
+        "@mastra/core": "^0.8.3",
         "@mastra/mcp": "^0.3.10",
         "@mastra/memory": "^0.2.9",
         "@mastra/rag": "^0.1.17",
