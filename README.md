@@ -66,10 +66,20 @@ You can also edit the file.<br/>
 <img width="650" alt="Image" src="https://github.com/user-attachments/assets/c3981de9-3bb4-476d-9e30-1fc5dbf1cafd" />
 
 In the area called `Replace File`, press `a` to display the diff.
-This diff uses Neovim's built-in function `diffthis`, so you can apply the diff with `do` or `dp`.
-Related help `:help copy-diffs`.
+The keymap in diff mode is as follows.
+
+| key  | description                            |
+| ---- | -------------------------------------- |
+| `q`  | quit diff mode                         |
+| `ga` | accept AI code                         |
+| `gA` | accept All AI code and quit diff mode  |
+| `gr` | reject AI code                         |
+| `gR` | reject All AI code and quit diff mode  |
+
+The keymap in diff mode is temporary, so it will return to the original keymap when diff mode ends.
+
 <!-- panvimdoc-ignore-start -->
-https://github.com/user-attachments/assets/fa13beb7-3b79-4fb0-9e97-25ee16f81ee0  
+https://github.com/user-attachments/assets/02dbab59-4af8-4a32-af79-574112df0180
 <!-- panvimdoc-ignore-end -->
 
 ### system prompt
@@ -595,6 +605,7 @@ require("lualine").setup({
             winbar = {
                 "senpai_chat_log",
                 "senpai_chat_input",
+                "senpai_ai_buffer",
             },
         },
     },

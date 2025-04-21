@@ -15,6 +15,9 @@ local function get_diff_hint_winbar()
 end
 
 local function restore_keymaps(bufnr)
+  local group_name = "SenpaiDiffKeymaps_" .. bufnr
+  pcall(vim.api.nvim_del_augroup_by_name, group_name)
+
   for _, key in ipairs({ "gA", "gR", "q", "ga", "gr" }) do
     vim.api.nvim_buf_del_keymap(bufnr, "n", key)
   end
@@ -117,6 +120,19 @@ local function set_diff_keymaps(original_buf, ai_buf, ai_win)
 
   local winbar_str = get_diff_hint_winbar()
   vim.api.nvim_set_option_value("winbar", winbar_str, { win = ai_win })
+
+  local group_name = "SenpaiDiffKeymaps_" .. original_buf
+  vim.api.nvim_create_augroup(group_name, { clear = true })
+  vim.api.nvim_create_autocmd({ "BufDelete", "BufHidden" }, {
+    group = group_name,
+    once = true,
+    buffer = ai_buf,
+    callback = function()
+      if saved_keymaps[original_buf] then
+        restore_keymaps(original_buf)
+      end
+    end,
+  })
 end
 
 local function get_valid_replace_file_id()
