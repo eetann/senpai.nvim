@@ -6,6 +6,7 @@ local Menu = require("nui.menu")
 local send_text = require("senpai.usecase.send_text")
 local abort_request = require("senpai.usecase.abort_request")
 local apply_replace_file = require("senpai.usecase.apply_replace_file")
+local jump_to_block = require("senpai.usecase.jump_to_block")
 local regist_url_at_rag = require("senpai.usecase.regist_url_at_rag")
 local show_system_prompt = require("senpai.usecase.show_system_prompt")
 local show_mcp_tools = require("senpai.usecase.show_mcp_tools")
@@ -80,6 +81,12 @@ function M:execute_action(name)
     end,
     copy_input_or_codeblock = function()
       copy_input_or_codeblock.execute(self.chat)
+    end,
+    jump_to_previous_block = function()
+      jump_to_block.previous(self.chat)
+    end,
+    jump_to_next_block = function()
+      jump_to_block.next(self.chat)
     end,
     load_thread = function()
       vim.cmd("Senpai loadThread")

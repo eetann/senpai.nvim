@@ -77,9 +77,8 @@ The keymap in diff mode is as follows.
 | `gR` | reject All AI code and quit diff mode  |
 
 The keymap in diff mode is temporary, so it will return to the original keymap when diff mode ends.
-
 <!-- panvimdoc-ignore-start -->
-https://github.com/user-attachments/assets/02dbab59-4af8-4a32-af79-574112df0180
+https://github.com/user-attachments/assets/02dbab59-4af8-4a32-af79-574112df0180  
 <!-- panvimdoc-ignore-end -->
 
 ### system prompt
@@ -137,7 +136,7 @@ The names of the actions that can be written in the keymaps table are.
   - default: `q`
 
 - `copy_input_or_codeblock`
-  - copy user input or codeblock
+  - copy user input or replace file block
   - default: `gy` in log area
 
 - `foo`
@@ -147,6 +146,14 @@ The names of the actions that can be written in the keymaps table are.
 - `help`
   - show chat's keymap help
   - default: `?`
+
+- `jump_to_next_block`
+  - jump to next user input or replace file block
+  - default: `]]`
+
+- `jump_to_previous_block`
+  - jump to previous user input or replace file block
+  - default: `[[`
 
 - `load_thread`
   - load thread. detail -> |senpai-feature-history|
@@ -479,6 +486,8 @@ The default config are as follows.
       keymaps = {
         ["<C-c>"] = "abort",
         ["?"] = "help",
+        ["[["] = "jump_to_previous_block",
+        ["]]"] = "jump_to_next_block",
         gi = "toggle_input",
         gl = "load_thread",
         gx = "new_thread",

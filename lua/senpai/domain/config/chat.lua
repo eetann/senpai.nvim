@@ -39,11 +39,29 @@ M.actions = {
   --[=[@doc
   category = "chat_action"
   name = "copy_input_or_codeblock"
-  desc = "copy user input or codeblock"
+  desc = "copy user input or replace file block"
   default_key = "`gy` in log area"
   --]=]
   --
   copy_input_or_codeblock = false,
+
+  --[=[@doc
+  category = "chat_action"
+  name = "jump_to_previous_block"
+  desc = "jump to previous user input or replace file block"
+  default_key = "`[[`"
+  --]=]
+  --
+  jump_to_previous_block = false,
+
+  --[=[@doc
+  category = "chat_action"
+  name = "jump_to_next_block"
+  desc = "jump to next user input or replace file block"
+  default_key = "`]]`"
+  --]=]
+  --
+  jump_to_next_block = false,
 
   --[=[@doc
   category = "chat_action"
@@ -187,6 +205,8 @@ M.default_config = {
       gl = "load_thread",
       gi = "toggle_input",
       ["<C-c>"] = "abort",
+      ["[["] = "jump_to_previous_block",
+      ["]]"] = "jump_to_next_block",
     },
     width = 80,
   },

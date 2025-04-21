@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 18
+*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 21
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -119,9 +119,18 @@ REPLACE FILE ~
 
 You can also edit the file.
 
-In the area called `Replace File`, press `a` to display the diff. This diff
-uses Neovim’s built-in function `diffthis`, so you can apply the diff with
-`do` or `dp`. Related help `:help copy-diffs`.
+In the area called `Replace File`, press `a` to display the diff. The keymap in
+diff mode is as follows.
+
+  key   description
+  ----- ---------------------------------------
+  q     quit diff mode
+  ga    accept AI code
+  gA    accept All AI code and quit diff mode
+  gr    reject AI code
+  gR    reject All AI code and quit diff mode
+The keymap in diff mode is temporary, so it will return to the original keymap
+when diff mode ends.
 
 
 SYSTEMPROMPT ~
@@ -177,7 +186,7 @@ The names of the actions that can be written in the keymaps table are.
     - close chat
     - default: `q`
 - `copy_input_or_codeblock`
-    - copy user input or codeblock
+    - copy user input or replace file block
     - default: `gy` in log area
 - `foo`
     - Toggle display of input area
@@ -185,6 +194,12 @@ The names of the actions that can be written in the keymaps table are.
 - `help`
     - show chat’s keymap help
     - default: `?`
+- `jump_to_next_block`
+    - jump to next user input or replace file block
+    - default: `]]`
+- `jump_to_previous_block`
+    - jump to previous user input or replace file block
+    - default: `[[`
 - `load_thread`
     - load thread. detail -> |senpai-feature-history|
     - default: `gl`
@@ -286,8 +301,9 @@ You can set up servers in `.senpai/mcp.json` like this:
 
 RAG                                                       *senpai-feature-rag*
 
-RAG(Retrieval-Augmented Generation) is avaiable. If you want to use RAG, please
-make a mention like `@rag`.
+RAG(Retrieval-Augmented Generation) is avaiable if the environment variable
+`OPENAI_API_KEY` is set. If you want to use RAG, please make a mention like
+`@rag`.
 
 >txt
     @rag Tell me about mdx.
@@ -525,6 +541,8 @@ The default config are as follows.
           keymaps = {
             ["<C-c>"] = "abort",
             ["?"] = "help",
+            ["[["] = "jump_to_previous_block",
+            ["]]"] = "jump_to_next_block",
             gi = "toggle_input",
             gl = "load_thread",
             gx = "new_thread",
@@ -655,6 +673,7 @@ you could set the following
                 winbar = {
                     "senpai_chat_log",
                     "senpai_chat_input",
+                    "senpai_ai_buffer",
                 },
             },
         },
