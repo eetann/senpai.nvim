@@ -95,6 +95,8 @@ function M.execute(chat, user_input)
       if not part or not part.type or part.content == "" then
         return
       end
+      local winid = chat.log_area.winid
+      local last_buffer_line = vim.fn.line("$", winid)
       if part.type == "0" then
         assistant:render_from_response(part)
       elseif part.type == "3" then
@@ -104,7 +106,9 @@ function M.execute(chat, user_input)
       elseif part.type == "a" then
         ToolResultMessage.render_from_response(chat, part)
       end
-      utils.scroll_when_invisible(chat)
+      if vim.fn.line(".", winid) == last_buffer_line then
+        utils.scroll_when_invisible(chat)
+      end
     end,
     callback = function()
       spinner:stop()
