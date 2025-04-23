@@ -6,7 +6,6 @@ local T = MiniTest.new_set({
   hooks = {
     pre_case = function()
       child.setup()
-      child.load()
       child.lua([[M = require('senpai.usecase.request.request_handler')]])
     end,
     post_once = child.stop,

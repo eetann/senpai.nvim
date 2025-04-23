@@ -41,7 +41,7 @@ function M.new(args)
 
   if args.thread_id then
     self.thread_id = args.thread_id
-    self.is_new = false
+    self.is_new = args.thread_id:find("^test_render.*") and true or false
   else
     self.thread_id = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
       .. "-"
