@@ -87,6 +87,7 @@ function M:create_log_area(keymaps)
     size = Config.chat.common.width or 80,
     win_options = vim.tbl_deep_extend("force", win_options, {
       winbar = create_winbar_text("Conversations with Senpai"),
+      conceallevel = 3,
     }),
     buf_options = {
       filetype = "senpai_chat_log",
