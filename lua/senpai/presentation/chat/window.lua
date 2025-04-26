@@ -17,7 +17,7 @@ local win_options = {
   spell = false,
   statuscolumn = "",
   wrap = true,
-  fillchars = "eob: ,lastline:…",
+  fillchars = "eob: ",
   -- listchars = "eol: ",
 }
 

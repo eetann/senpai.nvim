@@ -467,6 +467,23 @@ with packer.nvim <https://github.com/wbthomason/packer.nvim>
     }
 <
 
+It is recommended to set `enable=true` for highlight in nvim-treesitter (for
+better visibility. You can also use `enable=false`).
+
+>lua
+    require("nvim-treesitter.configs").setup({
+        -- Manual installation with :TSInstall
+        --  or automatic installation as follows
+        -- ensure_installed = {
+        --     "html",
+        --     "markdown",
+        -- },
+        highlight = {
+            enable = true,
+        },
+    })
+<
+
 **Example of lazy.nvim lazy loading** It is useful to set `:Senpai toggleChat`!
 
 >lua
