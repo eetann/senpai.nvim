@@ -382,7 +382,7 @@ with [Lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
 {
     "eetann/senpai.nvim", 
-    build = "bun install",
+    build = "bun install --frozen-lockfile",
     dependencies = {
       "MunifTanjim/nui.nvim",
       "nvim-lua/plenary.nvim",
@@ -395,7 +395,7 @@ with [packer.nvim](https://github.com/wbthomason/packer.nvim)
 ```lua
 {
     "eetann/senpai.nvim", 
-    run = "bun install",
+    run = "bun install --frozen-lockfile",
     requires = {
       "MunifTanjim/nui.nvim",
       "nvim-lua/plenary.nvim",
