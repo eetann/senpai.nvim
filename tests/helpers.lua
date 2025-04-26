@@ -26,9 +26,10 @@ Helpers.new_child_neovim = function()
     })
   end
 
-  child.load = function(config)
-    child.lua("require('senpai').setup(...)", { config })
-  end
+  -- don't use it now because it reads in lazy.nvim
+  -- child.load = function(config)
+  --   child.lua("require('senpai').setup(...)", { config })
+  -- end
 
   return child
 end

@@ -17,7 +17,7 @@ local win_options = {
   spell = false,
   statuscolumn = "",
   wrap = true,
-  fillchars = "eob: ,lastline:…",
+  fillchars = "eob: ",
   -- listchars = "eol: ",
 }
 
@@ -41,7 +41,7 @@ function M.new(args)
 
   if args.thread_id then
     self.thread_id = args.thread_id
-    self.is_new = false
+    self.is_new = args.thread_id:find("^test_render.*") and true or false
   else
     self.thread_id = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
       .. "-"
@@ -87,6 +87,7 @@ function M:create_log_area(keymaps)
     size = Config.chat.common.width or 80,
     win_options = vim.tbl_deep_extend("force", win_options, {
       winbar = create_winbar_text("Conversations with Senpai"),
+      conceallevel = 3,
     }),
     buf_options = {
       filetype = "senpai_chat_log",

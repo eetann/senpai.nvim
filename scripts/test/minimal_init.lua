@@ -9,7 +9,6 @@ vim.filetype.add({
     mdx = "mdx",
   },
 })
-vim.opt.conceallevel = 1
 
 local plugins = {
   { "echasnovski/mini.test", opts = {} },
@@ -39,23 +38,11 @@ local plugins = {
           require("nvim-treesitter.configs").setup({
             ensure_installed = {
               "html",
-              "javascript",
-              "json",
-              "lua",
               "markdown",
-              "tsx",
-              "typescript",
             },
             sync_install = false,
             auto_install = true,
-            ignore_install = {},
             highlight = {
-              enable = true,
-            },
-            indent = {
-              enable = true,
-            },
-            matchup = {
               enable = true,
             },
           })

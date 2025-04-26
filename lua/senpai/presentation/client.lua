@@ -68,7 +68,7 @@ function M.start_server()
         end
       end),
     }, function(obj)
-      if obj.code ~= 0 and obj.stderr:find("EADDRINUSE") then
+      if obj.code ~= 0 and obj.stderr and obj.stderr:find("EADDRINUSE") then
         M.job = nil
         vim.schedule(try_start_server)
         return

@@ -7,7 +7,6 @@ local T = MiniTest.new_set({
   hooks = {
     pre_case = function()
       child.setup()
-      child.load()
       child.lua([[M=require("senpai.usecase.message.user")]])
     end,
     post_once = child.stop,
