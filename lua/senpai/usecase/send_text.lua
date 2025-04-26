@@ -106,7 +106,7 @@ function M.execute(chat, user_input)
       elseif part.type == "a" then
         ToolResultMessage.render_from_response(chat, part)
       end
-      if vim.fn.line(".", winid) == last_buffer_line then
+      if last_buffer_line <= vim.fn.line(".", winid) then
         utils.scroll_when_invisible(chat)
       end
     end,

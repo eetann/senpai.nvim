@@ -94,14 +94,10 @@ local function base_render(chat, user_input)
     start_row = start_row + 2
   end
 
-  local winid = chat.log_area.winid
-  local last_buffer_line = vim.fn.line("$", winid)
   -- user input
   utils.set_text_at_last(chat.log_area.bufnr, render_text)
   M.render_border(chat.log_area.bufnr, start_row, line_number)
-  if vim.fn.line(".", winid) == last_buffer_line then
-    utils.scroll_when_invisible(chat)
-  end
+  utils.scroll_when_invisible(chat)
 end
 
 ---@param chat senpai.IChatWindow
