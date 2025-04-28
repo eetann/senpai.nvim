@@ -320,22 +320,10 @@ function M:jump_to_next()
     return
   end
 
-  local is_last_popup = self.rows[current_row_index] == self.rows[#self.rows]
-  if is_last_popup then
-    -- === Currently in last sticky popup ===
-    local target_line = self.rows[current_row_index] + 1
-    local line_count = vim.api.nvim_buf_line_count(self.bufnr)
-    target_line = math.min(target_line, line_count)
-    safe_set_current_win(self.winid, { row = target_line, col = 0 })
-    return
-  end
-
-  -- === Currently in NOT last sticky popup ===
-  local next_row = self.rows[current_row_index + 1]
-  local next_popup = self.popups[next_row]
-  if next_popup then
-    safe_set_current_win(next_popup.winid, { row = 1, col = 0 })
-  end
+  local row_below_popup = self.rows[current_row_index] + 1
+  local line_count = vim.api.nvim_buf_line_count(self.bufnr)
+  row_below_popup = math.min(row_below_popup, line_count)
+  safe_set_current_win(self.winid, { row = row_below_popup, col = 0 })
 end
 
 function M:jump_to_prev()
@@ -355,21 +343,9 @@ function M:jump_to_prev()
     return
   end
 
-  local is_first_popup = current_row_index == 1
-  if is_first_popup then
-    -- === Currently in first sticky popup ===
-    local row_above_first_popup = self.rows[current_row_index] - 1
-    local target_line = math.min(1, row_above_first_popup)
-    safe_set_current_win(self.winid, { row = target_line, col = 0 })
-    return
-  end
-
-  -- === Currently in NOT first sticky popup ===
-  local prev_row = self.rows[current_row_index - 1]
-  local prev_popup = self.popups[prev_row]
-  if prev_popup then
-    safe_set_current_win(prev_popup.winid, { row = 1, col = 0 })
-  end
+  local row_above_popup = self.rows[current_row_index] - 1
+  local target_line = math.max(0, row_above_popup)
+  safe_set_current_win(self.winid, { row = target_line, col = 0 })
 end
 
 return M
