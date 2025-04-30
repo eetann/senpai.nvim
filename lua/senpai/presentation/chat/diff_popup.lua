@@ -2,7 +2,7 @@ local n = require("nui-components")
 
 local FLOAT_WIDTH_MARGIN = 2 + 7 -- border(L/R) + signcolumn
 
----@class senpai.DiffBlock
+---@class senpai.DiffPopup
 ---@field bufnr integer
 ---@field signal { active_tab: NuiSignal<string> }
 ---@field tabs {diff: NuiBuffer, replace: NuiBuffer, search: NuiBuffer}
@@ -14,16 +14,15 @@ M.__index = M
 ---@return NuiBuffer
 local function create_buffer_component()
   local bufnr = vim.api.nvim_create_buf(false, true)
-  local buffer_component = n.buffer({
+  return n.buffer({
     buf = bufnr,
     flex = 1,
     border_style = "rounded",
   })
-  return buffer_component
 end
 
----@param opts { winid:integer ,bufnr:integer, row:integer, height:integer }
----@return senpai.DiffBlock
+---@param opts { winid:integer, bufnr:integer, row:integer, height:integer }
+---@return senpai.DiffPopup
 function M.new(opts)
   local self = setmetatable({}, M)
   self.bufnr = opts.bufnr
@@ -49,7 +48,7 @@ function M.new(opts)
         flex = 0,
       },
       n.button({
-        label = "(gD) Diff ",
+        label = "(gD)Diff",
         global_press_key = "gD",
         is_active = is_tab_active("tab-diff"),
         on_press = function()
@@ -58,7 +57,7 @@ function M.new(opts)
       }),
       n.gap(1),
       n.button({
-        label = "(gR) Replace ",
+        label = "(gR)Replace",
         global_press_key = "gR",
         is_active = is_tab_active("tab-replace"),
         on_press = function()
@@ -67,14 +66,14 @@ function M.new(opts)
       }),
       n.gap(1),
       n.button({
-        label = "(gS) Search ",
+        label = "(gS)Search",
         global_press_key = "gS",
         is_active = is_tab_active("tab-search"),
         on_press = function()
           self.signal.active_tab = "tab-search"
         end,
       }),
-      n.gap({ flex = 5 })
+      n.gap({ flex = 2 })
     ),
     n.tab({ id = "tab-diff" }, self.tabs.diff),
     n.tab({ id = "tab-replace" }, self.tabs.replace),
@@ -82,8 +81,8 @@ function M.new(opts)
   )
 
   local width = vim.api.nvim_win_get_width(opts.winid) - FLOAT_WIDTH_MARGIN
-  if width < 5 then
-    width = 5
+  if width < 35 then
+    width = 35
   end
   self.renderer = n.create_renderer({
     bufnr = self.bufnr,
@@ -94,13 +93,9 @@ function M.new(opts)
         col = 0,
       },
     },
-    size = {
-      width = width,
-      height = opts.height,
-    },
     position = 1,
-    width = 60,
-    height = 30,
+    width = width,
+    height = opts.height + 3, -- border + tabar
     keymap = {
       close = nil,
     },
@@ -126,8 +121,16 @@ function M.new(opts)
   return self
 end
 
-function M:render()
+function M:mount()
   self.renderer:render(self.body)
+end
+
+function M:show()
+  self.renderer.layout:show()
+end
+
+function M:hide()
+  self.renderer.layout:hide()
 end
 
 function M:close()
@@ -138,9 +141,37 @@ end
 ---@param lines string[]
 function M:set_buffer_content(tab_name, lines)
   local buffer_component = self.tabs[tab_name]
-  vim.api.nvim_buf_set_lines(buffer_component.buf, 0, -1, false, lines)
+  vim.api.nvim_buf_set_lines(buffer_component.bufnr, 0, -1, false, lines)
 end
 
--- local block = M.new(vim.api.nvim_get_current_buf())
--- block:render()
+function M:is_visible()
+  return self.renderer.layout.winid ~= nil
+end
+
+function M:unmount()
+  self.renderer:close()
+end
+
+function M:get_height()
+  return self.renderer:get_size().height
+end
+
+function M:focus()
+  self.renderer:focus()
+end
+
+function M:is_focused()
+  for _, component in pairs(self.renderer:get_focusable_components()) do
+    if component:is_focused() then
+      return true
+    end
+  end
+  return false
+end
+
+---@param mapping NuiMapping
+function M:map(mapping)
+  self.renderer:add_mappings({ mapping })
+end
+
 return M

@@ -1,17 +1,15 @@
-local Popup = require("nui.popup")
 local event = require("nui.utils.autocmd").event
+local DiffPopup = require("senpai.presentation.chat.diff_popup")
 
 ---@class senpai.StickyPopupManager
 ---@field bufnr integer
 ---@field winid integer
----@field popups table<integer, NuiPopup> # { row: popup }
+---@field popups table<integer, senpai.DiffPopup> # { row: popup }
 ---@field rows integer[]
 ---@field group_id integer
 local M = {}
 M.__index = M
 
-local FLOAT_COL = 0
-local FLOAT_WIDTH_MARGIN = 2 + 7 -- border(L/R) + signcolumn
 M.VIRTUAL_BLANK_NS = vim.api.nvim_create_namespace("buffer_w_popup_blank")
 
 --- Safely set the current window and cursor position
@@ -65,13 +63,6 @@ function M:set_autocmd_on_win_resized()
     group = self.group_id,
     callback = vim.schedule_wrap(function()
       self:update_float_position()
-      for _, popup in pairs(self.popups) do
-        ---@diagnostic disable-next-line: invisible
-        if not popup._.mounted then
-          goto continue
-        end
-        ::continue::
-      end
     end),
   })
 end
@@ -90,8 +81,7 @@ end
 
 function M:close_all_popup()
   for _, popup in pairs(self.popups) do
-    ---@diagnostic disable-next-line: invisible
-    if popup._.mounted then
+    if popup:is_visible() then
       popup:unmount()
       -- Removal from self.popups is handled by the BufUnload event handler
     end
@@ -118,8 +108,8 @@ function M:add_virtual_blank_lines(start_row, height)
   end
 
   local virt_lines = {}
-  -- popup height + border
-  for _ = 1, height + 2 do
+  -- popup height + border + height
+  for _ = 1, height + 3 do
     table.insert(virt_lines, { { "", "Normal" } })
   end
   vim.api.nvim_buf_set_extmark(
@@ -134,57 +124,45 @@ function M:add_virtual_blank_lines(start_row, height)
 end
 
 ---@param opts { row: integer, height: integer, filetype: string }
----@return NuiPopup
+---@return senpai.DiffPopup
 function M:add_float_popup(opts)
   local row = opts.row
-  local width = vim.api.nvim_win_get_width(self.winid) - FLOAT_WIDTH_MARGIN
-  if width < 5 then
-    width = 5
-  end
-  local popup_buf = vim.api.nvim_create_buf(false, true)
-  -- vim.api.nvim_buf_set_lines(popup_buf, 0, -1, false, make_float_lines(height))
-
-  local popup = Popup({
-    enter = false,
-    focusable = true,
-    relative = {
-      type = "buf",
-      -- zero-indexed
-      position = {
-        row = row - 1,
-        col = FLOAT_COL,
-      },
-    },
-    filetype = opts.filetype,
-    position = 1,
-    size = {
-      width = width,
-      height = opts.height,
-    },
-    border = {
-      style = "rounded",
-    },
-    bufnr = popup_buf,
+  local popup = DiffPopup.new({
+    winid = self.winid,
+    bufnr = self.bufnr,
+    row = row,
+    height = opts.height,
   })
   popup:mount()
   self:add_virtual_blank_lines(row, opts.height)
 
-  popup:on(event.BufUnload, function()
-    self.popups[row] = nil
-  end, { once = true })
+  -- popup:on(event.BufUnload, function()
+  --   self.popups[row]:unmount()
+  --   self.popups[row] = nil
+  -- end, { once = true })
   -- TODO: 設定でキーバインドを変更
-  popup:map("n", "]]", function()
-    self:jump_to_next()
-  end, {})
-  popup:map("n", "[[", function()
-    self:jump_to_prev()
-  end, {})
-  popup:on(event.WinClosed, function()
+  popup:map({
+    mode = "n",
+    key = "]]",
+    handler = function()
+      self:jump_to_next()
+    end,
+    {},
+  })
+  popup:map({
+    mode = "n",
+    key = "[[",
+    handler = function()
+      self:jump_to_prev()
+    end,
+    {},
+  })
+  popup.renderer:on_unmount(function()
     if vim.api.nvim_win_is_valid(self.winid) then
       vim.api.nvim_win_close(self.winid, true)
       self:close_all_popup()
     end
-  end, {})
+  end)
 
   self.popups[row] = popup
   local rows = {}
@@ -203,46 +181,44 @@ function M:update_float_position()
   end
   local topline = vim.fn.line("w0", self.winid) - 1 -- 0-indexed
   local win_height = vim.api.nvim_win_get_height(self.winid)
-  local win_width = vim.api.nvim_win_get_width(self.winid)
 
   for original_row, popup in pairs(self.popups) do
-    ---@diagnostic disable-next-line: invisible
-    if not popup._.mounted then
+    if not popup:is_visible() then
+      popup:show()
       goto continue
     end
-    ---@diagnostic disable-next-line: invisible
-    local popup_height = popup._.size.height
+    local popup_height = popup:get_height()
+    if not popup_height then
+      goto continue
+    end
 
     -- Check if the popup should be visible within the current viewport
     local target_screen_row = original_row - topline
     local should_be_visible = target_screen_row >= 1
       and target_screen_row <= (win_height - popup_height + 1)
+    -- Hide the popup if it's outside the viewport
     if not should_be_visible then
-      -- Hide the popup if it's outside the viewport
+      vim.print("hide")
       popup:hide()
       goto continue
     end
 
     -- show new hight popup
     local new_hight = popup_height
-    if popup.winid and vim.api.nvim_win_is_valid(popup.winid) then
-      new_hight = vim.api.nvim_win_get_height(popup.winid)
+    -- TODO: bufferが更新されたら他のbufferなども更新したい
+    -- local win_width = vim.api.nvim_win_get_width(self.winid)
+    -- if popup.winid and vim.api.nvim_win_is_valid(popup.winid) then
+    --   new_hight = vim.api.nvim_win_get_height(popup.winid)
+    -- end
+    -- popup:set_size({
+    --   width = win_width - FLOAT_WIDTH_MARGIN,
+    --   height = new_hight,
+    -- })
+    if not popup.renderer.layout._.mounted then
+      vim.print("mounted")
+      popup:mount()
     end
-    popup:update_layout({
-      size = {
-        width = win_width - FLOAT_WIDTH_MARGIN,
-        height = new_hight,
-      },
-      relative = {
-        type = "buf",
-        -- zero-indexed
-        position = { row = original_row - 1, col = FLOAT_COL },
-      },
-    })
-    -- Ensure it's shown if it was previously hidden
-    popup:show()
 
-    ---@diagnostic disable-next-line: invisible
     if popup_height == new_hight then
       goto continue
     end
@@ -270,7 +246,7 @@ function M:focus_next_popup()
   local current_line = vim.api.nvim_win_get_cursor(self.winid)[1]
   for _, row in ipairs(self.rows) do
     if row > current_line then
-      safe_set_current_win(self.popups[row].winid, { row = 1, col = 0 })
+      self.popups[row]:focus()
       return true
     end
   end
@@ -283,19 +259,18 @@ function M:focus_prev_popup()
   for i = #self.rows, 1, -1 do
     local row = self.rows[i]
     if row < current_line then
-      safe_set_current_win(self.popups[row].winid, { row = 1, col = 0 })
+      self.popups[row]:focus()
       return true
     end
   end
   return false
 end
 
---- Find the index of the popup data corresponding to the given window ID
----@param winid integer Window ID to search for
+--- Find the index of the popup
 ---@return integer? index The index in self.popups, or nil if not found
-function M:find_row_index_by_winid(winid)
+function M:find_row_index_by_winid()
   for i, row in ipairs(self.rows) do
-    if self.popups[row].winid == winid then
+    if self.popups[row]:is_focused() then
       return i
     end
   end
@@ -315,7 +290,7 @@ function M:jump_to_next()
   end
 
   -- === Currently in a sticky popup ===
-  local current_row_index = self:find_row_index_by_winid(current_win)
+  local current_row_index = self:find_row_index_by_winid()
   if not current_row_index then
     return
   end
@@ -338,7 +313,7 @@ function M:jump_to_prev()
     return
   end
   -- === Currently in a sticky popup ===
-  local current_row_index = self:find_row_index_by_winid(current_win)
+  local current_row_index = self:find_row_index_by_winid()
   if not current_row_index then
     return
   end
@@ -348,4 +323,29 @@ function M:jump_to_prev()
   safe_set_current_win(self.winid, { row = target_line, col = 0 })
 end
 
+-- local Split = require("nui.split")
+-- local split = Split({
+--   relative = "editor",
+--   position = "right",
+--   size = "30%",
+-- })
+-- split:mount()
+-- local arr = {}
+-- for i = 1, 50 do
+--   arr[i] = ""
+-- end
+-- vim.api.nvim_buf_set_lines(split.bufnr, 0, -1, false, arr)
+-- local manager = M.new(split.winid, split.bufnr)
+-- local popup = manager:add_float_popup({ row = 5, height = 10 })
+-- local diff_lines = {}
+-- local replace_lines = {}
+-- local search_lines = {}
+-- for i = 1, popup.renderer:get_size().height do
+--   table.insert(diff_lines, string.format("diff Popup %d", i))
+--   table.insert(replace_lines, string.format("replace Popup %d", i))
+--   table.insert(search_lines, string.format("search Popup %d", i))
+-- end
+-- popup:set_buffer_content("diff", diff_lines)
+-- popup:set_buffer_content("replace", replace_lines)
+-- popup:set_buffer_content("search", search_lines)
 return M

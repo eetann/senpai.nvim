@@ -31,6 +31,7 @@
 ---@field events fun(component: NuiComponent): NuiEvent[]
 ---@field mappings fun(component: NuiComponent): NuiMapping[]
 ---@field validate fun(value: any): boolean
+---@field is_focused fun(component: NuiComponent): boolean
 
 ---@class NuiRenderer
 ---@field layout NuiLayout
@@ -65,7 +66,4 @@
 ---@class NuiSignal require("nui-components.signal")
 
 ---@class NuiBuffer: NuiComponent
----@field buf number
----@field autoscroll boolean
----@field filetype string
----@field linebreak boolean
+---@field bufnr integer
