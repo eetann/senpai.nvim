@@ -35,10 +35,10 @@ function M.new(winid, bufnr)
   self.winid = winid
   self.popups = {}
   self.rows = {}
-  vim.keymap.set("n", "<Tab>", function()
+  vim.keymap.set("n", "]]", function()
     self:jump_to_next()
   end, { buffer = bufnr })
-  vim.keymap.set("n", "<S-Tab>", function()
+  vim.keymap.set("n", "[[", function()
     self:jump_to_prev()
   end, { buffer = bufnr })
   self:set_autocmd_on_win_scrolled()
@@ -173,10 +173,10 @@ function M:add_float_popup(opts)
     self.popups[row] = nil
   end, { once = true })
   -- TODO: 設定でキーバインドを変更
-  popup:map("n", "<Tab>", function()
+  popup:map("n", "]]", function()
     self:jump_to_next()
   end, {})
-  popup:map("n", "<S-Tab>", function()
+  popup:map("n", "[[", function()
     self:jump_to_prev()
   end, {})
   popup:on(event.WinClosed, function()
