@@ -1,12 +1,6 @@
-local event = require("nui.utils.autocmd").event
 local DiffPopup = require("senpai.presentation.chat.diff_popup")
 
----@class senpai.StickyPopupManager
----@field bufnr integer
----@field winid integer
----@field popups table<integer, senpai.DiffPopup> # { row: popup }
----@field rows integer[]
----@field group_id integer
+---@class senpai.StickyPopupManager: senpai.IStickyPopupManager
 local M = {}
 M.__index = M
 
@@ -29,8 +23,8 @@ end
 ---@return senpai.StickyPopupManager
 function M.new(winid, bufnr)
   local self = setmetatable({}, M)
-  self.bufnr = bufnr
   self.winid = winid
+  self.bufnr = bufnr
   self.popups = {}
   self.rows = {}
   vim.keymap.set("n", "]]", function()
@@ -82,7 +76,7 @@ end
 function M:close_all_popup()
   for _, popup in pairs(self.popups) do
     if popup:is_visible() then
-      popup:unmount()
+      popup:close()
       -- Removal from self.popups is handled by the BufUnload event handler
     end
   end
@@ -123,7 +117,7 @@ function M:add_virtual_blank_lines(start_row, height)
   )
 end
 
----@param opts { row: integer, height: integer, filetype: string }
+---@param opts { row: integer, height: integer }
 ---@return senpai.DiffPopup
 function M:add_float_popup(opts)
   local row = opts.row
@@ -137,7 +131,7 @@ function M:add_float_popup(opts)
   self:add_virtual_blank_lines(row, opts.height)
 
   -- popup:on(event.BufUnload, function()
-  --   self.popups[row]:unmount()
+  --   self.popups[row]:close()
   --   self.popups[row] = nil
   -- end, { once = true })
   -- TODO: 設定でキーバインドを変更
@@ -183,10 +177,6 @@ function M:update_float_position()
   local win_height = vim.api.nvim_win_get_height(self.winid)
 
   for original_row, popup in pairs(self.popups) do
-    if not popup:is_visible() then
-      popup:show()
-      goto continue
-    end
     local popup_height = popup:get_height()
     if not popup_height then
       goto continue
@@ -198,8 +188,11 @@ function M:update_float_position()
       and target_screen_row <= (win_height - popup_height + 1)
     -- Hide the popup if it's outside the viewport
     if not should_be_visible then
-      vim.print("hide")
       popup:hide()
+      goto continue
+    end
+    if not popup:is_visible() then
+      popup:show()
       goto continue
     end
 
@@ -215,9 +208,9 @@ function M:update_float_position()
     --   height = new_hight,
     -- })
     if not popup.renderer.layout._.mounted then
-      vim.print("mounted")
       popup:mount()
     end
+    popup.renderer:redraw()
 
     if popup_height == new_hight then
       goto continue
@@ -330,6 +323,7 @@ end
 --   size = "30%",
 -- })
 -- split:mount()
+-- vim.cmd("wincmd h")
 -- local arr = {}
 -- for i = 1, 50 do
 --   arr[i] = ""

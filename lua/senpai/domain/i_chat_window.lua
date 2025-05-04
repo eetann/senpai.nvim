@@ -8,6 +8,54 @@ local M = {}
 ---@field search string[]
 ---@field replace string[]
 
+---@class senpai.IDiffPopup
+---@field bufnr integer
+---@field signal { active_tab: NuiSignal<string> }
+---@field tabs {diff: NuiBuffer, replace: NuiBuffer, search: NuiBuffer}
+---@field body NuiComponent
+---@field renderer NuiRenderer
+local IDiffPop = {}
+function IDiffPop:mount() end
+function IDiffPop:show() end
+function IDiffPop:hide() end
+function IDiffPop:close() end
+function IDiffPop:focus() end
+function IDiffPop:is_focused() end
+
+---@param tab_name "diff" | "replace" | "search"
+---@param lines string[]
+---@diagnostic disable-next-line: unused-local
+function IDiffPop:set_buffer_content(tab_name, lines) end
+
+---@return boolean
+function IDiffPop:is_visible()
+  return false
+end
+
+---@return integer
+function IDiffPop:get_height()
+  return 1
+end
+
+---@param mapping NuiMapping
+---@diagnostic disable-next-line: unused-local
+function IDiffPop:map(mapping) end
+
+---@class senpai.IStickyPopupManager
+---@field bufnr integer
+---@field winid integer
+---@field popups table<integer, senpai.IDiffPopup> # { row: popup }
+---@field rows integer[]
+---@field group_id integer
+local IStickyPopupManager = {}
+
+---@param opts { row: integer, height: integer, filetype: string }
+---@return senpai.DiffPopup
+---@diagnostic disable-next-line: unused-local
+function IStickyPopupManager:add_float_popup(opts)
+  return {}
+end
+
 ---@class senpai.ChatWindowNewArgs
 ---@field provider? senpai.Config.provider.name|senpai.Config.provider
 ---@field system_prompt? string
@@ -20,6 +68,7 @@ local M = {}
 ---@field log_area NuiSplit|nil
 ---@field input_area NuiSplit|nil
 ---@field keymaps senpai.chat.Keymaps
+---@field sticky_popup_manager senpai.IStickyPopupManager|nil
 ---@field is_sending boolean
 ---@field is_first_message boolean
 ---@field job? Job
@@ -34,6 +83,11 @@ function IChatWindow:hide() end
 function IChatWindow:destroy() end
 function IChatWindow:toggle() end
 function IChatWindow:toggle_input() end
+
+---@param row integer
+---@return senpai.IDiffPopup?
+---@diagnostic disable-next-line: unused-local
+function IChatWindow:add_diff_popup(row) end
 
 M.input_winbar_text = "Ask Senpai (?: help)"
 

@@ -239,6 +239,8 @@ T["StickyPopupManager"]["scroll"] = function()
 
   -- scroll
   child.type_keys("25G")
+  sleep(500)
+  expect.reference_screenshot(child.get_screenshot())
   local popup1_winid =
     child.lua_get([=[_G.manager.popups[5].renderer.layout.winid]=])
   eq(popup1_winid, vim.NIL)

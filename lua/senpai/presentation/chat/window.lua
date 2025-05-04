@@ -4,6 +4,8 @@ local utils = require("senpai.usecase.utils")
 local set_messages = require("senpai.usecase.set_messages")
 local Keymaps = require("senpai.presentation.chat.keymaps")
 local IChatWindow = require("senpai.domain.i_chat_window")
+local StickyPopupManager =
+  require("senpai.presentation.chat.sticky_popup_manager")
 
 local function create_winbar_text(text)
   return "%#Nomal#%=" .. text .. "%="
@@ -94,6 +96,8 @@ function M:create_log_area(keymaps)
     },
   })
   self:apply_keymaps(self.log_area, keymaps)
+  self.sticky_popup_manager =
+    StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
 end
 
 ---@param keymaps table<string, senpai.Config.chat.keymap>
@@ -126,6 +130,8 @@ function M:setup_log_area(winid)
     end
     vim.api.nvim_set_current_win(self.log_area.winid)
   end
+  self.sticky_popup_manager =
+    StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
 end
 
 function M:display_chat_info()
@@ -225,6 +231,15 @@ function M:toggle_input()
   else
     self.input_area:show()
   end
+end
+
+function M:add_diff_popup(row)
+  if not self.sticky_popup_manager then
+    self.sticky_popup_manager =
+      StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
+  end
+  -- TODO: height をオプション化
+  return self.sticky_popup_manager:add_float_popup({ row = row, height = 5 })
 end
 
 return M

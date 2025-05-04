@@ -2,12 +2,7 @@ local n = require("nui-components")
 
 local FLOAT_WIDTH_MARGIN = 2 + 7 -- border(L/R) + signcolumn
 
----@class senpai.DiffPopup
----@field bufnr integer
----@field signal { active_tab: NuiSignal<string> }
----@field tabs {diff: NuiBuffer, replace: NuiBuffer, search: NuiBuffer}
----@field body NuiComponent
----@field renderer NuiRenderer
+---@class senpai.DiffPopup: senpai.IDiffPopup
 local M = {}
 M.__index = M
 
@@ -100,6 +95,7 @@ function M.new(opts)
       close = nil,
     },
   })
+  self.renderer._private.layout_options.relative.winid = opts.winid
 
   vim.api.nvim_set_hl(0, "NuiComponentsButton", { link = "@comment" })
   vim.api.nvim_set_hl(
@@ -146,10 +142,6 @@ end
 
 function M:is_visible()
   return self.renderer.layout.winid ~= nil
-end
-
-function M:unmount()
-  self.renderer:close()
 end
 
 function M:get_height()
