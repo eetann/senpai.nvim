@@ -5,6 +5,7 @@ Helpers.expect = vim.deepcopy(MiniTest.expect)
 ---@class NvimChild: MiniTest.child
 ---@field setup function
 ---@field load function
+---@field get_lines fun(bufnr: integer, start?: integer, finish?: integer): string[]
 local nvimChild = {}
 nvimChild.api = vim.api
 nvimChild.fn = vim.fn
@@ -32,6 +33,14 @@ Helpers.new_child_neovim = function()
   -- end
   child.poke_eventloop = function()
     child.api.nvim_eval("1")
+  end
+
+  child.get_lines = function(bufnr, start, finish)
+    return child.api.nvim_buf_get_lines(bufnr, start or 0, finish or -1, false)
+  end
+
+  child.get_line = function(bufnr, start)
+    return child.api.nvim_buf_get_lines(bufnr, start - 1, start, false)[1]
   end
 
   return child

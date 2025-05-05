@@ -6,32 +6,34 @@ local FLOAT_WIDTH_MARGIN = 2 + 7 -- border(L/R) + signcolumn
 local M = {}
 M.__index = M
 
+---@param filetype string|nil
 ---@return NuiBuffer
-local function create_buffer_component()
+local function create_buffer_component(filetype)
   local bufnr = vim.api.nvim_create_buf(false, true)
   return n.buffer({
     buf = bufnr,
     flex = 1,
     border_style = "rounded",
+    filetype = filetype,
   })
 end
 
----@param opts { winid:integer, bufnr:integer, row:integer, height:integer }
+---@param opts { winid:integer, bufnr:integer, row:integer, height:integer, filetype: string|nil }
 ---@return senpai.DiffPopup
 function M.new(opts)
   local self = setmetatable({}, M)
   self.bufnr = opts.bufnr
 
   self.signal = n.create_signal({
-    active_tab = "tab-diff",
+    active_tab = "no-tab",
   })
 
   local is_tab_active = n.is_active_factory(self.signal.active_tab)
 
   self.tabs = {
-    diff = create_buffer_component(),
-    replace = create_buffer_component(),
-    search = create_buffer_component(),
+    diff = create_buffer_component("diff"),
+    replace = create_buffer_component(opts.filetype),
+    search = create_buffer_component(opts.filetype),
   }
 
   self.body = n.tabs(
@@ -164,6 +166,16 @@ end
 ---@param mapping NuiMapping
 function M:map(mapping)
   self.renderer:add_mappings({ mapping })
+end
+
+function M:change_tab(tab)
+  if tab == "diff" then
+    self.signal.active_tab = "tab-diff"
+  elseif tab == "replace" then
+    self.signal.active_tab = "tab-replace"
+  elseif tab == "search" then
+    self.signal.active_tab = "tab-search"
+  end
 end
 
 return M

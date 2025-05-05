@@ -41,6 +41,10 @@ end
 ---@diagnostic disable-next-line: unused-local
 function IDiffPop:map(mapping) end
 
+---@param tab "diff"|"replace"|"search"
+---@diagnostic disable-next-line: unused-local
+function IDiffPop:change_tab(tab) end
+
 ---@class senpai.IStickyPopupManager
 ---@field bufnr integer
 ---@field winid integer
@@ -85,9 +89,12 @@ function IChatWindow:toggle() end
 function IChatWindow:toggle_input() end
 
 ---@param row integer
----@return senpai.IDiffPopup?
+---@param filetype? string
+---@return senpai.IDiffPopup
 ---@diagnostic disable-next-line: unused-local
-function IChatWindow:add_diff_popup(row) end
+function IChatWindow:add_diff_popup(row, filetype)
+  return {}
+end
 
 M.input_winbar_text = "Ask Senpai (?: help)"
 

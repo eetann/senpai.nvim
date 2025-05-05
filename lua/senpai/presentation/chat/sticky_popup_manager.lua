@@ -117,7 +117,7 @@ function M:add_virtual_blank_lines(start_row, height)
   )
 end
 
----@param opts { row: integer, height: integer }
+---@param opts { row: integer, height: integer, filetype: string|nil }
 ---@return senpai.DiffPopup
 function M:add_float_popup(opts)
   local row = opts.row
@@ -126,6 +126,7 @@ function M:add_float_popup(opts)
     bufnr = self.bufnr,
     row = row,
     height = opts.height,
+    filetype = opts.filetype,
   })
   popup:mount()
   self:add_virtual_blank_lines(row, opts.height)

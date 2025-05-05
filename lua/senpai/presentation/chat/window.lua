@@ -96,8 +96,6 @@ function M:create_log_area(keymaps)
     },
   })
   self:apply_keymaps(self.log_area, keymaps)
-  self.sticky_popup_manager =
-    StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
 end
 
 ---@param keymaps table<string, senpai.Config.chat.keymap>
@@ -164,6 +162,8 @@ function M:show(winid)
       self:setup_log_area(winid)
     end
     self.log_area:mount()
+    self.sticky_popup_manager =
+      StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
     self:display_chat_info()
     if not self.is_new then
       set_messages.execute(self)
@@ -233,13 +233,17 @@ function M:toggle_input()
   end
 end
 
-function M:add_diff_popup(row)
+function M:add_diff_popup(row, filetype)
   if not self.sticky_popup_manager then
     self.sticky_popup_manager =
       StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
   end
   -- TODO: height をオプション化
-  return self.sticky_popup_manager:add_float_popup({ row = row, height = 5 })
+  return self.sticky_popup_manager:add_float_popup({
+    row = row,
+    height = 5,
+    filetype = filetype,
+  })
 end
 
 return M

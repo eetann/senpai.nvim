@@ -8,11 +8,34 @@ local utils = require("senpai.usecase.utils")
 ---@class senpai.message.assistant
 ---@field chat senpai.IChatWindow
 ---@field replace_file_current senpai.message.assistant.replace_file_current
+---@field diff_popup senpai.IDiffPopup|nil
 ---@field current_content string
 ---@field line string
 ---@field namespace integer
 local M = {}
 M.__index = M
+
+local function diff_temp_files(bufnr, search, replace)
+  local tmp1 = os.tmpname()
+  local tmp2 = os.tmpname()
+
+  local f1 = assert(io.open(tmp1, "w"))
+  f1:write(search)
+  f1:close()
+
+  local f2 = assert(io.open(tmp2, "w"))
+  f2:write(replace)
+  f2:close()
+
+  local result = vim.system({ "git", "diff", "--no-index", tmp1, tmp2 }):wait()
+  local lines = vim.split(result.stdout, "\n")
+  if #lines >= 6 then
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, { unpack(lines, 6) })
+  end
+
+  os.remove(tmp1)
+  os.remove(tmp2)
+end
 
 ---@param chat senpai.IChatWindow
 ---@return senpai.message.assistant
@@ -98,16 +121,14 @@ function M:process_line(chunk, is_lastline)
   end
 
   if self.replace_file_current.tag then
-    self:process_content_line(chunk)
+    self:process_content_line(chunk, is_lastline)
   end
 end
 
 function M:process_start_replace_file()
   local id = utils.create_random_id(12)
-  utils.replace_text_at_last(
-    self.chat.log_area.bufnr,
-    '\n<SenpaiReplaceFile id="' .. id .. '">\n\n'
-  )
+
+  utils.replace_text_at_last(self.chat.log_area.bufnr, "\n")
   local start_line = vim.fn.line("$", self.chat.log_area.winid) - 2
   self.replace_file_current = {
     id = id,
@@ -116,18 +137,18 @@ function M:process_start_replace_file()
     replace = {},
     start_line = start_line,
   }
-  vim.api.nvim_buf_set_extmark(
-    self.chat.log_area.bufnr,
-    self.namespace,
-    start_line - 1,
-    0,
-    {
-      sign_text = "󰬲",
-      sign_hl_group = "DiagnosticInfo",
-      virt_text = { { "Replace File" } },
-      virt_text_pos = "inline",
-    }
-  )
+  -- vim.api.nvim_buf_set_extmark(
+  --   self.chat.log_area.bufnr,
+  --   self.namespace,
+  --   start_line - 1,
+  --   0,
+  --   {
+  --     sign_text = "󰬲",
+  --     sign_hl_group = "DiagnosticInfo",
+  --     -- virt_text = { { "Replace File" } },
+  --     -- virt_text_pos = "inline",
+  --   }
+  -- )
 end
 
 function M:process_path_tag()
@@ -139,44 +160,53 @@ function M:process_path_tag()
   self.line = ""
   utils.replace_text_at_last(
     self.chat.log_area.bufnr,
-    "filepath: " .. path .. "\n"
+    "filepath: " .. path .. "\n\n"
   )
+  local row = vim.api.nvim_buf_line_count(self.chat.log_area.bufnr)
+  local filetype = utils.get_filetype(path)
+  self.diff_popup = self.chat:add_diff_popup(row - 1, filetype)
 end
 
 function M:process_start_search_tag()
   self.replace_file_current.tag = "search"
+  self.diff_popup:change_tab("search")
   self.current_content = ""
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
-  -- TODO: 検索スピナーの開始
 end
 
 function M:process_end_search_tag(chunk)
+  vim.api.nvim_buf_set_lines(
+    self.diff_popup.tabs.search.bufnr,
+    -2,
+    -1,
+    false,
+    {}
+  )
   self.current_content = self.current_content .. chunk
   self.replace_file_current.search =
     vim.split(self.current_content:gsub("\n</search>\n?", ""), "\n")
   self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
-  -- TODO: 検索スピナーの終了
   self.line = ""
 end
 
 function M:process_start_replace_tag()
   self.replace_file_current.tag = "replace"
+  self.diff_popup:change_tab("replace")
   self.current_content = ""
-  local filetype = utils.get_filetype(self.replace_file_current.path)
-  utils.replace_text_at_last(
-    self.chat.log_area.bufnr,
-    "```" .. filetype .. "\n"
-  )
   self.line = ""
 end
 
 function M:process_end_replace_tag(chunk)
+  vim.api.nvim_buf_set_lines(
+    self.diff_popup.tabs.replace.bufnr,
+    -2,
+    -1,
+    false,
+    {}
+  )
   self.current_content = self.current_content .. chunk
   self.replace_file_current.replace =
     vim.split(self.current_content:gsub("\n</replace>\n?", ""), "\n")
   self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "```" .. "\n")
 end
 
 function M:process_end_replace_file()
@@ -185,9 +215,10 @@ function M:process_end_replace_file()
     search = self.replace_file_current.search,
     replace = self.replace_file_current.replace,
   })
-  utils.replace_text_at_last(
-    self.chat.log_area.bufnr,
-    "\n</SenpaiReplaceFile>\n"
+  diff_temp_files(
+    self.diff_popup.tabs.diff.bufnr,
+    table.concat(self.replace_file_current.search, "\n"),
+    table.concat(self.replace_file_current.replace, "\n")
   )
   vim.api.nvim_buf_set_extmark(
     self.chat.log_area.bufnr,
@@ -200,29 +231,23 @@ function M:process_end_replace_file()
     }
   )
 
-  local end_index = vim.fn.line("$", self.chat.log_area.winid) - 3
-  for i = self.replace_file_current.start_line, end_index do
-    vim.api.nvim_buf_set_extmark(
-      self.chat.log_area.bufnr,
-      self.namespace,
-      i, -- 0-based
-      0,
-      {
-        sign_text = "▕",
-        sign_hl_group = "DiagnosticVirtualInfo",
-      }
-    )
-  end
-
   self.replace_file_current =
     { id = "", path = "", search = {}, replace = {}, start_line = 0 }
   self.replace_file_current.tag = nil
 end
 
-function M:process_content_line(chunk)
+function M:process_content_line(chunk, is_lastline)
   self.current_content = self.current_content .. chunk
-  if self.replace_file_current.tag ~= "search" then
-    self:render_base(chunk)
+  if is_lastline then
+    return
+  end
+  if self.replace_file_current.tag == "search" then
+    utils.set_text_at_last(self.diff_popup.tabs.search.bufnr, self.line .. "\n")
+  elseif self.replace_file_current.tag == "replace" then
+    utils.set_text_at_last(
+      self.diff_popup.tabs.replace.bufnr,
+      self.line .. "\n"
+    )
   end
 end
 
