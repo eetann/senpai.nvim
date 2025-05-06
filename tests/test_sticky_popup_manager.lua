@@ -102,10 +102,10 @@ T["StickyPopupManager"] = MiniTest.new_set()
 T["StickyPopupManager"]["created popups"] = function()
   child.o.lines, child.o.columns = 30, 60
   local split = make_split(child)
-  local row1, hight1 = 5, 5
-  local popup1 = make_popup(child, row1, hight1)
-  local row2, hight2 = 12, 3
-  make_popup(child, row2, hight2)
+  local row1, height1 = 5, 5
+  local popup1 = make_popup(child, row1, height1)
+  local row2, height2 = 12, 3
+  make_popup(child, row2, height2)
   child.lua("_G.manager:update_float_position()")
 
   -- for vim.schedule
@@ -124,7 +124,7 @@ T["StickyPopupManager"]["created popups"] = function()
   expect.reference_screenshot(child.get_screenshot())
 
   local n_buffer_win = child.api.nvim_win_get_config(0)
-  eq(n_buffer_win.height, hight1)
+  eq(n_buffer_win.height, height1)
 
   local n_tab_win = child.api.nvim_win_get_config(n_buffer_win.win)
   local parent_win = child.api.nvim_win_get_config(n_tab_win.win)
@@ -135,10 +135,10 @@ end
 T["StickyPopupManager"]["works multiple popup"] = function()
   child.o.lines, child.o.columns = 30, 60
   local split = make_split(child)
-  local row1, hight1 = 5, 5
-  make_popup(child, row1, hight1)
-  local row2, hight2 = 12, 3
-  local popup2 = make_popup(child, row2, hight2)
+  local row1, height1 = 5, 5
+  make_popup(child, row1, height1)
+  local row2, height2 = 12, 3
+  local popup2 = make_popup(child, row2, height2)
   child.lua("_G.manager:update_float_position()")
 
   -- for vim.schedule
@@ -153,7 +153,7 @@ T["StickyPopupManager"]["works multiple popup"] = function()
   )
 
   local n_buffer_win = child.api.nvim_win_get_config(0)
-  eq(n_buffer_win.height, hight2)
+  eq(n_buffer_win.height, height2)
 
   local n_tab_win = child.api.nvim_win_get_config(n_buffer_win.win)
   local parent_win = child.api.nvim_win_get_config(n_tab_win.win)
@@ -164,10 +164,10 @@ end
 T["StickyPopupManager"]["virtual line"] = function()
   child.o.lines, child.o.columns = 30, 50
   local split = make_split(child)
-  local row1, hight1 = 5, 5
-  make_popup(child, row1, hight1)
-  local row2, hight2 = 12, 3
-  make_popup(child, row2, hight2)
+  local row1, height1 = 5, 5
+  make_popup(child, row1, height1)
+  local row2, height2 = 12, 3
+  make_popup(child, row2, height2)
   child.lua("_G.manager:update_float_position()")
 
   local extmarks = child.api.nvim_buf_get_extmarks(
@@ -183,11 +183,11 @@ T["StickyPopupManager"]["virtual line"] = function()
   for _, extmark in pairs(extmarks) do
     if extmark[2] == row1 - 1 then
       local virt_lines = get_virt_lines(child, split.bufnr, ns, extmark[1])
-      eq(#virt_lines, hight1 + 3) -- win height + border + tab
+      eq(#virt_lines, height1 + 3) -- win height + border + tab
       count = count + 1
     elseif extmark[2] == row2 - 1 then
       local virt_lines = get_virt_lines(child, split.bufnr, ns, extmark[1])
-      eq(#virt_lines, hight2 + 3) -- win height + border + tab
+      eq(#virt_lines, height2 + 3) -- win height + border + tab
       count = count + 1
     end
   end
@@ -197,10 +197,10 @@ end
 T["StickyPopupManager"]["map"] = function()
   child.o.lines, child.o.columns = 30, 50
   local split = make_split(child)
-  local row1, hight1 = 5, 5
-  local popup1 = make_popup(child, row1, hight1)
-  local row2, hight2 = 12, 3
-  local popup2 = make_popup(child, row2, hight2)
+  local row1, height1 = 5, 5
+  local popup1 = make_popup(child, row1, height1)
+  local row2, height2 = 12, 3
+  local popup2 = make_popup(child, row2, height2)
   child.lua("_G.manager:update_float_position()")
 
   -- for vim.schedule
@@ -236,13 +236,13 @@ end
 T["StickyPopupManager"]["scroll down"] = function()
   child.o.lines, child.o.columns = 30, 50
   local split = make_split(child)
-  local row1, hight1 = 5, 5
-  local popup1 = make_popup(child, row1, hight1)
+  local row1, height1 = 5, 5
+  local popup1 = make_popup(child, row1, height1)
 
-  local row2, hight2 = 12, 3
-  make_popup(child, row2, hight2)
-  local row3, hight3 = 40, 3
-  make_popup(child, row3, hight3)
+  local row2, height2 = 12, 3
+  make_popup(child, row2, height2)
+  local row3, height3 = 40, 3
+  make_popup(child, row3, height3)
   child.lua("_G.manager:update_float_position()")
   sleep(500)
   eq(child.lua_get("_G.manager.popups[...].renderer.layout", { row3 }), vim.NIL)
@@ -275,11 +275,11 @@ end
 T["StickyPopupManager"]["scroll up"] = function()
   child.o.lines, child.o.columns = 30, 50
   local split = make_split(child)
-  local row1, hight1 = 5, 5
-  local popup1 = make_popup(child, row1, hight1)
+  local row1, height1 = 5, 5
+  local popup1 = make_popup(child, row1, height1)
 
-  local row2, hight2 = 40, 3
-  make_popup(child, row2, hight2)
+  local row2, height2 = 40, 3
+  make_popup(child, row2, height2)
   child.lua("_G.manager:update_float_position()")
   sleep(500)
   eq(child.lua_get("_G.manager.popups[...].renderer.layout", { row2 }), vim.NIL)
@@ -310,10 +310,10 @@ end
 T["StickyPopupManager"]["WinClosed"] = function()
   child.o.lines, child.o.columns = 30, 50
   local split = make_split(child)
-  local row1, hight1 = 5, 5
-  make_popup(child, row1, hight1)
-  local row2, hight2 = 12, 3
-  make_popup(child, row2, hight2)
+  local row1, height1 = 5, 5
+  make_popup(child, row1, height1)
+  local row2, height2 = 12, 3
+  make_popup(child, row2, height2)
   child.lua("_G.manager:update_float_position()")
   child.api.nvim_set_current_win(split.winid)
   child.api.nvim_win_set_cursor(split.winid, { 1, 0 })
@@ -322,6 +322,30 @@ T["StickyPopupManager"]["WinClosed"] = function()
   eq(child.api.nvim_win_is_valid(split.winid), false)
   eq(child.lua_get([=[_G.manager.popups[5].renderer.layout.winid]=]), vim.NIL)
   eq(child.lua_get([=[_G.manager.popups[12].renderer.layout.winid]=]), vim.NIL)
+end
+
+T["StickyPopupManager"]["WinResized"] = function()
+  child.o.lines, child.o.columns = 30, 50
+  local split = make_split(child)
+  local row1, height1 = 5, 5
+  make_popup(child, row1, height1)
+  local row2, height2 = 12, 3
+  make_popup(child, row2, height2)
+  child.lua("_G.manager:update_float_position()")
+  child.api.nvim_set_current_win(split.winid)
+  child.api.nvim_win_set_cursor(split.winid, { 1, 0 })
+
+  local diff_winid =
+    child.lua_get("_G.manager.popups[...].tabs.diff.winid", { row2 })
+  child.api.nvim_set_current_win(diff_winid)
+  child.cmd(":resize +3<CR>")
+
+  sleep(500)
+  eq(child.api.nvim_win_get_config(diff_winid).height, height2 + 3)
+  eq(
+    child.lua_get("_G.manager.popups[...].renderer:get_size().height", { row2 }),
+    height2 + 3 + 3
+  )
 end
 
 return T

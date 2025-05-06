@@ -165,6 +165,7 @@ function M:process_path_tag()
   local row = vim.api.nvim_buf_line_count(self.chat.log_area.bufnr)
   local filetype = utils.get_filetype(path)
   self.diff_popup = self.chat:add_diff_popup(row - 1, filetype)
+  self.diff_popup:mount()
 end
 
 function M:process_start_search_tag()

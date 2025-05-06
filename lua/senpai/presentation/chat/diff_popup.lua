@@ -183,4 +183,15 @@ function M:change_tab(tab)
   end
 end
 
+function M:set_size(width, height)
+  width = width - FLOAT_WIDTH_MARGIN
+  if width < 35 then
+    width = 35
+  end
+  self.renderer:set_size({
+    width = width,
+    height = height,
+  })
+end
+
 return M

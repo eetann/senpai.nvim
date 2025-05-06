@@ -198,23 +198,29 @@ function M:update_float_position()
 
     -- show new hight popup
     local new_hight = popup_height
-    -- TODO: bufferが更新されたら他のbufferなども更新したい
-    -- local win_width = vim.api.nvim_win_get_width(self.winid)
-    -- if popup.winid and vim.api.nvim_win_is_valid(popup.winid) then
-    --   new_hight = vim.api.nvim_win_get_height(popup.winid)
-    -- end
-    -- popup:set_size({
-    --   width = win_width - FLOAT_WIDTH_MARGIN,
-    --   height = new_hight,
-    -- })
+    local win_width = vim.api.nvim_win_get_width(self.winid)
+    if popup:is_visible() then
+      for _, component in pairs(popup.tabs) do
+        ---@diagnostic disable-next-line: undefined-field
+        if component:is_focused() and component.winid then
+          ---@diagnostic disable-next-line: undefined-field
+          new_hight = vim.api.nvim_win_get_height(component.winid) + 3
+          break
+        end
+      end
+    end
+
     if not popup.renderer.layout or not popup.renderer.layout._.mounted then
       popup:mount()
+    else
+      popup.renderer:redraw()
     end
-    popup.renderer:redraw()
 
     if popup_height == new_hight then
       goto continue
     end
+
+    popup:set_size(win_width, new_hight)
 
     -- update virtual_blank_lines
     local extmarks = vim.api.nvim_buf_get_extmarks(
@@ -227,7 +233,7 @@ function M:update_float_position()
     for _, extmark in pairs(extmarks) do
       vim.api.nvim_buf_del_extmark(self.bufnr, M.VIRTUAL_BLANK_NS, extmark[1])
     end
-    self:add_virtual_blank_lines(original_row, new_hight)
+    self:add_virtual_blank_lines(original_row, new_hight - 3)
 
     ::continue::
   end

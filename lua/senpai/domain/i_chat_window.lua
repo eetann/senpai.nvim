@@ -1,3 +1,4 @@
+---@diagnostic disable: unused-local
 local M = {}
 
 ---@module "nui.split"
@@ -24,7 +25,6 @@ function IDiffPop:is_focused() end
 
 ---@param tab_name "diff" | "replace" | "search"
 ---@param lines string[]
----@diagnostic disable-next-line: unused-local
 function IDiffPop:set_buffer_content(tab_name, lines) end
 
 ---@return boolean
@@ -38,12 +38,14 @@ function IDiffPop:get_height()
 end
 
 ---@param mapping NuiMapping
----@diagnostic disable-next-line: unused-local
 function IDiffPop:map(mapping) end
 
 ---@param tab "diff"|"replace"|"search"
----@diagnostic disable-next-line: unused-local
 function IDiffPop:change_tab(tab) end
+
+---@param width integer
+---@param height integer
+function IDiffPop:set_size(width, height) end
 
 ---@class senpai.IStickyPopupManager
 ---@field bufnr integer
@@ -81,7 +83,6 @@ end
 local IChatWindow = {}
 
 ---@param winid? number
----@diagnostic disable-next-line: unused-local
 function IChatWindow:show(winid) end
 function IChatWindow:hide() end
 function IChatWindow:destroy() end
@@ -91,7 +92,6 @@ function IChatWindow:toggle_input() end
 ---@param row integer
 ---@param filetype? string
 ---@return senpai.IDiffPopup
----@diagnostic disable-next-line: unused-local
 function IChatWindow:add_diff_popup(row, filetype)
   return {}
 end
