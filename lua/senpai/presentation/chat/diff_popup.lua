@@ -124,11 +124,16 @@ function M:mount()
 end
 
 function M:show()
+  if not self.renderer.layout then
+    self:mount()
+  end
   self.renderer.layout:show()
 end
 
 function M:hide()
-  self.renderer.layout:hide()
+  if self.renderer.layout then
+    self.renderer.layout:hide()
+  end
 end
 
 function M:close()
@@ -143,7 +148,7 @@ function M:set_buffer_content(tab_name, lines)
 end
 
 function M:is_visible()
-  return self.renderer.layout.winid ~= nil
+  return self.renderer.layout and self.renderer.layout.winid ~= nil
 end
 
 function M:get_height()

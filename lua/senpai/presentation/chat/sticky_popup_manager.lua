@@ -128,7 +128,6 @@ function M:add_float_popup(opts)
     height = opts.height,
     filetype = opts.filetype,
   })
-  popup:mount()
   self:add_virtual_blank_lines(row, opts.height)
 
   -- popup:on(event.BufUnload, function()
@@ -208,7 +207,7 @@ function M:update_float_position()
     --   width = win_width - FLOAT_WIDTH_MARGIN,
     --   height = new_hight,
     -- })
-    if not popup.renderer.layout._.mounted then
+    if not popup.renderer.layout or not popup.renderer.layout._.mounted then
       popup:mount()
     end
     popup.renderer:redraw()
