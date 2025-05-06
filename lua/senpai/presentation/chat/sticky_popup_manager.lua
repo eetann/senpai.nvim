@@ -44,8 +44,9 @@ function M:set_autocmd_on_win_scrolled()
   vim.api.nvim_create_autocmd("WinScrolled", {
     group = self.group_id,
     buffer = self.bufnr,
-    callback = function()
-      if vim.api.nvim_get_current_win() == self.winid then
+    callback = function(args)
+      local target_winid = tonumber(args.match)
+      if target_winid == self.winid then
         self:update_float_position()
       end
     end,
@@ -173,30 +174,24 @@ function M:update_float_position()
   if not (self.winid and vim.api.nvim_win_is_valid(self.winid)) then
     return
   end
-  local topline = vim.fn.line("w0", self.winid) - 1 -- 0-indexed
-  local win_height = vim.api.nvim_win_get_height(self.winid)
+  local topline = vim.fn.line("w0", self.winid)
+  local split_height = vim.api.nvim_win_get_height(self.winid)
 
   for original_row, popup in pairs(self.popups) do
     local popup_height = popup:get_height()
     if not popup_height then
       goto continue
     end
-
-    -- Check if the popup should be visible within the current viewport
-    local target_screen_row = original_row - topline
-    local should_be_visible = target_screen_row >= 1
-      and target_screen_row <= (win_height - popup_height + 1)
-    -- Hide the popup if it's outside the viewport
-    if not should_be_visible then
-      popup:hide()
-      goto continue
-    end
     if not popup:is_visible() then
       popup:show()
       goto continue
     end
+    if not popup.renderer.layout or not popup.renderer.layout._.mounted then
+      popup:mount()
+      goto continue
+    end
 
-    -- show new hight popup
+    local target_screen_row = original_row - topline
     local new_hight = popup_height
     local win_width = vim.api.nvim_win_get_width(self.winid)
     if popup:is_visible() then
@@ -210,13 +205,25 @@ function M:update_float_position()
       end
     end
 
-    if not popup.renderer.layout or not popup.renderer.layout._.mounted then
-      popup:mount()
+    -- If the popup overflows the TOP of the window
+    if target_screen_row < 0 then
+      new_hight = new_hight + target_screen_row
     else
-      popup.renderer:redraw()
+      -- If the popup overflows the BOTTOM of the window
+      local popup_bottom = target_screen_row + new_hight - 1
+      if popup_bottom > split_height then
+        new_hight = new_hight - (popup_bottom - split_height)
+      end
+    end
+
+    -- tabs(1) + border(2) + content(1)
+    if new_hight < 4 then
+      popup:hide()
+      goto continue
     end
 
     if popup_height == new_hight then
+      popup.renderer:redraw()
       goto continue
     end
 
