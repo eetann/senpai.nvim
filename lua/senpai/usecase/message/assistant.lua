@@ -1,4 +1,5 @@
 local utils = require("senpai.usecase.utils")
+local Config = require("senpai.config")
 
 ---@class senpai.message.assistant.replace_file_current: senpai.XML.replace_file
 ---@field id string
@@ -17,8 +18,8 @@ M.__index = M
 
 ---@param search string
 ---@param replace string
----@return string[]
-local function diff_temp_files(search, replace)
+---@return string
+local function get_diff_text(search, replace)
   local tmp1 = os.tmpname()
   local tmp2 = os.tmpname()
 
@@ -32,13 +33,14 @@ local function diff_temp_files(search, replace)
 
   local result = vim.system({ "git", "diff", "--no-index", tmp1, tmp2 }):wait()
   local lines = vim.split(result.stdout, "\n")
+  local text = ""
   if #lines >= 6 then
-    lines = { unpack(lines, 6) }
+    text = table.concat({ unpack(lines, 6) }, "\n")
   end
 
   os.remove(tmp1)
   os.remove(tmp2)
-  return lines
+  return text
 end
 
 ---@param chat senpai.IChatWindow
@@ -146,7 +148,6 @@ end
 function M:process_path_tag()
   local path = utils.get_relative_path(self.line:match("<path>(.-)</path>"))
     or ""
-  self.replace_file_current.path = path
   self.replace_file_current.tag = nil
   self.current_content = ""
   self.line = ""
@@ -156,6 +157,7 @@ function M:process_path_tag()
   )
   local row = vim.api.nvim_buf_line_count(self.chat.log_area.bufnr)
   self.diff_popup = self.chat:add_diff_popup(row - 1, path)
+  self.diff_popup.path = path
   self.diff_popup:mount()
 end
 
@@ -174,8 +176,7 @@ function M:process_end_search_tag(chunk)
   --   {}
   -- )
   self.current_content = self.current_content .. chunk
-  self.replace_file_current.search =
-    vim.split(self.current_content:gsub("\n</search>\n?", ""), "\n")
+  self.diff_popup.search_text = self.current_content:gsub("\n</search>\n?", "")
   self.replace_file_current.tag = nil
   self.line = ""
 end
@@ -196,25 +197,32 @@ function M:process_end_replace_tag(chunk)
   --   {}
   -- )
   self.current_content = self.current_content .. chunk
-  self.replace_file_current.replace =
-    vim.split(self.current_content:gsub("\n</replace>\n?", ""), "\n")
+  self.diff_popup.replace_text =
+    self.current_content:gsub("\n</replace>\n?", "")
   self.replace_file_current.tag = nil
 end
 
 function M:process_end_replace_file()
   self.chat.replace_file_results[self.replace_file_current.id] = vim.deepcopy({
-    path = self.replace_file_current.path,
-    search = self.replace_file_current.search,
-    replace = self.replace_file_current.replace,
+    path = self.diff_popup.path,
+    search = self.diff_popup.search_text,
+    replace = self.diff_popup.replace_text,
   })
-  self.diff_popup.diff_content = diff_temp_files(
-    table.concat(self.replace_file_current.search, "\n"),
-    table.concat(self.replace_file_current.replace, "\n")
-  )
-  local lines = self.diff_popup.diff_content
-  table.insert(lines, 1, "```diff")
-  table.insert(lines, "```")
-  vim.api.nvim_buf_set_text(self.chat.log_area.bufnr, -1, -1, -1, -1, lines)
+  self.diff_popup.diff_text =
+    get_diff_text(self.diff_popup.search_text, self.diff_popup.replace_text)
+  local text = ""
+  if Config.chat.log_area.replace_show_type == "diff" then
+    self.diff_popup:change_tab("diff")
+    text = "```diff\n" .. self.diff_popup.diff_text
+  else
+    self.diff_popup:change_tab("replace")
+    text = "```"
+      .. self.diff_popup.filetype
+      .. "\n"
+      .. self.diff_popup.replace_text
+  end
+  text = text .. "\n```"
+  self:render_base(text)
 
   self.replace_file_current =
     { id = "", path = "", search = {}, replace = {}, start_line = 0 }

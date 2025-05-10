@@ -14,9 +14,9 @@ local M = {}
 ---@field signal { active_tab: NuiSignal<string> }
 ---@field path string
 ---@field filetype string
----@field diff_content string[]
----@field replace_content string[]
----@field search_content string[]
+---@field diff_text string
+---@field replace_text string
+---@field search_text string
 ---@field body NuiComponent
 ---@field renderer NuiRenderer
 local IDiffPop = {}
@@ -61,6 +61,11 @@ local IStickyPopupManager = {}
 function IStickyPopupManager:add_float_popup(opts)
   return {}
 end
+
+---@return integer|nil
+function IStickyPopupManager:find_next_popup_row() end
+---@return integer|nil
+function IStickyPopupManager:find_prev_popup_row() end
 
 ---@class senpai.ChatWindowNewArgs
 ---@field provider? senpai.Config.provider.name|senpai.Config.provider

@@ -196,29 +196,29 @@ function M:update_float_position()
   vim.cmd("redraw")
 end
 
----@return boolean
-function M:focus_next_popup()
+--- Find the row of the next popup below the current line
+---@return integer|nil
+function M:find_next_popup_row()
   local current_line = vim.api.nvim_win_get_cursor(self.winid)[1]
   for _, row in ipairs(self.rows) do
     if row > current_line then
-      self.popups[row]:focus()
-      return true
+      return row
     end
   end
-  return false
+  return nil
 end
 
----@return boolean
-function M:focus_prev_popup()
+--- Find the row of the previous popup above the current line
+---@return integer|nil
+function M:find_prev_popup_row()
   local current_line = vim.api.nvim_win_get_cursor(self.winid)[1]
   for i = #self.rows, 1, -1 do
     local row = self.rows[i]
     if row < current_line then
-      self.popups[row]:focus()
-      return true
+      return row
     end
   end
-  return false
+  return nil
 end
 
 --- Find the index of the popup
@@ -240,7 +240,10 @@ function M:jump_to_next()
   local current_win = vim.api.nvim_get_current_win()
   if current_win == self.winid then
     -- === Currently in the main ===
-    self:focus_next_popup()
+    local next_row = self:find_next_popup_row()
+    if next_row then
+      self.popups[next_row]:focus()
+    end
     return
   end
 
@@ -264,7 +267,10 @@ function M:jump_to_prev()
   local current_win = vim.api.nvim_get_current_win()
   if current_win == self.winid then
     -- === Currently in the main ===
-    self:focus_prev_popup()
+    local prev_row = self:find_prev_popup_row()
+    if prev_row then
+      self.popups[prev_row]:focus()
+    end
     return
   end
   -- === Currently in a sticky popup ===

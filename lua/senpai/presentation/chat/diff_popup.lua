@@ -2,6 +2,7 @@ local n = require("nui-components")
 local Gap = require("nui-components.gap")
 local Columns = require("nui-components.columns")
 local Button = require("senpai.presentation.shared.button")
+local utils = require("senpai.usecase.utils")
 
 local FLOAT_WIDTH_MARGIN = 2 + 7 -- border(L/R) + signcolumn
 
@@ -22,6 +23,7 @@ function M.new(opts)
   local is_tab_active = n.is_active_factory(self.signal.active_tab)
 
   self.path = opts.path
+  self.filetype = utils.get_filetype(opts.path)
 
   self.body = Columns({
     flex = 1,
@@ -55,9 +57,9 @@ function M.new(opts)
       Gap({ flex = 1 }, { zindex = 49 }),
       Button({
         label = "apply",
-        global_press_key = "a",
         on_press = function()
-          vim.print("foo")
+          vim.api.nvim_set_current_win(opts.winid)
+          vim.api.nvim_feedkeys("a", "n", false)
         end,
       }),
     },
