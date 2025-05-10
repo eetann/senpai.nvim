@@ -233,17 +233,12 @@ function M:toggle_input()
   end
 end
 
-function M:add_diff_popup(row, filetype)
+function M:add_diff_popup(row, path)
   if not self.sticky_popup_manager then
     self.sticky_popup_manager =
       StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
   end
-  -- TODO: height をオプション化
-  return self.sticky_popup_manager:add_float_popup({
-    row = row,
-    height = 5,
-    filetype = filetype,
-  })
+  return self.sticky_popup_manager:add_float_popup(row, path)
 end
 
 return M

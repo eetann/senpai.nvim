@@ -4,7 +4,7 @@ local DiffPopup = require("senpai.presentation.chat.diff_popup")
 local M = {}
 M.__index = M
 
-M.VIRTUAL_BLANK_NS = vim.api.nvim_create_namespace("buffer_w_popup_blank")
+M.VIRTUAL_BLANK_NS = vim.api.nvim_create_namespace("senpai-virtual_blank_ns")
 
 --- Safely set the current window and cursor position
 ---@param winid integer Target window ID
@@ -77,7 +77,7 @@ end
 function M:close_all_popup()
   for _, popup in pairs(self.popups) do
     if popup:is_visible() then
-      popup:close()
+      popup:unmount()
       -- Removal from self.popups is handled by the BufUnload event handler
     end
   end
@@ -96,45 +96,34 @@ function M:set_autocmd_on_win_closed()
 end
 
 ---@param start_row integer
----@param height integer
-function M:add_virtual_blank_lines(start_row, height)
-  if start_row < 0 then
+function M:add_virtual_blank_line(start_row)
+  if start_row <= 0 then
     return
   end
 
-  local virt_lines = {}
-  -- popup height + border + height
-  for _ = 1, height + 3 do
-    table.insert(virt_lines, { { "", "Normal" } })
-  end
   vim.api.nvim_buf_set_extmark(
     self.bufnr,
     M.VIRTUAL_BLANK_NS,
     start_row - 1,
     0,
     {
-      virt_lines = virt_lines,
+      virt_lines = { { { "", "Normal" } } },
     }
   )
 end
 
----@param opts { row: integer, height: integer, filetype: string|nil }
+---@param row integer
+---@param path string
 ---@return senpai.DiffPopup
-function M:add_float_popup(opts)
-  local row = opts.row
+function M:add_float_popup(row, path)
   local popup = DiffPopup.new({
     winid = self.winid,
     bufnr = self.bufnr,
     row = row,
-    height = opts.height,
-    filetype = opts.filetype,
+    path = path,
   })
-  self:add_virtual_blank_lines(row, opts.height)
+  self:add_virtual_blank_line(row)
 
-  -- popup:on(event.BufUnload, function()
-  --   self.popups[row]:close()
-  --   self.popups[row] = nil
-  -- end, { once = true })
   -- TODO: 設定でキーバインドを変更
   popup:map({
     mode = "n",
@@ -178,10 +167,12 @@ function M:update_float_position()
   local split_height = vim.api.nvim_win_get_height(self.winid)
 
   for original_row, popup in pairs(self.popups) do
-    local popup_height = popup:get_height()
-    if not popup_height then
+    local target_screen_row = original_row - topline
+    if target_screen_row < 0 or split_height < target_screen_row then
+      popup:hide()
       goto continue
     end
+
     if not popup:is_visible() then
       popup:show()
       goto continue
@@ -191,56 +182,14 @@ function M:update_float_position()
       goto continue
     end
 
-    local target_screen_row = original_row - topline
-    local new_hight = popup_height
-    local win_width = vim.api.nvim_win_get_width(self.winid)
-    if popup:is_visible() then
-      for _, component in pairs(popup.tabs) do
-        ---@diagnostic disable-next-line: undefined-field
-        if component:is_focused() and component.winid then
-          ---@diagnostic disable-next-line: undefined-field
-          new_hight = vim.api.nvim_win_get_height(component.winid) + 3
-          break
-        end
-      end
-    end
-
-    -- If the popup overflows the TOP of the window
-    if target_screen_row < 0 then
-      new_hight = new_hight + target_screen_row
-    else
-      -- If the popup overflows the BOTTOM of the window
-      local popup_bottom = target_screen_row + new_hight - 1
-      if popup_bottom > split_height then
-        new_hight = new_hight - (popup_bottom - split_height)
-      end
-    end
-
-    -- tabs(1) + border(2) + content(1)
-    if new_hight < 4 then
-      popup:hide()
-      goto continue
-    end
-
-    if popup_height == new_hight then
+    local old_width = popup:get_width()
+    local new_width =
+      DiffPopup.adjust_width(vim.api.nvim_win_get_width(self.winid))
+    if old_width == new_width then
       popup.renderer:redraw()
       goto continue
     end
-
-    popup:set_size(win_width, new_hight)
-
-    -- update virtual_blank_lines
-    local extmarks = vim.api.nvim_buf_get_extmarks(
-      self.bufnr,
-      M.VIRTUAL_BLANK_NS,
-      { original_row - 1, 0 },
-      { original_row - 1, 0 },
-      {}
-    )
-    for _, extmark in pairs(extmarks) do
-      vim.api.nvim_buf_del_extmark(self.bufnr, M.VIRTUAL_BLANK_NS, extmark[1])
-    end
-    self:add_virtual_blank_lines(original_row, new_hight - 3)
+    popup:set_size(new_width, 1)
 
     ::continue::
   end
@@ -343,16 +292,5 @@ end
 -- end
 -- vim.api.nvim_buf_set_lines(split.bufnr, 0, -1, false, arr)
 -- local manager = M.new(split.winid, split.bufnr)
--- local popup = manager:add_float_popup({ row = 5, height = 10 })
--- local diff_lines = {}
--- local replace_lines = {}
--- local search_lines = {}
--- for i = 1, popup.renderer:get_size().height do
---   table.insert(diff_lines, string.format("diff Popup %d", i))
---   table.insert(replace_lines, string.format("replace Popup %d", i))
---   table.insert(search_lines, string.format("search Popup %d", i))
--- end
--- popup:set_buffer_content("diff", diff_lines)
--- popup:set_buffer_content("replace", replace_lines)
--- popup:set_buffer_content("search", search_lines)
+-- local popup = manager:add_float_popup(5)
 return M

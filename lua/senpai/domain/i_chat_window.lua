@@ -12,20 +12,20 @@ local M = {}
 ---@class senpai.IDiffPopup
 ---@field bufnr integer
 ---@field signal { active_tab: NuiSignal<string> }
----@field tabs {diff: NuiBuffer, replace: NuiBuffer, search: NuiBuffer}
+---@field path string
+---@field filetype string
+---@field diff_content string[]
+---@field replace_content string[]
+---@field search_content string[]
 ---@field body NuiComponent
 ---@field renderer NuiRenderer
 local IDiffPop = {}
 function IDiffPop:mount() end
 function IDiffPop:show() end
 function IDiffPop:hide() end
-function IDiffPop:close() end
+function IDiffPop:unmount() end
 function IDiffPop:focus() end
 function IDiffPop:is_focused() end
-
----@param tab_name "diff" | "replace" | "search"
----@param lines string[]
-function IDiffPop:set_buffer_content(tab_name, lines) end
 
 ---@return boolean
 function IDiffPop:is_visible()
@@ -33,7 +33,7 @@ function IDiffPop:is_visible()
 end
 
 ---@return integer
-function IDiffPop:get_height()
+function IDiffPop:get_width()
   return 1
 end
 
@@ -90,9 +90,9 @@ function IChatWindow:toggle() end
 function IChatWindow:toggle_input() end
 
 ---@param row integer
----@param filetype? string
+---@param path string
 ---@return senpai.IDiffPopup
-function IChatWindow:add_diff_popup(row, filetype)
+function IChatWindow:add_diff_popup(row, path)
   return {}
 end
 

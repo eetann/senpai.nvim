@@ -15,7 +15,10 @@ local utils = require("senpai.usecase.utils")
 local M = {}
 M.__index = M
 
-local function diff_temp_files(bufnr, search, replace)
+---@param search string
+---@param replace string
+---@return string[]
+local function diff_temp_files(search, replace)
   local tmp1 = os.tmpname()
   local tmp2 = os.tmpname()
 
@@ -30,11 +33,12 @@ local function diff_temp_files(bufnr, search, replace)
   local result = vim.system({ "git", "diff", "--no-index", tmp1, tmp2 }):wait()
   local lines = vim.split(result.stdout, "\n")
   if #lines >= 6 then
-    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, { unpack(lines, 6) })
+    lines = { unpack(lines, 6) }
   end
 
   os.remove(tmp1)
   os.remove(tmp2)
+  return lines
 end
 
 ---@param chat senpai.IChatWindow
@@ -137,18 +141,6 @@ function M:process_start_replace_file()
     replace = {},
     start_line = start_line,
   }
-  -- vim.api.nvim_buf_set_extmark(
-  --   self.chat.log_area.bufnr,
-  --   self.namespace,
-  --   start_line - 1,
-  --   0,
-  --   {
-  --     sign_text = "󰬲",
-  --     sign_hl_group = "DiagnosticInfo",
-  --     -- virt_text = { { "Replace File" } },
-  --     -- virt_text_pos = "inline",
-  --   }
-  -- )
 end
 
 function M:process_path_tag()
@@ -160,11 +152,10 @@ function M:process_path_tag()
   self.line = ""
   utils.replace_text_at_last(
     self.chat.log_area.bufnr,
-    "filepath: " .. path .. "\n\n"
+    "filepath: " .. path .. "\n"
   )
   local row = vim.api.nvim_buf_line_count(self.chat.log_area.bufnr)
-  local filetype = utils.get_filetype(path)
-  self.diff_popup = self.chat:add_diff_popup(row - 1, filetype)
+  self.diff_popup = self.chat:add_diff_popup(row - 1, path)
   self.diff_popup:mount()
 end
 
@@ -175,13 +166,13 @@ function M:process_start_search_tag()
 end
 
 function M:process_end_search_tag(chunk)
-  vim.api.nvim_buf_set_lines(
-    self.diff_popup.tabs.search.bufnr,
-    -2,
-    -1,
-    false,
-    {}
-  )
+  -- vim.api.nvim_buf_set_lines(
+  --   self.diff_popup.tabs.search.bufnr,
+  --   -2,
+  --   -1,
+  --   false,
+  --   {}
+  -- )
   self.current_content = self.current_content .. chunk
   self.replace_file_current.search =
     vim.split(self.current_content:gsub("\n</search>\n?", ""), "\n")
@@ -197,13 +188,13 @@ function M:process_start_replace_tag()
 end
 
 function M:process_end_replace_tag(chunk)
-  vim.api.nvim_buf_set_lines(
-    self.diff_popup.tabs.replace.bufnr,
-    -2,
-    -1,
-    false,
-    {}
-  )
+  -- vim.api.nvim_buf_set_lines(
+  --   self.diff_popup.tabs.replace.bufnr,
+  --   -2,
+  --   -1,
+  --   false,
+  --   {}
+  -- )
   self.current_content = self.current_content .. chunk
   self.replace_file_current.replace =
     vim.split(self.current_content:gsub("\n</replace>\n?", ""), "\n")
@@ -216,21 +207,14 @@ function M:process_end_replace_file()
     search = self.replace_file_current.search,
     replace = self.replace_file_current.replace,
   })
-  diff_temp_files(
-    self.diff_popup.tabs.diff.bufnr,
+  self.diff_popup.diff_content = diff_temp_files(
     table.concat(self.replace_file_current.search, "\n"),
     table.concat(self.replace_file_current.replace, "\n")
   )
-  vim.api.nvim_buf_set_extmark(
-    self.chat.log_area.bufnr,
-    self.namespace,
-    self.replace_file_current.start_line - 1,
-    0,
-    {
-      virt_text = { { "apply [a]" } },
-      virt_text_pos = "right_align",
-    }
-  )
+  local lines = self.diff_popup.diff_content
+  table.insert(lines, 1, "```diff")
+  table.insert(lines, "```")
+  vim.api.nvim_buf_set_text(self.chat.log_area.bufnr, -1, -1, -1, -1, lines)
 
   self.replace_file_current =
     { id = "", path = "", search = {}, replace = {}, start_line = 0 }
@@ -242,14 +226,14 @@ function M:process_content_line(chunk, is_lastline)
   if is_lastline then
     return
   end
-  if self.replace_file_current.tag == "search" then
-    utils.set_text_at_last(self.diff_popup.tabs.search.bufnr, self.line .. "\n")
-  elseif self.replace_file_current.tag == "replace" then
-    utils.set_text_at_last(
-      self.diff_popup.tabs.replace.bufnr,
-      self.line .. "\n"
-    )
-  end
+  -- if self.replace_file_current.tag == "search" then
+  --   utils.set_text_at_last(self.diff_popup.tabs.search.bufnr, self.line .. "\n")
+  -- elseif self.replace_file_current.tag == "replace" then
+  --   utils.set_text_at_last(
+  --     self.diff_popup.tabs.replace.bufnr,
+  --     self.line .. "\n"
+  --   )
+  -- end
 end
 
 ---@param message senpai.chat.message.assistant
