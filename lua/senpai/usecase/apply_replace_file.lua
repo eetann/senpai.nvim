@@ -135,9 +135,22 @@ local function set_diff_keymaps(original_buf, ai_buf, ai_win)
   })
 end
 
+local function edit_or_switch(file)
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) then
+      local name = vim.api.nvim_buf_get_name(buf)
+      if name == vim.fn.fnamemodify(file, ":p") then
+        vim.api.nvim_set_current_buf(buf)
+        return
+      end
+    end
+  end
+  vim.cmd("edit " .. vim.fn.fnameescape(file))
+end
+
 local function setup_edit_window(path)
   vim.cmd("wincmd h")
-  vim.cmd("edit " .. path)
+  edit_or_switch(path)
   local original_win = vim.api.nvim_get_current_win()
   local original_buf = vim.api.nvim_get_current_buf()
   local original_filetype =
