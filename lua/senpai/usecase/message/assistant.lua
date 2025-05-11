@@ -1,14 +1,10 @@
 local utils = require("senpai.usecase.utils")
 local Config = require("senpai.config")
 
----@class senpai.message.assistant.replace_file_current: senpai.XML.replace_file
----@field id string
----@field tag? string
----@field start_line number
-
 ---@class senpai.message.assistant
 ---@field chat senpai.IChatWindow
----@field replace_file_current senpai.message.assistant.replace_file_current
+---@field current_xml "replace_file"|nil
+---@field current_tag string|nil
 ---@field diff_popup senpai.IDiffPopup|nil
 ---@field current_content string
 ---@field line string
@@ -48,14 +44,6 @@ end
 function M.new(chat)
   local self = setmetatable({}, M)
   self.chat = chat
-  self.replace_file_current = {
-    id = "",
-    path = "",
-    search = {},
-    replace = {},
-    tag = nil,
-    start_line = 0,
-  }
   self.current_content = ""
   self.line = ""
   self.namespace = vim.api.nvim_create_namespace("sepnai-chat")
@@ -97,7 +85,7 @@ end
 ---@param is_lastline boolean
 function M:process_line(chunk, is_lastline)
   local lower_line = string.lower(self.line)
-  if self.replace_file_current.id == "" then
+  if not self.current_xml then
     if lower_line:match("<replace_file>") then
       self:process_start_replace_file()
     else
@@ -126,29 +114,20 @@ function M:process_line(chunk, is_lastline)
     self:process_end_replace_file()
   end
 
-  if self.replace_file_current.tag then
-    self:process_content_line(chunk, is_lastline)
+  if self.current_tag then
+    self:process_content_line(chunk)
   end
 end
 
 function M:process_start_replace_file()
-  local id = utils.create_random_id(12)
-
   utils.replace_text_at_last(self.chat.log_area.bufnr, "\n")
-  local start_line = vim.fn.line("$", self.chat.log_area.winid) - 2
-  self.replace_file_current = {
-    id = id,
-    path = "",
-    search = {},
-    replace = {},
-    start_line = start_line,
-  }
+  self.current_xml = "replace_file"
+  self.current_tag = "replace_file"
 end
 
 function M:process_path_tag()
   local path = utils.get_relative_path(self.line:match("<path>(.-)</path>"))
     or ""
-  self.replace_file_current.tag = nil
   self.current_content = ""
   self.line = ""
   utils.replace_text_at_last(
@@ -162,44 +141,30 @@ function M:process_path_tag()
 end
 
 function M:process_start_search_tag()
-  self.replace_file_current.tag = "search"
+  self.current_tag = "search"
   self.diff_popup:change_tab("search")
   self.current_content = ""
 end
 
 function M:process_end_search_tag(chunk)
-  -- vim.api.nvim_buf_set_lines(
-  --   self.diff_popup.tabs.search.bufnr,
-  --   -2,
-  --   -1,
-  --   false,
-  --   {}
-  -- )
   self.current_content = self.current_content .. chunk
   self.diff_popup.search_text = self.current_content:gsub("\n</search>\n?", "")
-  self.replace_file_current.tag = nil
+  self.current_tag = nil
   self.line = ""
 end
 
 function M:process_start_replace_tag()
-  self.replace_file_current.tag = "replace"
+  self.current_tag = "replace"
   self.diff_popup:change_tab("replace")
   self.current_content = ""
   self.line = ""
 end
 
 function M:process_end_replace_tag(chunk)
-  -- vim.api.nvim_buf_set_lines(
-  --   self.diff_popup.tabs.replace.bufnr,
-  --   -2,
-  --   -1,
-  --   false,
-  --   {}
-  -- )
   self.current_content = self.current_content .. chunk
   self.diff_popup.replace_text =
     self.current_content:gsub("\n</replace>\n?", "")
-  self.replace_file_current.tag = nil
+  self.current_tag = nil
 end
 
 function M:process_end_replace_file()
@@ -221,24 +186,12 @@ function M:process_end_replace_file()
   text = text .. "\n```\n"
   self:render_base(text)
 
-  self.replace_file_current =
-    { id = "", path = "", search = {}, replace = {}, start_line = 0 }
-  self.replace_file_current.tag = nil
+  self.current_xml = nil
+  self.current_tag = nil
 end
 
-function M:process_content_line(chunk, is_lastline)
+function M:process_content_line(chunk)
   self.current_content = self.current_content .. chunk
-  if is_lastline then
-    return
-  end
-  -- if self.replace_file_current.tag == "search" then
-  --   utils.set_text_at_last(self.diff_popup.tabs.search.bufnr, self.line .. "\n")
-  -- elseif self.replace_file_current.tag == "replace" then
-  --   utils.set_text_at_last(
-  --     self.diff_popup.tabs.replace.bufnr,
-  --     self.line .. "\n"
-  --   )
-  -- end
 end
 
 ---@param message senpai.chat.message.assistant
