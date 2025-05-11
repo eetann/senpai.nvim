@@ -1,5 +1,4 @@
 local DiffPopup = require("senpai.presentation.chat.diff_popup")
-local utils = require("senpai.usecase.utils")
 
 ---@class senpai.StickyPopupManager: senpai.IStickyPopupManager
 local M = {}
