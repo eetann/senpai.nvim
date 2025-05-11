@@ -10,6 +10,8 @@ local M = {}
 ---@field replace string[]
 
 ---@class senpai.IDiffPopup
+---@field row integer
+---@field winid integer
 ---@field bufnr integer
 ---@field signal { active_tab: NuiSignal<string> }
 ---@field path string
@@ -26,6 +28,9 @@ function IDiffPop:hide() end
 function IDiffPop:unmount() end
 function IDiffPop:focus() end
 function IDiffPop:is_focused() end
+
+---@param winid integer
+function IDiffPop:renew(winid) end
 
 ---@return boolean
 function IDiffPop:is_visible()

@@ -170,6 +170,7 @@ function M:show(winid)
     end
   else
     self.log_area:show()
+    self.sticky_popup_manager:remount(self.log_area.winid)
   end
 
   if
@@ -193,6 +194,7 @@ function M:show(winid)
 end
 
 function M:hide()
+  self.sticky_popup_manager:close_all_popup()
   self.log_area:hide()
   self.input_area:hide()
 end

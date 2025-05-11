@@ -14,17 +14,21 @@ M.__index = M
 ---@return senpai.DiffPopup
 function M.new(opts)
   local self = setmetatable({}, M)
+  self.row = opts.row
+  self.winid = opts.winid
   self.bufnr = opts.bufnr
-
+  self.path = opts.path
+  self.filetype = utils.get_filetype(opts.path)
   self.signal = n.create_signal({
     active_tab = "no-tab",
   })
+  self:setup()
 
+  return self
+end
+
+function M:setup()
   local is_tab_active = n.is_active_factory(self.signal.active_tab)
-
-  self.path = opts.path
-  self.filetype = utils.get_filetype(opts.path)
-
   self.body = Columns({
     flex = 1,
     children = {
@@ -34,6 +38,10 @@ function M.new(opts)
         is_active = is_tab_active("tab-diff"),
         on_press = function()
           self.signal.active_tab = "tab-diff"
+          require("senpai.presentation.change_replace_tab").change_replace_tab(
+            "diff",
+            self.row
+          )
         end,
       }),
       Gap({ size = 1 }, { zindex = 49 }),
@@ -43,6 +51,10 @@ function M.new(opts)
         is_active = is_tab_active("tab-replace"),
         on_press = function()
           self.signal.active_tab = "tab-replace"
+          require("senpai.presentation.change_replace_tab").change_replace_tab(
+            "replace",
+            self.row
+          )
         end,
       }),
       Gap({ size = 1 }, { zindex = 49 }),
@@ -52,13 +64,17 @@ function M.new(opts)
         is_active = is_tab_active("tab-search"),
         on_press = function()
           self.signal.active_tab = "tab-search"
+          require("senpai.presentation.change_replace_tab").change_replace_tab(
+            "search",
+            self.row
+          )
         end,
       }),
       Gap({ flex = 1 }, { zindex = 49 }),
       Button({
         label = "apply",
         on_press = function()
-          vim.api.nvim_set_current_win(opts.winid)
+          vim.api.nvim_set_current_win(self.winid)
           vim.api.nvim_feedkeys("a", "n", false)
         end,
       }),
@@ -67,13 +83,13 @@ function M.new(opts)
     zindex = 50,
   })
 
-  local width = M.adjust_width(vim.api.nvim_win_get_width(opts.winid))
+  local width = M.adjust_width(vim.api.nvim_win_get_width(self.winid))
   self.renderer = n.create_renderer({
     bufnr = self.bufnr,
     relative = {
       type = "buf",
       position = {
-        row = opts.row - 1,
+        row = self.row - 1,
         col = 0,
       },
     },
@@ -84,35 +100,17 @@ function M.new(opts)
       close = nil,
     },
   })
-  self.renderer._private.layout_options.relative.winid = opts.winid
-
-  vim.api.nvim_set_hl(
-    0,
-    "NuiComponentsButtonFirst",
-    vim.tbl_extend(
-      "force",
-      vim.api.nvim_get_hl(0, { name = "Comment" }),
-      { bold = true, underline = true }
-    )
-  )
-  vim.api.nvim_set_hl(0, "NuiComponentsButton", { link = "Comment" })
-  vim.api.nvim_set_hl(
-    0,
-    "NuiComponentsButtonActive",
-    { link = "@markup.heading" }
-  )
+  self.renderer._private.layout_options.relative.winid = self.winid
 
   self.renderer:add_mappings({
     {
       mode = "n",
       key = "q",
       handler = function()
-        vim.api.nvim_win_close(opts.winid, false)
+        vim.api.nvim_win_close(self.winid, false)
       end,
     },
   })
-
-  return self
 end
 
 function M.adjust_width(width)
@@ -127,6 +125,15 @@ function M:mount()
   self.renderer:render(self.body)
 end
 
+function M:unmount()
+  self.renderer:close()
+end
+
+function M:renew(winid)
+  self.winid = winid
+  self:setup()
+end
+
 function M:show()
   if not self.renderer.layout then
     self:mount()
@@ -138,10 +145,6 @@ function M:hide()
   if self.renderer.layout then
     self.renderer.layout:hide()
   end
-end
-
-function M:unmount()
-  self.renderer:close()
 end
 
 function M:is_visible()

@@ -27,6 +27,9 @@ function M.new(winid, bufnr)
   self.bufnr = bufnr
   self.popups = {}
   self.rows = {}
+  self.group_id =
+    vim.api.nvim_create_augroup("senpai-sticky-popup-manager", { clear = true })
+
   vim.keymap.set("n", "]]", function()
     self:jump_to_next()
   end, { buffer = bufnr })
@@ -78,21 +81,34 @@ function M:close_all_popup()
   for _, popup in pairs(self.popups) do
     if popup:is_visible() then
       popup:unmount()
-      -- Removal from self.popups is handled by the BufUnload event handler
     end
   end
   pcall(vim.api.nvim_del_augroup_by_id, self.group_id)
-  self.group_id = nil
 end
 
 function M:set_autocmd_on_win_closed()
   vim.api.nvim_create_autocmd("WinClosed", {
-    -- group = self.group_id,
+    group = self.group_id,
     pattern = tostring(self.winid),
     callback = function()
       self:close_all_popup()
     end,
   })
+end
+
+function M:remount(winid)
+  self.winid = winid
+  for _, popup in pairs(self.popups) do
+    popup:renew(winid)
+  end
+
+  self.group_id =
+    vim.api.nvim_create_augroup("senpai-sticky-popup-manager", { clear = true })
+  self:set_autocmd_on_win_scrolled()
+  self:set_autocmd_on_win_resized()
+  self:set_autocmd_on_win_new()
+  self:set_autocmd_on_win_closed()
+  self:update_float_position()
 end
 
 ---@param start_row integer
@@ -141,12 +157,6 @@ function M:add_float_popup(row, path)
     end,
     {},
   })
-  popup.renderer:on_unmount(function()
-    if vim.api.nvim_win_is_valid(self.winid) then
-      vim.api.nvim_win_close(self.winid, true)
-      self:close_all_popup()
-    end
-  end)
 
   self.popups[row] = popup
   local rows = {}

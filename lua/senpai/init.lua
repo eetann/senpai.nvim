@@ -21,7 +21,7 @@ senpai.setup = function(opts)
   vim.treesitter.language.register("markdown", "senpai_chat_input")
   require("senpai.config").setup(opts)
   require("senpai.presentation.client").start_server()
-  -- require("senpai.presentation.highlight").set_highlights()
+  require("senpai.presentation.highlight").execute()
   require("senpai.command")
   require("senpai.presentation.completion.init")
 end

@@ -96,6 +96,7 @@ function M.replace_new_thread(args)
     lines = vim.api.nvim_buf_get_lines(chat.input_area.bufnr, 0, -1, false)
     row, col = unpack(vim.api.nvim_win_get_cursor(chat.input_area.winid))
     chat.input_area:hide()
+    chat.sticky_popup_manager:close_all_popup()
     chat.log_area.winid = nil
     chat.log_area:hide()
   end

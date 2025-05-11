@@ -221,7 +221,7 @@ function M:process_end_replace_file()
       .. "\n"
       .. self.diff_popup.replace_text
   end
-  text = text .. "\n```"
+  text = text .. "\n```\n"
   self:render_base(text)
 
   self.replace_file_current =
