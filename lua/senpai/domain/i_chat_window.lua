@@ -90,8 +90,6 @@ function IStickyPopupManager:find_prev_popup_row() end
 ---@field is_sending boolean
 ---@field is_first_message boolean
 ---@field job? Job
----@field edit_file_results table<string, senpai.tool.EditFile.result> # <[toolCallId]: reuslt>
----@field replace_file_results table<string, senpai.XML.replace_file> # <id: reuslt>
 local IChatWindow = {}
 
 ---@param winid? number

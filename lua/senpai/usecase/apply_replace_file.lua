@@ -135,12 +135,6 @@ local function set_diff_keymaps(original_buf, ai_buf, ai_win)
   })
 end
 
-local function save_and_restore_cursor(chat)
-  local row = vim.fn.line(".", chat.log_area.winid)
-  local col = vim.fn.col(".", chat.log_area.winid)
-  vim.api.nvim_win_set_cursor(chat.log_area.winid, { row, col - 1 })
-end
-
 local function setup_edit_window(path)
   vim.cmd("wincmd h")
   vim.cmd("edit " .. path)
@@ -217,8 +211,6 @@ function M.execute(chat)
     return
   end
 
-  -- TODO: これ必要？
-  -- save_and_restore_cursor(chat)
   local original_win, original_buf, original_filetype =
     setup_edit_window(diff_block.path)
 

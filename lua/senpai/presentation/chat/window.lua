@@ -60,8 +60,6 @@ function M.new(args)
 
   self.is_sending = false
   self.is_first_message = true
-  self.edit_file_results = {}
-  self.replace_file_results = {}
   return self
 end
 

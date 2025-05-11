@@ -4,7 +4,7 @@ local Columns = require("nui-components.columns")
 local Button = require("senpai.presentation.shared.button")
 local utils = require("senpai.usecase.utils")
 
-local FLOAT_WIDTH_MARGIN = 2 + 7 -- border(L/R) + signcolumn
+local FLOAT_WIDTH_MARGIN = 7 -- signcolumn
 
 ---@class senpai.DiffPopup: senpai.IDiffPopup
 local M = {}
@@ -22,6 +22,9 @@ function M.new(opts)
   self.signal = n.create_signal({
     active_tab = "no-tab",
   })
+  self.diff_text = ""
+  self.replace_text = ""
+  self.search_text = ""
   self:setup()
 
   return self
@@ -141,6 +144,24 @@ function M:setup()
       end,
     },
   })
+  self:setup_keymaps()
+end
+
+function M:setup_keymaps()
+  local key_tab_list = {
+    { key = "D", tab = "diff" },
+    { key = "R", tab = "replace" },
+    { key = "S", tab = "search" },
+  }
+  for _, v in ipairs(key_tab_list) do
+    vim.keymap.set("n", v.key, function()
+      self:change_tab(v.tab)
+      require("senpai.presentation.change_replace_tab").change_replace_tab(
+        v.tab,
+        self.row
+      )
+    end, { buffer = self.bufnr })
+  end
 end
 
 function M.adjust_width(width)

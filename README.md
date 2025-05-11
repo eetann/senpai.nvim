@@ -183,10 +183,6 @@ The names of the actions that can be written in the keymaps table are.
   - *For Developers.* show MCP Tools
   - default: none
 
-- `show_replace_content`
-  - *For Developers.* show Replace File content.
-  - default: none
-
 - `show_system_prompt`
   - Show system prompt associated with current chat
   - default: `gs` in log area
@@ -529,7 +525,8 @@ The default config are as follows.
         a = "apply",
         gs = "show_system_prompt",
         gy = "copy_input_or_codeblock"
-      }
+      },
+      replace_show_type = "diff"
     }
   },
   commit_message = {
@@ -1019,6 +1016,7 @@ _No arguments_
 ```lua
 ---@class senpai.Config.chat.log_area
 ---@field keymaps? senpai.Config.chat.keymaps
+---@field replace_show_type? "diff"|"replace"
 ```
 
 

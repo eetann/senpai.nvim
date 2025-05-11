@@ -203,13 +203,10 @@ function M:process_end_replace_tag(chunk)
 end
 
 function M:process_end_replace_file()
-  self.chat.replace_file_results[self.replace_file_current.id] = vim.deepcopy({
-    path = self.diff_popup.path,
-    search = self.diff_popup.search_text,
-    replace = self.diff_popup.replace_text,
-  })
-  self.diff_popup.diff_text =
-    get_diff_text(self.diff_popup.search_text, self.diff_popup.replace_text)
+  self.diff_popup.diff_text = get_diff_text(
+    self.diff_popup.search_text,
+    self.diff_popup.replace_text
+  ) or ""
   local text = ""
   if Config.chat.log_area.replace_show_type == "diff" then
     self.diff_popup:change_tab("diff")

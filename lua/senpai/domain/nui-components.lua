@@ -64,6 +64,7 @@
 ---@field on_unmount fun(self: NuiRenderer, unmount_fn: fun())
 
 ---@class NuiSignal require("nui-components.signal")
+---@field get_value function
 
 ---@class NuiBuffer: NuiComponent
 ---@field bufnr integer
