@@ -176,4 +176,16 @@ function M.parse_filelinks(text)
   return { links = links, headers = code_block_headers }
 end
 
+--- Safely set the current window and cursor position
+---@param winid integer Target window ID
+---@param pos? {row: integer, col: integer} Cursor position {row, col} (1-based)
+function M.safe_set_current_win(winid, pos)
+  if winid and vim.api.nvim_win_is_valid(winid) then
+    vim.api.nvim_set_current_win(winid)
+    if pos then
+      vim.api.nvim_win_set_cursor(winid, { pos.row, pos.col })
+    end
+  end
+end
+
 return M

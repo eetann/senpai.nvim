@@ -43,6 +43,20 @@ function M:setup()
             self.row
           )
         end,
+        mappings = function()
+          return {
+            {
+              mode = "n",
+              key = "<S-Tab>",
+              handler = function()
+                utils.safe_set_current_win(
+                  self.winid,
+                  { row = self.row, col = 0 }
+                )
+              end,
+            },
+          }
+        end,
       }),
       Gap({ size = 1 }, { zindex = 49 }),
       Button({
@@ -77,6 +91,20 @@ function M:setup()
           vim.api.nvim_set_current_win(self.winid)
           vim.api.nvim_feedkeys("a", "n", false)
         end,
+        mappings = function()
+          return {
+            {
+              mode = "n",
+              key = "<Tab>",
+              handler = function()
+                utils.safe_set_current_win(
+                  self.winid,
+                  { row = self.row + 1, col = 0 }
+                )
+              end,
+            },
+          }
+        end,
       }),
     },
   }, {
@@ -98,6 +126,8 @@ function M:setup()
     height = 1,
     keymap = {
       close = nil,
+      focus_next = nil,
+      focus_prev = nil,
     },
   })
   self.renderer._private.layout_options.relative.winid = self.winid
@@ -151,7 +181,13 @@ function M:is_visible()
   return self.renderer.layout and self.renderer.layout.winid ~= nil
 end
 
-function M:focus()
+function M:focus(to_last)
+  if to_last then
+    local focusable_components = self.renderer:get_focusable_components()
+    local prev = focusable_components[#focusable_components]
+    vim.api.nvim_set_current_win(prev.winid)
+    return
+  end
   local first_focusable_component = require("nui-components.utils.fn").ifind(
     self.renderer._private.flatten_tree,
     function(component)

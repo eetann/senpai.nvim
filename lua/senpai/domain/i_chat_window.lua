@@ -26,8 +26,10 @@ function IDiffPop:mount() end
 function IDiffPop:show() end
 function IDiffPop:hide() end
 function IDiffPop:unmount() end
-function IDiffPop:focus() end
 function IDiffPop:is_focused() end
+
+---@param to_last boolean|nil
+function IDiffPop:focus(to_last) end
 
 ---@param winid integer
 function IDiffPop:renew(winid) end

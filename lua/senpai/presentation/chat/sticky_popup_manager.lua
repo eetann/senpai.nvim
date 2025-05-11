@@ -1,22 +1,11 @@
 local DiffPopup = require("senpai.presentation.chat.diff_popup")
+local utils = require("senpai.usecase.utils")
 
 ---@class senpai.StickyPopupManager: senpai.IStickyPopupManager
 local M = {}
 M.__index = M
 
 M.VIRTUAL_BLANK_NS = vim.api.nvim_create_namespace("senpai-virtual_blank_ns")
-
---- Safely set the current window and cursor position
----@param winid integer Target window ID
----@param pos? {row: integer, col: integer} Cursor position {row, col} (1-based)
-local function safe_set_current_win(winid, pos)
-  if winid and vim.api.nvim_win_is_valid(winid) then
-    vim.api.nvim_set_current_win(winid)
-    if pos then
-      vim.api.nvim_win_set_cursor(winid, { pos.row, pos.col })
-    end
-  end
-end
 
 ---@param winid integer
 ---@param bufnr integer
@@ -30,10 +19,10 @@ function M.new(winid, bufnr)
   self.group_id =
     vim.api.nvim_create_augroup("senpai-sticky-popup-manager", { clear = true })
 
-  vim.keymap.set("n", "]]", function()
+  vim.keymap.set("n", "<Tab>", function()
     self:jump_to_next()
   end, { buffer = bufnr })
-  vim.keymap.set("n", "[[", function()
+  vim.keymap.set("n", "<S-Tab>", function()
     self:jump_to_prev()
   end, { buffer = bufnr })
   self:set_autocmd_on_win_scrolled()
@@ -140,24 +129,6 @@ function M:add_float_popup(row, path)
   })
   self:add_virtual_blank_line(row)
 
-  -- TODO: 設定でキーバインドを変更
-  popup:map({
-    mode = "n",
-    key = "]]",
-    handler = function()
-      self:jump_to_next()
-    end,
-    {},
-  })
-  popup:map({
-    mode = "n",
-    key = "[[",
-    handler = function()
-      self:jump_to_prev()
-    end,
-    {},
-  })
-
   self.popups[row] = popup
   local rows = {}
   for p_row, _ in pairs(self.popups) do
@@ -211,7 +182,7 @@ end
 function M:find_next_popup_row()
   local current_line = vim.api.nvim_win_get_cursor(self.winid)[1]
   for _, row in ipairs(self.rows) do
-    if row > current_line then
+    if current_line <= row then
       return row
     end
   end
@@ -243,55 +214,17 @@ function M:find_row_index_by_winid()
 end
 
 function M:jump_to_next()
-  if #self.rows == 0 then
-    return
+  local next_row = self:find_next_popup_row()
+  if next_row then
+    self.popups[next_row]:focus()
   end
-
-  local current_win = vim.api.nvim_get_current_win()
-  if current_win == self.winid then
-    -- === Currently in the main ===
-    local next_row = self:find_next_popup_row()
-    if next_row then
-      self.popups[next_row]:focus()
-    end
-    return
-  end
-
-  -- === Currently in a sticky popup ===
-  local current_row_index = self:find_row_index_by_winid()
-  if not current_row_index then
-    return
-  end
-
-  local row_below_popup = self.rows[current_row_index] + 1
-  local line_count = vim.api.nvim_buf_line_count(self.bufnr)
-  row_below_popup = math.min(row_below_popup, line_count)
-  safe_set_current_win(self.winid, { row = row_below_popup, col = 0 })
 end
 
 function M:jump_to_prev()
-  if #self.rows == 0 then
-    return
+  local prev_row = self:find_prev_popup_row()
+  if prev_row then
+    self.popups[prev_row]:focus(true)
   end
-
-  local current_win = vim.api.nvim_get_current_win()
-  if current_win == self.winid then
-    -- === Currently in the main ===
-    local prev_row = self:find_prev_popup_row()
-    if prev_row then
-      self.popups[prev_row]:focus()
-    end
-    return
-  end
-  -- === Currently in a sticky popup ===
-  local current_row_index = self:find_row_index_by_winid()
-  if not current_row_index then
-    return
-  end
-
-  local row_above_popup = self.rows[current_row_index] - 1
-  local target_line = math.max(0, row_above_popup)
-  safe_set_current_win(self.winid, { row = target_line, col = 0 })
 end
 
 -- local Split = require("nui.split")
