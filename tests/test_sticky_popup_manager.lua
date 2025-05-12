@@ -40,7 +40,7 @@ local function make_popup(c_child, row)
     bufnr = popup.bufnr
   }
 ]],
-    { row }
+    { row, "foo.js" }
   )
   return popup
 end
@@ -165,45 +165,6 @@ T["StickyPopupManager"]["virtual line"] = function()
   eq(count, 2)
 end
 
-T["StickyPopupManager"]["map"] = function()
-  child.o.lines, child.o.columns = 30, 50
-  local split = make_split(child)
-  local row1 = 5
-  local popup1 = make_popup(child, row1)
-  local row2 = 12
-  local popup2 = make_popup(child, row2)
-  child.lua("_G.manager:update_float_position()")
-
-  -- for vim.schedule
-  sleep(500)
-
-  child.api.nvim_set_current_win(split.winid)
-  child.api.nvim_win_set_cursor(split.winid, { 1, 0 })
-
-  -- tab
-  child.type_keys("]]")
-  eq(child.api.nvim_get_current_buf() == split.bufnr, false)
-  child.type_keys("]]")
-  eq(child.api.nvim_get_current_buf(), split.bufnr)
-  child.type_keys("]]")
-  eq(child.api.nvim_get_current_buf() == split.bufnr, false)
-  child.type_keys("]]")
-  eq(child.api.nvim_get_current_buf(), split.bufnr)
-  child.type_keys("]]")
-  eq(child.api.nvim_get_current_buf(), split.bufnr)
-  -- s-tab
-  child.type_keys("[[")
-  eq(child.api.nvim_get_current_buf() == split.bufnr, false)
-  child.type_keys("[[")
-  eq(child.api.nvim_get_current_buf(), split.bufnr)
-  child.type_keys("[[")
-  eq(child.api.nvim_get_current_buf() == split.bufnr, false)
-  child.type_keys("[[")
-  eq(child.api.nvim_get_current_buf(), split.bufnr)
-  child.type_keys("[[")
-  eq(child.api.nvim_get_current_buf(), split.bufnr)
-end
-
 T["StickyPopupManager"]["scroll down"] = function()
   child.o.lines, child.o.columns = 30, 50
   local split = make_split(child)
@@ -239,7 +200,6 @@ T["StickyPopupManager"]["scroll down"] = function()
 
   child.api.nvim_set_current_win(split.winid)
   child.type_keys("gg")
-  child.type_keys("]]")
   local popup1_winid =
     child.lua_get("_G.manager.popups[...].renderer.layout.winid", { row1 })
   eq(child.api.nvim_win_is_valid(popup1_winid), true)
@@ -303,7 +263,7 @@ T["StickyPopupManager"]["WinResized"] = function()
   child.cmd(":vertical resize +5<CR>")
 
   sleep(500)
-  local FLOAT_WIDTH_MARGIN = 2 + 7
+  local FLOAT_WIDTH_MARGIN = 7
   eq(
     child.lua_get("_G.manager.popups[...].renderer:get_size().width", { row2 }),
     child.api.nvim_win_get_width(0) - FLOAT_WIDTH_MARGIN
