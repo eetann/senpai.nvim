@@ -29,6 +29,7 @@ local plugins = {
     build = "bun install",
     dependencies = {
       "MunifTanjim/nui.nvim",
+      "grapp-dev/nui-components.nvim",
       "nvim-lua/plenary.nvim",
       {
         "nvim-treesitter/nvim-treesitter",

@@ -1,4 +1,7 @@
 # senpai.nvim
+
+[DeepWiki](https://deepwiki.com/eetann/senpai.nvim)
+
 Senpai is super reliable Neovim AI plugin!<br/>
 <img width="800" alt="chat" src="https://github.com/user-attachments/assets/4f80c65c-01f7-49aa-a6e5-4963be75666f" />
 
@@ -63,7 +66,7 @@ it will be recognized.<br/>
 
 ### replace file
 You can also edit the file.<br/>
-<img width="650" alt="Image" src="https://github.com/user-attachments/assets/c3981de9-3bb4-476d-9e30-1fc5dbf1cafd" />
+<img width="650" alt="Image" src="https://github.com/user-attachments/assets/e8c8b00f-9d34-4885-a3b6-2b493a452ff6" />
 
 In the area called `Replace File`, press `a` to display the diff.
 The keymap in diff mode is as follows.
@@ -94,6 +97,25 @@ require("senpai").setup({
 
 To see the system prompt, type `gs` in the chat log area (Key is customizable).<br/>
 <img width="772" alt="Image" src="https://github.com/user-attachments/assets/04ba00bd-1c39-470b-9b83-6c3607fb16ba" />
+
+
+### Chat Navigation
+<br/>
+<!-- panvimdoc-ignore-start -->
+https://github.com/user-attachments/assets/93169bb4-0e20-4f1b-95a5-0e8ed7d19745  
+<!-- panvimdoc-ignore-end -->
+
+| key       | description                            |
+| ----      | -------------------------------------- |
+| `]]`      | focus next block                       |
+| `[[`      | focus previous block                   |
+| `a`       | press apply button                     |
+| `D`       | button to change to Diff view          |
+| `R`       | button to change to Replace view       |
+| `S`       | button to change to Search view        |
+| `<Tab>`   | focus next button                      |
+| `<S-Tab>` | focus previous button                  |
+| `<CR>`    | press current button                   |
 
 
 ## Chat Keymaps
@@ -177,10 +199,6 @@ The names of the actions that can be written in the keymaps table are.
 
 - `show_mcp_tools`
   - *For Developers.* show MCP Tools
-  - default: none
-
-- `show_replace_content`
-  - *For Developers.* show Replace File content.
   - default: none
 
 - `show_system_prompt`
@@ -373,6 +391,7 @@ end, { buffer = true, desc = "Senpai commitMessage" })
     - Forgive me if the dependence is frustrating for you, but it's easy to install.
 - Dependent Plugins
     - [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
+    - [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim)
     - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
     - [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
 
@@ -385,6 +404,7 @@ with [Lazy.nvim](https://github.com/folke/lazy.nvim)
     build = "bun install --frozen-lockfile",
     dependencies = {
       "MunifTanjim/nui.nvim",
+      "grapp-dev/nui-components.nvim",
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
@@ -398,6 +418,7 @@ with [packer.nvim](https://github.com/wbthomason/packer.nvim)
     run = "bun install --frozen-lockfile",
     requires = {
       "MunifTanjim/nui.nvim",
+      "grapp-dev/nui-components.nvim",
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
@@ -482,9 +503,6 @@ You can find how to write `model_id` in the following links (most of them are in
 - [OpenRouter](https://openrouter.ai/models)
 
 
-
-
-
 # config
 
 ## default config
@@ -525,7 +543,8 @@ The default config are as follows.
         a = "apply",
         gs = "show_system_prompt",
         gy = "copy_input_or_codeblock"
-      }
+      },
+      replace_show_type = "diff"
     }
   },
   commit_message = {
@@ -1015,6 +1034,7 @@ _No arguments_
 ```lua
 ---@class senpai.Config.chat.log_area
 ---@field keymaps? senpai.Config.chat.keymaps
+---@field replace_show_type? "diff"|"replace"
 ```
 
 

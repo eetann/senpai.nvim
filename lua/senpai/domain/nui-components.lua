@@ -1,0 +1,70 @@
+---@class NuiEvent
+---@field event string | string[]
+---@field handler function
+---@field options? {once?: boolean, nested?: boolean}
+---@field once? boolean
+---@field nested? boolean
+
+---@class NuiMapping
+---@field mode string[] | string
+---@field key string
+---@field handler function
+---@field global? boolean
+
+---@class NuiComponent
+---@field id string
+---@field size number
+---@field flex number
+---@field hidden boolean
+---@field autofocus boolean
+---@field is_focusable boolean
+---@field direction "'row'" | "'column'"
+---@field border_label string | NuiText
+---@field border_style "'double'" | "'none'" | "'rounded'" | "'shadow'" | "'single'" | "'solid'"
+---@field padding number | table
+---@field window table
+---@field global_focus_key string
+---@field on_focus fun(component: NuiComponent): nil
+---@field on_blur fun(component: NuiComponent): nil
+---@field on_mount fun(component: NuiComponent): nil
+---@field on_unmount fun(component: NuiComponent): nil
+---@field events fun(component: NuiComponent): NuiEvent[]
+---@field mappings fun(component: NuiComponent): NuiMapping[]
+---@field validate fun(value: any): boolean
+---@field is_focused fun(component: NuiComponent): boolean
+
+---@class NuiRenderer
+---@field layout NuiLayout
+---@field _private table
+---@field width number
+---@field height number
+---@field position string|number|table
+---@field relative string|table
+---@field keymap table
+---@field on_mount function
+---@field on_unmount function
+---@field create fun(options?: table): NuiRenderer
+---@field render fun(self: NuiRenderer, content: NuiComponent|fun(): NuiComponent)
+---@field redraw fun(self: NuiRenderer)
+---@field schedule fun(self: NuiRenderer, schedule_fn: fun())
+---@field focus fun(self: NuiRenderer)
+---@field close fun(self: NuiRenderer)
+---@field add_mappings fun(self: NuiRenderer, mappings: table[])
+---@field set_size fun(self: NuiRenderer, size: {width: number, height: number})
+---@field get_layout_options fun(self: NuiRenderer): table
+---@field get_last_focused_component fun(self: NuiRenderer): NuiComponent|nil
+---@field set_last_focused_component fun(self: NuiRenderer, component: NuiComponent)
+---@field get_focusable_components fun(self: NuiRenderer): NuiComponent[]
+---@field get_component_by_direction fun(self: NuiRenderer, dir: "left"|"right"|"up"|"down", from?: NuiComponent): NuiComponent|nil
+---@field get_component_by_id fun(self: NuiRenderer, id: string): NuiComponent|nil
+---@field get_component_tree fun(self: NuiRenderer): NuiComponent[]
+---@field get_origin_winid fun(self: NuiRenderer): number
+---@field get_size fun(self: NuiRenderer): {width: number, height: number}
+---@field on_mount fun(self: NuiRenderer, mount_fn: fun())
+---@field on_unmount fun(self: NuiRenderer, unmount_fn: fun())
+
+---@class NuiSignal require("nui-components.signal")
+---@field get_value function
+
+---@class NuiBuffer: NuiComponent
+---@field bufnr integer

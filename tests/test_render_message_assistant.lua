@@ -2,6 +2,10 @@ local Helpers = dofile("tests/helpers.lua")
 local child = Helpers.new_child_neovim()
 local expect, eq = Helpers.expect, Helpers.expect.equality
 
+local sleep = function(ms)
+  Helpers.sleep(ms, child)
+end
+
 local T = MiniTest.new_set({
   hooks = {
     pre_case = function()
@@ -12,7 +16,9 @@ local T = MiniTest.new_set({
   },
 })
 
-T["assistant <replace_file> chunk process"] = function()
+T["assistant"] = MiniTest.new_set()
+
+T["assistant"]["<replace_file> chunk process"] = function()
   child.lua(
     [[chat=require("senpai.presentation.chat.window").new(...)]],
     { { thread_id = "test_render_message_assistant" } }
@@ -20,29 +26,23 @@ T["assistant <replace_file> chunk process"] = function()
   child.lua([[chat:show()]])
   local bufnr = child.lua_get([[chat.log_area.bufnr]])
   child.lua("assistant=M.new(chat)")
-  eq(Helpers.get_line(child, bufnr, 5), "---")
+  eq(child.get_line(bufnr, 5), "---")
 
   child.lua("assistant:process_chunk(...)", { "plain text " })
-  eq(Helpers.get_line(child, bufnr, 6), "plain text ")
-  eq(Helpers.get_line(child, bufnr, 7), nil)
+  eq(child.get_line(bufnr, 6), "plain text ")
+  eq(child.get_line(bufnr, 7), nil)
   child.lua("assistant:process_chunk(...)", { "here.\n" })
-  eq(Helpers.get_line(child, bufnr, 6), "plain text here.")
-  eq(Helpers.get_line(child, bufnr, 7), "")
-  eq(Helpers.get_line(child, bufnr, 8), nil)
+  eq(child.get_line(bufnr, 6), "plain text here.")
+  eq(child.get_line(bufnr, 7), "")
+  eq(child.get_line(bufnr, 8), nil)
 
   child.lua("assistant:process_chunk(...)", { "<replace" })
-  eq(Helpers.get_line(child, bufnr, 6), "plain text here.")
-  eq(Helpers.get_line(child, bufnr, 7), "<replace")
+  eq(child.get_line(bufnr, 6), "plain text here.")
+  eq(child.get_line(bufnr, 7), "<replace")
   child.lua("assistant:process_chunk(...)", { "_file>\n" })
-  eq(Helpers.get_line(child, bufnr, 7), "")
-  eq(
-    Helpers.get_line(child, bufnr, 8):find([[<SenpaiReplaceFile id=".*">]])
-      ~= nil,
-    true
-  )
-  eq(Helpers.get_line(child, bufnr, 9), "")
-  eq(Helpers.get_line(child, bufnr, 10), "")
-  eq(Helpers.get_line(child, bufnr, 11), nil)
+  eq(child.get_line(bufnr, 7), "")
+  eq(child.get_line(bufnr, 8), "")
+  eq(child.get_line(bufnr, 9), nil)
 
   child.lua("assistant:process_chunk(...)", { "<path>src/" })
   child.lua("assistant:process_chunk(...)", { "main.js" })
@@ -54,21 +54,19 @@ T["assistant <replace_file> chunk process"] = function()
   child.lua("assistant:process_chunk(...)", { "  return a + b;\n" })
   child.lua("assistant:process_chunk(...)", { "</replace>\n" })
   child.lua("assistant:process_chunk(...)", { "</replace_file>\n" })
-  eq(Helpers.get_line(child, bufnr, 9), "")
-  eq(Helpers.get_line(child, bufnr, 10), "filepath: src/main.js")
-  eq(Helpers.get_line(child, bufnr, 11), "```javascript")
-  eq(Helpers.get_line(child, bufnr, 12), "  return a + b;")
-  eq(Helpers.get_line(child, bufnr, 13), "```")
-  eq(Helpers.get_line(child, bufnr, 14), "")
-  eq(Helpers.get_line(child, bufnr, 15), "</SenpaiReplaceFile>")
+  eq(child.get_line(bufnr, 8), "filepath: src/main.js")
+  eq(child.get_line(bufnr, 9), "```diff")
+  eq(child.get_line(bufnr, 10), "-  return a - b;")
+  eq(child.get_line(bufnr, 12), "+  return a + b;")
+  eq(child.get_line(bufnr, 15), "```")
   child.lua("assistant:process_chunk(...)", { "red\nblue" })
   child.lua("assistant:process_chunk(...)", { " yellow green" })
-  eq(Helpers.get_line(child, bufnr, 16), "red")
-  eq(Helpers.get_line(child, bufnr, 17), "blue yellow green")
-  eq(Helpers.get_line(child, bufnr, 18), nil)
+  eq(child.get_line(bufnr, 16), "red")
+  eq(child.get_line(bufnr, 17), "blue yellow green")
+  eq(child.get_line(bufnr, 18), nil)
 end
 
-T["assistant <replace_file> real"] = function()
+T["assistant"]["<replace_file> real"] = function()
   -- for screenshot
   child.o.lines, child.o.columns = 40, 60
 
@@ -80,15 +78,10 @@ T["assistant <replace_file> real"] = function()
   child.cmd("1windo close")
   local bufnr = child.lua_get([[chat.log_area.bufnr]])
   child.lua("assistant=M.new(chat)")
-  eq(Helpers.get_line(child, bufnr, 5), "---")
+  eq(child.get_line(bufnr, 5), "---")
 
   child.lua("assistant:process_chunk(...)", { "here:\n\n<replace_" })
   child.lua("assistant:process_chunk(...)", { "file>\n<path>lua" })
-  eq(
-    Helpers.get_line(child, bufnr, -3):find([[<SenpaiReplaceFile id=".*">]])
-      ~= nil,
-    true
-  )
   child.lua("assistant:process_chunk(...)", { "/senpai/usecase/message/" })
   child.lua("assistant:process_chunk(...)", { "tool_call.lua</path>" })
   eq(
@@ -99,68 +92,81 @@ T["assistant <replace_file> real"] = function()
     "assistant:process_chunk(...)",
     { '\n<search>\nlocal utils = require("senp' }
   )
-  eq(Helpers.get_line(child, bufnr, -3), "")
   eq(
-    Helpers.get_line(child, bufnr, -2),
+    child.get_line(bufnr, -2),
     "filepath: lua/senpai/usecase/message/tool_call.lua"
   )
-  eq(Helpers.get_line(child, bufnr, -1), "")
+  eq(child.lua_get([=[assistant.diff_popup.renderer.layout._.mounted]=]), true)
+  eq(child.get_line(bufnr, -1), "")
   eq(child.lua_get([[assistant.line]]), 'local utils = require("senp')
   child.lua("assistant:process_chunk(...)", { 'ai.usecase.utils")' })
   child.lua("assistant:process_chunk(...)", { "\n\nlocal M = {}\n" })
   child.lua("assistant:process_chunk(...)", { "\n</search>\n<replace>" })
   eq(
-    Helpers.get_line(child, bufnr, -2),
+    child.get_line(bufnr, -2),
     "filepath: lua/senpai/usecase/message/tool_call.lua"
   )
   child.lua(
     "assistant:process_chunk(...)",
     { '\nlocal utils = require("senpai.use' }
   )
-  eq(Helpers.get_line(child, bufnr, -2), "```lua")
-  eq(Helpers.get_line(child, bufnr, -1), 'local utils = require("senpai.use')
+  eq(child.lua_get([[assistant.diff_popup.replace_text]]), "")
+
   child.lua(
     "assistant:process_chunk(...)",
     { 'case.utils")\n\n---@class ToolCall' }
   )
+
   child.lua("assistant:process_chunk(...)", { "Module\nlocal M = {}\n" })
   child.lua(
     "assistant:process_chunk(...)",
     { "\n</replace>\n</replace_file>\n\nhello" }
   )
-  eq(Helpers.get_line(child, bufnr, -7), "local M = {}")
-  eq(Helpers.get_line(child, bufnr, -6), "")
-  eq(Helpers.get_line(child, bufnr, -5), "```")
-  eq(Helpers.get_line(child, bufnr, -4), "")
-  eq(Helpers.get_line(child, bufnr, -3), "</SenpaiReplaceFile>")
-  eq(Helpers.get_line(child, bufnr, -2), "")
-  eq(Helpers.get_line(child, bufnr, -1), "hello")
-  expect.reference_screenshot(child.get_screenshot())
-  local result = child.lua_get("chat.replace_file_results")
-  local count = 0
+  eq(
+    child.lua_get([[assistant.diff_popup.replace_text]]),
+    [[
+local utils = require("senpai.usecase.utils")
 
-  for id, content in pairs(result) do
-    eq(type(id), "string")
-    eq(content.path, "lua/senpai/usecase/message/tool_call.lua")
-    eq(content.search, {
-      'local utils = require("senpai.usecase.utils")',
-      "",
-      "local M = {}",
-      "",
-    })
-    eq(content.replace, {
-      'local utils = require("senpai.usecase.utils")',
-      "",
-      "---@class ToolCallModule",
-      "local M = {}",
-      "",
-    })
-    count = count + 1
-  end
-  eq(count, 1)
+---@class ToolCallModule
+local M = {}
+]]
+  )
+
+  eq(
+    child.lua_get([[assistant.diff_popup.search_text]]),
+    [[
+local utils = require("senpai.usecase.utils")
+
+local M = {}
+]]
+  )
+  eq(child.get_line(bufnr, -2), "")
+  eq(child.get_line(bufnr, -1), "hello")
+
+  eq(
+    child.lua_get("chat.sticky_popup_manager.popups[9].path"),
+    "lua/senpai/usecase/message/tool_call.lua"
+  )
+  eq(
+    child.lua_get("chat.sticky_popup_manager.popups[9].search_text"),
+    [[
+local utils = require("senpai.usecase.utils")
+
+local M = {}
+]]
+  )
+  eq(
+    child.lua_get("chat.sticky_popup_manager.popups[9].replace_text"),
+    [[
+local utils = require("senpai.usecase.utils")
+
+---@class ToolCallModule
+local M = {}
+]]
+  )
 end
 
-T["assistant <replace_file> from message"] = function()
+T["assistant"]["<replace_file> from message"] = function()
   child.lua(
     [[chat=require("senpai.presentation.chat.window").new(...)]],
     { { thread_id = "test_render_message_assistant" } }
@@ -183,36 +189,21 @@ plain text here.
 example foo bar.
   ]],
   })
-  local result = child.lua_get("chat.replace_file_results")
-  local count = 0
-
-  for id, content in pairs(result) do
-    eq(type(id), "string")
-    eq(content.path, "src/main.js")
-    eq(content.search, { "  return a - b;" })
-    eq(content.replace, { "  return a + b;" })
-    count = count + 1
-  end
-  eq(count, 1)
+  eq(child.lua_get("chat.sticky_popup_manager.popups[8].path"), "src/main.js")
+  eq(
+    child.lua_get("chat.sticky_popup_manager.popups[8].search_text"),
+    "  return a - b;"
+  )
+  eq(
+    child.lua_get("chat.sticky_popup_manager.popups[8].replace_text"),
+    "  return a + b;"
+  )
 
   local bufnr = child.lua_get([[chat.log_area.bufnr]])
-  eq(Helpers.get_line(child, bufnr, 5), "---")
-  eq(Helpers.get_line(child, bufnr, 6), "plain text here.")
-  eq(Helpers.get_line(child, bufnr, 7), "")
-  eq(
-    Helpers.get_line(child, bufnr, 8):find([[<SenpaiReplaceFile id=".*">]])
-      ~= nil,
-    true
-  )
-  eq(Helpers.get_line(child, bufnr, 9), "")
-  eq(Helpers.get_line(child, bufnr, 10), "filepath: src/main.js")
-  eq(Helpers.get_line(child, bufnr, 11), "```javascript")
-  eq(Helpers.get_line(child, bufnr, 12), "  return a + b;")
-  eq(Helpers.get_line(child, bufnr, 13), "```")
-  eq(Helpers.get_line(child, bufnr, 14), "")
-  eq(Helpers.get_line(child, bufnr, 15), "</SenpaiReplaceFile>")
-  eq(Helpers.get_line(child, bufnr, 16), "")
-  eq(Helpers.get_line(child, bufnr, 17), "example foo bar.")
+  eq(child.get_line(bufnr, 5), "---")
+  eq(child.get_line(bufnr, 6), "plain text here.")
+  eq(child.get_line(bufnr, 7), "")
+  eq(child.get_line(bufnr, 8), "filepath: src/main.js")
 end
 
 T["assistant two newline"] = function()
@@ -223,16 +214,16 @@ T["assistant two newline"] = function()
   child.lua([[chat:show()]])
   local bufnr = child.lua_get([[chat.log_area.bufnr]])
   child.lua("assistant=M.new(chat)")
-  eq(Helpers.get_line(child, bufnr, 5), "---")
+  eq(child.get_line(bufnr, 5), "---")
 
   child.lua("assistant:process_chunk(...)", { "plain text \n\n" })
-  eq(Helpers.get_line(child, bufnr, 6), "plain text ")
-  eq(Helpers.get_line(child, bufnr, 7), "")
-  eq(Helpers.get_line(child, bufnr, 8), "")
-  eq(Helpers.get_line(child, bufnr, 9), nil)
+  eq(child.get_line(bufnr, 6), "plain text ")
+  eq(child.get_line(bufnr, 7), "")
+  eq(child.get_line(bufnr, 8), "")
+  eq(child.get_line(bufnr, 9), nil)
 end
 
-T["assistant <replace_file> Line breaks in the middle of tags"] = function()
+T["assistant"]["<replace_file> Line breaks in the middle of tags"] = function()
   -- for screenshot
   child.o.lines, child.o.columns = 40, 60
 
@@ -244,15 +235,10 @@ T["assistant <replace_file> Line breaks in the middle of tags"] = function()
   child.cmd("1windo close")
   local bufnr = child.lua_get([[chat.log_area.bufnr]])
   child.lua("assistant=M.new(chat)")
-  eq(Helpers.get_line(child, bufnr, 5), "---")
+  eq(child.get_line(bufnr, 5), "---")
 
   child.lua("assistant:process_chunk(...)", { "here:\n\n<replace_" })
   child.lua("assistant:process_chunk(...)", { "file>\n<path>lua" })
-  eq(
-    Helpers.get_line(child, bufnr, -3):find([[<SenpaiReplaceFile id=".*">]])
-      ~= nil,
-    true
-  )
   child.lua("assistant:process_chunk(...)", { "/senpai/usecase/message/" })
   child.lua("assistant:process_chunk(...)", { "tool_call.lua</path>" })
   eq(
@@ -263,67 +249,42 @@ T["assistant <replace_file> Line breaks in the middle of tags"] = function()
     "assistant:process_chunk(...)",
     { '\n<search>\nlocal utils = require("senp' }
   )
-  eq(Helpers.get_line(child, bufnr, -3), "")
+  eq(child.get_line(bufnr, -3), "")
   eq(
-    Helpers.get_line(child, bufnr, -2),
+    child.get_line(bufnr, -2),
     "filepath: lua/senpai/usecase/message/tool_call.lua"
   )
-  eq(Helpers.get_line(child, bufnr, -1), "")
+  eq(child.get_line(bufnr, -1), "")
   eq(child.lua_get([[assistant.line]]), 'local utils = require("senp')
   child.lua("assistant:process_chunk(...)", { 'ai.usecase.utils")' })
   child.lua("assistant:process_chunk(...)", { "\n\nlocal M = {}\n" })
   child.lua("assistant:process_chunk(...)", { "\n</search" })
   child.lua("assistant:process_chunk(...)", { ">\n<replace>" })
-  eq(
-    Helpers.get_line(child, bufnr, -2),
-    "filepath: lua/senpai/usecase/message/tool_call.lua"
-  )
-  child.lua(
-    "assistant:process_chunk(...)",
-    { '\nlocal utils = require("senpai.use' }
-  )
-  eq(Helpers.get_line(child, bufnr, -2), "```lua")
-  eq(Helpers.get_line(child, bufnr, -1), 'local utils = require("senpai.use')
-  child.lua(
-    "assistant:process_chunk(...)",
-    { 'case.utils")\n\n---@class ToolCall' }
-  )
-  child.lua("assistant:process_chunk(...)", { "Module\nlocal M = {}\n" })
+  child.lua("assistant:process_chunk(...)", { "\nlocal M = {}\n" })
   child.lua("assistant:process_chunk(...)", { "\n</replace" })
   child.lua("assistant:process_chunk(...)", { ">\n</replace_file>\n\nhello" })
-  eq(Helpers.get_line(child, bufnr, -7), "local M = {}")
-  eq(Helpers.get_line(child, bufnr, -6), "")
-  eq(Helpers.get_line(child, bufnr, -5), "```")
-  eq(Helpers.get_line(child, bufnr, -4), "")
-  eq(Helpers.get_line(child, bufnr, -3), "</SenpaiReplaceFile>")
-  eq(Helpers.get_line(child, bufnr, -2), "")
-  eq(Helpers.get_line(child, bufnr, -1), "hello")
+  eq(child.get_line(bufnr, -2), "")
+  eq(child.get_line(bufnr, -1), "hello")
   expect.reference_screenshot(child.get_screenshot())
-  local result = child.lua_get("chat.replace_file_results")
-  local count = 0
+  eq(
+    child.lua_get("chat.sticky_popup_manager.popups[9].path"),
+    "lua/senpai/usecase/message/tool_call.lua"
+  )
+  eq(
+    child.lua_get("chat.sticky_popup_manager.popups[9].search_text"),
+    [[
+local utils = require("senpai.usecase.utils")
 
-  for id, content in pairs(result) do
-    eq(type(id), "string")
-    eq(content.path, "lua/senpai/usecase/message/tool_call.lua")
-    eq(content.search, {
-      'local utils = require("senpai.usecase.utils")',
-      "",
-      "local M = {}",
-      "",
-    })
-    eq(content.replace, {
-      'local utils = require("senpai.usecase.utils")',
-      "",
-      "---@class ToolCallModule",
-      "local M = {}",
-      "",
-    })
-    count = count + 1
-  end
-  eq(count, 1)
+local M = {}
+]]
+  )
+  eq(
+    child.lua_get("chat.sticky_popup_manager.popups[9].replace_text"),
+    "local M = {}\n"
+  )
 end
 
-T["assistant end with <replace_file>"] = function()
+T["assistant"]["end with <replace_file>"] = function()
   child.lua(
     [[chat=require("senpai.presentation.chat.window").new(...)]],
     { { thread_id = "test_render_message_assistant" } }
@@ -343,23 +304,16 @@ plain text here.
 </replace>
 </replace_file>]],
   })
-  local result = child.lua_get("chat.replace_file_results")
-  local count = 0
 
-  for id, content in pairs(result) do
-    eq(type(id), "string")
-    eq(content.path, "src/main.js")
-    eq(content.search, { "  return a - b;" })
-    eq(content.replace, { "  return a + b;" })
-    count = count + 1
-  end
-  eq(count, 1)
-
-  local bufnr = child.lua_get([[chat.log_area.bufnr]])
-  eq(Helpers.get_line(child, bufnr, -4), "```")
-  eq(Helpers.get_line(child, bufnr, -3), "")
-  eq(Helpers.get_line(child, bufnr, -2), "</SenpaiReplaceFile>")
-  eq(Helpers.get_line(child, bufnr, -1), "")
+  eq(child.lua_get("chat.sticky_popup_manager.popups[8].path"), "src/main.js")
+  eq(
+    child.lua_get("chat.sticky_popup_manager.popups[8].search_text"),
+    "  return a - b;"
+  )
+  eq(
+    child.lua_get("chat.sticky_popup_manager.popups[8].replace_text"),
+    "  return a + b;"
+  )
 end
 
 return T

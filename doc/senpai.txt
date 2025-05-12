@@ -1,4 +1,4 @@
-*senpai.txt*            For NVIM v0.10.0            Last change: 2025 April 26
+*senpai.txt*             For NVIM v0.10.0             Last change: 2025 May 12
 
 ==============================================================================
 Table of Contents                                   *senpai-table-of-contents*
@@ -50,6 +50,8 @@ Table of Contents                                   *senpai-table-of-contents*
 
 ==============================================================================
 1. senpai.nvim                                            *senpai-senpai.nvim*
+
+DeepWiki <https://deepwiki.com/eetann/senpai.nvim>
 
 Senpai is super reliable Neovim AI plugin!
 
@@ -148,6 +150,22 @@ If you want to write a system prompt, you can configure it as follows.
 To see the system prompt, type `gs` in the chat log area (Key is customizable).
 
 
+CHAT NAVIGATION ~
+
+
+
+  key       description
+  --------- ----------------------------------
+  ]]        focusnext block
+  [[        focus previous block
+  a         press apply button
+  D         button to change to Diff view
+  R         button to change to Replace view
+  S         button to change to Search view
+  <Tab>     focus next button
+  <S-Tab>   focus previous button
+  <CR>      press current button
+
 CHAT KEYMAPS                                     *senpai-feature-chat-keymaps*
 
 You can set up a keymap for Chat with the following three.
@@ -217,9 +235,6 @@ The names of the actions that can be written in the keymaps table are.
     - default: none
 - `show_mcp_tools`
     - _For Developers._ show MCP Tools
-    - default: none
-- `show_replace_content`
-    - _For Developers._ show Replace File content.
     - default: none
 - `show_system_prompt`
     - Show system prompt associated with current chat
@@ -427,6 +442,7 @@ Here’s a code of my setup in `.config/nvim/after/ftplugin/gitcommit.lua`.
     - Forgive me if the dependence is frustrating for you, but it’s easy to install.
 - Dependent Plugins
     - nui.nvim <https://github.com/MunifTanjim/nui.nvim>
+    - nui-components.nvim <https://github.com/grapp-dev/nui-components.nvim>
     - plenary.nvim <https://github.com/nvim-lua/plenary.nvim>
     - nvim-treesitter <https://github.com/nvim-treesitter/nvim-treesitter>
 
@@ -442,6 +458,7 @@ with Lazy.nvim <https://github.com/folke/lazy.nvim>
         build = "bun install --frozen-lockfile",
         dependencies = {
           "MunifTanjim/nui.nvim",
+          "grapp-dev/nui-components.nvim",
           "nvim-lua/plenary.nvim",
           "nvim-treesitter/nvim-treesitter",
         },
@@ -457,6 +474,7 @@ with packer.nvim <https://github.com/wbthomason/packer.nvim>
         run = "bun install --frozen-lockfile",
         requires = {
           "MunifTanjim/nui.nvim",
+          "grapp-dev/nui-components.nvim",
           "nvim-lua/plenary.nvim",
           "nvim-treesitter/nvim-treesitter",
         },
@@ -580,7 +598,8 @@ The default config are as follows.
             a = "apply",
             gs = "show_system_prompt",
             gy = "copy_input_or_codeblock"
-          }
+          },
+          replace_show_type = "diff"
         }
       },
       commit_message = {
@@ -1075,6 +1094,7 @@ _No arguments_  
 >lua
     ---@class senpai.Config.chat.log_area
     ---@field keymaps? senpai.Config.chat.keymaps
+    ---@field replace_show_type? "diff"|"replace"
 <
 
 `*senpai.Config.commit_message*`

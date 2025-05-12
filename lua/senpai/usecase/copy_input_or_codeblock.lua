@@ -31,8 +31,6 @@ local function get_senpai_tag_at_cursor()
       local text = vim.treesitter.get_node_text(node, 0)
       if text:find("<SenpaiUserInput>") then
         return "SenpaiUserInput", text
-      elseif text:find("SenpaiReplaceFile") then
-        return "SenpaiReplaceFile", text
       end
     end
     node = node:parent()
@@ -48,22 +46,32 @@ function M.execute(chat)
     local captured = text:match("<SenpaiUserInput>%s*(.-)%s*</SenpaiUserInput>")
     vim.fn.setreg("+", captured or "")
     vim.notify("[senpai] yank user prompt", vim.log.levels.INFO)
-  elseif tag == "SenpaiReplaceFile" then
-    local id = text:match('<SenpaiReplaceFile%s+id="(.-)"')
-    if not id or id == "" then
-      return
-    end
-    local result = chat.replace_file_results[id]
-    if not result then
-      vim.notify(
-        "[senpai] failed to parse <replace_file>",
-        vim.log.levels.ERROR
-      )
-      return
-    end
-    vim.fn.setreg("+", result.replace or "")
-    vim.notify("[senpai] yank current code", vim.log.levels.INFO)
+    return
   end
+
+  local manager = chat.sticky_popup_manager
+  if not manager then
+    return
+  end
+
+  local row = manager:find_prev_popup_row()
+  if not row then
+    return
+  end
+
+  local diff_block = manager.popups[row]
+  if not diff_block then
+    return
+  end
+  local active_tab = diff_block.signal.active_tab:get_value()
+  if active_tab == "tab-diff" then
+    vim.fn.setreg("+", diff_block.diff_text or "")
+  elseif active_tab == "tab-replace" then
+    vim.fn.setreg("+", diff_block.replace_text or "")
+  else
+    vim.fn.setreg("+", diff_block.search_text or "")
+  end
+  vim.notify("[senpai] yank current code", vim.log.levels.INFO)
 end
 
 return M

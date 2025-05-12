@@ -125,14 +125,6 @@ M.actions = {
 
   --[=[@doc
   category = "chat_action"
-  name = "show_replace_content"
-  desc = "*For Developers.* show Replace File content."
-  --]=]
-  --
-  show_replace_content = false,
-
-  --[=[@doc
-  category = "chat_action"
   name = "show_system_prompt"
   desc = "Show system prompt associated with current chat"
   default_key = "`gs` in log area"
@@ -178,6 +170,7 @@ M.actions = {
 ---@doc.type
 ---@class senpai.Config.chat.log_area
 ---@field keymaps? senpai.Config.chat.keymaps
+---@field replace_show_type? "diff"|"replace"
 
 ---@doc.type
 ---@class senpai.Config.chat.input_area
@@ -216,6 +209,7 @@ M.default_config = {
       gs = "show_system_prompt",
       gy = "copy_input_or_codeblock",
     },
+    replace_show_type = "diff",
   },
   input_area = {
     keymaps = {

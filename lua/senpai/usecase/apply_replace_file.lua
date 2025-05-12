@@ -135,42 +135,34 @@ local function set_diff_keymaps(original_buf, ai_buf, ai_win)
   })
 end
 
-local function get_valid_replace_file_id()
-  local id = utils.get_replace_file_id()
-  if not id or id == "" then
-    return nil
+local function edit_or_switch(file)
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) then
+      local name = vim.api.nvim_buf_get_name(buf)
+      if name == vim.fn.fnamemodify(file, ":p") then
+        vim.api.nvim_set_current_buf(buf)
+        return
+      end
+    end
   end
-  return id
-end
-
-local function get_replace_file_result(chat, id)
-  local result = chat.replace_file_results[id]
-  if not result then
-    vim.notify("[senpai] failed to parse <replace_file>", vim.log.levels.ERROR)
-    return nil
-  end
-  return result
-end
-
-local function save_and_restore_cursor(chat)
-  local row = vim.fn.line(".", chat.log_area.winid)
-  local col = vim.fn.col(".", chat.log_area.winid)
-  vim.api.nvim_win_set_cursor(chat.log_area.winid, { row, col - 1 })
+  vim.cmd("edit " .. vim.fn.fnameescape(file))
 end
 
 local function setup_edit_window(path)
   vim.cmd("wincmd h")
-  vim.cmd("edit " .. path)
-  local original_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  edit_or_switch(path)
   local original_win = vim.api.nvim_get_current_win()
   local original_buf = vim.api.nvim_get_current_buf()
   local original_filetype =
     vim.api.nvim_get_option_value("filetype", { buf = original_buf })
-  return original_lines, original_win, original_buf, original_filetype
+  return original_win, original_buf, original_filetype
 end
 
-local function find_replace_range(result)
-  local range = utils.find_text(result.path, table.concat(result.search, "\n"))
+---@param path string
+---@param search_text string
+---@return {start_line:integer, end_line:integer}|nil
+local function find_replace_range(path, search_text)
+  local range = utils.find_text(path, search_text)
   if range.start_line == 0 then
     vim.notify("[senpai]: Could not find code.", vim.log.levels.WARN)
     return nil
@@ -178,13 +170,13 @@ local function find_replace_range(result)
   return range
 end
 
-local function create_ai_buffer(
-  original_lines,
-  range,
-  result,
-  id,
-  original_filetype
-)
+---@param original_buf integer
+---@param range {start_line:integer, end_line:integer}
+---@param replace_text string
+---@param id string
+---@param filetype string
+---@return integer
+local function create_ai_buffer(original_buf, range, replace_text, id, filetype)
   local ai_buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_name(ai_buf, "[senpai] " .. id)
   vim.api.nvim_set_option_value(
@@ -192,14 +184,16 @@ local function create_ai_buffer(
     "senpai_ai_buffer",
     { buf = ai_buf }
   )
-  require("nvim-treesitter.highlight").attach(ai_buf, original_filetype)
+  require("nvim-treesitter.highlight").attach(ai_buf, filetype)
+
+  local original_lines = vim.api.nvim_buf_get_lines(original_buf, 0, -1, false)
   vim.api.nvim_buf_set_lines(ai_buf, 0, -1, false, original_lines)
   vim.api.nvim_buf_set_lines(
     ai_buf,
     range.start_line - 1,
     range.end_line - 1,
     false,
-    result.replace
+    vim.split(replace_text, "\n")
   )
   return ai_buf
 end
@@ -216,27 +210,35 @@ end
 
 ---@param chat senpai.IChatWindow
 function M.execute(chat)
-  local id = get_valid_replace_file_id()
-  if not id then
+  local manager = chat.sticky_popup_manager
+  if not manager then
+    return
+  end
+  local row = manager:find_prev_popup_row()
+  if not row then
     return
   end
 
-  local result = get_replace_file_result(chat, id)
-  if not result then
+  local diff_block = manager.popups[row]
+  if not diff_block then
     return
   end
 
-  save_and_restore_cursor(chat)
-  local original_lines, original_win, original_buf, original_filetype =
-    setup_edit_window(result.path)
+  local original_win, original_buf, original_filetype =
+    setup_edit_window(diff_block.path)
 
-  local range = find_replace_range(result)
+  local range = find_replace_range(diff_block.path, diff_block.search_text)
   if not range then
     return
   end
 
-  local ai_buf =
-    create_ai_buffer(original_lines, range, result, id, original_filetype)
+  local ai_buf = create_ai_buffer(
+    original_buf,
+    range,
+    diff_block.replace_text,
+    chat.thread_id .. "-" .. row,
+    original_filetype
+  )
   local ai_win = vim.api.nvim_open_win(
     ai_buf,
     false,

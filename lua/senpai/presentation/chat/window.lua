@@ -4,6 +4,8 @@ local utils = require("senpai.usecase.utils")
 local set_messages = require("senpai.usecase.set_messages")
 local Keymaps = require("senpai.presentation.chat.keymaps")
 local IChatWindow = require("senpai.domain.i_chat_window")
+local StickyPopupManager =
+  require("senpai.presentation.chat.sticky_popup_manager")
 
 local function create_winbar_text(text)
   return "%#Nomal#%=" .. text .. "%="
@@ -58,8 +60,6 @@ function M.new(args)
 
   self.is_sending = false
   self.is_first_message = true
-  self.edit_file_results = {}
-  self.replace_file_results = {}
   return self
 end
 
@@ -126,6 +126,8 @@ function M:setup_log_area(winid)
     end
     vim.api.nvim_set_current_win(self.log_area.winid)
   end
+  self.sticky_popup_manager =
+    StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
 end
 
 function M:display_chat_info()
@@ -158,12 +160,15 @@ function M:show(winid)
       self:setup_log_area(winid)
     end
     self.log_area:mount()
+    self.sticky_popup_manager =
+      StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
     self:display_chat_info()
     if not self.is_new then
       set_messages.execute(self)
     end
   else
     self.log_area:show()
+    self.sticky_popup_manager:remount(self.log_area.winid)
   end
 
   if
@@ -187,6 +192,7 @@ function M:show(winid)
 end
 
 function M:hide()
+  self.sticky_popup_manager:close_all_popup()
   self.log_area:hide()
   self.input_area:hide()
 end
@@ -225,6 +231,14 @@ function M:toggle_input()
   else
     self.input_area:show()
   end
+end
+
+function M:add_diff_popup(row, path)
+  if not self.sticky_popup_manager then
+    self.sticky_popup_manager =
+      StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
+  end
+  return self.sticky_popup_manager:add_float_popup(row, path)
 end
 
 return M

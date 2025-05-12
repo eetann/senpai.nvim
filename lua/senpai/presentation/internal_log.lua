@@ -33,7 +33,10 @@ function M:mount()
 end
 
 function M:write(text)
-  utils.set_text_at_last(self.buf, text .. "\n")
+  if not text then
+    return
+  end
+  utils.set_text_at_last(self.buf, tostring(text) .. "\n")
 end
 
 return M

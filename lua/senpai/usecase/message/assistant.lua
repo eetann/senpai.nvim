@@ -1,32 +1,49 @@
 local utils = require("senpai.usecase.utils")
-
----@class senpai.message.assistant.replace_file_current: senpai.XML.replace_file
----@field id string
----@field tag? string
----@field start_line number
+local Config = require("senpai.config")
 
 ---@class senpai.message.assistant
 ---@field chat senpai.IChatWindow
----@field replace_file_current senpai.message.assistant.replace_file_current
+---@field current_xml "replace_file"|nil
+---@field current_tag string|nil
+---@field diff_popup senpai.IDiffPopup|nil
 ---@field current_content string
 ---@field line string
 ---@field namespace integer
 local M = {}
 M.__index = M
 
+---@param search string
+---@param replace string
+---@return string
+local function get_diff_text(search, replace)
+  local tmp1 = os.tmpname()
+  local tmp2 = os.tmpname()
+
+  local f1 = assert(io.open(tmp1, "w"))
+  f1:write(search)
+  f1:close()
+
+  local f2 = assert(io.open(tmp2, "w"))
+  f2:write(replace)
+  f2:close()
+
+  local result = vim.system({ "git", "diff", "--no-index", tmp1, tmp2 }):wait()
+  local lines = vim.split(result.stdout, "\n")
+  local text = ""
+  if #lines >= 6 then
+    text = table.concat({ unpack(lines, 6) }, "\n")
+  end
+
+  os.remove(tmp1)
+  os.remove(tmp2)
+  return text
+end
+
 ---@param chat senpai.IChatWindow
 ---@return senpai.message.assistant
 function M.new(chat)
   local self = setmetatable({}, M)
   self.chat = chat
-  self.replace_file_current = {
-    id = "",
-    path = "",
-    search = {},
-    replace = {},
-    tag = nil,
-    start_line = 0,
-  }
   self.current_content = ""
   self.line = ""
   self.namespace = vim.api.nvim_create_namespace("sepnai-chat")
@@ -68,7 +85,7 @@ end
 ---@param is_lastline boolean
 function M:process_line(chunk, is_lastline)
   local lower_line = string.lower(self.line)
-  if self.replace_file_current.id == "" then
+  if not self.current_xml then
     if lower_line:match("<replace_file>") then
       self:process_start_replace_file()
     else
@@ -97,133 +114,84 @@ function M:process_line(chunk, is_lastline)
     self:process_end_replace_file()
   end
 
-  if self.replace_file_current.tag then
+  if self.current_tag then
     self:process_content_line(chunk)
   end
 end
 
 function M:process_start_replace_file()
-  local id = utils.create_random_id(12)
-  utils.replace_text_at_last(
-    self.chat.log_area.bufnr,
-    '\n<SenpaiReplaceFile id="' .. id .. '">\n\n'
-  )
-  local start_line = vim.fn.line("$", self.chat.log_area.winid) - 2
-  self.replace_file_current = {
-    id = id,
-    path = "",
-    search = {},
-    replace = {},
-    start_line = start_line,
-  }
-  vim.api.nvim_buf_set_extmark(
-    self.chat.log_area.bufnr,
-    self.namespace,
-    start_line - 1,
-    0,
-    {
-      sign_text = "󰬲",
-      sign_hl_group = "DiagnosticInfo",
-      virt_text = { { "Replace File" } },
-      virt_text_pos = "inline",
-    }
-  )
+  utils.replace_text_at_last(self.chat.log_area.bufnr, "\n")
+  self.current_xml = "replace_file"
+  self.current_tag = "replace_file"
 end
 
 function M:process_path_tag()
   local path = utils.get_relative_path(self.line:match("<path>(.-)</path>"))
     or ""
-  self.replace_file_current.path = path
-  self.replace_file_current.tag = nil
   self.current_content = ""
   self.line = ""
   utils.replace_text_at_last(
     self.chat.log_area.bufnr,
     "filepath: " .. path .. "\n"
   )
+  local row = vim.api.nvim_buf_line_count(self.chat.log_area.bufnr)
+  self.diff_popup = self.chat:add_diff_popup(row - 1, path)
+  self.diff_popup.path = path
+  self.diff_popup:mount()
 end
 
 function M:process_start_search_tag()
-  self.replace_file_current.tag = "search"
+  self.current_tag = "search"
+  self.diff_popup:change_tab("search")
   self.current_content = ""
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
-  -- TODO: 検索スピナーの開始
 end
 
 function M:process_end_search_tag(chunk)
   self.current_content = self.current_content .. chunk
-  self.replace_file_current.search =
-    vim.split(self.current_content:gsub("\n</search>\n?", ""), "\n")
-  self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "")
-  -- TODO: 検索スピナーの終了
+  self.diff_popup.search_text = self.current_content:gsub("\n</search>\n?", "")
+  self.current_tag = nil
   self.line = ""
 end
 
 function M:process_start_replace_tag()
-  self.replace_file_current.tag = "replace"
+  self.current_tag = "replace"
+  self.diff_popup:change_tab("replace")
   self.current_content = ""
-  local filetype = utils.get_filetype(self.replace_file_current.path)
-  utils.replace_text_at_last(
-    self.chat.log_area.bufnr,
-    "```" .. filetype .. "\n"
-  )
   self.line = ""
 end
 
 function M:process_end_replace_tag(chunk)
   self.current_content = self.current_content .. chunk
-  self.replace_file_current.replace =
-    vim.split(self.current_content:gsub("\n</replace>\n?", ""), "\n")
-  self.replace_file_current.tag = nil
-  utils.replace_text_at_last(self.chat.log_area.bufnr, "```" .. "\n")
+  self.diff_popup.replace_text =
+    self.current_content:gsub("\n</replace>\n?", "")
+  self.current_tag = nil
 end
 
 function M:process_end_replace_file()
-  self.chat.replace_file_results[self.replace_file_current.id] = vim.deepcopy({
-    path = self.replace_file_current.path,
-    search = self.replace_file_current.search,
-    replace = self.replace_file_current.replace,
-  })
-  utils.replace_text_at_last(
-    self.chat.log_area.bufnr,
-    "\n</SenpaiReplaceFile>\n"
-  )
-  vim.api.nvim_buf_set_extmark(
-    self.chat.log_area.bufnr,
-    self.namespace,
-    self.replace_file_current.start_line - 1,
-    0,
-    {
-      virt_text = { { "apply [a]" } },
-      virt_text_pos = "right_align",
-    }
-  )
-
-  local end_index = vim.fn.line("$", self.chat.log_area.winid) - 3
-  for i = self.replace_file_current.start_line, end_index do
-    vim.api.nvim_buf_set_extmark(
-      self.chat.log_area.bufnr,
-      self.namespace,
-      i, -- 0-based
-      0,
-      {
-        sign_text = "▕",
-        sign_hl_group = "DiagnosticVirtualInfo",
-      }
-    )
+  self.diff_popup.diff_text = get_diff_text(
+    self.diff_popup.search_text,
+    self.diff_popup.replace_text
+  ) or ""
+  local text = ""
+  if Config.chat.log_area.replace_show_type == "diff" then
+    self.diff_popup:change_tab("diff")
+    text = "```diff\n" .. self.diff_popup.diff_text
+  else
+    self.diff_popup:change_tab("replace")
+    text = "```"
+      .. self.diff_popup.filetype
+      .. "\n"
+      .. self.diff_popup.replace_text
   end
+  text = text .. "\n```\n"
+  self:render_base(text)
 
-  self.replace_file_current =
-    { id = "", path = "", search = {}, replace = {}, start_line = 0 }
-  self.replace_file_current.tag = nil
+  self.current_xml = nil
+  self.current_tag = nil
 end
 
 function M:process_content_line(chunk)
   self.current_content = self.current_content .. chunk
-  if self.replace_file_current.tag ~= "search" then
-    self:render_base(chunk)
-  end
 end
 
 ---@param message senpai.chat.message.assistant

@@ -83,37 +83,6 @@ local function render_base(chat, part)
     utils.set_text_at_last(chat.log_area.bufnr, part.result)
     return
   end
-
-  local start_row = vim.fn.line("$", chat.log_area.winid)
-  if part.result.toolName == "EditFile" then
-    ---@cast part senpai.tool.EditFile
-    local render_text = string.format(
-      [[
-
-
-<SenpaiEditFile id="%s">
-
-filepath: `%s`
-```%s type="replace"
-%s
-```
-```%s type="search"
-%s
-```
-</SenpaiEditFile>
-]],
-      part.toolCallId,
-      utils.get_relative_path(part.result.filepath),
-      part.result.filetype,
-      part.result.replaceText,
-      part.result.filetype,
-      part.result.searchText
-    )
-    utils.set_text_at_last(chat.log_area.bufnr, render_text)
-    local end_row = vim.fn.line("$", chat.log_area.winid)
-    render_virt_text(chat, start_row, end_row, part)
-    chat.edit_file_results[part.toolCallId] = part.result
-  end
 end
 
 ---@param chat senpai.IChatWindow

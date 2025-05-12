@@ -5,6 +5,7 @@ Helpers.expect = vim.deepcopy(MiniTest.expect)
 ---@class NvimChild: MiniTest.child
 ---@field setup function
 ---@field load function
+---@field get_lines fun(bufnr: integer, start?: integer, finish?: integer): string[]
 local nvimChild = {}
 nvimChild.api = vim.api
 nvimChild.fn = vim.fn
@@ -30,8 +31,26 @@ Helpers.new_child_neovim = function()
   -- child.load = function(config)
   --   child.lua("require('senpai').setup(...)", { config })
   -- end
+  child.poke_eventloop = function()
+    child.api.nvim_eval("1")
+  end
+
+  child.get_lines = function(bufnr, start, finish)
+    return child.api.nvim_buf_get_lines(bufnr, start or 0, finish or -1, false)
+  end
+
+  child.get_line = function(bufnr, start)
+    return child.api.nvim_buf_get_lines(bufnr, start - 1, start, false)[1]
+  end
 
   return child
+end
+
+Helpers.sleep = function(ms, child)
+  vim.loop.sleep(math.max(ms, 1))
+  if child ~= nil then
+    child.poke_eventloop()
+  end
 end
 
 Helpers.get_line = function(child, bufnr, row)
