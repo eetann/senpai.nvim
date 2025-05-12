@@ -99,6 +99,21 @@ To see the system prompt, type `gs` in the chat log area (Key is customizable).<
 <img width="772" alt="Image" src="https://github.com/user-attachments/assets/04ba00bd-1c39-470b-9b83-6c3607fb16ba" />
 
 
+### Chat Navigation
+
+| key       | description                            |
+| ----      | -------------------------------------- |
+| `]]`      | focus next block                       |
+| `[[`      | focus previous block                   |
+| `a`       | press apply button                     |
+| `D`       | button to change to Diff view          |
+| `R`       | button to change to Replace view       |
+| `S`       | button to change to Search view        |
+| `<Tab>`   | focus next button                      |
+| `<S-Tab>` | focus previous button                  |
+| `<CR>`    | press current button                   |
+
+
 ## Chat Keymaps
 You can set up a keymap for Chat with the following three.
 
