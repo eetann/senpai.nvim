@@ -66,7 +66,7 @@ it will be recognized.<br/>
 
 ### replace file
 You can also edit the file.<br/>
-<img width="650" alt="Image" src="https://github.com/user-attachments/assets/c3981de9-3bb4-476d-9e30-1fc5dbf1cafd" />
+<img width="650" alt="Image" src="https://github.com/user-attachments/assets/e8c8b00f-9d34-4885-a3b6-2b493a452ff6" />
 
 In the area called `Replace File`, press `a` to display the diff.
 The keymap in diff mode is as follows.
@@ -100,6 +100,10 @@ To see the system prompt, type `gs` in the chat log area (Key is customizable).<
 
 
 ### Chat Navigation
+<br/>
+<!-- panvimdoc-ignore-start -->
+https://github.com/user-attachments/assets/93169bb4-0e20-4f1b-95a5-0e8ed7d19745  
+<!-- panvimdoc-ignore-end -->
 
 | key       | description                            |
 | ----      | -------------------------------------- |
