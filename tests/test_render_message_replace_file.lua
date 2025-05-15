@@ -16,9 +16,9 @@ local T = MiniTest.new_set({
   },
 })
 
-T["assistant"] = MiniTest.new_set()
+T["<replace_file>"] = MiniTest.new_set()
 
-T["assistant"]["<replace_file> chunk process"] = function()
+T["<replace_file>"]["chunk process"] = function()
   child.lua(
     [[chat=require("senpai.presentation.chat.window").new(...)]],
     { { thread_id = "test_render_message_assistant" } }
@@ -66,7 +66,7 @@ T["assistant"]["<replace_file> chunk process"] = function()
   eq(child.get_line(bufnr, 18), nil)
 end
 
-T["assistant"]["<replace_file> real"] = function()
+T["<replace_file>"]["real"] = function()
   -- for screenshot
   child.o.lines, child.o.columns = 40, 60
 
@@ -96,7 +96,12 @@ T["assistant"]["<replace_file> real"] = function()
     child.get_line(bufnr, -2),
     "filepath: lua/senpai/usecase/message/tool_call.lua"
   )
-  eq(child.lua_get([=[assistant.diff_popup.renderer.layout._.mounted]=]), true)
+  eq(
+    child.lua_get(
+      [=[assistant.tag_handlers[assistant.current_tag].diff_popup.renderer.layout._.mounted]=]
+    ),
+    true
+  )
   eq(child.get_line(bufnr, -1), "")
   eq(child.lua_get([[assistant.line]]), 'local utils = require("senp')
   child.lua("assistant:process_chunk(...)", { 'ai.usecase.utils")' })
@@ -110,7 +115,10 @@ T["assistant"]["<replace_file> real"] = function()
     "assistant:process_chunk(...)",
     { '\nlocal utils = require("senpai.use' }
   )
-  eq(child.lua_get([[assistant.diff_popup.replace_text]]), "")
+  child.lua(
+    [[_G.current_diff_popup = assistant.tag_handlers[assistant.current_tag].diff_popup]]
+  )
+  eq(child.lua_get([[_G.current_diff_popup.replace_text]]), "")
 
   child.lua(
     "assistant:process_chunk(...)",
@@ -123,7 +131,7 @@ T["assistant"]["<replace_file> real"] = function()
     { "\n</replace>\n</replace_file>\n\nhello" }
   )
   eq(
-    child.lua_get([[assistant.diff_popup.replace_text]]),
+    child.lua_get([[_G.current_diff_popup.replace_text]]),
     [[
 local utils = require("senpai.usecase.utils")
 
@@ -133,7 +141,7 @@ local M = {}
   )
 
   eq(
-    child.lua_get([[assistant.diff_popup.search_text]]),
+    child.lua_get([[_G.current_diff_popup.search_text]]),
     [[
 local utils = require("senpai.usecase.utils")
 
@@ -166,7 +174,7 @@ local M = {}
   )
 end
 
-T["assistant"]["<replace_file> from message"] = function()
+T["<replace_file>"]["from message"] = function()
   child.lua(
     [[chat=require("senpai.presentation.chat.window").new(...)]],
     { { thread_id = "test_render_message_assistant" } }
@@ -206,7 +214,7 @@ example foo bar.
   eq(child.get_line(bufnr, 8), "filepath: src/main.js")
 end
 
-T["assistant two newline"] = function()
+T["<replace_file>"]["two newline"] = function()
   child.lua(
     [[chat=require("senpai.presentation.chat.window").new(...)]],
     { { thread_id = "test_render_message_assistant" } }
@@ -223,7 +231,7 @@ T["assistant two newline"] = function()
   eq(child.get_line(bufnr, 9), nil)
 end
 
-T["assistant"]["<replace_file> Line breaks in the middle of tags"] = function()
+T["<replace_file>"]["Line breaks in the middle of tags"] = function()
   -- for screenshot
   child.o.lines, child.o.columns = 40, 60
 
@@ -284,7 +292,7 @@ local M = {}
   )
 end
 
-T["assistant"]["end with <replace_file>"] = function()
+T["<replace_file>"]["end tag"] = function()
   child.lua(
     [[chat=require("senpai.presentation.chat.window").new(...)]],
     { { thread_id = "test_render_message_assistant" } }
