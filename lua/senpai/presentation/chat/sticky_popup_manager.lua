@@ -1,4 +1,4 @@
-local DiffPopup = require("senpai.presentation.chat.diff_popup")
+local DiffBlock = require("senpai.presentation.chat.diff_block")
 
 ---@class senpai.StickyPopupManager: senpai.IStickyPopupManager
 local M = {}
@@ -116,11 +116,33 @@ function M:add_virtual_blank_line(start_row)
   )
 end
 
+-- ---@param row integer
+-- ---@return senpai.ITerminalBlock
+-- function M:add_terminal_block(row)
+-- local popup = DiffBlock.new({
+--   winid = self.winid,
+--   bufnr = self.bufnr,
+--   row = row,
+--   path = path,
+-- })
+--   self:add_virtual_blank_line(row)
+--
+--   self.popups[row] = popup
+--   local rows = {}
+--   for p_row, _ in pairs(self.popups) do
+--     table.insert(rows, p_row)
+--   end
+--   table.sort(rows)
+--   self.rows = rows
+--
+--   return popup
+-- end
+
 ---@param row integer
 ---@param path string
----@return senpai.DiffPopup
-function M:add_float_popup(row, path)
-  local popup = DiffPopup.new({
+---@return senpai.IDiffBlock
+function M:add_diff_block(row, path)
+  local popup = DiffBlock.new({
     winid = self.winid,
     bufnr = self.bufnr,
     row = row,
@@ -164,7 +186,7 @@ function M:update_float_position()
 
     local old_width = popup:get_width()
     local new_width =
-      DiffPopup.adjust_width(vim.api.nvim_win_get_width(self.winid))
+      DiffBlock.adjust_width(vim.api.nvim_win_get_width(self.winid))
     if old_width == new_width then
       popup.renderer:redraw()
       goto continue
@@ -240,5 +262,5 @@ end
 -- end
 -- vim.api.nvim_buf_set_lines(split.bufnr, 0, -1, false, arr)
 -- local manager = M.new(split.winid, split.bufnr)
--- local popup = manager:add_float_popup(5)
+-- local popup = manager:add_diff_block(5)
 return M

@@ -1,34 +1,10 @@
 local utils = require("senpai.usecase.utils")
 local Config = require("senpai.config")
 
----@class Senpai.message.ReplaceFileHandler: Senpai.message.IAssistantHandler
+---@class Senpai.message.ExecuteCommandHandler: Senpai.message.IAssistantHandler
 local M = {}
 M.__index = M
-M.tag_name = "replace_file"
-
-local function get_diff_text(search, replace)
-  local tmp1 = os.tmpname()
-  local tmp2 = os.tmpname()
-
-  local f1 = assert(io.open(tmp1, "w"))
-  f1:write(search)
-  f1:close()
-
-  local f2 = assert(io.open(tmp2, "w"))
-  f2:write(replace)
-  f2:close()
-
-  local result = vim.system({ "git", "diff", "--no-index", tmp1, tmp2 }):wait()
-  local lines = vim.split(result.stdout, "\n")
-  local text = ""
-  if #lines >= 6 then
-    text = table.concat({ unpack(lines, 6) }, "\n")
-  end
-
-  os.remove(tmp1)
-  os.remove(tmp2)
-  return text
-end
+M.tag_name = "execute_command"
 
 function M.new(chat)
   local self = setmetatable({}, M)
@@ -36,9 +12,6 @@ function M.new(chat)
   self.current_content = ""
   self.current_tag = nil
   self.handlers = {
-    ["<path>.*</path>"] = self.path_tag,
-    ["<search>"] = self.start_search_tag,
-    ["</search>"] = self.end_search_tag,
     ["<replace>"] = self.start_replace_tag,
     ["</replace>"] = self.end_replace_tag,
   }

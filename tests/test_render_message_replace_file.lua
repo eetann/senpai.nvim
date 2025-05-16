@@ -98,7 +98,7 @@ T["<replace_file>"]["real"] = function()
   )
   eq(
     child.lua_get(
-      [=[assistant.tag_handlers[assistant.current_tag].diff_popup.renderer.layout._.mounted]=]
+      [=[assistant.tag_handlers[assistant.current_tag].diff_block.renderer.layout._.mounted]=]
     ),
     true
   )
@@ -116,9 +116,9 @@ T["<replace_file>"]["real"] = function()
     { '\nlocal utils = require("senpai.use' }
   )
   child.lua(
-    [[_G.current_diff_popup = assistant.tag_handlers[assistant.current_tag].diff_popup]]
+    [[_G.current_diff_block = assistant.tag_handlers[assistant.current_tag].diff_block]]
   )
-  eq(child.lua_get([[_G.current_diff_popup.replace_text]]), "")
+  eq(child.lua_get([[_G.current_diff_block.replace_text]]), "")
 
   child.lua(
     "assistant:process_chunk(...)",
@@ -131,7 +131,7 @@ T["<replace_file>"]["real"] = function()
     { "\n</replace>\n</replace_file>\n\nhello" }
   )
   eq(
-    child.lua_get([[_G.current_diff_popup.replace_text]]),
+    child.lua_get([[_G.current_diff_block.replace_text]]),
     [[
 local utils = require("senpai.usecase.utils")
 
@@ -141,7 +141,7 @@ local M = {}
   )
 
   eq(
-    child.lua_get([[_G.current_diff_popup.search_text]]),
+    child.lua_get([[_G.current_diff_block.search_text]]),
     [[
 local utils = require("senpai.usecase.utils")
 

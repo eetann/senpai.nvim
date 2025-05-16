@@ -34,7 +34,7 @@ end
 local function make_popup(c_child, row)
   local popup = c_child.lua(
     [[
-  local popup = _G.manager:add_float_popup(...)
+  local popup = _G.manager:add_diff_block(...)
   popup:change_tab("diff")
   return {
     bufnr = popup.bufnr

@@ -6,12 +6,12 @@ local utils = require("senpai.usecase.utils")
 
 local FLOAT_WIDTH_MARGIN = 7 -- signcolumn
 
----@class senpai.DiffPopup: senpai.IDiffPopup
+---@class senpai.DiffBlock: senpai.IDiffBlock
 local M = {}
 M.__index = M
 
 ---@param opts { winid:integer, bufnr:integer, row:integer, path:string }
----@return senpai.DiffPopup
+---@return senpai.DiffBlock
 function M.new(opts)
   local self = setmetatable({}, M)
   self.row = opts.row

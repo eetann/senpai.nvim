@@ -233,12 +233,12 @@ function M:toggle_input()
   end
 end
 
-function M:add_diff_popup(row, path)
+function M:add_diff_block(row, path)
   if not self.sticky_popup_manager then
     self.sticky_popup_manager =
       StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
   end
-  return self.sticky_popup_manager:add_float_popup(row, path)
+  return self.sticky_popup_manager:add_diff_block(row, path)
 end
 
 return M

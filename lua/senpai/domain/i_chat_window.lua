@@ -9,63 +9,65 @@ local M = {}
 ---@field search string[]
 ---@field replace string[]
 
----@class senpai.IDiffPopup
+---@class senpai.IBlock
 ---@field row integer
 ---@field winid integer
 ---@field bufnr integer
+---@field body NuiComponent
+---@field renderer NuiRenderer
+local IBlock = {}
+function IBlock:mount() end
+function IBlock:show() end
+function IBlock:hide() end
+function IBlock:unmount() end
+function IBlock:is_focused() end
+
+---@param to_last boolean|nil
+function IBlock:focus(to_last) end
+
+---@param winid integer
+function IBlock:renew(winid) end
+
+---@return boolean
+function IBlock:is_visible()
+  return false
+end
+
+---@return integer
+function IBlock:get_width()
+  return 1
+end
+
+---@param mapping NuiMapping
+function IBlock:map(mapping) end
+
+---@param width integer
+---@param height integer
+function IBlock:set_size(width, height) end
+
+---@class senpai.IDiffBlock: senpai.IBlock
 ---@field signal { active_tab: NuiSignal<string> }
 ---@field path string
 ---@field filetype string
 ---@field diff_text string
 ---@field replace_text string
 ---@field search_text string
----@field body NuiComponent
----@field renderer NuiRenderer
-local IDiffPop = {}
-function IDiffPop:mount() end
-function IDiffPop:show() end
-function IDiffPop:hide() end
-function IDiffPop:unmount() end
-function IDiffPop:is_focused() end
-
----@param to_last boolean|nil
-function IDiffPop:focus(to_last) end
-
----@param winid integer
-function IDiffPop:renew(winid) end
-
----@return boolean
-function IDiffPop:is_visible()
-  return false
-end
-
----@return integer
-function IDiffPop:get_width()
-  return 1
-end
-
----@param mapping NuiMapping
-function IDiffPop:map(mapping) end
-
+local IDiffBlock = {}
 ---@param tab "diff"|"replace"|"search"
-function IDiffPop:change_tab(tab) end
-
----@param width integer
----@param height integer
-function IDiffPop:set_size(width, height) end
+function IDiffBlock:change_tab(tab) end
 
 ---@class senpai.IStickyPopupManager
 ---@field bufnr integer
 ---@field winid integer
----@field popups table<integer, senpai.IDiffPopup> # { row: popup }
+---@field popups table<integer, senpai.IBlock> # { row: popup }
 ---@field rows integer[]
 ---@field group_id integer
 local IStickyPopupManager = {}
 
 ---@param opts { row: integer, height: integer, filetype: string }
----@return senpai.DiffPopup
+---@return senpai.DiffBlock
 ---@diagnostic disable-next-line: unused-local
-function IStickyPopupManager:add_float_popup(opts)
+function IStickyPopupManager:add_diff_block(opts)
   return {}
 end
 
@@ -101,8 +103,8 @@ function IChatWindow:toggle_input() end
 
 ---@param row integer
 ---@param path string
----@return senpai.IDiffPopup
-function IChatWindow:add_diff_popup(row, path)
+---@return senpai.IDiffBlock
+function IChatWindow:add_diff_block(row, path)
   return {}
 end
 
