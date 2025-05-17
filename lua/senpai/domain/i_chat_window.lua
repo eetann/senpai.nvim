@@ -9,72 +9,16 @@ local M = {}
 ---@field search string[]
 ---@field replace string[]
 
----@class senpai.IBlock
----@field row integer
----@field winid integer
----@field bufnr integer
----@field body NuiComponent
----@field renderer NuiRenderer
-local IBlock = {}
-function IBlock:mount() end
-function IBlock:show() end
-function IBlock:hide() end
-function IBlock:unmount() end
-function IBlock:is_focused() end
-
----@param to_last boolean|nil
-function IBlock:focus(to_last) end
-
----@param winid integer
-function IBlock:renew(winid) end
-
----@return boolean
-function IBlock:is_visible()
-  return false
-end
-
----@return integer
-function IBlock:get_width()
-  return 1
-end
-
----@param mapping NuiMapping
-function IBlock:map(mapping) end
-
----@param width integer
----@param height integer
-function IBlock:set_size(width, height) end
-
----@class senpai.IDiffBlock: senpai.IBlock
----@field signal { active_tab: NuiSignal<string> }
----@field path string
----@field filetype string
----@field diff_text string
----@field replace_text string
----@field search_text string
-local IDiffBlock = {}
----@param tab "diff"|"replace"|"search"
-function IDiffBlock:change_tab(tab) end
-
 ---@class senpai.IStickyPopupManager
 ---@field bufnr integer
 ---@field winid integer
 ---@field popups table<integer, senpai.IBlock> # { row: popup }
 ---@field rows integer[]
 ---@field group_id integer
-local IStickyPopupManager = {}
-
----@param opts { row: integer, height: integer, filetype: string }
----@return senpai.DiffBlock
----@diagnostic disable-next-line: unused-local
-function IStickyPopupManager:add_diff_block(opts)
-  return {}
-end
-
----@return integer|nil
-function IStickyPopupManager:find_next_popup_row() end
----@return integer|nil
-function IStickyPopupManager:find_prev_popup_row() end
+---@field add_diff_block fun(row: integer, path: string): senpai.IDiffBlock
+---@field add_terminal_block fun(row: integer): senpai.ITerminalBlock
+---@field find_next_popup_row fun():integer|nil
+---@field find_prev_popup_row fun():integer|nil
 
 ---@class senpai.ChatWindowNewArgs
 ---@field provider? senpai.Config.provider.name|senpai.Config.provider
@@ -108,6 +52,25 @@ function IChatWindow:add_diff_block(row, path)
   return {}
 end
 
+---@param row integer
+---@return senpai.ITerminalBlock
+function IChatWindow:add_terminal_block(row)
+  return {}
+end
+
 M.input_winbar_text = "Ask Senpai (?: help)"
+
+M.FLOAT_WIDTH_MARGIN = 7 -- signcolumn
+
+---@param winid integer
+---@return integer
+function M.get_adjust_width(winid)
+  local width = vim.api.nvim_win_get_width(winid)
+  width = width - M.FLOAT_WIDTH_MARGIN
+  if width < 35 then
+    return 35
+  end
+  return width
+end
 
 return M

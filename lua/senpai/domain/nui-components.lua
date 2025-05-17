@@ -13,6 +13,7 @@
 
 ---@class NuiComponent
 ---@field id string
+---@field winid integer
 ---@field size number
 ---@field flex number
 ---@field hidden boolean

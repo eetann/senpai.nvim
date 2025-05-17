@@ -2,13 +2,13 @@ local n = require("nui-components")
 local Gap = require("nui-components.gap")
 local Columns = require("nui-components.columns")
 local Button = require("senpai.presentation.shared.button")
+local IBlock = require("senpai.domain.i_block")
 local utils = require("senpai.usecase.utils")
-
-local FLOAT_WIDTH_MARGIN = 7 -- signcolumn
 
 ---@class senpai.DiffBlock: senpai.IDiffBlock
 local M = {}
 M.__index = M
+setmetatable(M, { __index = IBlock })
 
 ---@param opts { winid:integer, bufnr:integer, row:integer, path:string }
 ---@return senpai.DiffBlock
@@ -30,7 +30,7 @@ function M.new(opts)
   return self
 end
 
-function M:setup()
+function M:setup_body()
   local is_tab_active = n.is_active_factory(self.signal.active_tab)
   self.body = Columns({
     flex = 1,
@@ -113,38 +113,6 @@ function M:setup()
   }, {
     zindex = 50,
   })
-
-  local width = M.adjust_width(vim.api.nvim_win_get_width(self.winid))
-  self.renderer = n.create_renderer({
-    bufnr = self.bufnr,
-    relative = {
-      type = "buf",
-      position = {
-        row = self.row - 1,
-        col = 0,
-      },
-    },
-    position = 1,
-    width = width,
-    height = 1,
-    keymap = {
-      close = nil,
-      focus_next = nil,
-      focus_prev = nil,
-    },
-  })
-  self.renderer._private.layout_options.relative.winid = self.winid
-
-  self.renderer:add_mappings({
-    {
-      mode = "n",
-      key = "q",
-      handler = function()
-        vim.api.nvim_win_close(self.winid, false)
-      end,
-    },
-  })
-  self:setup_keymaps()
 end
 
 function M:setup_keymaps()
@@ -164,76 +132,6 @@ function M:setup_keymaps()
   end
 end
 
-function M.adjust_width(width)
-  width = width - FLOAT_WIDTH_MARGIN
-  if width < 35 then
-    return 35
-  end
-  return width
-end
-
-function M:mount()
-  self.renderer:render(self.body)
-end
-
-function M:unmount()
-  self.renderer:close()
-end
-
-function M:renew(winid)
-  self.winid = winid
-  self:setup()
-end
-
-function M:show()
-  if not self.renderer.layout then
-    self:mount()
-  end
-  self.renderer.layout:show()
-end
-
-function M:hide()
-  if self.renderer.layout then
-    self.renderer.layout:hide()
-  end
-end
-
-function M:is_visible()
-  return self.renderer.layout and self.renderer.layout.winid ~= nil
-end
-
-function M:focus(to_last)
-  if to_last then
-    local focusable_components = self.renderer:get_focusable_components()
-    local prev = focusable_components[#focusable_components]
-    vim.api.nvim_set_current_win(prev.winid)
-    return
-  end
-  local first_focusable_component = require("nui-components.utils.fn").ifind(
-    self.renderer._private.flatten_tree,
-    function(component)
-      return component:is_focusable()
-    end
-  )
-  if first_focusable_component then
-    first_focusable_component:focus()
-  end
-end
-
-function M:is_focused()
-  for _, component in pairs(self.renderer:get_focusable_components()) do
-    if component:is_focused() then
-      return true
-    end
-  end
-  return false
-end
-
----@param mapping NuiMapping
-function M:map(mapping)
-  self.renderer:add_mappings({ mapping })
-end
-
 function M:change_tab(tab)
   if tab == "diff" then
     self.signal.active_tab = "tab-diff"
@@ -242,17 +140,6 @@ function M:change_tab(tab)
   elseif tab == "search" then
     self.signal.active_tab = "tab-search"
   end
-end
-
-function M:set_size(width, height)
-  self.renderer:set_size({
-    width = width,
-    height = height,
-  })
-end
-
-function M:get_width()
-  return self.renderer:get_size().width
 end
 
 -- local block = M.new({

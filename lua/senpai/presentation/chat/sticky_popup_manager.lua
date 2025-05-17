@@ -185,8 +185,7 @@ function M:update_float_position()
     end
 
     local old_width = popup:get_width()
-    local new_width =
-      DiffBlock.adjust_width(vim.api.nvim_win_get_width(self.winid))
+    local new_width = popup.get_adjust_width(self.winid)
     if old_width == new_width then
       popup.renderer:redraw()
       goto continue
