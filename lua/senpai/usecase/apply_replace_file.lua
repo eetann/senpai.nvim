@@ -184,7 +184,11 @@ local function create_ai_buffer(original_buf, range, replace_text, id, filetype)
     "senpai_ai_buffer",
     { buf = ai_buf }
   )
-  require("nvim-treesitter.highlight").attach(ai_buf, filetype)
+  local ok, _ =
+    pcall(require("nvim-treesitter.highlight").attach, ai_buf, filetype)
+  if not ok then
+    vim.api.nvim_set_option_value("syntax", filetype, { buf = ai_buf })
+  end
 
   local original_lines = vim.api.nvim_buf_get_lines(original_buf, 0, -1, false)
   vim.api.nvim_buf_set_lines(ai_buf, 0, -1, false, original_lines)
