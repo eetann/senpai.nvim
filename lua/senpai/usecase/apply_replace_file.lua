@@ -218,7 +218,7 @@ function M.execute(chat)
   if not manager then
     return
   end
-  local row = manager:find_prev_popup_row()
+  local row = manager:find_prev_popup_row("diff")
   if not row then
     return
   end
@@ -227,6 +227,7 @@ function M.execute(chat)
   if not diff_block then
     return
   end
+  ---@cast diff_block senpai.IDiffBlock
 
   local original_win, original_buf, original_filetype =
     setup_edit_window(diff_block.path)

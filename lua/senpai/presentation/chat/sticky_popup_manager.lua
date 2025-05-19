@@ -1,4 +1,5 @@
 local DiffBlock = require("senpai.presentation.chat.diff_block")
+local TerminalBlock = require("senpai.presentation.chat.terminal_block")
 
 ---@class senpai.StickyPopupManager: senpai.IStickyPopupManager
 local M = {}
@@ -116,37 +117,31 @@ function M:add_virtual_blank_line(start_row)
   )
 end
 
--- ---@param row integer
--- ---@return senpai.ITerminalBlock
--- function M:add_terminal_block(row)
--- local popup = DiffBlock.new({
---   winid = self.winid,
---   bufnr = self.bufnr,
---   row = row,
---   path = path,
--- })
---   self:add_virtual_blank_line(row)
---
---   self.popups[row] = popup
---   local rows = {}
---   for p_row, _ in pairs(self.popups) do
---     table.insert(rows, p_row)
---   end
---   table.sort(rows)
---   self.rows = rows
---
---   return popup
--- end
-
----@param row integer
----@param path string
----@return senpai.IDiffBlock
 function M:add_diff_block(row, path)
   local popup = DiffBlock.new({
     winid = self.winid,
     bufnr = self.bufnr,
     row = row,
     path = path,
+  })
+  self:add_virtual_blank_line(row)
+
+  self.popups[row] = popup
+  local rows = {}
+  for p_row, _ in pairs(self.popups) do
+    table.insert(rows, p_row)
+  end
+  table.sort(rows)
+  self.rows = rows
+
+  return popup
+end
+
+function M:add_terminal_block(row)
+  local popup = TerminalBlock.new({
+    winid = self.winid,
+    bufnr = self.bufnr,
+    row = row,
   })
   self:add_virtual_blank_line(row)
 
@@ -198,26 +193,38 @@ function M:update_float_position()
 end
 
 --- Find the row of the next popup below the current line
----@return integer|nil
-function M:find_next_popup_row()
+function M:find_next_popup_row(block_type)
   local current_line = vim.api.nvim_win_get_cursor(self.winid)[1]
   for _, row in ipairs(self.rows) do
-    if current_line <= row then
+    if row < current_line then
+      goto continue
+    end
+    if
+      not block_type
+      or (block_type and self.popups[row].block_type == block_type)
+    then
       return row
     end
+    ::continue::
   end
   return nil
 end
 
 --- Find the row of the previous popup above the current line
----@return integer|nil
-function M:find_prev_popup_row()
+function M:find_prev_popup_row(block_type)
   local current_line = vim.api.nvim_win_get_cursor(self.winid)[1]
   for i = #self.rows, 1, -1 do
     local row = self.rows[i]
-    if row < current_line then
+    if current_line <= row then
+      goto continue
+    end
+    if
+      not block_type
+      or (block_type and self.popups[row].block_type == block_type)
+    then
       return row
     end
+    ::continue::
   end
   return nil
 end

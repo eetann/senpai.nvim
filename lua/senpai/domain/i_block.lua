@@ -3,7 +3,10 @@ local n = require("nui-components")
 ---@module "nui.layout"
 ---@module "nui-components.renderer"
 
+---@alias senpai.block_type "diff"|"terminal"|nil
+
 ---@class senpai.IBlock
+---@field block_type senpai.block_type
 ---@field row integer
 ---@field winid integer
 ---@field bufnr integer
@@ -146,16 +149,21 @@ end
 -- types ---
 
 ---@class senpai.IDiffBlock: senpai.IBlock
+---@field block_type "diff"
 ---@field signal { active_tab: NuiSignal<string> }
 ---@field path string
 ---@field filetype string
 ---@field diff_text string
 ---@field replace_text string
 ---@field search_text string
----@field change_tab fun(tab: "diff"|"replace"|"search"):nil
+---@field change_tab fun(self, tab: "diff"|"replace"|"search"):nil
 
 ---@class senpai.ITerminalBlock: senpai.IBlock
+---@field block_type "terminal"
 ---@field command string
 ---@field result string
+---@field term_bufnr integer|nil
+---@field job_id integer
+---@field term_id integer
 
 return M

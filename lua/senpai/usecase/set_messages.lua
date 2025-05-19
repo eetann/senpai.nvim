@@ -24,6 +24,7 @@ function M.execute(chat)
       end
     end
     utils.scroll_when_invisible(chat)
+    chat.sticky_popup_manager:update_float_position()
   end)
 end
 

@@ -1,6 +1,8 @@
 local utils = require("senpai.usecase.utils")
 local ReplaceFileHandler =
   require("senpai.usecase.message.replace_file_handler")
+local ExecuteCommandHandler =
+  require("senpai.usecase.message.execute_command_handler")
 
 ---@class senpai.message.assistant
 ---@field chat senpai.IChatWindow
@@ -22,6 +24,7 @@ function M.new(chat)
   self.namespace = vim.api.nvim_create_namespace("sepnai-chat")
   self.tag_handlers = {
     [ReplaceFileHandler.tag_name] = ReplaceFileHandler.new(self.chat),
+    [ExecuteCommandHandler.tag_name] = ExecuteCommandHandler.new(self.chat),
   }
   return self
 end

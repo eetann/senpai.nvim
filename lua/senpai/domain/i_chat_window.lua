@@ -15,10 +15,11 @@ local M = {}
 ---@field popups table<integer, senpai.IBlock> # { row: popup }
 ---@field rows integer[]
 ---@field group_id integer
----@field add_diff_block fun(row: integer, path: string): senpai.IDiffBlock
----@field add_terminal_block fun(row: integer): senpai.ITerminalBlock
----@field find_next_popup_row fun():integer|nil
----@field find_prev_popup_row fun():integer|nil
+---@field add_diff_block fun(self, row: integer, path: string): senpai.IDiffBlock
+---@field add_terminal_block fun(self, row: integer): senpai.ITerminalBlock
+---@field find_next_popup_row fun(self, block_type: senpai.block_type):integer|nil
+---@field find_prev_popup_row fun(self, block_type: senpai.block_type):integer|nil
+---@field update_float_position fun(self):nil
 
 ---@class senpai.ChatWindowNewArgs
 ---@field provider? senpai.Config.provider.name|senpai.Config.provider

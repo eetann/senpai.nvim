@@ -14,6 +14,7 @@ setmetatable(M, { __index = IBlock })
 ---@return senpai.DiffBlock
 function M.new(opts)
   local self = setmetatable({}, M)
+  self.block_type = "diff"
   self.row = opts.row
   self.winid = opts.winid
   self.bufnr = opts.bufnr

@@ -241,4 +241,12 @@ function M:add_diff_block(row, path)
   return self.sticky_popup_manager:add_diff_block(row, path)
 end
 
+function M:add_terminal_block(row)
+  if not self.sticky_popup_manager then
+    self.sticky_popup_manager =
+      StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
+  end
+  return self.sticky_popup_manager:add_terminal_block(row)
+end
+
 return M
