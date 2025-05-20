@@ -1,5 +1,6 @@
 local ProviderConfig = require("senpai.domain.config.provider")
 local ChatConfig = require("senpai.domain.config.chat")
+local CommandConfig = require("senpai.domain.config.command")
 local RagConfig = require("senpai.domain.config.rag")
 local McpConfig = require("senpai.domain.config.mcp")
 local InternalLog = require("senpai.presentation.internal_log")
@@ -9,6 +10,7 @@ local InternalLog = require("senpai.presentation.internal_log")
 ---@field providers? senpai.Config.providers
 ---@field commit_message? senpai.Config.commit_message
 ---@field chat? senpai.Config.chat
+---@field command? senpai.Config.command
 ---@field rag? senpai.Config.rag
 ---@field prompt_launchers? senpai.Config.prompt_launchers
 ---@field mcp? senpai.Config.mcp
@@ -31,6 +33,7 @@ local default_config = {
     language = "English",
   },
   chat = ChatConfig.default_config,
+  command = CommandConfig.default_config,
   rag = RagConfig.default_config,
   prompt_launchers = {
     ["Tsundere"] = {
