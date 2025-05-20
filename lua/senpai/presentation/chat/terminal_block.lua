@@ -132,6 +132,9 @@ function M:execute_command_in_term()
   local deny_list = Config.command.deny_list
   -- `cd foo && shutdown`みたいなやつは実行させない
   -- `node instance_shutdown.js` みたいな実行させたい
+  if self.term_bufnr and vim.api.nvim_buf_is_valid(self.term_bufnr) then
+    vim.api.nvim_buf_delete(self.term_bufnr, { force = true })
+  end
   self.term_bufnr = vim.api.nvim_create_buf(false, true)
   self.term_id = vim.api.nvim_open_term(self.term_bufnr, {
     on_input = function(_, _, _, data)
