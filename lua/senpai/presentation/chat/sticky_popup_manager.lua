@@ -163,13 +163,15 @@ function M:update_float_position()
   local topline = vim.fn.line("w0", self.winid)
   local split_height = vim.api.nvim_win_get_height(self.winid)
 
+  local previous_row_count = 0
   for original_row, popup in pairs(self.popups) do
-    local target_screen_row = original_row - topline
-    if target_screen_row < 0 or split_height < target_screen_row then
+    local target_screen_row = original_row - topline + previous_row_count
+    if target_screen_row < 0 or split_height <= target_screen_row + 3 then
       popup:hide()
       goto continue
     end
 
+    previous_row_count = previous_row_count + 1
     if not popup:is_visible() then
       popup:show()
       goto continue
