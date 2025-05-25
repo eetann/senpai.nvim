@@ -13,7 +13,7 @@ const helloRoute = createRoute({
 	},
 });
 
-app.openapi(helloRoute, (c) => c.text("[senpai] Hello from Bun!"));
+app.openapi(helloRoute, (c) => c.text("[senpai] Hello from Node!"));
 
 const helloStreamRoute = createRoute({
 	method: "post",

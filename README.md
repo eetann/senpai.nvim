@@ -330,7 +330,7 @@ The following elements can be written in the frontmatter.
 - description: `string`. description for human
 - (optional)globs: `string|string[]|undefined`.
     - Write the glob of the file to which you want to apply the prompt for that file
-    - See [Supported Glob Patterns(Bun Docs)](https://bun.sh/docs/api/glob#supported-glob-patterns) for how to write supported globs
+    - See [Supported Glob Patterns(micromatch Docs)](https://github.com/micromatch/micromatch?tab=readme-ov-file#extended-globbing) for how to write supported globs
 
 
 If you want to rewrite and apply the project rules file, do one of the following
@@ -387,8 +387,9 @@ end, { buffer = true, desc = "Senpai commitMessage" })
 
 - Neovim
 - curl
-- [Bun](https://bun.sh/)
-    - Forgive me if the dependence is frustrating for you, but it's easy to install.
+- Node 20+
+- [pnpm](https://pnpm.io/)
+     - Forgive me if the dependence is frustrating for you, but it's easy to install.
 - Dependent Plugins
     - [nui.nvim](https://github.com/MunifTanjim/nui.nvim)
     - [nui-components.nvim](https://github.com/grapp-dev/nui-components.nvim)
@@ -401,7 +402,7 @@ with [Lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
 {
     "eetann/senpai.nvim", 
-    build = "bun install --frozen-lockfile",
+    build = "pnpm install --frozen-lockfile && pnpm run build",
     dependencies = {
       "MunifTanjim/nui.nvim",
       "grapp-dev/nui-components.nvim",
@@ -415,7 +416,7 @@ with [packer.nvim](https://github.com/wbthomason/packer.nvim)
 ```lua
 {
     "eetann/senpai.nvim", 
-    run = "bun install --frozen-lockfile",
+    build = "pnpm install --frozen-lockfile && pnpm run build",
     requires = {
       "MunifTanjim/nui.nvim",
       "grapp-dev/nui-components.nvim",

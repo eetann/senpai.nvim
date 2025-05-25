@@ -21,7 +21,10 @@ Thank you for your interest in contributing to senpai.nvim! This document explai
 - UI components are written in **Lua**, while other logic is implemented in **TypeScript**
 - AI-related implementations use [Mastra](https://mastra.ai/) and [Vercel AI SDK](https://sdk.vercel.ai/)
 
-I use Bun as the npm package manager for its fast installation speed. Previously, I used Deno, but switched to Bun due to compatibility issues with Node.js file-related APIs
+I use pnpm as the npm package manager for its fast installation speed.
+
+- Previously, I used Deno, but switched to pnpm due to compatibility issues with Node.js file-related APIs
+- Also, I used Bun, but switched to pnpm due to compatibility issues with internal Http-related APIs
 
 
 ### Directory Structure
@@ -44,7 +47,7 @@ AI-related logic is implemented as an API using the framework [Hono](https://hon
 
 You can start the API server by itself by executing the following command.
 ```sh
-bun run src/index.ts --port 9942
+pnpm run start --port 9942
 ```
 If you are using [mise](https://mise.jdx.dev/), you can start `mise run dev-server`.
 

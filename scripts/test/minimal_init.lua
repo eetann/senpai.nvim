@@ -26,7 +26,6 @@ local plugins = {
   -- },
   {
     dir = vim.uv.cwd(),
-    build = "bun install",
     dependencies = {
       "MunifTanjim/nui.nvim",
       "grapp-dev/nui-components.nvim",

@@ -44,7 +44,7 @@ pnpx tsx scripts/doc/generate.ts \
 """
 
 [tasks.dev-server]
-run ="bun run src/index.ts --port 9942"
+run ="pnpm run build && pnpm run start --port 9942"
 
 [env]
 COMMIT_MESSAGE_ENGLISH = 1
