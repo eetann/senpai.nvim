@@ -1,14 +1,17 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vitest";
 import { GetApplicableRules } from "./GetApplicableRules";
 import type { ProjectRule } from "./shared/GetProjectRules";
 
 const rules: ProjectRule[] = [
 	{
 		content: "all",
-		frontmatter: {},
+		frontmatter: { description: "" },
 	},
-	{ content: "Hello lua", frontmatter: { globs: "**/*.lua" } },
-	{ content: "Hello TypeScript", frontmatter: { globs: ["**/*.ts"] } },
+	{ content: "Hello lua", frontmatter: { globs: "**/*.lua", description: "" } },
+	{
+		content: "Hello TypeScript",
+		frontmatter: { globs: ["**/*.ts"], description: "" },
+	},
 ];
 
 test("GetApplicableRules works with string glob", async () => {

@@ -1,4 +1,5 @@
 import { parseArgs } from "node:util";
+import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import chat from "./presentation/chat";
@@ -14,7 +15,7 @@ import {
 } from "./usecase/shared/GetProjectRules";
 
 const { values } = parseArgs({
-	args: Bun.argv,
+	args: process.argv,
 	options: {
 		port: {
 			type: "string",
@@ -82,8 +83,7 @@ app.route("/", thread);
 app.route("/", rag);
 app.route("/", mcp);
 
-export default {
-	idleTimeout: 60,
+serve({
 	port,
 	fetch: app.fetch,
-};
+});

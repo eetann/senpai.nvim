@@ -1,5 +1,5 @@
-import { expect, spyOn, test } from "bun:test";
 import { GetMcpToolsUseCase } from "@/usecase/GetMcpToolsUseCase";
+import { expect, test, vi } from "vitest";
 
 test("GetMcpToolsUseCase should return empty object when no argument provided", async () => {
 	const useCase = new GetMcpToolsUseCase(process.cwd());
@@ -9,7 +9,7 @@ test("GetMcpToolsUseCase should return empty object when no argument provided", 
 
 test("GetMcpToolsUseCase should handle JSON parsing error", async () => {
 	const useCase = new GetMcpToolsUseCase(process.cwd());
-	const consoleSpy = spyOn(console, "error");
+	const consoleSpy = vi.spyOn(console, "error");
 
 	const invalidJson = "{invalid json}";
 	const result = useCase.parse(invalidJson);
@@ -26,7 +26,7 @@ test("GetMcpToolsUseCase should handle JSON parsing error", async () => {
 
 test("GetMcpToolsUseCase should handle schema validation error", async () => {
 	const useCase = new GetMcpToolsUseCase(process.cwd());
-	const consoleSpy = spyOn(console, "error");
+	const consoleSpy = vi.spyOn(console, "error");
 
 	const invalidSchema = JSON.stringify({
 		servers: {

@@ -25,9 +25,9 @@ export class GetRagSourcesUseCase {
 		});
 		const records: Record<string, string> = {};
 		for (const index of indexes) {
-			const source = index.metadata.source;
+			const source = index.metadata?.source;
 			if (!records[source]) {
-				records[source] = index.metadata.title;
+				records[source] = index.metadata?.title;
 			}
 		}
 		const result: RagSources = [];

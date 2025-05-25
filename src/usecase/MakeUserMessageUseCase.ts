@@ -1,4 +1,5 @@
-import { exists, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { CoreUserMessage } from "@mastra/core";
 import languageMap from "language-map";
@@ -38,7 +39,7 @@ export class MakeUserMessageUseCase {
 				if (!path.isAbsolute(absolute_path)) {
 					absolute_path = path.resolve(this.cwd, absolute_path);
 				}
-				if (!(await exists(absolute_path))) {
+				if (!existsSync(absolute_path)) {
 					console.log(`[senpai] File does not exist: ${header.filename}`);
 					continue;
 				}

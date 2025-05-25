@@ -63,19 +63,20 @@ export class GetProjectRules {
 	}
 	async parse(source: string): Promise<ProjectRule> {
 		try {
-			let { code, frontmatter } = await bundleMDX({
+			const { code, frontmatter: _frontmatter } = await bundleMDX({
 				source,
 				cwd: this.dir,
 				jsxConfig: jsxBundlerConfig,
 			});
-			const parsed = frontmatterSchema.safeParse(frontmatter);
+			const parsed = frontmatterSchema.safeParse(_frontmatter);
+			let frontmatter: z.infer<typeof frontmatterSchema>;
 			if (parsed.success) {
 				frontmatter = parsed.data;
 			} else {
-				frontmatter = {};
+				frontmatter = { description: "" };
 			}
 			const component = getMDXComponent(code, jsxComponentConfig);
-			const element = Preact.createElement(component, undefined);
+			const element = Preact.createElement(component, null);
 			const html = renderToString(element);
 			const content = new NodeHtmlMarkdown().translate(html);
 			return { content, frontmatter };
@@ -83,6 +84,11 @@ export class GetProjectRules {
 			console.log(`[senpai] failed to parse: ${error}`);
 		}
 
-		return { content: "", frontmatter: {} };
+		return {
+			content: "",
+			frontmatter: {
+				description: "",
+			},
+		};
 	}
 }

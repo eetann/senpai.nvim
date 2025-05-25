@@ -5,8 +5,16 @@
     ],
     "target": "ESNext",
     "module": "ESNext",
+    "noEmit": true, // use esbuild
     "moduleDetection": "force",
     "moduleResolution": "bundler",
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    /* Type Checking */
+    "strict": true,
+    /* Completeness */
+    "skipLibCheck": true,
     "outDir": "dist/",
     "baseUrl": "./",
     "paths": {

@@ -1,5 +1,5 @@
-import { expect, test } from "bun:test";
 import { createTool } from "@mastra/core";
+import { expect, test } from "vitest";
 import { GenerateCommitMessageUseCase } from "./GenerateCommitMessageUseCase";
 import { type IGitDiff, inputSchema, outputSchema } from "./shared/IGitDiff";
 import { MockLanguageModelV1 } from "./shared/MockModel";

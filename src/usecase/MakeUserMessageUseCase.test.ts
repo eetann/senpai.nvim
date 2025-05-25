@@ -1,6 +1,6 @@
-import { expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { expect, test } from "vitest";
 import { MakeUserMessageUseCase } from "./MakeUserMessageUseCase";
 
 test("extracts basic filename", () => {
