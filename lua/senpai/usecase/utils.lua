@@ -55,14 +55,9 @@ end
 
 ---@param chat senpai.IChatWindow
 function M.scroll_when_invisible(chat)
-  local winid = chat.log_area.winid
-  local last_buffer_line = vim.fn.line("$", winid)
-  local last_visible_line = vim.fn.line("w$", winid)
-  if last_visible_line < last_buffer_line then
-    vim.api.nvim_win_call(winid, function()
-      vim.cmd("normal! G")
-    end)
-  end
+  vim.api.nvim_win_call(chat.log_area.winid, function()
+    vim.cmd("normal! G")
+  end)
 end
 
 function M.get_relative_path(absolute_path)

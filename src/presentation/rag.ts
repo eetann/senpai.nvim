@@ -1,5 +1,5 @@
 import { embeddingModel } from "@/infra/GetModel";
-import { vector } from "@/infra/Vector";
+import { vector } from "@/infra/Memory";
 import { CheckHasCacheUseCase } from "@/usecase/rag/CheckHasCacheUseCase";
 import { DeleteFromRagUseCase } from "@/usecase/rag/DeleteFromRagUseCase";
 import { FetchAndStoreUseCase } from "@/usecase/rag/FetchAndStoreUseCase";

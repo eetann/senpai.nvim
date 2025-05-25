@@ -46,9 +46,8 @@ function M.start_server()
     M.port = math.random(1024, 49151)
 
     M.job = vim.system({
-      "bun",
-      "run",
-      "src/index.ts",
+      "node",
+      "dist/index.mjs",
       "--cwd",
       vim.fn.getcwd(),
       "--port",

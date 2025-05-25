@@ -1,12 +1,13 @@
 {
 	"name": "@eetann/senpai",
+	"type": "module",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"test": "vitest",
 		"format": "biome format",
 		"lint": "biome lint",
 		"build": "tsc -noEmit && node esbuild.config.mjs production",
-		"start": "node dist/index.js"
+		"start": "node dist/index.mjs"
 	},
 	"dependencies": {
 		"@ai-sdk/anthropic": "^1.2.12",
@@ -17,6 +18,9 @@
 		"@hono/swagger-ui": "^0.5.1",
 		"@hono/zod-openapi": "^0.19.6",
 		"@hono/zod-validator": "^0.4.1",
+		"@libsql/linux-arm-musleabihf": "^0.5.11",
+		"@libsql/linux-arm64-gnu": "^0.5.11",
+		"@libsql/linux-x64-gnu": "^0.5.11",
 		"@mastra/core": "^0.10.0",
 		"@mastra/libsql": "^0.10.0",
 		"@mastra/mcp": "^0.10.0",
@@ -46,6 +50,9 @@
 		"typescript": "^5.8.3",
 		"valibot": "^1.1.0",
 		"vitest": "^3.1.4"
+	},
+	"overrides": {
+		"@hono/zod-validator": "0.4.1"
 	},
 	"packageManager": "pnpm@10.8.1+sha512.c50088ba998c67b8ca8c99df8a5e02fd2ae2e2b29aaf238feaa9e124248d3f48f9fb6db2424949ff901cffbb5e0f0cc1ad6aedb602cd29450751d11c35023677"
 }

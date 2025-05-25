@@ -1,6 +1,5 @@
 import { embeddingModel, getModel, providerSchema } from "@/infra/GetModel";
-import { memory } from "@/infra/Memory";
-import { vector } from "@/infra/Vector";
+import { memory, vector } from "@/infra/Memory";
 import { GetApplicableRules } from "@/usecase/GetApplicableRules";
 import {
 	type CodeBlockHeader,

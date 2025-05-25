@@ -1,6 +1,5 @@
 import { getModel, providerSchema } from "@/infra/GetModel";
 import { GenerateCommitMessageUseCase } from "@/usecase/GenerateCommitMessageUseCase";
-import { GitDiff } from "@/usecase/tool/GitDiff";
 import { z } from "@hono/zod-openapi";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 
@@ -40,7 +39,7 @@ app.openapi(
 		const cwd = c.get("cwd");
 		const model = getModel(command.provider);
 		return c.text(
-			await new GenerateCommitMessageUseCase(model, GitDiff(cwd)).execute(
+			await new GenerateCommitMessageUseCase(model, cwd).execute(
 				command.language,
 			),
 		);

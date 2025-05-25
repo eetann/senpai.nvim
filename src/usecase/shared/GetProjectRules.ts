@@ -9,6 +9,23 @@ import * as PreactDOM from "preact/compat";
 import * as _jsx_runtime from "preact/jsx-runtime";
 import { z } from "zod";
 
+if (process.platform === "win32") {
+	process.env.ESBUILD_BINARY_PATH = path.join(
+		process.cwd(),
+		"node_modules",
+		"esbuild",
+		"esbuild.exe",
+	);
+} else {
+	process.env.ESBUILD_BINARY_PATH = path.join(
+		process.cwd(),
+		"node_modules",
+		"esbuild",
+		"bin",
+		"esbuild",
+	);
+}
+
 const jsxBundlerConfig = {
 	jsxLib: {
 		varName: "Preact",
