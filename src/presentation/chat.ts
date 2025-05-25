@@ -115,7 +115,7 @@ app.openapi(
 					});
 					await memory.updateThread({
 						id: command.thread_id,
-						title: thread.title,
+						title: thread?.title ?? `${Date.toString()}-${command.thread_id}`,
 						metadata: {
 							provider: command.provider,
 							system_prompt: command.system_prompt ?? "",

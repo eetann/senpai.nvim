@@ -26,7 +26,7 @@ const jsxBundlerConfig = {
 const jsxComponentConfig = { Preact, PreactDOM, _jsx_runtime };
 
 const frontmatterSchema = z.object({
-	description: z.string(),
+	description: z.optional(z.string()),
 	globs: z.optional(z.union([z.string(), z.array(z.string())])),
 });
 
@@ -73,7 +73,7 @@ export class GetProjectRules {
 			if (parsed.success) {
 				frontmatter = parsed.data;
 			} else {
-				frontmatter = { description: "" };
+				frontmatter = {};
 			}
 			const component = getMDXComponent(code, jsxComponentConfig);
 			const element = Preact.createElement(component, null);
@@ -86,9 +86,7 @@ export class GetProjectRules {
 
 		return {
 			content: "",
-			frontmatter: {
-				description: "",
-			},
+			frontmatter: {},
 		};
 	}
 }

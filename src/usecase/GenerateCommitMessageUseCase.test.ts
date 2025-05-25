@@ -1,16 +1,9 @@
-import { createTool } from "@mastra/core";
 import { expect, test } from "vitest";
 import { GenerateCommitMessageUseCase } from "./GenerateCommitMessageUseCase";
-import { type IGitDiff, inputSchema, outputSchema } from "./shared/IGitDiff";
 import { MockLanguageModelV1 } from "./shared/MockModel";
 
-const mockGitDiff = createTool({
-	id: "git-diff",
-	description: "mock",
-	inputSchema,
-	outputSchema,
-	execute: async () => {
-		return `
+const mockGitDiff = () => {
+	return `
   diff --git a/denops/senpai/deps.ts b/denops/senpai/deps.ts
   index eed2b21..67a3d68 100644
   --- a/denops/senpai/deps.ts
@@ -23,8 +16,7 @@ const mockGitDiff = createTool({
    export { Step, Workflow } from "npm:@mastra/core/workflows";
    export { type LanguageModel } from "npm:@mastra/core";
   `;
-	},
-}) as IGitDiff;
+};
 
 const mockModel = (text: string) =>
 	new MockLanguageModelV1({
@@ -47,6 +39,7 @@ test("works", async () => {
 	});
 	const usecase = new GenerateCommitMessageUseCase(
 		mockModel(agentResult),
+		"/workspace",
 		mockGitDiff,
 	);
 	const result = await usecase.execute("English");
@@ -57,8 +50,10 @@ test("failed", async () => {
 	const agentResult = "hello";
 	const usecase = new GenerateCommitMessageUseCase(
 		mockModel(agentResult),
+		"/workspace",
 		mockGitDiff,
 	);
-	const result = await usecase.execute("English");
-	expect(result).toBe("failed");
+	await expect(usecase.execute("English")).rejects.toThrowError(
+		/Failed GitDiff:.*/,
+	);
 });

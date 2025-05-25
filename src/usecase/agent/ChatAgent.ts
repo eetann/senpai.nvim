@@ -1,7 +1,6 @@
 import { Agent, type AgentConfig, type ToolsInput } from "@mastra/core/agent";
-import type { LibSQLVector } from "@mastra/core/vector/libsql";
+import { LIBSQL_PROMPT, type LibSQLVector } from "@mastra/libsql";
 import type { Memory } from "@mastra/memory";
-import { LIBSQL_PROMPT } from "@mastra/rag";
 import type { EmbeddingModel } from "ai";
 import { z } from "zod";
 import { VectorQueryTool } from "../tool/VectorQueryTool";
@@ -19,10 +18,7 @@ export class ChatAgent extends Agent {
 		system_prompt: string,
 		useRag: boolean,
 	) {
-		const tools: ToolsInput = {
-			// PascalCase name
-			...mcpTools,
-		};
+		const tools = mcpTools as ToolsInput;
 		let prompt = `\
 You are a highly skilled software engineer with extensive knowledge in many programming languages, frameworks, design patterns, and best practices.
 You help the user by accessing the Tool and outputting according to the Tag Schema Output.

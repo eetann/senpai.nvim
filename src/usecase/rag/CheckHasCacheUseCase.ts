@@ -1,4 +1,4 @@
-import type { LibSQLVector } from "@mastra/core/vector/libsql";
+import type { LibSQLVector } from "@mastra/libsql";
 import { type EmbeddingModel, embed } from "ai";
 
 export class CheckHasCacheUseCase {

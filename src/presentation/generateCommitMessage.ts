@@ -1,6 +1,6 @@
 import { getModel, providerSchema } from "@/infra/GetModel";
-import { GitDiff } from "@/infra/GitDiff";
 import { GenerateCommitMessageUseCase } from "@/usecase/GenerateCommitMessageUseCase";
+import { GitDiff } from "@/usecase/tool/GitDiff";
 import { z } from "@hono/zod-openapi";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 

@@ -57,11 +57,17 @@ app.openapi(
 					},
 				},
 			},
+			404: {
+				description: "thread not found",
+			},
 		},
 	}),
 	async (c) => {
 		const { id } = c.req.valid("param");
 		const thread = await new GetThreadByIdUseCase(memory).execute(id);
+		if (!thread) {
+			return c.json({}, 404);
+		}
 		return c.json(thread);
 	},
 );
@@ -89,6 +95,9 @@ const route = createRoute({
 					schema: z.array(messageSchema),
 				},
 			},
+		},
+		404: {
+			description: "messages not found",
 		},
 	},
 });

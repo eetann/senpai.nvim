@@ -1,4 +1,4 @@
-import type { LibSQLVector } from "@mastra/core/vector/libsql";
+import type { LibSQLVector } from "@mastra/libsql";
 import { type EmbeddingModel, embed } from "ai";
 
 export class DeleteFromRagUseCase {
@@ -21,7 +21,7 @@ export class DeleteFromRagUseCase {
 		});
 		for (const index of indexes) {
 			try {
-				await this.vector.deleteIndexById("store", index.id);
+				await this.vector.deleteVector({ indexName: "store", id: index.id });
 			} catch (error) {
 				console.log(`[senpai] delete failed: id ${index.id}`);
 			}

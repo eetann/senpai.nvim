@@ -1,4 +1,4 @@
-import type { LibSQLVector } from "@mastra/core/vector/libsql";
+import type { LibSQLVector } from "@mastra/libsql";
 import { MDocument } from "@mastra/rag";
 import type { EmbeddingModel } from "ai";
 import { embedMany } from "ai";

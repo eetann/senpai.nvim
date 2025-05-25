@@ -1,5 +1,5 @@
 import { createTool } from "@mastra/core/tools";
-import type { LibSQLVector } from "@mastra/core/vector/libsql";
+import type { LibSQLVector } from "@mastra/libsql";
 import {
 	defaultVectorQueryDescription,
 	queryTextDescription,
