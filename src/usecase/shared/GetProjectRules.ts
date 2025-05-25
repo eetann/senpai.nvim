@@ -1,4 +1,4 @@
-import { readdir } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { bundleMDX } from "mdx-bundler";
 import { getMDXComponent } from "mdx-bundler/client/jsx.js";
@@ -46,7 +46,7 @@ export class GetProjectRules {
 
 		const filepaths = await this.getRuleFiles();
 		for (const filepath of filepaths) {
-			const text = await Bun.file(path.join(this.dir, filepath)).text();
+			const text = (await readFile(path.join(this.dir, filepath))).toString();
 			const rule = await this.parse(text);
 			rules.push(rule);
 		}

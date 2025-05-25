@@ -1,9 +1,8 @@
-import { Glob } from "bun";
+import micromatch from "micromatch";
 import type { ProjectRule } from "./shared/GetProjectRules";
 
 export class GetApplicableRules {
 	constructor(private rules: ProjectRule[]) {}
-	// TODO: ルール再読み込みも実装したい
 
 	async execute(filepaths: string[]): Promise<string> {
 		const addedRules = new Set<string>();
@@ -24,7 +23,7 @@ export class GetApplicableRules {
 			for (const glob_string of globs) {
 				if (matched) break;
 				for (const filepath of filepaths) {
-					if (new Glob(glob_string).match(filepath)) {
+					if (micromatch.isMatch(filepath, glob_string)) {
 						addedRules.add(rule.content);
 						matched = true;
 						break;

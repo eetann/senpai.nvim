@@ -1,3 +1,6 @@
+[tools]
+node = "22"
+
 # mise watch test
 [tasks.test]
 run = "nvim --headless --noplugin -u ./scripts/test/minimal_init.lua -c 'lua MiniTest.run()'"
@@ -29,7 +32,7 @@ docker build --platform linux/arm64/v8 \
 
 [tasks.generate-doc]
 run = """
-bun run scripts/doc/generate.ts \
+pnpx tsx scripts/doc/generate.ts \
 && docker run -v $PWD:/data -i panvimdoc \
   --project-name senpai \
   --input-file README.md \

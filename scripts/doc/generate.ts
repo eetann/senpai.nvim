@@ -1,7 +1,10 @@
 // https://github.com/hrsh7th/nvim-deck/blob/main/scripts/docs.ts
 
+import { spawn } from "node:child_process";
+import { globSync } from "node:fs";
+import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { dedent } from "@qnighy/dedent";
-import { Glob } from "bun";
 import toml from "toml";
 import {
 	type InferOutput,
@@ -84,10 +87,9 @@ const rootDir = process.cwd();
  */
 async function main() {
 	const docs = [] as Doc[];
-	const glob = new Glob("**/*.lua");
 
 	// 見つかった各.luaファイルを処理
-	for await (const filePath of glob.scan(".")) {
+	for (const filePath of globSync("**/*.lua")) {
 		const foundDocs = await getDocs(filePath);
 		docs.push(...foundDocs);
 	}
@@ -99,9 +101,9 @@ async function main() {
 		return a.name.localeCompare(b.name);
 	});
 
-	let texts = (
-		await Bun.file(Bun.resolveSync("README.md", rootDir)).text()
-	).split("\n");
+	let texts = (await readFile(path.join(rootDir, "README.md")))
+		.toString()
+		.split("\n");
 
 	const defaultConfitText = await getDefaultConfig();
 	texts = replace(
@@ -141,7 +143,8 @@ async function main() {
 		docs.filter((doc) => doc.category === "type").map(renderTypeDoc),
 	);
 
-	await Bun.write(Bun.resolveSync("README.md", rootDir), texts.join("\n"));
+	const filePath = path.resolve(rootDir, "README.md");
+	await writeFile(filePath, texts.join("\n"), "utf-8");
 }
 
 /**
@@ -282,7 +285,7 @@ function renderTypeDoc(doc: Doc & { category: "type" }) {
  * --]]
  */
 async function getDocs(path: string) {
-	const body = await Bun.file(path).text();
+	const body = (await readFile(path)).toString();
 
 	const docs = [] as Doc[];
 	const lines = body.split("\n");
@@ -368,30 +371,42 @@ function escapeTable(s: string) {
 	return s.replace(/(\|)/g, "\\$1");
 }
 
-async function getDefaultConfig() {
-	const proc = Bun.spawn({
-		cmd: [
+async function getDefaultConfig(): Promise<string[]> {
+	return new Promise((resolve, reject) => {
+		const proc = spawn(
 			"nvim",
-			"--headless",
-			"--noplugin",
-			"-u",
-			"./scripts/doc/minimal_init.lua",
-			"-c",
-			"qa",
-		],
-		stderr: "pipe",
-		stdout: "pipe",
+			[
+				"--headless",
+				"--noplugin",
+				"-u",
+				"./scripts/doc/minimal_init.lua",
+				"-c",
+				"qa",
+			],
+			{
+				stdio: ["ignore", "pipe", "pipe"], // stdin, stdout, stderr
+			},
+		);
+
+		let stdout = "";
+		let stderr = "";
+
+		proc.stdout.on("data", (data) => {
+			stdout += data.toString();
+		});
+
+		proc.stderr.on("data", (data) => {
+			stderr += data.toString();
+		});
+
+		proc.on("close", (exitCode) => {
+			if (exitCode !== 0) {
+				reject(new Error(`getDefaultConfig failed: ${stderr}`));
+			} else {
+				resolve(stdout.split("\n"));
+			}
+		});
 	});
-
-	const output = await new Response(proc.stdout).text();
-	const exitCode = await proc.exited;
-
-	if (exitCode !== 0) {
-		const errorText = await new Response(proc.stderr).text();
-		throw new Error(`getDefaultConfig failed: ${errorText}`);
-	}
-
-	return output.split("\n");
 }
 
 main().catch(console.error);

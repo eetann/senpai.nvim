@@ -4,7 +4,6 @@ import type { Memory } from "@mastra/memory";
 import { LIBSQL_PROMPT } from "@mastra/rag";
 import type { EmbeddingModel } from "ai";
 import { z } from "zod";
-import { ReadFilesTool } from "../tool/ReadFilesTool";
 import { VectorQueryTool } from "../tool/VectorQueryTool";
 
 export const ChatSchema = z.string();
@@ -22,7 +21,6 @@ export class ChatAgent extends Agent {
 	) {
 		const tools: ToolsInput = {
 			// PascalCase name
-			ReadFilesTool: ReadFilesTool(cwd),
 			...mcpTools,
 		};
 		let prompt = `\
@@ -150,14 +148,6 @@ Example:
 <execute_command>
 <command>npm run dev</command>
 </execute_command>
-
-
-## Tool
-### ReadFilesTool
-read files. **Basically not used.**
-If the user message says \`@foo/bar.txt\`, do not use this tool, but **silently** decode the attached base64 data. Then read it in.
-If you want to actually edit the file, use \`replace_file\` tag instead of the tool.
-Use it only when the user asks for it.
 `;
 		if (useRag) {
 			console.log("user RAG!");

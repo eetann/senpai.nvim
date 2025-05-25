@@ -1,3 +1,4 @@
+import { exists, readFile } from "node:fs/promises";
 import path from "node:path";
 import {
 	mastraMCPConfigurationSchema,
@@ -16,10 +17,10 @@ export class GetMcpToolsUseCase {
 	}
 
 	async execute(processArg?: string) {
-		const file = Bun.file(path.join(this.dir, "mcp.json"));
+		const absolute_path = path.join(this.dir, "mcp.json");
 		let projectServers = {};
-		if (await file.exists()) {
-			const projectConfigure = await file.text();
+		if (await exists(absolute_path)) {
+			const projectConfigure = (await readFile(absolute_path)).toString();
 			projectServers = this.parse(projectConfigure, true);
 		}
 		const editorServers = this.parse(processArg);

@@ -6,7 +6,7 @@ Thank you for your interest in contributing to senpai.nvim! This document explai
 
 - Neovim 0.11
 - curl
-- [Bun](https://bun.sh/)
+- Node
 - [lua-language-server](https://github.com/LuaLS/lua-language-server)
 - [StyLua](https://github.com/JohnnyMorganz/StyLua)
 - optional

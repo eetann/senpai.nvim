@@ -1,10 +1,10 @@
+import { execSync } from "node:child_process";
 import {
 	type IGitDiff,
 	inputSchema,
 	outputSchema,
 } from "@/usecase/shared/IGitDiff";
 import { createTool } from "@mastra/core";
-import { $ } from "bun";
 
 export const GitDiff = (cwd: string) =>
 	createTool({
@@ -14,8 +14,9 @@ export const GitDiff = (cwd: string) =>
 		outputSchema,
 		execute: async () => {
 			try {
-				$.cwd(cwd);
-				const result = await $`git --no-pager diff --staged`.text();
+				const result = execSync("git --no-pager diff --staged", {
+					cwd,
+				}).toString();
 				return result;
 			} catch (err) {
 				throw new Error(`Failed GitDiff: ${err}`);

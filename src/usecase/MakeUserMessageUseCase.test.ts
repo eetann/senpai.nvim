@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { MakeUserMessageUseCase } from "./MakeUserMessageUseCase";
 
@@ -82,7 +83,7 @@ test("execute adds file content to user message", async () => {
 	const result = await useCase.execute(
 		`Tell me about [${filename}](${filename})`,
 	);
-	const testContent = await Bun.file(gitignorePath).text();
+	const testContent = (await readFile(gitignorePath)).toString();
 
 	expect(result.role).toBe("user");
 	expect(result.content).toBe(`Tell me about [${filename}](${filename})

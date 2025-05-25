@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { GetProjectRules } from "./GetProjectRules";
 
@@ -83,7 +84,7 @@ test("GetProjectRules real file", async () => {
 	const dir = path.join(process.cwd(), "src/usecase/shared");
 	const usecase = new GetProjectRules(dir, "");
 
-	const text = await Bun.file(path.join(dir, "rule_test.mdx")).text();
+	const text = (await readFile(path.join(dir, "rule_test.mdx"))).toString();
 	const result = await usecase.parse(text);
 	expect(result).toEqual({
 		frontmatter: {

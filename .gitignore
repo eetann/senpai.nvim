@@ -4,3 +4,4 @@ node_modules/
 memory.db*
 storage.db*
 vector.db*
+dist/
