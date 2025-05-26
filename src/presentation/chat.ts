@@ -123,6 +123,9 @@ app.openapi(
 				}
 			},
 		});
+		// return stream(c, async (stream) => {
+		// 	// TODO:
+		// });
 		return agentStream.toDataStreamResponse();
 	},
 );
