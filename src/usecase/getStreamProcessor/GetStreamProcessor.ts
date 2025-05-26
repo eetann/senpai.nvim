@@ -4,7 +4,10 @@ import type { StreamingApi } from "hono/utils/stream";
 type OnParts = Omit<Parameters<typeof processDataStream>[0], "stream">;
 
 export class GetStreamProcessor {
-	constructor(private stream: StreamingApi) {}
+	constructor(
+		private cwd: string,
+		private stream: StreamingApi,
+	) {}
 	execute(): OnParts {
 		const writeText = (type: string | number, obj: unknown) => {
 			this.stream.writeln(`${type}:${JSON.stringify(obj)}`);
