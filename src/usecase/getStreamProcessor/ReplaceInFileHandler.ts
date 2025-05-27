@@ -21,7 +21,7 @@ export class ReplaceInFileHandler extends AbstractHandler {
 		super();
 		this.cwd = cwd;
 		// Register handlers for each tag
-		this.handlers.set("<path>", this.pathTag.bind(this));
+		this.handlers.set("<path>.*</path>", this.pathTag.bind(this));
 		this.handlers.set("<search>", this.startSearchTag.bind(this));
 		this.handlers.set("</search>", this.endSearchTag.bind(this));
 		this.handlers.set("<replace>", this.startReplaceTag.bind(this));

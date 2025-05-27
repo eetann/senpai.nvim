@@ -53,7 +53,10 @@ export class XmlStreamProcessor {
 					return;
 				}
 			}
-			// タグ外のテキストは無視 or 必要に応じて処理
+			// TODO: 旧こーどではrender_base
+			// if not self.current_tag then
+			//   self:render_base(chunk)
+			// end
 			return;
 		}
 
@@ -61,7 +64,7 @@ export class XmlStreamProcessor {
 		if (!isLastLine) {
 			// sub tag detection
 			for (const [pattern, handlerFn] of currentHandler.handlers.entries()) {
-				if (lowerLine.startsWith(pattern.toLowerCase())) {
+				if (lowerLine.match(new RegExp(`^${pattern}$`))) {
 					handlerFn.call(currentHandler, chunk, this.lineBuffer);
 					this.lineBuffer = "";
 					return;

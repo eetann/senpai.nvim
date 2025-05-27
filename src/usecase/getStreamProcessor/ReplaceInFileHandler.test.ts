@@ -29,7 +29,7 @@ describe("ReplaceInFileHandler XML stream parsing", () => {
 	it("parses correctly even when receiving partial stream input", async () => {
 		const xmlLines = [
 			"<replace_in",
-			"file>\n",
+			"_file>\n",
 			"<path>",
 			"src/main.js</path>\n",
 			"<search>\n",
@@ -49,7 +49,6 @@ describe("ReplaceInFileHandler XML stream parsing", () => {
 			processor.processChunk(line);
 		}
 
-		console.log(handler);
 		expect(handler.path).toEqual("src/main.js");
 		expect(handler.searchText.replace(/\s+/g, " ").trim()).toEqual(
 			"return a - b;",
