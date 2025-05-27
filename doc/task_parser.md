@@ -53,15 +53,17 @@ NeovimプラグインはMastraを使って実装するAIエージェント。
     - [x] ReplaceFileHandlerクラスを実装
     - [x] get_diff_text相当の関数を実装
     - [x] utils.get_relative_path相当の関数を実装
+    - [x] `search`・`replace`のタグをXMLからコンフリクトマーカーに移行
+        - [x] 今まではタグが1つだけだったけど、複数に移行
 
 4. XMLストリームパーサの実装
     - 参考: lua/senpai/usecase/message/assistant.lua
-    - [ ] ストリーミングXMLパーサを実装
-    - [ ] タグごとにハンドラを呼び出す仕組みを実装
+    - [x] ストリーミングXMLパーサを実装
+    - [x] タグごとにハンドラを呼び出す仕組みを実装
 
 5. ユニットテストの作成
-    - [ ] 代表的なXMLでテストを作成
-    - [ ] Lua側の tests/test_render_message_replace_file.lua も参考にする
+    - [x] 代表的なXMLでテストを作成
+    - [x] Lua側の tests/test_render_message_replace_file.lua も参考にする
 
-6. チェックリストの更新
-    - [ ] タスク完了時にチェックリストを更新
+6. lua側の更新
+    - [ ] assistant.luaからtoolの呼び出し関係に実装を移す

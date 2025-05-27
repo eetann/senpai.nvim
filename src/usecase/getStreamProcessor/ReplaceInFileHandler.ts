@@ -2,7 +2,13 @@ import { spawnSync } from "node:child_process";
 import { unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
-import { AbstractHandler } from "./AbstractHandler";
+import { AbstractHandler, Part, type WriteFunction } from "./AbstractHandler";
+
+export type DiffText = {
+	search: string;
+	replace: string;
+	diff: string;
+};
 
 /**
  * Handler for <replace_in_file> tag.
@@ -11,21 +17,17 @@ export class ReplaceInFileHandler extends AbstractHandler {
 	tagName = "replace_in_file";
 
 	path = "";
-	searchText = "";
-	replaceText = "";
-	diffText = "";
+	diffs: DiffText[] = [];
 
 	cwd: string;
 
-	constructor(cwd: string) {
-		super();
+	constructor(writeFunction: WriteFunction, cwd: string) {
+		super(writeFunction);
 		this.cwd = cwd;
 		// Register handlers for each tag
 		this.handlers.set("<path>.*</path>", this.pathTag.bind(this));
-		this.handlers.set("<search>", this.startSearchTag.bind(this));
-		this.handlers.set("</search>", this.endSearchTag.bind(this));
-		this.handlers.set("<replace>", this.startReplaceTag.bind(this));
-		this.handlers.set("</replace>", this.endReplaceTag.bind(this));
+		this.handlers.set("<diff>", this.startDiffTag.bind(this));
+		this.handlers.set("</diff>", this.endDiffTag.bind(this));
 	}
 
 	startTag(): void {
@@ -34,7 +36,6 @@ export class ReplaceInFileHandler extends AbstractHandler {
 	}
 
 	endTag(): void {
-		this.diffText = getDiffText(this.searchText, this.replaceText);
 		this.currentTag = null;
 		this.currentContent = "";
 	}
@@ -50,29 +51,48 @@ export class ReplaceInFileHandler extends AbstractHandler {
 			line.replace(/<\/?path>/g, "").trim(),
 		);
 		this.currentContent = "";
+		this.writeFunction(Part.toolCall, {
+			toolCallId: `ReplaceInFile-${Date.toString()}`,
+			toolName: "ReplaceInFile",
+			args: {
+				path: this.path,
+			},
+		});
 	}
 
-	private startSearchTag(): void {
-		this.currentTag = "search";
+	private startDiffTag(): void {
+		this.currentTag = "diff";
 		this.currentContent = "";
 	}
 
-	private endSearchTag(chunk?: string): void {
+	private endDiffTag(chunk?: string): void {
 		if (chunk) this.currentContent += chunk;
-		this.searchText = this.currentContent.replace(/\n<\/search>\n?$/, "");
+		const content = this.currentContent.replace(/\n<\/diff>\n?$/, "");
+		this.diffs = parseConflictDiffBlocks(content);
 		this.currentTag = null;
 	}
+}
 
-	private startReplaceTag(): void {
-		this.currentTag = "replace";
-		this.currentContent = "";
+/**
+ * コンフリクトマーカーで区切られたdiffブロックをパースしてDiffText[]に変換
+ */
+function parseConflictDiffBlocks(content: string): DiffText[] {
+	const blocks = content
+		.split(/(?=^<<<<<<< SEARCH)/m)
+		.filter((b) => b.startsWith("<<<<<<< SEARCH"));
+	const result: DiffText[] = [];
+	for (const block of blocks) {
+		const match = block.match(
+			/^<<<<<<< SEARCH\s*([\s\S]*?)^=======\s*([\s\S]*?)^>>>>>>> REPLACE/m,
+		);
+		if (match) {
+			const search = match[1].replace(/\n$/, "");
+			const replace = match[2].replace(/\n$/, "");
+			const diff = getDiffText(search, replace);
+			result.push({ search, replace, diff });
+		}
 	}
-
-	private endReplaceTag(chunk?: string): void {
-		if (chunk) this.currentContent += chunk;
-		this.replaceText = this.currentContent.replace(/\n<\/replace>\n?$/, "");
-		this.currentTag = null;
-	}
+	return result;
 }
 
 /**

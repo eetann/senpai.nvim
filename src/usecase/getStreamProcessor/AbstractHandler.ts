@@ -1,6 +1,29 @@
+// https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol
+export const Part = {
+	text: 0,
+	reasoning: "g",
+	redactedReasoning: "i",
+	reasoningSignature: "j",
+	source: "h",
+	file: "k",
+	data: 2,
+	messageAnnotations: 8,
+	error: 3,
+	toolCallStreamingStart: "b",
+	toolCallDelta: "c",
+	toolCall: 9,
+	toolResult: "a",
+	startStep: "f",
+	finishStep: "e",
+	finishMessage: "d",
+} as const;
+
+export type PartType = (typeof Part)[keyof typeof Part];
+
+export type WriteFunction = (type: PartType, obj: unknown) => void;
+
 /**
  * Abstract handler for XML stream parser.
- * Equivalent to Lua: IAssistantHandler.
  */
 export interface HandlerContext {
 	currentContent: string;
@@ -8,6 +31,7 @@ export interface HandlerContext {
 }
 
 export abstract class AbstractHandler {
+	constructor(public writeFunction: WriteFunction) {}
 	/** Tag name this handler is responsible for */
 	abstract tagName: string;
 

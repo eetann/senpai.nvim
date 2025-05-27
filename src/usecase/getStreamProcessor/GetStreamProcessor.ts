@@ -1,5 +1,6 @@
 import type { processDataStream } from "@ai-sdk/ui-utils";
 import type { StreamingApi } from "hono/utils/stream";
+import { Part, type PartType } from "./AbstractHandler";
 
 type OnParts = Omit<Parameters<typeof processDataStream>[0], "stream">;
 
@@ -9,59 +10,59 @@ export class GetStreamProcessor {
 		private stream: StreamingApi,
 	) {}
 	execute(): OnParts {
-		const writeText = (type: string | number, obj: unknown) => {
+		const writeText = (type: PartType, obj: unknown) => {
 			this.stream.writeln(`${type}:${JSON.stringify(obj)}`);
 		};
 
 		return {
 			onTextPart: (streamPart) => {
 				// TODO: ここで XMLStreamProcessorの処理を入れ、ツール呼び出しに変換
-				writeText(0, streamPart);
+				writeText(Part.text, streamPart);
 			},
 			onReasoningPart: (streamPart) => {
-				writeText("g", streamPart);
+				writeText(Part.reasoning, streamPart);
 			},
 			onRedactedReasoningPart: (streamPart) => {
-				writeText("i", streamPart);
+				writeText(Part.redactedReasoning, streamPart);
 			},
 			onReasoningSignaturePart: (streamPart) => {
-				writeText("j", streamPart);
+				writeText(Part.reasoningSignature, streamPart);
 			},
 			onSourcePart: (streamPart) => {
-				writeText("h", streamPart);
+				writeText(Part.source, streamPart);
 			},
 			onFilePart: (streamPart) => {
-				writeText("k", streamPart);
+				writeText(Part.file, streamPart);
 			},
 			onDataPart: (streamPart) => {
-				writeText(2, streamPart);
+				writeText(Part.data, streamPart);
 			},
 			onMessageAnnotationsPart: (streamPart) => {
-				writeText(8, streamPart);
+				writeText(Part.messageAnnotations, streamPart);
 			},
 			onErrorPart: (streamPart) => {
-				writeText(3, streamPart);
+				writeText(Part.error, streamPart);
 			},
 			onToolCallStreamingStartPart: (streamPart) => {
-				writeText("b", streamPart);
+				writeText(Part.toolCallStreamingStart, streamPart);
 			},
 			onToolCallDeltaPart: (streamPart) => {
-				writeText("c", streamPart);
+				writeText(Part.toolCallDelta, streamPart);
 			},
 			onToolCallPart: (streamPart) => {
-				writeText(9, streamPart);
+				writeText(Part.toolCall, streamPart);
 			},
 			onToolResultPart: (streamPart) => {
-				writeText("a", streamPart);
+				writeText(Part.toolResult, streamPart);
 			},
 			onStartStepPart: (streamPart) => {
-				writeText("f", streamPart);
+				writeText(Part.startStep, streamPart);
 			},
 			onFinishStepPart: (streamPart) => {
-				writeText("e", streamPart);
+				writeText(Part.finishStep, streamPart);
 			},
 			onFinishMessagePart: (streamPart) => {
-				writeText("d", streamPart);
+				writeText(Part.finishMessage, streamPart);
 			},
 		};
 	}
