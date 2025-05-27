@@ -15,52 +15,53 @@ export class GetStreamProcessor {
 
 		return {
 			onTextPart: (streamPart) => {
+				// TODO: ここで XMLStreamProcessorの処理を入れ、ツール呼び出しに変換
 				writeText(0, streamPart);
 			},
 			onReasoningPart: (streamPart) => {
-				writeText(0, streamPart);
-			},
-			onReasoningSignaturePart: (streamPart) => {
-				writeText(0, streamPart);
+				writeText("g", streamPart);
 			},
 			onRedactedReasoningPart: (streamPart) => {
-				writeText(0, streamPart);
+				writeText("i", streamPart);
+			},
+			onReasoningSignaturePart: (streamPart) => {
+				writeText("j", streamPart);
 			},
 			onSourcePart: (streamPart) => {
-				writeText(0, streamPart);
+				writeText("h", streamPart);
 			},
 			onFilePart: (streamPart) => {
-				writeText(0, streamPart);
+				writeText("k", streamPart);
 			},
 			onDataPart: (streamPart) => {
-				writeText(0, streamPart);
-			},
-			onErrorPart: (streamPart) => {
-				writeText(0, streamPart);
-			},
-			onToolCallStreamingStartPart: (streamPart) => {
-				writeText(0, streamPart);
-			},
-			onToolCallDeltaPart: (streamPart) => {
-				writeText(0, streamPart);
-			},
-			onToolCallPart: (streamPart) => {
-				writeText(0, streamPart);
-			},
-			onToolResultPart: (streamPart) => {
-				writeText(0, streamPart);
+				writeText(2, streamPart);
 			},
 			onMessageAnnotationsPart: (streamPart) => {
-				writeText(0, streamPart);
+				writeText(8, streamPart);
 			},
-			onFinishMessagePart: (streamPart) => {
-				writeText(0, streamPart);
+			onErrorPart: (streamPart) => {
+				writeText(3, streamPart);
 			},
-			onFinishStepPart: (streamPart) => {
-				writeText(0, streamPart);
+			onToolCallStreamingStartPart: (streamPart) => {
+				writeText("b", streamPart);
+			},
+			onToolCallDeltaPart: (streamPart) => {
+				writeText("c", streamPart);
+			},
+			onToolCallPart: (streamPart) => {
+				writeText(9, streamPart);
+			},
+			onToolResultPart: (streamPart) => {
+				writeText("a", streamPart);
 			},
 			onStartStepPart: (streamPart) => {
-				writeText(0, streamPart);
+				writeText("f", streamPart);
+			},
+			onFinishStepPart: (streamPart) => {
+				writeText("e", streamPart);
+			},
+			onFinishMessagePart: (streamPart) => {
+				writeText("d", streamPart);
 			},
 		};
 	}

@@ -6,10 +6,12 @@ import type { AbstractHandler } from "./AbstractHandler";
 export class XmlStreamProcessor {
 	currentTag: string | null = null;
 	lineBuffer = "";
-	handlers: Record<string, AbstractHandler>;
+	handlers: Record<string, AbstractHandler> = {};
 
-	constructor(handlers: Record<string, AbstractHandler>) {
-		this.handlers = handlers;
+	constructor(handlers: AbstractHandler[]) {
+		for (const handler of handlers) {
+			this.handlers[handler.tagName] = handler;
+		}
 	}
 
 	/**

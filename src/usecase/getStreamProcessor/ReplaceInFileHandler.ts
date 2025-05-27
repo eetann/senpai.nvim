@@ -36,6 +36,7 @@ export class ReplaceInFileHandler extends AbstractHandler {
 	endTag(): void {
 		this.diffText = getDiffText(this.searchText, this.replaceText);
 		this.currentTag = null;
+		this.currentContent = "";
 	}
 
 	contentLine(chunk: string): void {
