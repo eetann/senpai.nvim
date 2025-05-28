@@ -4,18 +4,20 @@ local Columns = require("nui-components.columns")
 local Button = require("senpai.presentation.shared.button")
 local IBlock = require("senpai.domain.i_block")
 local utils = require("senpai.usecase.utils")
+local Config = require("senpai.config")
 
 ---@class senpai.DiffBlock: senpai.IDiffBlock
 local M = {}
 M.__index = M
 setmetatable(M, { __index = IBlock })
 
----@param opts { winid:integer, bufnr:integer, row:integer, path:string }
+---@param opts { winid:integer, bufnr:integer, row:integer|nil, path:string }
 ---@return senpai.DiffBlock
 function M.new(opts)
   local self = setmetatable({}, M)
   self.block_type = "diff"
-  self.row = opts.row
+  local row = opts.row or vim.api.nvim_buf_line_count(self.bufnr) - 1
+  self.row = row
   self.winid = opts.winid
   self.bufnr = opts.bufnr
   self.path = opts.path
@@ -27,6 +29,10 @@ function M.new(opts)
   self.replace_text = ""
   self.search_text = ""
   self:setup()
+  utils.replace_text_at_last(self.bufnr, "filepath: " .. self.path .. "\n")
+  -- local row = vim.api.nvim_buf_line_count(self.bufnr)
+  -- self.diff_block = self.chat:add_diff_block(row - 1, path)
+  self:mount()
 
   return self
 end
@@ -125,10 +131,6 @@ function M:setup_keymaps()
   for _, v in ipairs(key_tab_list) do
     vim.keymap.set("n", v.key, function()
       self:change_tab(v.tab)
-      require("senpai.presentation.change_replace_tab").change_replace_tab(
-        v.tab,
-        self.row
-      )
     end, { buffer = self.bufnr })
   end
 end
@@ -141,12 +143,34 @@ function M:change_tab(tab)
   elseif tab == "search" then
     self.signal.active_tab = "tab-search"
   end
+  require("senpai.presentation.change_replace_tab").change_replace_tab(
+    tab,
+    self.row
+  )
 end
 
+function M:tool_result(result)
+  local search_lines = {}
+  local replace_lines = {}
+  local diff_lines = {}
+  for _, diff in ipairs(result.diffs) do
+    table.insert(search_lines, diff.search)
+    table.insert(replace_lines, diff.replace)
+    table.insert(diff_lines, diff.diff)
+  end
+  self.search_text = table.concat(search_lines, "\n\n")
+  self.replace_text = table.concat(replace_lines, "\n\n")
+  self.diff_text = table.concat(diff_lines, "\n\n")
+
+  if Config.chat.log_area.replace_show_type == "diff" then
+    self:change_tab("diff")
+  else
+    self:change_tab("replace")
+  end
+end
 -- local block = M.new({
 --   winid = vim.api.nvim_get_current_win(),
 --   bufnr = vim.api.nvim_get_current_buf(),
 --   row = 2,
 -- })
--- block:mount()
 return M

@@ -7,109 +7,29 @@ For example, put a blank line before a heading or code block.
 
 ---
 
-## Tag Schema Output
-Outputs XML-style tags upon user request.
-Tag Schema Output name is enclosed in opening and closing tags, and each parameter is similarly enclosed within its own set of tags without codeblock. Here's the structure:
+TOOL USE
 
-<schema_name>
+You have access to a set of tools that are executed upon the user's approval. You can use one tool per message, and will receive the result of that tool use in the user's response. You use tools step-by-step to accomplish a given task, with each tool use informed by the result of the previous tool use.
+
+# Tool Use Formatting
+
+Tool use is formatted using XML-style tags. The tool name is enclosed in opening and closing tags, and each parameter is similarly enclosed within its own set of tags. Here's the structure:
+
+<tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</schema_name>
+</tool_name>
 
 For example:
 
-<replace_file>
+<read_file>
 <path>src/main.js</path>
-<search>
-  return a - b;
-</search>
-<replace>
-  return a + b;
-</replace>
-</replace_file>
+</read_file>
 
-Always adhere to this format for the Tag Schema Output use to ensure proper parsing and execution.
+Always adhere to this format for the tool use to ensure proper parsing and execution.
 
-
-Bad example: **Tag Schema Output is forbidden to be enclosed as a code block**
-\`\`\`\`markdown
-\`\`\`xml
-<schema_name>
-<parameter1_name>value1</parameter1_name>
-<parameter2_name>value2</parameter2_name>
-...
-</schema_name>
-\`\`\`
-\`\`\`\`
-
-#### Tag Schema Output Use Guidelines
-- In <thinking> tags, assess what information you already have and what information you need to proceed with the task.
-- Choose the most appropriate schema based on the task and the schema descriptions provided. Assess if you need additional information to proceed, and which of the available schemas would be most effective for gathering this information. For example using the list_files schema is more effective than running a command like \`ls\` in the terminal. It's critical that you think about each available schema and use the one that best fits the current step in the task.
-- Formulate your schema use using the Tag format specified for each schema.
-- After each schema use, the user will respond with the result of that schema use. This result will provide you with the necessary information to continue your task or make further decisions. This response may include:
-  - Information about whether the schema succeeded or failed, along with any reasons for failure.
-  - Linter errors that may have arisen due to the changes you made, which you'll need to address.
-  - New terminal output in reaction to the changes, which you may need to consider or act upon.
-  - Any other relevant feedback or information related to the schema use.
-
-### replace_file
-Description: Request to replace content to a file at the specified path. If you are asked to edit a file, refactor it, etc., you can output this schema instead of calling the tool.
-Parameters:
-- path: (required. 1 line) The path of the file to edit
-- search: (required. multiple lines) content must match the associated file section to find EXACTLY:
-  * Match character-for-character including whitespace, indentation, line endings
-  * Include all comments, docstrings, etc.
-  * Spelling mistakes are also described as is
-- replace: (required. multiple lines) new content
-
-Critical rules:
-- \`search\`/\`replace\` will ONLY replace the first match occurrence.
-  * Including multiple unique \`search\`/\`replace\` if you need to make multiple changes.
-  * Include *just* enough lines in each \`search\` section to uniquely match each set of lines that need to change.
-  * When using multiple \`search\`/\`replace\`, list them in the order they appear in the file.
-- Keep \`search\`/\`replace\` concise:
-  * Break large \`search\`/\`replace\` into a series of smaller that each change a small portion of the file.
-  * Include just the changing lines, and a few surrounding lines if needed for uniqueness.
-  * Do not include long runs of unchanging lines in \`search\`/\`replace\`.
-  * Each line must be complete. Never truncate lines mid-way through as this can cause matching failures.
-- Special operations:
-  * To move code: Use two \`search\`/\`replace\` (one to delete from original + one to insert at new location)
-  * To delete code: Use empty \`replace\` section
-  * \`search\`/\`replace\` must have a line break before and after the tag like a code block
-
-Bad case: The flollowing example is \`path\` is not on one line, no line breaks before or after \`search\`/\`replace\`
-<replace_file>
-<path>
-src/main.js</path>
-<search>  return a - b;
-</search>
-<replace>
-  return a + b;</replace>
-</replace_file>
-
-Bad case: The following example has an empty \`search\`. This makes it impossible to identify the edit range.
-<replace_file>
-<path>
-src/main.js</path>
-<search>
-</search>
-<replace>
-  return a + b;</replace>
-</replace_file>
-
-
-Good case:
-<replace_file>
-<path>src/main.js</path>
-<search>
-  return a - b;
-</search>
-<replace>
-  return a + b;
-</replace>
-</replace_file>
-
+# Tools
 
 ## execute_command
 Description: Request to execute a CLI command on the system. Use this when you need to perform system operations or run specific commands to accomplish any step in the user's task. You must tailor your command to the user's system and provide a clear explanation of what the command does. For command chaining, use the appropriate chaining syntax for the user's shell. Prefer to execute complex CLI commands over creating executable scripts, as they are more flexible and easier to run. Commands will be executed in the current working directory: ${cwd}
@@ -124,5 +44,88 @@ Example:
 <execute_command>
 <command>npm run dev</command>
 </execute_command>
+
+
+## replace_in_file
+Description: Request to replace sections of content in an existing file using SEARCH/REPLACE blocks that define exact changes to specific parts of the file. This tool should be used when you need to make targeted changes to specific parts of a file.
+Parameters:
+- path: (required) The path of the file to modify (relative to the current working directory ${cwd})
+- diff: (required) One or more SEARCH/REPLACE blocks following this exact format:
+  \`\`\`
+  <<<<<<< SEARCH
+  [exact content to find]
+  =======
+  [new content to replace with]
+  >>>>>>> REPLACE
+  \`\`\`
+  Critical rules:
+  1. SEARCH content must match the associated file section to find EXACTLY:
+     * Match character-for-character including whitespace, indentation, line endings
+     * Include all comments, docstrings, etc.
+  2. SEARCH/REPLACE blocks will ONLY replace the first match occurrence.
+     * Including multiple unique SEARCH/REPLACE blocks if you need to make multiple changes.
+     * Include *just* enough lines in each SEARCH section to uniquely match each set of lines that need to change.
+     * When using multiple SEARCH/REPLACE blocks, list them in the order they appear in the file.
+  3. Keep SEARCH/REPLACE blocks concise:
+     * Break large SEARCH/REPLACE blocks into a series of smaller blocks that each change a small portion of the file.
+     * Include just the changing lines, and a few surrounding lines if needed for uniqueness.
+     * Do not include long runs of unchanging lines in SEARCH/REPLACE blocks.
+     * Each line must be complete. Never truncate lines mid-way through as this can cause matching failures.
+  4. Special operations:
+     * To move code: Use two SEARCH/REPLACE blocks (one to delete from original + one to insert at new location)
+     * To delete code: Use empty REPLACE section
+Usage:
+<replace_in_file>
+<path>File path here</path>
+<diff>
+Search and replace blocks here
+</diff>
+</replace_in_file>
+
+
+# Tool Use Examples
+
+## Example 2: Requesting to execute a command
+
+<execute_command>
+<command>npm run dev</command>
+<requires_approval>false</requires_approval>
+</execute_command>
+
+
+## Example 2: Requesting to make targeted edits to a file
+
+<replace_in_file>
+<path>src/components/App.tsx</path>
+<diff>
+<<<<<<< SEARCH
+import React from 'react';
+=======
+import React, { useState } from 'react';
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+function handleSubmit() {
+  saveData();
+  setLoading(false);
+}
+
+=======
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+return (
+  <div>
+=======
+function handleSubmit() {
+  saveData();
+  setLoading(false);
+}
+
+return (
+  <div>
+>>>>>>> REPLACE
+</diff>
+</replace_in_file>
 `;
 }

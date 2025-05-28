@@ -15,6 +15,7 @@ export type DiffText = {
  */
 export class ReplaceInFileHandler extends AbstractHandler {
 	tagName = "replace_in_file";
+	toolName = "ReplaceInFile";
 
 	path = "";
 	diffs: DiffText[] = [];
@@ -36,6 +37,13 @@ export class ReplaceInFileHandler extends AbstractHandler {
 	}
 
 	endTag(): void {
+		this.writeFunction(Part.toolCall, {
+			toolCallId: `${this.toolName}-${Date.toString()}`,
+			toolName: this.toolName,
+			result: {
+				diffs: this.diffs,
+			},
+		});
 		this.currentTag = null;
 		this.currentContent = "";
 	}
@@ -52,8 +60,8 @@ export class ReplaceInFileHandler extends AbstractHandler {
 		);
 		this.currentContent = "";
 		this.writeFunction(Part.toolCall, {
-			toolCallId: `ReplaceInFile-${Date.toString()}`,
-			toolName: "ReplaceInFile",
+			toolCallId: `${this.toolName}-${Date.toString()}`,
+			toolName: this.toolName,
 			args: {
 				path: this.path,
 			},

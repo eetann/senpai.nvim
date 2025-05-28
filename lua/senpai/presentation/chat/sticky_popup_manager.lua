@@ -117,13 +117,14 @@ function M:add_virtual_blank_line(start_row)
   )
 end
 
-function M:add_diff_block(row, path)
+function M:add_diff_block(path, row)
   local popup = DiffBlock.new({
     winid = self.winid,
     bufnr = self.bufnr,
     row = row,
     path = path,
   })
+  row = popup.row
   self:add_virtual_blank_line(row)
 
   self.popups[row] = popup

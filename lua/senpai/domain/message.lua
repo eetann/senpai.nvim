@@ -86,6 +86,9 @@
 ---@field experimental_content? senpai.chat.tool_result.content
 ---@field isError? boolean
 
+---@class senpai.chat.message.result.replace_in_file
+---@field diffs {search:string, replace:string, diff: string}[]
+
 ---@alias senpai.chat.message.tool.content senpai.chat.message.part.tool_result[]
 
 ---@class senpai.chat.message.tool

@@ -3,8 +3,8 @@ local M = {}
 
 ---@param row integer
 ---@return {start_line: integer, end_line: integer}|nil
-local function get_codeblock_range_at_cursor(row)
-  vim.api.nvim_win_set_cursor(0, { row, 0 })
+local function get_codeblock_range(row)
+  -- vim.api.nvim_win_set_cursor(0, { row, 0 })
 
   local parser = vim.treesitter.get_parser(0, "markdown")
   if not parser then
@@ -59,7 +59,7 @@ function M.change_replace_tab(tab, row)
   end
   text = text .. "\n```\n"
 
-  local range = get_codeblock_range_at_cursor(row + 1)
+  local range = get_codeblock_range(row + 1)
   if not range then
     return
   end

@@ -157,6 +157,7 @@ end
 ---@field replace_text string
 ---@field search_text string
 ---@field change_tab fun(self, tab: "diff"|"replace"|"search"):nil
+---@field tool_result fun(self, result: senpai.chat.message.result.replace_in_file):nil
 
 ---@class senpai.ITerminalBlock: senpai.IBlock
 ---@field block_type "terminal"

@@ -8,6 +8,11 @@ local function render_base(chat, content)
   if type(content.toolName) ~= "string" or content.toolName == "" then
     return
   end
+  if content.toolName == "ReplaceInFile" then
+    local path = content.args.path --[[@as string]]
+    chat:add_diff_block(path)
+    return
+  end
   local render_text = "\n\nTool Call: `" .. content.toolName .. "`"
   if type(content.args) == "table" and next(content.args) ~= nil then
     render_text = render_text

@@ -15,7 +15,7 @@ local M = {}
 ---@field popups table<integer, senpai.IBlock> # { row: popup }
 ---@field rows integer[]
 ---@field group_id integer
----@field add_diff_block fun(self, row: integer, path: string): senpai.IDiffBlock
+---@field add_diff_block fun(self, path: string, row:integer|nil): senpai.IDiffBlock
 ---@field add_terminal_block fun(self, row: integer): senpai.ITerminalBlock
 ---@field find_next_popup_row fun(self, block_type: senpai.block_type):integer|nil
 ---@field find_prev_popup_row fun(self, block_type: senpai.block_type):integer|nil
@@ -46,10 +46,9 @@ function IChatWindow:destroy() end
 function IChatWindow:toggle() end
 function IChatWindow:toggle_input() end
 
----@param row integer
 ---@param path string
 ---@return senpai.IDiffBlock
-function IChatWindow:add_diff_block(row, path)
+function IChatWindow:add_diff_block(path)
   return {}
 end
 

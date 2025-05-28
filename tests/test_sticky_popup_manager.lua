@@ -40,7 +40,7 @@ local function make_popup(c_child, row)
     bufnr = popup.bufnr
   }
 ]],
-    { row, "foo.js" }
+    { "foo.js", row }
   )
   return popup
 end

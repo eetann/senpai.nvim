@@ -1,0 +1,35 @@
+このリポジトリはコーディングエージェント「senpai.nvim」のプロジェクトです。
+
+
+## 使用技術
+
+- 言語
+  - TypeScript: サーバーサイド(LLMなどの処理)
+  - Lua: フロントエンド(Neovimのプラグイン)
+- AIフレームワーク: Mastra
+
+
+## ディレクトリ構成
+
+```
+|-- .repro/ # Neovim最小構成用
+|-- .senpai/
+|   |-- prompts/ # senpai.nvimで読み込まれるルールファイル
+|-- doc/ # Neovimプラグインのドキュメント
+|-- lua/
+|   `-- senpai/
+|       |-- ...
+|       `-- init.lua # Neovimプラグインのエントリーポイント
+|-- queries/ # Neovimで使うTree-sitterの設定
+|-- scripts/
+|   |-- doc/ # Neovimプラグインのドキュメント生成スクリプト
+|   `-- test/ # Neovimプラグインのテストの最小構成用スクリプト
+|-- src/
+|   |-- domain/
+|   |-- infra/
+|   |-- presentation/
+|   |-- usecase/
+|   `-- index.ts # サーバーサイドのエントリーポイント
+`-- tests/ # Neovimプラグインのテスト
+```
+
