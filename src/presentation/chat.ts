@@ -6,8 +6,11 @@ import {
 	MakeUserMessageUseCase,
 } from "@/usecase/MakeUserMessageUseCase";
 import { ChatAgent } from "@/usecase/agent/ChatAgent";
+import { GetStreamProcessor } from "@/usecase/getStreamProcessor/GetStreamProcessor";
 import type { ProjectRule } from "@/usecase/shared/GetProjectRules";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
+import { processDataStream } from "ai";
+import { stream } from "hono/streaming";
 
 type Variables = {
 	cwd: string;
@@ -123,10 +126,13 @@ app.openapi(
 				}
 			},
 		});
-		// return stream(c, async (stream) => {
-		// 	// TODO:
-		// });
-		return agentStream.toDataStreamResponse();
+		const processor = new GetStreamProcessor(cwd);
+		return stream(c, async (stream) => {
+			await processDataStream({
+				stream: agentStream.toDataStream(),
+				...processor.execute(stream),
+			});
+		});
 	},
 );
 

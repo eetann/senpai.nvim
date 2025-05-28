@@ -1,23 +1,25 @@
-import type { processDataStream } from "@ai-sdk/ui-utils";
+import type { processDataStream } from "ai";
 import type { StreamingApi } from "hono/utils/stream";
-import { Part, type PartType } from "./AbstractHandler";
+import { type AbstractHandler, Part, type PartType } from "./AbstractHandler";
+import { ReplaceInFileHandler } from "./ReplaceInFileHandler";
+import { XmlStreamProcessor } from "./XmlStreamProcessor";
 
 type OnParts = Omit<Parameters<typeof processDataStream>[0], "stream">;
 
 export class GetStreamProcessor {
-	constructor(
-		private cwd: string,
-		private stream: StreamingApi,
-	) {}
-	execute(): OnParts {
+	constructor(private cwd: string) {}
+	execute(stream: StreamingApi): OnParts {
 		const writeText = (type: PartType, obj: unknown) => {
-			this.stream.writeln(`${type}:${JSON.stringify(obj)}`);
+			stream.writeln(`${type}:${JSON.stringify(obj)}`);
 		};
+		const handlers: AbstractHandler[] = [
+			new ReplaceInFileHandler(writeText, this.cwd),
+		];
+		const processor = new XmlStreamProcessor(handlers, writeText);
 
 		return {
 			onTextPart: (streamPart) => {
-				// TODO: ここで XMLStreamProcessorの処理を入れ、ツール呼び出しに変換
-				writeText(Part.text, streamPart);
+				processor.processChunk(streamPart);
 			},
 			onReasoningPart: (streamPart) => {
 				writeText(Part.reasoning, streamPart);

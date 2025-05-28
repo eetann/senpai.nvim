@@ -37,8 +37,8 @@ export class ReplaceInFileHandler extends AbstractHandler {
 	}
 
 	endTag(): void {
-		this.writeFunction(Part.toolCall, {
-			toolCallId: `${this.toolName}-${Date.toString()}`,
+		this.writeFunction(Part.toolResult, {
+			toolCallId: `${this.toolName}-${Date().toString()}`,
 			toolName: this.toolName,
 			result: {
 				diffs: this.diffs,
@@ -60,7 +60,7 @@ export class ReplaceInFileHandler extends AbstractHandler {
 		);
 		this.currentContent = "";
 		this.writeFunction(Part.toolCall, {
-			toolCallId: `${this.toolName}-${Date.toString()}`,
+			toolCallId: `${this.toolName}-${Date().toString()}`,
 			toolName: this.toolName,
 			args: {
 				path: this.path,

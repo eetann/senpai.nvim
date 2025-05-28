@@ -8,7 +8,7 @@ local function render_base(chat, content)
   if type(content.toolName) ~= "string" or content.toolName == "" then
     return
   end
-  if content.toolName == "ReplaceInFile" then
+  if content.toolName == "ReplaceInFile" and type(content.args) == "table" then
     local path = content.args.path --[[@as string]]
     chat:add_diff_block(path)
     return

@@ -1,4 +1,8 @@
-import type { AbstractHandler } from "./AbstractHandler";
+import {
+	type AbstractHandler,
+	Part,
+	type WriteFunction,
+} from "./AbstractHandler";
 
 /**
  * Stream-based XML parser that delegates tag processing to handlers.
@@ -8,7 +12,10 @@ export class XmlStreamProcessor {
 	lineBuffer = "";
 	handlers: Record<string, AbstractHandler> = {};
 
-	constructor(handlers: AbstractHandler[]) {
+	constructor(
+		handlers: AbstractHandler[],
+		private writeFunction: WriteFunction,
+	) {
 		for (const handler of handlers) {
 			this.handlers[handler.tagName] = handler;
 		}
@@ -53,10 +60,7 @@ export class XmlStreamProcessor {
 					return;
 				}
 			}
-			// TODO: 旧こーどではrender_base
-			// if not self.current_tag then
-			//   self:render_base(chunk)
-			// end
+			this.writeFunction(Part.text, chunk);
 			return;
 		}
 

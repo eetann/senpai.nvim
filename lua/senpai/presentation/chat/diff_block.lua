@@ -16,7 +16,7 @@ setmetatable(M, { __index = IBlock })
 function M.new(opts)
   local self = setmetatable({}, M)
   self.block_type = "diff"
-  local row = opts.row or vim.api.nvim_buf_line_count(self.bufnr) - 1
+  local row = opts.row or vim.api.nvim_buf_line_count(opts.bufnr)
   self.row = row
   self.winid = opts.winid
   self.bufnr = opts.bufnr
@@ -29,9 +29,10 @@ function M.new(opts)
   self.replace_text = ""
   self.search_text = ""
   self:setup()
-  utils.replace_text_at_last(self.bufnr, "filepath: " .. self.path .. "\n")
-  -- local row = vim.api.nvim_buf_line_count(self.bufnr)
-  -- self.diff_block = self.chat:add_diff_block(row - 1, path)
+  utils.replace_text_at_last(
+    self.bufnr,
+    "filepath: " .. self.path .. "\n```\n```\n"
+  )
   self:mount()
 
   return self
