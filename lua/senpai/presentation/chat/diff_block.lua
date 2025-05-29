@@ -11,6 +11,27 @@ local M = {}
 M.__index = M
 setmetatable(M, { __index = IBlock })
 
+---@param row integer
+---@return {start_line: integer, end_line: integer}|nil
+local function get_codeblock_range(row)
+  local parser = vim.treesitter.get_parser(0, "markdown")
+  if not parser then
+    return nil
+  end
+  local tree = parser:parse()[1]
+  local root = tree:root()
+
+  local node = root:named_descendant_for_range(row, 0, row, 0)
+  while node do
+    if node:type() == "fenced_code_block" then
+      local start_row, _, end_row, _ = node:range()
+      return { start_line = start_row, end_line = end_row - 1 }
+    end
+    node = node:parent()
+  end
+  return nil
+end
+
 ---@param opts { winid:integer, bufnr:integer, row:integer|nil, path:string }
 ---@return senpai.DiffBlock
 function M.new(opts)
@@ -49,10 +70,6 @@ function M:setup_body()
         is_active = is_tab_active("tab-diff"),
         on_press = function()
           self.signal.active_tab = "tab-diff"
-          require("senpai.presentation.change_replace_tab").change_replace_tab(
-            "diff",
-            self.row
-          )
         end,
         mappings = function()
           return {
@@ -76,10 +93,6 @@ function M:setup_body()
         is_active = is_tab_active("tab-replace"),
         on_press = function()
           self.signal.active_tab = "tab-replace"
-          require("senpai.presentation.change_replace_tab").change_replace_tab(
-            "replace",
-            self.row
-          )
         end,
       }),
       Gap({ size = 1 }, { zindex = 49 }),
@@ -89,10 +102,6 @@ function M:setup_body()
         is_active = is_tab_active("tab-search"),
         on_press = function()
           self.signal.active_tab = "tab-search"
-          require("senpai.presentation.change_replace_tab").change_replace_tab(
-            "search",
-            self.row
-          )
         end,
       }),
       Gap({ flex = 1 }, { zindex = 49 }),
@@ -137,16 +146,30 @@ function M:setup_keymaps()
 end
 
 function M:change_tab(tab)
+  local text = ""
   if tab == "diff" then
     self.signal.active_tab = "tab-diff"
+    text = "```diff\n" .. self.diff_text
   elseif tab == "replace" then
     self.signal.active_tab = "tab-replace"
+    text = "```" .. self.filetype .. "\n" .. self.replace_text
   elseif tab == "search" then
     self.signal.active_tab = "tab-search"
+    text = "```" .. self.filetype .. "\n" .. self.search_text
   end
-  require("senpai.presentation.change_replace_tab").change_replace_tab(
-    tab,
-    self.row
+  text = text .. "\n```\n"
+
+  local range = get_codeblock_range(self.row + 1)
+  if not range then
+    return
+  end
+  vim.api.nvim_buf_set_text(
+    self.bufnr,
+    range.start_line,
+    0,
+    range.end_line + 1,
+    0,
+    vim.split(text, "\n")
   )
 end
 
