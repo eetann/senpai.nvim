@@ -232,6 +232,7 @@ function M.execute(chat)
   local original_win, original_buf, original_filetype =
     setup_edit_window(diff_block.path)
 
+  -- TODO: ここで検索するのは`search_text`じゃなくて`diffs[n].search`
   local range = find_replace_range(diff_block.path, diff_block.search_text)
   if not range then
     return

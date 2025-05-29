@@ -1,4 +1,5 @@
 local utils = require("senpai.usecase.utils")
+local ToolCallMessage = require("senpai.usecase.message.tool_call")
 
 ---@class senpai.message.assistant
 ---@field chat senpai.IChatWindow
@@ -18,20 +19,25 @@ function M:render_base(text)
   utils.set_text_at_last(self.chat.log_area.bufnr, text)
 end
 
+---@param chat senpai.IChatWindow
 ---@param message senpai.chat.message.assistant
-function M:render_from_memory(message)
+function M:render_from_memory(chat, message)
   local content = message.content
   if type(content) == "string" then
     self:render_base(content)
     return
   end
-  -- content is `senpai.chat.message.assistant.part[]`
+  ---@cast content senpai.chat.message.assistant.part[]
   local text = ""
   for _, part in pairs(content) do
     if part.type == "text" then
-      text = text .. "\n" .. part.text
+      text = text .. part.text
     elseif part.type == "reasoning" then
       text = text .. "\n" .. part.text
+    elseif part.type == "tool-call" then
+      self:render_base(text .. "\n")
+      text = ""
+      ToolCallMessage.render_from_memory(chat, part)
     end
   end
   self:render_base(text)
