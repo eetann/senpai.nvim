@@ -97,6 +97,7 @@ function parseConflictDiffBlocks(content: string): DiffText[] {
 			const search = match[1].replace(/\n$/, "");
 			const replace = match[2].replace(/\n$/, "");
 			const diff = getDiffText(search, replace);
+			// TODO: ここでsearchが存在しなかったら`errors`として投げる
 			result.push({ search, replace, diff });
 		}
 	}

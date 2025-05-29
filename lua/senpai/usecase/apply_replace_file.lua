@@ -1,4 +1,5 @@
 local utils = require("senpai.usecase.utils")
+local send_text = require("senpai.usecase.send_text")
 
 local M = {}
 
@@ -171,12 +172,12 @@ local function find_replace_range(path, search_text)
 end
 
 ---@param original_buf integer
----@param range {start_line:integer, end_line:integer}
----@param replace_text string
+---@param path string
+---@param diffs {search:string, replace:string, diff:string}[]
 ---@param id string
 ---@param filetype string
----@return integer
-local function create_ai_buffer(original_buf, range, replace_text, id, filetype)
+---@return {bufnr:integer, errors: string}
+local function create_ai_buffer(original_buf, path, diffs, id, filetype)
   local ai_buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_name(ai_buf, "[senpai] " .. id)
   vim.api.nvim_set_option_value(
@@ -192,14 +193,39 @@ local function create_ai_buffer(original_buf, range, replace_text, id, filetype)
 
   local original_lines = vim.api.nvim_buf_get_lines(original_buf, 0, -1, false)
   vim.api.nvim_buf_set_lines(ai_buf, 0, -1, false, original_lines)
-  vim.api.nvim_buf_set_lines(
-    ai_buf,
-    range.start_line - 1,
-    range.end_line - 1,
-    false,
-    vim.split(replace_text, "\n")
-  )
-  return ai_buf
+  local errors = ""
+  ---@type {start_row:integer, end_row:integer, lines: string[]}[]
+  local replaces = {}
+  for _, diff in pairs(diffs) do
+    local range = find_replace_range(path, diff.search)
+    if not range then
+      errors = errors
+        .. "The SEARCH block:```\n"
+        .. "```\n...does not match anything in the file or was searched out of order in the provided blocks.\n"
+      goto continue
+    end
+    table.insert(replaces, {
+      start_row = range.start_line - 1,
+      end_row = range.end_line - 1,
+      lines = vim.split(diff.replace, "\n"),
+    })
+
+    ::continue::
+  end
+  if errors ~= "" then
+    errors = errors .. "path: " .. path
+    return { bufnr = -1, errors = errors }
+  end
+  for _, replace in pairs(replaces) do
+    vim.api.nvim_buf_set_lines(
+      ai_buf,
+      replace.start_row,
+      replace.end_row,
+      false,
+      replace.lines
+    )
+  end
+  return { bufnr = ai_buf, errors = "" }
 end
 
 local function setup_diff_windows(original_win, ai_win)
@@ -232,19 +258,22 @@ function M.execute(chat)
   local original_win, original_buf, original_filetype =
     setup_edit_window(diff_block.path)
 
-  -- TODO: ここで検索するのは`search_text`じゃなくて`diffs[n].search`
-  local range = find_replace_range(diff_block.path, diff_block.search_text)
-  if not range then
-    return
-  end
-
-  local ai_buf = create_ai_buffer(
+  -- TODO: この処理を`diff_block`でツールを受け取った段階で実施し、そのときはバッファは作成しない。エラーがあればその段階でAIにFB
+  local result = create_ai_buffer(
     original_buf,
-    range,
-    diff_block.replace_text,
+    diff_block.path,
+    diff_block.diffs,
     chat.thread_id .. "-" .. row,
     original_filetype
   )
+  if result.errors ~= "" then
+    vim.print(result.errors)
+    -- TODO: 新しい指示プロンプトを書く
+    -- TODO: エラー表示を折りたたみにする
+    -- send_text.execute(chat, result.errors)
+    return
+  end
+  local ai_buf = result.bufnr
   local ai_win = vim.api.nvim_open_win(
     ai_buf,
     false,

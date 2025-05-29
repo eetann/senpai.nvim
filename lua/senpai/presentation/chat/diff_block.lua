@@ -46,9 +46,7 @@ function M.new(opts)
   self.signal = n.create_signal({
     active_tab = "no-tab",
   })
-  self.diff_text = ""
-  self.replace_text = ""
-  self.search_text = ""
+  self.diffs = {}
   self:setup()
   utils.replace_text_at_last(
     self.bufnr,
@@ -149,13 +147,28 @@ function M:change_tab(tab)
   local text = ""
   if tab == "diff" then
     self.signal.active_tab = "tab-diff"
-    text = "```diff\n" .. self.diff_text
+    text = "```diff\n"
+    local lines = {}
+    for _, diff in pairs(self.diffs) do
+      table.insert(lines, diff.diff)
+    end
+    text = text .. table.concat(lines, "\n\n")
   elseif tab == "replace" then
     self.signal.active_tab = "tab-replace"
-    text = "```" .. self.filetype .. "\n" .. self.replace_text
+    text = "```" .. self.filetype .. "\n"
+    local lines = {}
+    for _, diff in pairs(self.diffs) do
+      table.insert(lines, diff.replace)
+    end
+    text = text .. table.concat(lines, "\n\n")
   elseif tab == "search" then
     self.signal.active_tab = "tab-search"
-    text = "```" .. self.filetype .. "\n" .. self.search_text
+    text = "```" .. self.filetype .. "\n"
+    local lines = {}
+    for _, diff in pairs(self.diffs) do
+      table.insert(lines, diff.search)
+    end
+    text = text .. table.concat(lines, "\n\n")
   end
   text = text .. "\n```\n"
 
@@ -182,9 +195,6 @@ function M:tool_result(result)
     table.insert(replace_lines, diff.replace)
     table.insert(diff_lines, diff.diff)
   end
-  self.search_text = table.concat(search_lines, "\n\n")
-  self.replace_text = table.concat(replace_lines, "\n\n")
-  self.diff_text = table.concat(diff_lines, "\n\n")
 
   if Config.chat.log_area.replace_show_type == "diff" then
     self:change_tab("diff")
@@ -192,6 +202,7 @@ function M:tool_result(result)
     self:change_tab("replace")
   end
 end
+
 -- local block = M.new({
 --   winid = vim.api.nvim_get_current_win(),
 --   bufnr = vim.api.nvim_get_current_buf(),

@@ -63,15 +63,17 @@ function M.execute(chat)
   if not diff_block then
     return
   end
-  local active_tab = diff_block.signal.active_tab:get_value()
-  if active_tab == "tab-diff" then
-    vim.fn.setreg("+", diff_block.diff_text or "")
-  elseif active_tab == "tab-replace" then
-    vim.fn.setreg("+", diff_block.replace_text or "")
-  else
-    vim.fn.setreg("+", diff_block.search_text or "")
-  end
-  vim.notify("[senpai] yank current code", vim.log.levels.INFO)
+  vim.notify("code coming soon")
+  -- TODO:
+  -- local active_tab = diff_block.signal.active_tab:get_value()
+  -- if active_tab == "tab-diff" then
+  --   vim.fn.setreg("+", diff_block.diff_text or "")
+  -- elseif active_tab == "tab-replace" then
+  --   vim.fn.setreg("+", diff_block.replace_text or "")
+  -- else
+  --   vim.fn.setreg("+", diff_block.search_text or "")
+  -- end
+  -- vim.notify("[senpai] yank current code", vim.log.levels.INFO)
 end
 
 return M

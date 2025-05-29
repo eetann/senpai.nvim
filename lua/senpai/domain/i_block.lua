@@ -153,9 +153,7 @@ end
 ---@field signal { active_tab: NuiSignal<string> }
 ---@field path string
 ---@field filetype string
----@field diff_text string
----@field replace_text string
----@field search_text string
+---@field diffs {search:string, replace:string, diff:string}[]
 ---@field change_tab fun(self, tab: "diff"|"replace"|"search"):nil
 ---@field tool_result fun(self, result: senpai.chat.message.result.replace_in_file):nil
 
