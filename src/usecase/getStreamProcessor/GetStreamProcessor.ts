@@ -18,52 +18,52 @@ export class GetStreamProcessor {
 		const processor = new XmlStreamProcessor(handlers, writeText);
 
 		return {
-			onTextPart: (streamPart) => {
+			onTextPart: async (streamPart) => {
 				processor.processChunk(streamPart);
 			},
-			onReasoningPart: (streamPart) => {
+			onReasoningPart: async (streamPart) => {
 				writeText(Part.reasoning, streamPart);
 			},
-			onRedactedReasoningPart: (streamPart) => {
+			onRedactedReasoningPart: async (streamPart) => {
 				writeText(Part.redactedReasoning, streamPart);
 			},
-			onReasoningSignaturePart: (streamPart) => {
+			onReasoningSignaturePart: async (streamPart) => {
 				writeText(Part.reasoningSignature, streamPart);
 			},
-			onSourcePart: (streamPart) => {
+			onSourcePart: async (streamPart) => {
 				writeText(Part.source, streamPart);
 			},
-			onFilePart: (streamPart) => {
+			onFilePart: async (streamPart) => {
 				writeText(Part.file, streamPart);
 			},
-			onDataPart: (streamPart) => {
+			onDataPart: async (streamPart) => {
 				writeText(Part.data, streamPart);
 			},
-			onMessageAnnotationsPart: (streamPart) => {
+			onMessageAnnotationsPart: async (streamPart) => {
 				writeText(Part.messageAnnotations, streamPart);
 			},
-			onErrorPart: (streamPart) => {
+			onErrorPart: async (streamPart) => {
 				writeText(Part.error, streamPart);
 			},
-			onToolCallStreamingStartPart: (streamPart) => {
+			onToolCallStreamingStartPart: async (streamPart) => {
 				writeText(Part.toolCallStreamingStart, streamPart);
 			},
-			onToolCallDeltaPart: (streamPart) => {
+			onToolCallDeltaPart: async (streamPart) => {
 				writeText(Part.toolCallDelta, streamPart);
 			},
-			onToolCallPart: (streamPart) => {
+			onToolCallPart: async (streamPart) => {
 				writeText(Part.toolCall, streamPart);
 			},
-			onToolResultPart: (streamPart) => {
+			onToolResultPart: async (streamPart) => {
 				writeText(Part.toolResult, streamPart);
 			},
-			onStartStepPart: (streamPart) => {
+			onStartStepPart: async (streamPart) => {
 				writeText(Part.startStep, streamPart);
 			},
-			onFinishStepPart: (streamPart) => {
+			onFinishStepPart: async (streamPart) => {
 				writeText(Part.finishStep, streamPart);
 			},
-			onFinishMessagePart: (streamPart) => {
+			onFinishMessagePart: async (streamPart) => {
 				writeText(Part.finishMessage, streamPart);
 			},
 		};

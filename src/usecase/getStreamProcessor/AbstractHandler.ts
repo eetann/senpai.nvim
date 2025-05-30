@@ -42,13 +42,14 @@ export abstract class AbstractHandler {
 	currentTag: string | null = null;
 
 	/** Map of tag patterns to handler functions */
-	handlers: Map<string, (chunk?: string, line?: string) => void> = new Map();
+	handlers: Map<string, (chunk?: string, line?: string) => Promise<void>> =
+		new Map();
 
 	/** Called when the main tag starts */
-	abstract startTag(): void;
+	abstract startTag(): Promise<void>;
 
 	/** Called when the main tag ends */
-	abstract endTag(): void;
+	abstract endTag(): Promise<void>;
 
 	/** Called when a line of text is received inside the tag */
 	abstract contentLine(chunk: string): void;

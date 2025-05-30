@@ -25,7 +25,7 @@ export class XmlStreamProcessor {
 	 * Process a chunk of text (may contain multiple lines).
 	 * @param text
 	 */
-	processChunk(text: string) {
+	async processChunk(text: string) {
 		const lines = text.split("\n");
 		const length = lines.length;
 		for (let i = 0; i < length; i++) {
@@ -36,7 +36,7 @@ export class XmlStreamProcessor {
 			if (length > 1 && !isLastLine) {
 				chunk += "\n";
 			}
-			this.processLine(chunk, isLastLine);
+			await this.processLine(chunk, isLastLine);
 			if (!isLastLine) {
 				this.lineBuffer = "";
 			}
@@ -48,7 +48,7 @@ export class XmlStreamProcessor {
 	 * @param chunk
 	 * @param isLastLine
 	 */
-	processLine(chunk: string, isLastLine: boolean) {
+	async processLine(chunk: string, isLastLine: boolean) {
 		const lowerLine = this.lineBuffer.toLowerCase();
 
 		// start tag detection
@@ -56,7 +56,7 @@ export class XmlStreamProcessor {
 			for (const tagName in this.handlers) {
 				if (lowerLine.match(new RegExp(`^<${tagName}>$`))) {
 					this.currentTag = tagName;
-					this.handlers[tagName].startTag();
+					await this.handlers[tagName].startTag();
 					return;
 				}
 			}
@@ -69,21 +69,21 @@ export class XmlStreamProcessor {
 			// sub tag detection
 			for (const [pattern, handlerFn] of currentHandler.handlers.entries()) {
 				if (lowerLine.match(new RegExp(`^${pattern}$`))) {
-					handlerFn.call(currentHandler, chunk, this.lineBuffer);
+					await handlerFn.call(currentHandler, chunk, this.lineBuffer);
 					this.lineBuffer = "";
 					return;
 				}
 			}
 			// end tag detection
 			if (lowerLine.match(new RegExp(`^</${this.currentTag}>$`))) {
-				currentHandler.endTag();
+				await currentHandler.endTag();
 				this.currentTag = null;
 				return;
 			}
 		}
 		for (const tagName in this.handlers) {
 			if (lowerLine.match(new RegExp(`^</${tagName}>$`))) {
-				this.handlers[tagName].endTag();
+				await this.handlers[tagName].endTag();
 				this.currentTag = null;
 				return;
 			}
