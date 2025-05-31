@@ -12,12 +12,15 @@ M.__index = M
 setmetatable(M, { __index = IBlock })
 
 ---@param row integer
+---@param bufnr integer
 ---@return {start_line: integer, end_line: integer}|nil
-local function get_codeblock_range(row)
-  local parser = vim.treesitter.get_parser(0, "markdown")
+local function get_codeblock_range(row, bufnr)
+  local parser = vim.treesitter.get_parser(bufnr, "markdown")
   if not parser then
     return nil
   end
+  -- Force parser to update
+  parser:parse(true)
   local tree = parser:parse()[1]
   local root = tree:root()
 
@@ -144,6 +147,11 @@ function M:setup_keymaps()
 end
 
 function M:change_tab(tab)
+  local range = get_codeblock_range(self.row + 1, self.bufnr)
+  if not range then
+    return
+  end
+
   local text = ""
   if tab == "diff" then
     self.signal.active_tab = "tab-diff"
@@ -184,11 +192,6 @@ function M:change_tab(tab)
   end
   text = text .. "\n```\n"
 
-  local range = get_codeblock_range(self.row + 1)
-  if not range then
-    vim.print(" not range")
-    return
-  end
   vim.api.nvim_buf_set_text(
     self.bufnr,
     range.start_line,
