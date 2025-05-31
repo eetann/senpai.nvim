@@ -1,8 +1,21 @@
-import { describe, expect, it } from "vitest";
-import { ReplaceInFileHandler } from "./ReplaceInFileHandler";
+import { describe, expect, it, vi } from "vitest";
+import * as ReplaceInFileModule from "./ReplaceInFileHandler";
 import { XmlStreamProcessor } from "./XmlStreamProcessor";
 
 const writeFunction = () => {};
+
+// Mock readFile from fs/promises to return content that includes our search text
+vi.mock("node:fs/promises", () => ({
+	readFile: vi.fn().mockImplementation(async (filename: string) => {
+		// Return content that includes all the search texts we're looking for
+		return `function calculate(a, b) {
+  return a - b;
+}
+
+console.log('foo');
+console.log('other code');`;
+	}),
+}));
 
 describe("ReplaceInFileHandler XML stream parsing (conflict marker style)", () => {
 	it("parses a basic replace_in_file XML with one diff block", async () => {
@@ -18,9 +31,9 @@ describe("ReplaceInFileHandler XML stream parsing (conflict marker style)", () =
 </diff>
 </replace_in_file>`;
 
-		const handler = new ReplaceInFileHandler(writeFunction, process.cwd());
-		const processor = new XmlStreamProcessor([handler]);
-		processor.processChunk(xmlLines);
+		const handler = new ReplaceInFileModule.ReplaceInFileHandler(writeFunction, process.cwd());
+		const processor = new XmlStreamProcessor([handler], writeFunction);
+		await processor.processChunk(xmlLines);
 
 		expect(handler.path).toEqual("src/main.js");
 		expect(handler.diffs.length).toBe(1);
@@ -48,10 +61,10 @@ describe("ReplaceInFileHandler XML stream parsing (conflict marker style)", () =
 			"</replace_in_file>\n",
 		];
 
-		const handler = new ReplaceInFileHandler(writeFunction, process.cwd());
-		const processor = new XmlStreamProcessor([handler]);
+		const handler = new ReplaceInFileModule.ReplaceInFileHandler(writeFunction, process.cwd());
+		const processor = new XmlStreamProcessor([handler], writeFunction);
 		for (const line of xmlLines) {
-			processor.processChunk(line);
+			await processor.processChunk(line);
 		}
 
 		expect(handler.path).toEqual("src/main.js");
@@ -64,7 +77,7 @@ describe("ReplaceInFileHandler XML stream parsing (conflict marker style)", () =
 		);
 	});
 
-	it("parses multiple diff blocks", () => {
+	it("parses multiple diff blocks", async () => {
 		const xmlLines = [
 			"<replace_in_file>",
 			"<path>src/main.js</path>",
@@ -82,10 +95,10 @@ describe("ReplaceInFileHandler XML stream parsing (conflict marker style)", () =
 			"</diff>",
 			"</replace_in_file>",
 		];
-		const handler = new ReplaceInFileHandler(writeFunction, process.cwd());
-		const processor = new XmlStreamProcessor([handler]);
+		const handler = new ReplaceInFileModule.ReplaceInFileHandler(writeFunction, process.cwd());
+		const processor = new XmlStreamProcessor([handler], writeFunction);
 		for (const line of xmlLines) {
-			processor.processChunk(`${line}\n`);
+			await processor.processChunk(`${line}\n`);
 		}
 		expect(handler.path).toEqual("src/main.js");
 		expect(handler.diffs.length).toBe(2);
