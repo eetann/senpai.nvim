@@ -150,7 +150,11 @@ function M:change_tab(tab)
     text = "```diff\n"
     local lines = {}
     for _, diff in pairs(self.diffs) do
-      table.insert(lines, diff.diff)
+      if diff.error ~= "" then
+        table.insert(lines, "# ERROR: " .. diff.error)
+      else
+        table.insert(lines, diff.diff)
+      end
     end
     text = text .. table.concat(lines, "\n\n")
   elseif tab == "replace" then
@@ -158,7 +162,11 @@ function M:change_tab(tab)
     text = "```" .. self.filetype .. "\n"
     local lines = {}
     for _, diff in pairs(self.diffs) do
-      table.insert(lines, diff.replace)
+      if diff.error ~= "" then
+        table.insert(lines, "// ERROR: " .. diff.error)
+      else
+        table.insert(lines, diff.replace)
+      end
     end
     text = text .. table.concat(lines, "\n\n")
   elseif tab == "search" then
@@ -166,7 +174,11 @@ function M:change_tab(tab)
     text = "```" .. self.filetype .. "\n"
     local lines = {}
     for _, diff in pairs(self.diffs) do
-      table.insert(lines, diff.search)
+      if diff.error ~= "" then
+        table.insert(lines, "// ERROR: " .. diff.error)
+      else
+        table.insert(lines, diff.search)
+      end
     end
     text = text .. table.concat(lines, "\n\n")
   end
@@ -174,6 +186,7 @@ function M:change_tab(tab)
 
   local range = get_codeblock_range(self.row + 1)
   if not range then
+    vim.print(" not range")
     return
   end
   vim.api.nvim_buf_set_text(
@@ -187,14 +200,8 @@ function M:change_tab(tab)
 end
 
 function M:tool_result(result)
-  local search_lines = {}
-  local replace_lines = {}
-  local diff_lines = {}
-  for _, diff in ipairs(result.diffs) do
-    table.insert(search_lines, diff.search)
-    table.insert(replace_lines, diff.replace)
-    table.insert(diff_lines, diff.diff)
-  end
+  -- Store the diffs array with all the information from server
+  self.diffs = result.diffs
 
   if Config.chat.log_area.replace_show_type == "diff" then
     self:change_tab("diff")

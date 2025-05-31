@@ -1,6 +1,3 @@
-local utils = require("senpai.usecase.utils")
-local send_text = require("senpai.usecase.send_text")
-
 local M = {}
 
 ---@type table<number, vim.api.keyset.get_keymap[]>
@@ -159,21 +156,9 @@ local function setup_edit_window(path)
   return original_win, original_buf, original_filetype
 end
 
----@param path string
----@param search_text string
----@return {start_line:integer, end_line:integer}|nil
-local function find_replace_range(path, search_text)
-  local range = utils.find_text(path, search_text)
-  if range.start_line == 0 then
-    vim.notify("[senpai]: Could not find code.", vim.log.levels.WARN)
-    return nil
-  end
-  return range
-end
-
 ---@param original_buf integer
 ---@param path string
----@param diffs {search:string, replace:string, diff:string}[]
+---@param diffs {search:string, replace:string, diff:string, startLine:integer, endLine:integer, error:string}[]
 ---@param id string
 ---@param filetype string
 ---@return {bufnr:integer, errors: string}
@@ -197,16 +182,13 @@ local function create_ai_buffer(original_buf, path, diffs, id, filetype)
   ---@type {start_row:integer, end_row:integer, lines: string[]}[]
   local replaces = {}
   for _, diff in pairs(diffs) do
-    local range = find_replace_range(path, diff.search)
-    if not range then
-      errors = errors
-        .. "The SEARCH block:```\n"
-        .. "```\n...does not match anything in the file or was searched out of order in the provided blocks.\n"
+    if diff.error ~= "" then
+      errors = errors .. diff.error .. "\n"
       goto continue
     end
     table.insert(replaces, {
-      start_row = range.start_line - 1,
-      end_row = range.end_line - 1,
+      start_row = diff.startLine - 1,
+      end_row = diff.endLine,
       lines = vim.split(diff.replace, "\n"),
     })
 
@@ -258,7 +240,6 @@ function M.execute(chat)
   local original_win, original_buf, original_filetype =
     setup_edit_window(diff_block.path)
 
-  -- TODO: この処理を`diff_block`でツールを受け取った段階で実施し、そのときはバッファは作成しない。エラーがあればその段階でAIにFB
   local result = create_ai_buffer(
     original_buf,
     diff_block.path,
@@ -268,9 +249,6 @@ function M.execute(chat)
   )
   if result.errors ~= "" then
     vim.print(result.errors)
-    -- TODO: 新しい指示プロンプトを書く
-    -- TODO: エラー表示を折りたたみにする
-    -- send_text.execute(chat, result.errors)
     return
   end
   local ai_buf = result.bufnr

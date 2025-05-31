@@ -94,7 +94,7 @@ export class GetMessagesUseCase {
 					continue;
 				}
 				// type text
-				processor.processChunk(part.text);
+				await processor.processChunk(part.text);
 			}
 		}
 		return convertMessages;
