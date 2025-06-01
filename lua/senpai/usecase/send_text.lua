@@ -112,6 +112,8 @@ function M.execute(chat, user_input)
     end,
     callback = function()
       spinner:stop()
+      -- Show action buttons after AI message is complete
+      chat:show_action_buttons()
     end,
   })
 end

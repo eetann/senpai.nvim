@@ -16,7 +16,7 @@ setmetatable(M, { __index = IBlock })
 ---@return senpai.TerminalBlock
 function M.new(opts)
   local self = setmetatable({}, M)
-  self.block_type = "terminal"
+  self.block_type = "execute_command"
   self.row = opts.row
   self.winid = opts.winid
   self.bufnr = opts.bufnr
@@ -151,8 +151,72 @@ function M:execute_command_in_term()
         string.format("\r\n[Process exited %d]\r\n", code)
       )
       self.job_id = nil
+      self.exit_code = code
     end,
   })
+end
+
+---@return { label: string, action_type: string, enabled?: boolean }[]
+function M:get_action_buttons()
+  if not self.term_bufnr then
+    -- Command not executed yet
+    return {
+      { label = "Run", action_type = "run", enabled = true },
+      { label = "Reject", action_type = "reject", enabled = true },
+    }
+  else
+    -- Command has been executed
+    return {
+      { label = "Accept", action_type = "accept", enabled = true },
+      { label = "Reject", action_type = "reject", enabled = true },
+    }
+  end
+end
+
+---@param action_type string
+---@param user_input? string
+---@return { success: boolean, message: string }
+function M:handle_action(action_type, user_input)
+  if action_type == "run" then
+    -- Execute the command
+    self:execute_command_in_term()
+    
+    -- Wait a bit for command to complete (simple approach for now)
+    vim.wait(100)
+    
+    local message = "Executed command: " .. self.command
+    if user_input and user_input ~= "" then
+      message = message .. "\n\n" .. user_input
+    end
+    
+    return { success = true, message = message }
+  elseif action_type == "accept" then
+    local result_lines = {}
+    if self.term_bufnr and vim.api.nvim_buf_is_valid(self.term_bufnr) then
+      result_lines = vim.api.nvim_buf_get_lines(self.term_bufnr, 0, -1, false)
+    end
+    
+    local message = "Accepted command execution results for: " .. self.command
+    if #result_lines > 0 then
+      message = message .. "\n\nOutput:\n" .. table.concat(result_lines, "\n")
+    end
+    if self.exit_code then
+      message = message .. "\n\nExit code: " .. tostring(self.exit_code)
+    end
+    if user_input and user_input ~= "" then
+      message = message .. "\n\n" .. user_input
+    end
+    
+    return { success = true, message = message }
+  elseif action_type == "reject" then
+    local message = "Rejected command: " .. self.command
+    if user_input and user_input ~= "" then
+      message = message .. "\n\n" .. user_input
+    end
+    return { success = true, message = message }
+  else
+    return { success = false, message = "Unknown action type: " .. action_type }
+  end
 end
 
 -- local block = M.new({

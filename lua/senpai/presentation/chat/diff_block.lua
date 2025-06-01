@@ -39,7 +39,7 @@ end
 ---@return senpai.DiffBlock
 function M.new(opts)
   local self = setmetatable({}, M)
-  self.block_type = "diff"
+  self.block_type = "replace_in_file"
   local row = opts.row or vim.api.nvim_buf_line_count(opts.bufnr)
   self.row = row
   self.winid = opts.winid
@@ -210,6 +210,104 @@ function M:tool_result(result)
     self:change_tab("diff")
   else
     self:change_tab("replace")
+  end
+end
+
+---@return { label: string, action_type: string, enabled?: boolean }[]
+function M:get_action_buttons()
+  -- Check if there are any errors in diffs
+  local has_errors = false
+  for _, diff in ipairs(self.diffs) do
+    if diff.error and diff.error ~= "" then
+      has_errors = true
+      break
+    end
+  end
+
+  if has_errors then
+    -- TODO: 自動でエラーを投げる？
+    -- If there are errors, don't show action buttons
+    return {}
+  end
+
+  return {
+    { label = "Accept", action_type = "accept", enabled = true },
+    { label = "Reject", action_type = "reject", enabled = true },
+  }
+end
+
+---@param action_type string
+---@param user_input? string
+---@return { success: boolean, message: string }
+function M:handle_action(action_type, user_input)
+  if action_type == "accept" then
+    -- Apply the diffs
+    local apply_replace_file = require("senpai.usecase.apply_replace_file")
+    local errors = ""
+
+    -- Collect all replacements
+    local replaces = {}
+    for _, diff in ipairs(self.diffs) do
+      if diff.error == "" or not diff.error then
+        table.insert(replaces, {
+          start_row = diff.startLine - 1,
+          end_row = diff.endLine,
+          lines = vim.split(diff.replace, "\n"),
+        })
+      end
+    end
+
+    -- Apply replacements to the file
+    local file_path = vim.fn.expand(self.path)
+    local bufnr = nil
+
+    -- Find or create buffer for the file
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.api.nvim_buf_is_loaded(buf) then
+        local name = vim.api.nvim_buf_get_name(buf)
+        if name == vim.fn.fnamemodify(file_path, ":p") then
+          bufnr = buf
+          break
+        end
+      end
+    end
+
+    if not bufnr then
+      -- Create new buffer with the file
+      vim.cmd("edit " .. vim.fn.fnameescape(file_path))
+      bufnr = vim.api.nvim_get_current_buf()
+    end
+
+    -- Apply the replacements
+    for _, replace in ipairs(replaces) do
+      vim.api.nvim_buf_set_lines(
+        bufnr,
+        replace.start_row,
+        replace.end_row,
+        false,
+        replace.lines
+      )
+    end
+
+    -- Save the file
+    vim.api.nvim_buf_call(bufnr, function()
+      vim.cmd("write")
+    end)
+
+    local message = "Successfully applied changes to " .. self.path
+    if user_input and user_input ~= "" then
+      message = message .. "\n\n" .. user_input
+    end
+
+    return { success = true, message = message }
+  elseif action_type == "reject" then
+    local message = "Rejected changes to " .. self.path
+    if user_input and user_input ~= "" then
+      message = message .. "\n\n" .. user_input
+    end
+    return { success = true, message = message }
+  else
+    return { success = false, message = "Unknown action type: " .. action_type }
   end
 end
 

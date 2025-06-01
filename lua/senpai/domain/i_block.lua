@@ -3,7 +3,7 @@ local n = require("nui-components")
 ---@module "nui.layout"
 ---@module "nui-components.renderer"
 
----@alias senpai.block_type "diff"|"terminal"|nil
+---@alias senpai.block_type "replace_in_file"|"execute_command"|nil
 
 ---@class senpai.IBlock
 ---@field block_type senpai.block_type
@@ -99,6 +99,18 @@ function M:is_visible()
   return self.renderer.layout and self.renderer.layout.winid ~= nil
 end
 
+---@return { label: string, action_type: string, enabled?: boolean }[]
+function M:get_action_buttons()
+  return {}
+end
+
+---@param action_type string
+---@param user_input? string
+---@return { success: boolean, message: string }
+function M:handle_action(action_type, user_input)
+  return { success = false, message = "Not implemented" }
+end
+
 ---@param to_last boolean|nil
 function M:focus(to_last)
   if to_last then
@@ -149,7 +161,7 @@ end
 -- types ---
 
 ---@class senpai.IDiffBlock: senpai.IBlock
----@field block_type "diff"
+---@field block_type "replace_in_file"
 ---@field signal { active_tab: NuiSignal<string> }
 ---@field path string
 ---@field filetype string
@@ -158,7 +170,7 @@ end
 ---@field tool_result fun(self, result: senpai.chat.message.result.replace_in_file):nil
 
 ---@class senpai.ITerminalBlock: senpai.IBlock
----@field block_type "terminal"
+---@field block_type "execute_command"
 ---@field command string
 ---@field result string
 ---@field term_bufnr integer|nil

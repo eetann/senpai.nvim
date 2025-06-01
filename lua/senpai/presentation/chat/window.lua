@@ -6,6 +6,10 @@ local Keymaps = require("senpai.presentation.chat.keymaps")
 local IChatWindow = require("senpai.domain.i_chat_window")
 local StickyPopupManager =
   require("senpai.presentation.chat.sticky_popup_manager")
+local n = require("nui-components")
+local Gap = require("nui-components.gap")
+local Columns = require("nui-components.columns")
+local send_text = require("senpai.usecase.send_text")
 
 local function create_winbar_text(text)
   return "%#Nomal#%=" .. text .. "%="
@@ -247,6 +251,126 @@ function M:add_terminal_block(row)
       StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
   end
   return self.sticky_popup_manager:add_terminal_block(row)
+end
+
+---Show action buttons for the last tool in AI message
+function M:show_action_buttons()
+  if not self.sticky_popup_manager then
+    return
+  end
+
+  -- Find the last block that has action buttons
+  local last_block = nil
+  local last_row = nil
+
+  for row, block in pairs(self.sticky_popup_manager.popups) do
+    if block and block.get_action_buttons then
+      local buttons = block:get_action_buttons()
+      if #buttons > 0 then
+        if not last_row or row > last_row then
+          last_block = block
+          last_row = row
+        end
+      end
+    end
+  end
+
+  if not last_block then
+    return
+  end
+
+  -- Create action buttons at the bottom of log area
+  local buttons = last_block:get_action_buttons()
+
+  -- Build button components
+  local button_components = {}
+  for i, button_def in ipairs(buttons) do
+    if button_def.enabled ~= false then
+      table.insert(
+        button_components,
+        n.button({
+          label = button_def.label,
+          flex = 1,
+          align = "center",
+          on_press = function()
+            -- Get user input from input area
+            local user_input = ""
+            if self.input_area and self.input_area.bufnr then
+              local lines =
+                vim.api.nvim_buf_get_lines(self.input_area.bufnr, 0, -1, false)
+              user_input = table.concat(lines, "\n")
+              -- Clear input area after getting text
+              vim.api.nvim_buf_set_lines(
+                self.input_area.bufnr,
+                0,
+                -1,
+                false,
+                {}
+              )
+            end
+
+            -- Handle the action
+            local result =
+              last_block:handle_action(button_def.action_type, user_input)
+
+            if result.success then
+              -- Send the result message to AI
+              local message = "["
+                .. last_block.block_type
+                .. "] Result:\n\n"
+                .. result.message
+              -- send_text.execute(self, message)
+              vim.print(message)
+
+              -- Hide action buttons after use
+              self:hide_action_buttons()
+            else
+              vim.notify(
+                "Action failed: " .. result.message,
+                vim.log.levels.ERROR
+              )
+            end
+          end,
+        })
+      )
+
+      if i < #buttons then
+        table.insert(button_components, Gap({ size = 1 }))
+      end
+    end
+  end
+
+  if #button_components == 0 then
+    return
+  end
+
+  -- Create the action button renderer
+  self.action_buttons_renderer = n.create_renderer({
+    bufnr = self.log_area.bufnr,
+    relative = {
+      type = "win",
+      winid = self.log_area.winid,
+    },
+    position = {
+      row = vim.api.nvim_win_get_height(self.log_area.winid) - 1,
+      col = 0,
+    },
+    -- width = vim.api.nvim_win_get_width(self.log_area.winid),
+    height = 1,
+  })
+
+  self.action_buttons_renderer:render(Columns({
+    flex = 1,
+    children = button_components,
+  }))
+end
+
+---Hide action buttons
+function M:hide_action_buttons()
+  if self.action_buttons_renderer then
+    self.action_buttons_renderer:close()
+    self.action_buttons_renderer = nil
+  end
 end
 
 return M

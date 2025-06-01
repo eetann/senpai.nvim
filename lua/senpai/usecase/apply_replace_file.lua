@@ -226,7 +226,7 @@ function M.execute(chat)
   if not manager then
     return
   end
-  local row = manager:find_prev_popup_row("diff")
+  local row = manager:find_prev_popup_row("replace_in_file")
   if not row then
     return
   end
