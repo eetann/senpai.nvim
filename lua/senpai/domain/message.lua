@@ -89,6 +89,9 @@
 ---@class senpai.chat.message.result.replace_in_file
 ---@field diffs {search:string, replace:string, diff: string}[]
 
+---@class senpai.chat.message.result.execute_command
+---@field command string
+
 ---@alias senpai.chat.message.tool.content senpai.chat.message.part.tool_result[]
 
 ---@class senpai.chat.message.tool

@@ -87,7 +87,8 @@
 - [x] H-2: lua/senpai/usecase/message/user.luaの改修
     - 新しいメッセージタグ形式に対応
     - `<task>`・`<user_feedback>`以外は折りたたみで表示
-- [ ] H-3: tests/*.luaで通ってないテストの修正
+- [x] H-3: `execute_command`のパーサーをTypeScript側に移行
+- [ ] H-4: execute_command通ってないLuaテストの修正
 - [ ] I: アクションボタン押下時のメッセージ送信
     - Accept時: `[replace_in_file] Result:` + 成功メッセージ + ユーザー入力
     - Reject時: `[replace_in_file] Result:` + 拒否メッセージ + ユーザー入力

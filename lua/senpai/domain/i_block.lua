@@ -176,5 +176,6 @@ end
 ---@field term_bufnr integer|nil
 ---@field job_id integer
 ---@field term_id integer
+---@field tool_result fun(self, result: senpai.chat.message.result.execute_command):nil
 
 return M

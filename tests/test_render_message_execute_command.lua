@@ -18,85 +18,82 @@ local T = MiniTest.new_set({
 
 T["<execute_command>"] = MiniTest.new_set()
 
-T["<execute_command>"]["from message"] = function()
+T["tool_call: ExecuteCommand block is rendered"] = function()
   child.lua(
     [[chat=require("senpai.presentation.chat.window").new(...)]],
-    { { thread_id = "test_render_message_assistant" } }
+    { { thread_id = "test_render_message_execute_command" } }
   )
   child.lua([[chat:show()]])
-  child.lua("assistant=M.new(chat)")
-  child.lua("assistant:process_chunk(...)", {
-    [[
-plain text here.
-<execute_command>
-<command>mv foo.js bar.js</command>
-</execute_command>
-
-example foo bar.
-  ]],
-  })
-  eq(
-    child.lua_get("chat.sticky_popup_manager.popups[7].command"),
-    "mv foo.js bar.js"
-  )
-
   local bufnr = child.lua_get([[chat.log_area.bufnr]])
-  eq(child.get_line(bufnr, 5), "---")
-  eq(child.get_line(bufnr, 6), "plain text here.")
+
+  local tool_call_part = {
+    toolName = "ExecuteCommand",
+    args = {
+      command = "mv foo.js bar.js",
+    },
+  }
+  child.lua('require("senpai.usecase.message.tool_call").render_from_memory(chat, ...)', { tool_call_part })
+
+  -- コマンド内容が描画されているか
+  eq(child.get_line(bufnr, 6), "[execute_command] Command:")
   eq(child.get_line(bufnr, 7), "")
   eq(child.get_line(bufnr, 8), "```sh")
   eq(child.get_line(bufnr, 9), "mv foo.js bar.js")
   eq(child.get_line(bufnr, 10), "```")
 end
 
-T["<execute_command>"]["Line breaks in the middle of tags"] = function()
-  -- for screenshot
-  child.o.lines, child.o.columns = 40, 60
-
+T["tool_result: ExecuteCommand success message is rendered"] = function()
   child.lua(
     [[chat=require("senpai.presentation.chat.window").new(...)]],
-    { { thread_id = "test_render_message_assistant" } }
+    { { thread_id = "test_render_message_execute_command" } }
   )
   child.lua([[chat:show()]])
-  child.cmd("1windo close")
   local bufnr = child.lua_get([[chat.log_area.bufnr]])
-  child.lua("assistant=M.new(chat)")
-  eq(child.get_line(bufnr, 5), "---")
 
-  child.lua("assistant:process_chunk(...)", { "here:\n\n<execute_" })
-  child.lua("assistant:process_chunk(...)", { "command>\n<command>mv " })
-  child.lua("assistant:process_chunk(...)", { "foo.js " })
-  child.lua("assistant:process_chunk(...)", { "bar.js</command>" })
-  eq(child.lua_get([[assistant.line]]), "<command>mv foo.js bar.js</command>")
-  child.lua("assistant:process_chunk(...)", { "\n</execute_command>\n\nhello" })
-  eq(
-    child.lua_get("chat.sticky_popup_manager.popups[8].command"),
-    "mv foo.js bar.js"
-  )
-  eq(child.get_line(bufnr, -2), "")
-  eq(child.get_line(bufnr, -1), "hello")
-  expect.reference_screenshot(child.get_screenshot())
+  local tool_call_part = {
+    toolName = "ExecuteCommand",
+    args = {
+      command = "mv foo.js bar.js",
+    },
+  }
+  child.lua('require("senpai.usecase.message.tool_call").render_from_memory(chat, ...)', { tool_call_part })
+
+  local tool_result_part = {
+    toolName = "ExecuteCommand",
+    result = "[execute_command] Result:\n\nSuccess",
+  }
+  child.lua('require("senpai.usecase.message.tool_result").render_from_memory(chat, ...)', { tool_result_part })
+
+  eq(child.get_line(bufnr, 11), "[execute_command] Result:")
+  eq(child.get_line(bufnr, 12), "")
+  eq(child.get_line(bufnr, 13), "Success")
 end
 
-T["<execute_command>"]["end tag"] = function()
+T["tool_result: ExecuteCommand error message is rendered"] = function()
   child.lua(
     [[chat=require("senpai.presentation.chat.window").new(...)]],
-    { { thread_id = "test_render_message_assistant" } }
+    { { thread_id = "test_render_message_execute_command" } }
   )
   child.lua([[chat:show()]])
-  child.lua("assistant=M.new(chat)")
-  child.lua("assistant:process_chunk(...)", {
-    [[
-plain text here.
-<execute_command>
-<command>mv foo.js bar.js</command>
-</execute_command>]],
-  })
+  local bufnr = child.lua_get([[chat.log_area.bufnr]])
 
-  eq(
-    child.lua_get("chat.sticky_popup_manager.popups[7].command"),
-    "mv foo.js bar.js"
-  )
+  local tool_call_part = {
+    toolName = "ExecuteCommand",
+    args = {
+      command = "mv foo.js bar.js",
+    },
+  }
+  child.lua('require("senpai.usecase.message.tool_call").render_from_memory(chat, ...)', { tool_call_part })
+
+  local tool_result_part = {
+    toolName = "ExecuteCommand",
+    result = "[execute_command] Result:\n\nError: permission denied",
+  }
+  child.lua('require("senpai.usecase.message.tool_result").render_from_memory(chat, ...)', { tool_result_part })
+
+  eq(child.get_line(bufnr, 11), "[execute_command] Result:")
+  eq(child.get_line(bufnr, 12), "")
+  eq(child.get_line(bufnr, 13), "Error: permission denied")
 end
 
 return T

@@ -7,7 +7,10 @@ import { GetThreadByIdUseCase } from "@/usecase/GetThreadByIdUseCase";
 import { GetThreadsUseCase } from "@/usecase/GetThreadsUseCase";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
-const app = new OpenAPIHono().basePath("/thread");
+type Variables = {
+	cwd: string;
+};
+const app = new OpenAPIHono<{ Variables: Variables }>().basePath("/thread");
 
 const threadSchema = z.object({
 	id: z.string().openapi({ example: "/home/eetann/workspace-20250318163153" }),
@@ -104,7 +107,8 @@ const route = createRoute({
 
 app.openapi(route, async (c) => {
 	const { thread_id } = c.req.valid("json");
-	const threads = await new GetMessagesUseCase(memory).execute(thread_id);
+	const cwd = c.get("cwd");
+	const threads = await new GetMessagesUseCase(memory, cwd).execute(thread_id);
 	return c.json(threads);
 });
 
