@@ -7,6 +7,33 @@ local function removeReferenceSection(text)
   return result
 end
 
+---Extract content from task or user_feedback tags
+---@param text string
+---@return string tag_content
+---@return string|nil other_content
+local function extract_tag_content(text)
+  -- Check for <task> tag
+  local task_content = text:match("<task>(.-)</task>")
+  if task_content then
+    local other =
+      text:gsub("<task>.-</task>", ""):gsub("^%s+", ""):gsub("%s+$", "")
+    return task_content, other ~= "" and other or nil
+  end
+
+  -- Check for <user_feedback> tag
+  local feedback_content = text:match("<user_feedback>(.-)</user_feedback>")
+  if feedback_content then
+    local other = text
+      :gsub("<user_feedback>.-</user_feedback>", "")
+      :gsub("^%s+", "")
+      :gsub("%s+$", "")
+    return feedback_content, other ~= "" and other or nil
+  end
+
+  -- No tags found, return original text
+  return text, nil
+end
+
 -- index: content
 -- x: [[
 -- 0: <SenpaiUserInput>
@@ -73,7 +100,8 @@ end
 
 ---@param chat senpai.IChatWindow
 ---@param user_input string[]
-local function base_render(chat, user_input)
+---@param other_content string|nil
+local function base_render(chat, user_input, other_content)
   local start_row = vim.fn.line("$", chat.log_area.winid)
   local line_number = #user_input
   local texts = table.concat(user_input, "\n")
@@ -97,6 +125,30 @@ local function base_render(chat, user_input)
   -- user input
   utils.set_text_at_last(chat.log_area.bufnr, render_text)
   M.render_border(chat.log_area.bufnr, start_row, line_number)
+
+  if not other_content then
+    return
+  end
+  -- Render other content with folding if exists
+  local other_start_row = vim.fn.line("$", chat.log_area.winid)
+  utils.set_text_at_last(chat.log_area.bufnr, "\n\n" .. other_content)
+
+  -- Add folding for other content
+  local namespace = vim.api.nvim_create_namespace("sepnai-chat")
+  local other_lines = vim.split(other_content, "\n")
+  for i = 0, #other_lines - 1 do
+    -- TODO: ここを<CR>でトグルさせたい
+    vim.api.nvim_buf_set_extmark(
+      chat.log_area.bufnr,
+      namespace,
+      other_start_row + 1 + i, -- 0-based, +1 for the empty line
+      0,
+      {
+        conceal_lines = "",
+      }
+    )
+  end
+
   utils.scroll_when_invisible(chat)
 end
 
@@ -105,30 +157,38 @@ end
 function M.render_from_memory(chat, message)
   local content = message.content
   if type(content) == "string" then
+    -- Extract tag content and other content
+    local tag_content, other_content =
+      extract_tag_content(removeReferenceSection(content))
     local lines = {}
-    for _, text in pairs(vim.split(removeReferenceSection(content), "\n")) do
+    for _, text in pairs(vim.split(tag_content, "\n")) do
       table.insert(lines, text)
     end
-    base_render(chat, lines)
+    base_render(chat, lines, other_content)
     return
   end
   -- content is `senpai.chat.message.user.part[]`
-  local lines = {}
+  local full_text = ""
   for _, part in pairs(content) do
     if part.type == "text" then
-      for _, text in pairs(vim.split(removeReferenceSection(part.text), "\n")) do
-        table.insert(lines, text)
-      end
+      full_text = full_text .. removeReferenceSection(part.text)
     end
   end
-  base_render(chat, lines)
+
+  -- Extract tag content and other content
+  local tag_content, other_content = extract_tag_content(full_text)
+  local lines = {}
+  for _, text in pairs(vim.split(tag_content, "\n")) do
+    table.insert(lines, text)
+  end
+  base_render(chat, lines, other_content)
 end
 
 ---@param chat senpai.IChatWindow
 ---@param user_input string[]
 function M.render_from_request(chat, user_input)
   vim.api.nvim_buf_set_lines(chat.input_area.bufnr, 0, -1, false, {})
-  base_render(chat, user_input)
+  base_render(chat, user_input, nil) -- No other content for request rendering
 end
 
 return M

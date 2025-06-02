@@ -69,10 +69,19 @@ function M.execute(chat, user_input)
     end
   )
   spinner:start()
+  
+  -- Wrap user input with appropriate tag
+  local wrapped_input
+  if chat.is_first_message then
+    wrapped_input = "<task>" .. user_input .. "</task>"
+  else
+    wrapped_input = "<user_feedback>" .. user_input .. "</user_feedback>"
+  end
+  
   local body = {
     thread_id = chat.thread_id,
     provider = chat.provider,
-    text = user_input,
+    text = wrapped_input,
     system_prompt = chat.system_prompt,
     auto_rag = Config.rag.mode == "auto",
   }

@@ -62,9 +62,9 @@
     - `handle_action(action_type)`: アクションボタンが押されたときの処理
 
 ### 2. サーバーサイドの実装
-- [ ] C: AIが1つの返信で使えるツールを1つに限定する実装
+- [x] C: AIが1つの返信で使えるツールを1つに限定する実装
     - ChatAgent.tsでツール使用を1つに制限
-- [ ] D: エラーハンドリングの改善
+- [x] D: エラーハンドリングの改善
     - ReplaceInFileHandler.tsでdiffsのerrorsを適切に返す
 
 ### 3. フロントエンド（Lua）の実装
@@ -80,10 +80,14 @@
     - 最後のメッセージのツールに応じたボタンを取得・表示
 
 ### 4. メッセージ送信処理の改修
-- [ ] H: send_text.luaの改修
+- [x] H-1: send_text.luaの改修
     - 新しいメッセージタグ形式に対応
     - 初回メッセージは`<task>`タグで囲む
     - 2回目以降は`<user_feedback>`タグで囲む
+- [x] H-2: lua/senpai/usecase/message/user.luaの改修
+    - 新しいメッセージタグ形式に対応
+    - `<task>`・`<user_feedback>`以外は折りたたみで表示
+- [ ] H-3: tests/*.luaで通ってないテストの修正
 - [ ] I: アクションボタン押下時のメッセージ送信
     - Accept時: `[replace_in_file] Result:` + 成功メッセージ + ユーザー入力
     - Reject時: `[replace_in_file] Result:` + 拒否メッセージ + ユーザー入力
@@ -99,5 +103,5 @@
 - [ ] N: ドキュメントの更新（specification.mdなど）
 
 ### 7. 今後の拡張性の確保
-- [ ] O: 他のツール（将来追加予定）でも同じ仕組みが使えるような設計
+- [x] O: 他のツール（将来追加予定）でも同じ仕組みが使えるような設計
 - [x] P: terminal_blockなど他のブロックタイプでの実装例
