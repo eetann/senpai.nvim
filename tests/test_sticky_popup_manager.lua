@@ -177,7 +177,10 @@ T["StickyPopupManager"]["scroll down"] = function()
 
   child.lua("_G.manager:update_float_position()")
   sleep(500)
-  eq(child.lua_get("_G.manager.popups[...].renderer.layout", { row3 }), vim.NIL)
+  eq(
+    child.lua_get("_G.manager.popups[...].renderer.layout.winid", { row3 }),
+    vim.NIL
+  )
 
   child.api.nvim_set_current_win(split.winid)
   child.api.nvim_win_set_cursor(split.winid, { 1, 0 })
@@ -215,7 +218,10 @@ T["StickyPopupManager"]["scroll up"] = function()
   make_popup(child, row2)
   child.lua("_G.manager:update_float_position()")
   sleep(500)
-  eq(child.lua_get("_G.manager.popups[...].renderer.layout", { row2 }), vim.NIL)
+  eq(
+    child.lua_get("_G.manager.popups[...].renderer.layout.winid", { row2 }),
+    vim.NIL
+  )
 
   child.api.nvim_set_current_win(split.winid)
   child.api.nvim_win_set_cursor(split.winid, { 1, 0 })
