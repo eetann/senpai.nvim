@@ -32,14 +32,16 @@ T["tool_call: ExecuteCommand block is rendered"] = function()
       command = "mv foo.js bar.js",
     },
   }
-  child.lua('require("senpai.usecase.message.tool_call").render_from_memory(chat, ...)', { tool_call_part })
+  child.lua(
+    'require("senpai.usecase.message.tool_call").render_from_memory(chat, ...)',
+    { tool_call_part }
+  )
 
-  -- コマンド内容が描画されているか
-  eq(child.get_line(bufnr, 6), "[execute_command] Command:")
-  eq(child.get_line(bufnr, 7), "")
-  eq(child.get_line(bufnr, 8), "```sh")
-  eq(child.get_line(bufnr, 9), "mv foo.js bar.js")
-  eq(child.get_line(bufnr, 10), "```")
+  eq(child.get_line(bufnr, -5), "> [!NOTE] ExecuteCommand")
+  eq(child.get_line(bufnr, -4), "> ```sh")
+  eq(child.get_line(bufnr, -3), "> mv foo.js bar.js")
+  eq(child.get_line(bufnr, -2), "> ```")
+  eq(child.get_line(bufnr, -1), "")
 end
 
 T["tool_result: ExecuteCommand success message is rendered"] = function()
@@ -56,17 +58,23 @@ T["tool_result: ExecuteCommand success message is rendered"] = function()
       command = "mv foo.js bar.js",
     },
   }
-  child.lua('require("senpai.usecase.message.tool_call").render_from_memory(chat, ...)', { tool_call_part })
+  child.lua(
+    'require("senpai.usecase.message.tool_call").render_from_memory(chat, ...)',
+    { tool_call_part }
+  )
 
   local tool_result_part = {
     toolName = "ExecuteCommand",
     result = "[execute_command] Result:\n\nSuccess",
   }
-  child.lua('require("senpai.usecase.message.tool_result").render_from_memory(chat, ...)', { tool_result_part })
+  child.lua(
+    'require("senpai.usecase.message.tool_result").render_from_memory(chat, ...)',
+    { tool_result_part }
+  )
 
-  eq(child.get_line(bufnr, 11), "[execute_command] Result:")
-  eq(child.get_line(bufnr, 12), "")
-  eq(child.get_line(bufnr, 13), "Success")
+  eq(child.get_line(bufnr, -3), "[execute_command] Result:")
+  eq(child.get_line(bufnr, -2), "")
+  eq(child.get_line(bufnr, -1), "Success")
 end
 
 T["tool_result: ExecuteCommand error message is rendered"] = function()
@@ -83,17 +91,23 @@ T["tool_result: ExecuteCommand error message is rendered"] = function()
       command = "mv foo.js bar.js",
     },
   }
-  child.lua('require("senpai.usecase.message.tool_call").render_from_memory(chat, ...)', { tool_call_part })
+  child.lua(
+    'require("senpai.usecase.message.tool_call").render_from_memory(chat, ...)',
+    { tool_call_part }
+  )
 
   local tool_result_part = {
     toolName = "ExecuteCommand",
     result = "[execute_command] Result:\n\nError: permission denied",
   }
-  child.lua('require("senpai.usecase.message.tool_result").render_from_memory(chat, ...)', { tool_result_part })
+  child.lua(
+    'require("senpai.usecase.message.tool_result").render_from_memory(chat, ...)',
+    { tool_result_part }
+  )
 
-  eq(child.get_line(bufnr, 11), "[execute_command] Result:")
-  eq(child.get_line(bufnr, 12), "")
-  eq(child.get_line(bufnr, 13), "Error: permission denied")
+  eq(child.get_line(bufnr, -3), "[execute_command] Result:")
+  eq(child.get_line(bufnr, -2), "")
+  eq(child.get_line(bufnr, -1), "Error: permission denied")
 end
 
 return T

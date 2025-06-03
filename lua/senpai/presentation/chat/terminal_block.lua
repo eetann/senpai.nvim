@@ -5,71 +5,33 @@ local Gap = require("nui-components.gap")
 local IBlock = require("senpai.domain.i_block")
 local utils = require("senpai.usecase.utils")
 local Popup = require("nui.popup")
-local Config = require("senpai.config")
 
 ---@class senpai.TerminalBlock: senpai.ITerminalBlock
 local M = {}
 M.__index = M
 setmetatable(M, { __index = IBlock })
 
--- tool_callから呼ばれる: コマンド内容を描画
----@param chat senpai.IChatWindow
----@param part table { toolName = "ExecuteCommand", args = { command = ... } }
-function M.render_from_memory(chat, part)
-  if part.toolName == "ExecuteCommand" and type(part.args) == "table" then
-    local block = M.new({
-      winid = chat.winid,
-      bufnr = chat.log_area.bufnr,
-      row = #chat.log_area.lines + 1,
-    })
-    block.command = part.args.command
-    -- sticky_popup_managerがあれば管理に追加
-    if chat.sticky_popup_manager and chat.sticky_popup_manager.add then
-      chat.sticky_popup_manager:add(block)
-    end
-    -- log_areaにコマンド内容を追記
-    local render_text = "\n\n[execute_command] Command:\n\n```sh\n" .. (block.command or "") .. "\n```\n"
-    require("senpai.usecase.utils").set_text_at_last(chat.log_area.bufnr, render_text)
-  end
-end
-
--- tool_resultから呼ばれる: コマンド実行結果を描画
----@param result table { toolName = "ExecuteCommand", result = ... }
-function M:tool_result(result)
-  if result and result.result then
-    self.result = result.result
-    -- log_areaに実行結果を追記
-    require("senpai.usecase.utils").set_text_at_last(self.bufnr, "\n" .. tostring(self.result) .. "\n")
-    -- 必要なら再描画
-    if self.renderer and self.renderer.redraw then
-      self.renderer:redraw()
-    end
-  end
-end
-
----@param opts { winid:integer, bufnr:integer, row:integer }
+---@param opts { winid:integer, bufnr:integer, command: string, row:integer|nil }
 ---@return senpai.TerminalBlock
 function M.new(opts)
   local self = setmetatable({}, M)
   self.block_type = "execute_command"
-  self.row = opts.row
+  self.command = opts.command
+  local row = opts.row or vim.api.nvim_buf_line_count(opts.bufnr)
+  self.row = row
   self.winid = opts.winid
   self.bufnr = opts.bufnr
   self:setup()
+  utils.replace_lines_at_last(self.bufnr, {
+    "> [!NOTE] ExecuteCommand",
+    "> ```sh",
+    "> " .. self.command,
+    "> ```",
+    "",
+  })
+  self:mount()
 
   return self
-end
-
---- TypeScript側からのtool_result受け口
----@param result table
-function M:tool_result(result)
-  if result and result.command then
-    self.command = result.command
-    -- 必要なら再描画
-    if self.renderer and self.renderer.redraw then
-      self.renderer:redraw()
-    end
-  end
 end
 
 function M:setup_body()
@@ -208,7 +170,7 @@ function M:get_action_buttons()
   if not self.term_bufnr then
     -- Command not executed yet
     return {
-      { label = "Run",    action_type = "run",    enabled = true },
+      { label = "Run", action_type = "run", enabled = true },
       { label = "Reject", action_type = "reject", enabled = true },
     }
   else

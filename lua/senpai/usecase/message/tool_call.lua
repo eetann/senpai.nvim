@@ -13,6 +13,11 @@ local function render_base(chat, content)
     chat:add_diff_block(path)
     return
   end
+  if content.toolName == "ExecuteCommand" then
+    local command = content.args.command --[[@as string]]
+    chat:add_terminal_block(command)
+    return
+  end
   local render_text = "\n\nTool Call: `" .. content.toolName .. "`"
   if type(content.args) == "table" and next(content.args) ~= nil then
     render_text = render_text

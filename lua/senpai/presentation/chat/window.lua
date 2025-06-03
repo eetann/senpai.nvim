@@ -245,12 +245,12 @@ function M:add_diff_block(path)
   return self.sticky_popup_manager:add_diff_block(path)
 end
 
-function M:add_terminal_block(row)
+function M:add_terminal_block(command)
   if not self.sticky_popup_manager then
     self.sticky_popup_manager =
       StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
   end
-  return self.sticky_popup_manager:add_terminal_block(row)
+  return self.sticky_popup_manager:add_terminal_block(command)
 end
 
 ---Show action buttons for the last tool in AI message

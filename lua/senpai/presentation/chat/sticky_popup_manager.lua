@@ -138,12 +138,14 @@ function M:add_diff_block(path, row)
   return popup
 end
 
-function M:add_terminal_block(row)
+function M:add_terminal_block(command, row)
   local popup = TerminalBlock.new({
     winid = self.winid,
     bufnr = self.bufnr,
+    command = command,
     row = row,
   })
+  row = popup.row
   self:add_virtual_blank_line(row)
 
   self.popups[row] = popup

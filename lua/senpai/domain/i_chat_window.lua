@@ -16,7 +16,7 @@ local M = {}
 ---@field rows integer[]
 ---@field group_id integer
 ---@field add_diff_block fun(self, path: string, row:integer|nil): senpai.IDiffBlock
----@field add_terminal_block fun(self, row: integer): senpai.ITerminalBlock
+---@field add_terminal_block fun(self, command:string, row:integer|nil): senpai.ITerminalBlock
 ---@field find_next_popup_row fun(self, block_type: senpai.block_type):integer|nil
 ---@field find_prev_popup_row fun(self, block_type: senpai.block_type):integer|nil
 ---@field update_float_position fun(self):nil
@@ -37,26 +37,13 @@ local M = {}
 ---@field is_sending boolean
 ---@field is_first_message boolean
 ---@field job? Job
-local IChatWindow = {}
-
----@param winid? number
-function IChatWindow:show(winid) end
-function IChatWindow:hide() end
-function IChatWindow:destroy() end
-function IChatWindow:toggle() end
-function IChatWindow:toggle_input() end
-
----@param path string
----@return senpai.IDiffBlock
-function IChatWindow:add_diff_block(path)
-  return {}
-end
-
----@param row integer
----@return senpai.ITerminalBlock
-function IChatWindow:add_terminal_block(row)
-  return {}
-end
+---@field show fun(self, winid:number|nil)
+---@field hide fun(self)
+---@field toggle fun(self)
+---@field toggle_input fun(self)
+---@field add_diff_block fun(self, path:string): senpai.IDiffBlock
+---@field add_terminal_block fun(self, command:string): senpai.ITerminalBlock
+---@field show_action_buttons fun(self)
 
 M.input_winbar_text = "Ask Senpai (?: help)"
 

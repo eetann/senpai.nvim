@@ -27,14 +27,6 @@ local function render_base(chat, part)
     last_block:tool_result(result)
     return
   end
-  if part.toolName == "ExecuteCommand" then
-    ---@cast result senpai.chat.message.result.execute_command
-    ---@cast last_block senpai.ITerminalBlock
-    if last_block and last_block.tool_result then
-      last_block:tool_result(result)
-      return
-    end
-  end
 end
 
 ---@param chat senpai.IChatWindow

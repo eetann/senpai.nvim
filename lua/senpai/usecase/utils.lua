@@ -36,6 +36,12 @@ function M.replace_text_at_last(buffer, text)
   vim.api.nvim_buf_set_text(buffer, -1, 0, -1, -1, lines)
 end
 
+---@param buffer number
+---@param lines string[]
+function M.replace_lines_at_last(buffer, lines)
+  vim.api.nvim_buf_set_text(buffer, -1, 0, -1, -1, lines)
+end
+
 ---set winbar
 ---@param winid number|nil
 ---@param text string
@@ -89,7 +95,6 @@ function M.get_replace_file_id()
   end
   return id
 end
-
 
 -- https://gist.github.com/haggen/2fd643ea9a261fea2094
 math.randomseed(os.clock() ^ 5)
