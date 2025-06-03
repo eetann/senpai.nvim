@@ -50,6 +50,8 @@ function M.new(opts)
     active_tab = "no-tab",
   })
   self.diffs = {}
+  self.ai_bufnr = nil
+  self.origin_bufnr = nil
   self:setup()
   utils.replace_text_at_last(
     self.bufnr,
@@ -158,11 +160,7 @@ function M:change_tab(tab)
     text = "```diff\n"
     local lines = {}
     for _, diff in pairs(self.diffs) do
-      if diff.error ~= "" then
-        table.insert(lines, "# ERROR: " .. diff.error)
-      else
-        table.insert(lines, diff.diff)
-      end
+      table.insert(lines, diff.diff)
     end
     text = text .. table.concat(lines, "\n\n")
   elseif tab == "replace" then
@@ -170,11 +168,7 @@ function M:change_tab(tab)
     text = "```" .. self.filetype .. "\n"
     local lines = {}
     for _, diff in pairs(self.diffs) do
-      if diff.error ~= "" then
-        table.insert(lines, "// ERROR: " .. diff.error)
-      else
-        table.insert(lines, diff.replace)
-      end
+      table.insert(lines, diff.replace)
     end
     text = text .. table.concat(lines, "\n\n")
   elseif tab == "search" then
@@ -182,11 +176,7 @@ function M:change_tab(tab)
     text = "```" .. self.filetype .. "\n"
     local lines = {}
     for _, diff in pairs(self.diffs) do
-      if diff.error ~= "" then
-        table.insert(lines, "// ERROR: " .. diff.error)
-      else
-        table.insert(lines, diff.search)
-      end
+      table.insert(lines, diff.search)
     end
     text = text .. table.concat(lines, "\n\n")
   end
@@ -213,22 +203,13 @@ function M:tool_result(result)
   end
 end
 
----@return { label: string, action_type: string, enabled?: boolean }[]
 function M:get_action_buttons()
-  -- Check if there are any errors in diffs
-  local has_errors = false
-  for _, diff in ipairs(self.diffs) do
-    if diff.error and diff.error ~= "" then
-      has_errors = true
-      break
-    end
+  local result = require("senpai.usecase.apply_replace_file").execute(self)
+  if result.errors ~= "" then
+    return result.errors
   end
-
-  if has_errors then
-    -- TODO: 自動でエラーを投げる？
-    -- If there are errors, don't show action buttons
-    return {}
-  end
+  self.ai_bufnr = result.bufnr
+  self.origin_bufnr = result.original_bufnr
 
   return {
     { label = "Accept", action_type = "accept", enabled = true },
@@ -241,56 +222,16 @@ end
 ---@return { success: boolean, message: string }
 function M:handle_action(action_type, user_input)
   if action_type == "accept" then
-    -- Apply the diffs
-    local apply_replace_file = require("senpai.usecase.apply_replace_file")
-    local errors = ""
-
-    -- Collect all replacements
-    local replaces = {}
-    for _, diff in ipairs(self.diffs) do
-      if diff.error == "" or not diff.error then
-        table.insert(replaces, {
-          start_row = diff.startLine - 1,
-          end_row = diff.endLine,
-          lines = vim.split(diff.replace, "\n"),
-        })
-      end
+    if not self.ai_bufnr and not self.origin_bufnr then
+      vim.print("バッファが作れなかった")
+      return { success = false, message = "buffer not" }
     end
-
-    -- Apply replacements to the file
-    local file_path = vim.fn.expand(self.path)
-    local bufnr = nil
-
-    -- Find or create buffer for the file
-    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-      if vim.api.nvim_buf_is_loaded(buf) then
-        local name = vim.api.nvim_buf_get_name(buf)
-        if name == vim.fn.fnamemodify(file_path, ":p") then
-          bufnr = buf
-          break
-        end
-      end
-    end
-
-    if not bufnr then
-      -- Create new buffer with the file
-      vim.cmd("edit " .. vim.fn.fnameescape(file_path))
-      bufnr = vim.api.nvim_get_current_buf()
-    end
-
-    -- Apply the replacements
-    for _, replace in ipairs(replaces) do
-      vim.api.nvim_buf_set_lines(
-        bufnr,
-        replace.start_row,
-        replace.end_row,
-        false,
-        replace.lines
-      )
-    end
+    -- self.ai_bufnrの内容で original_bufを書き換える
+    local lines = vim.api.nvim_buf_get_lines(self.ai_bufnr, 0, -1, false)
+    vim.api.nvim_buf_set_lines(self.origin_bufnr, 0, -1, false, lines)
 
     -- Save the file
-    vim.api.nvim_buf_call(bufnr, function()
+    vim.api.nvim_buf_call(self.origin_bufnr, function()
       vim.cmd("write")
     end)
 

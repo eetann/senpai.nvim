@@ -261,17 +261,12 @@ function M:show_action_buttons()
 
   -- Find the last block that has action buttons
   local last_block = nil
-  local last_row = nil
+  local last_row = -1
 
   for row, block in pairs(self.sticky_popup_manager.popups) do
-    if block and block.get_action_buttons then
-      local buttons = block:get_action_buttons()
-      if #buttons > 0 then
-        if not last_row or row > last_row then
-          last_block = block
-          last_row = row
-        end
-      end
+    if block and block.get_action_buttons and row > last_row then
+      last_block = block
+      last_row = row
     end
   end
 
@@ -279,8 +274,12 @@ function M:show_action_buttons()
     return
   end
 
-  -- Create action buttons at the bottom of log area
   local buttons = last_block:get_action_buttons()
+  -- Send to AI if error
+  if type(buttons) == "string" then
+    send_text.execute(self, buttons)
+    return
+  end
 
   -- Build button components
   local button_components = {}
@@ -319,7 +318,7 @@ function M:show_action_buttons()
                 .. last_block.block_type
                 .. "] Result:\n\n"
                 .. result.message
-              -- send_text.execute(self, message)
+              send_text.execute(self, message)
               vim.print(message)
 
               -- Hide action buttons after use

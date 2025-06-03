@@ -99,9 +99,9 @@ function M:is_visible()
   return self.renderer.layout and self.renderer.layout.winid ~= nil
 end
 
----@return { label: string, action_type: string, enabled?: boolean }[]
+---@return { label: string, action_type: string, enabled?: boolean }[]|string
 function M:get_action_buttons()
-  return {}
+  return "unimplemented error"
 end
 
 ---@param action_type string
@@ -166,6 +166,8 @@ end
 ---@field path string
 ---@field filetype string
 ---@field diffs {search:string, replace:string, diff:string}[]
+---@field ai_bufnr integer|nil
+---@field origin_bufnr integer|nil
 ---@field change_tab fun(self, tab: "diff"|"replace"|"search"):nil
 ---@field tool_result fun(self, result: senpai.chat.message.result.replace_in_file):nil
 

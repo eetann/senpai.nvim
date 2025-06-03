@@ -7,11 +7,8 @@ import { AbstractHandler, Part, type WriteFunction } from "./AbstractHandler";
 
 export type DiffText = {
 	search: string;
-	startLine: number;
-	endLine: number;
 	replace: string;
 	diff: string;
-	error: string;
 };
 
 /**
@@ -99,25 +96,10 @@ export class ReplaceInFileHandler extends AbstractHandler {
 			}
 			const diffText: DiffText = {
 				search: match[1].replace(/\n$/, ""),
-				startLine: 0,
-				endLine: 0,
 				replace: match[2].replace(/\n$/, ""),
 				diff: "",
-				error: "",
 			};
-			const range = await findText(this.path, diffText.search);
-			if (range.startLine === 0 || range.endLine === 0) {
-				diffText.error = `\
-The SEARCH block:
-\`\`\`
-${diffText.search}
-\`\`\`
-does not match anything in the file or was searched out of order in the provided blocks.`;
-			} else {
-				diffText.startLine = range.startLine;
-				diffText.endLine = range.endLine;
-				diffText.diff = getDiffText(diffText.search, diffText.replace);
-			}
+			diffText.diff = getDiffText(diffText.search, diffText.replace);
 			diffTexts.push(diffText);
 		}
 		return diffTexts;

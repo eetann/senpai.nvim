@@ -1,3 +1,6 @@
+local utils = require("senpai.usecase.utils")
+local send_text = require("senpai.usecase.send_text")
+
 local M = {}
 
 ---@type table<number, vim.api.keyset.get_keymap[]>
@@ -147,67 +150,15 @@ local function edit_or_switch(file)
 end
 
 local function setup_edit_window(path)
-  vim.cmd("wincmd h")
-  edit_or_switch(path)
-  local original_win = vim.api.nvim_get_current_win()
-  local original_buf = vim.api.nvim_get_current_buf()
-  local original_filetype =
-    vim.api.nvim_get_option_value("filetype", { buf = original_buf })
   return original_win, original_buf, original_filetype
 end
 
 ---@param original_buf integer
----@param path string
----@param diffs {search:string, replace:string, diff:string, startLine:integer, endLine:integer, error:string}[]
----@param id string
+---@param diff_block senpai.IDiffBlock
 ---@param filetype string
 ---@return {bufnr:integer, errors: string}
-local function create_ai_buffer(original_buf, path, diffs, id, filetype)
-  local ai_buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_name(ai_buf, "[senpai] " .. id)
-  vim.api.nvim_set_option_value(
-    "filetype",
-    "senpai_ai_buffer",
-    { buf = ai_buf }
-  )
-  local ok, _ =
-    pcall(require("nvim-treesitter.highlight").attach, ai_buf, filetype)
-  if not ok then
-    vim.api.nvim_set_option_value("syntax", filetype, { buf = ai_buf })
-  end
-
-  local original_lines = vim.api.nvim_buf_get_lines(original_buf, 0, -1, false)
-  vim.api.nvim_buf_set_lines(ai_buf, 0, -1, false, original_lines)
-  local errors = ""
-  ---@type {start_row:integer, end_row:integer, lines: string[]}[]
-  local replaces = {}
-  for _, diff in pairs(diffs) do
-    if diff.error ~= "" then
-      errors = errors .. diff.error .. "\n"
-      goto continue
-    end
-    table.insert(replaces, {
-      start_row = diff.startLine - 1,
-      end_row = diff.endLine,
-      lines = vim.split(diff.replace, "\n"),
-    })
-
-    ::continue::
-  end
-  if errors ~= "" then
-    errors = errors .. "path: " .. path
-    return { bufnr = -1, errors = errors }
-  end
-  for _, replace in pairs(replaces) do
-    vim.api.nvim_buf_set_lines(
-      ai_buf,
-      replace.start_row,
-      replace.end_row,
-      false,
-      replace.lines
-    )
-  end
-  return { bufnr = ai_buf, errors = "" }
+local function create_ai_buffer(original_buf, diff_block, filetype)
+  return { bufnr = ai_buf, errors = errors }
 end
 
 local function setup_diff_windows(original_win, ai_win)
@@ -220,46 +171,65 @@ local function setup_diff_windows(original_win, ai_win)
   vim.api.nvim_set_current_win(original_win)
 end
 
----@param chat senpai.IChatWindow
-function M.execute(chat)
-  local manager = chat.sticky_popup_manager
-  if not manager then
-    return
-  end
-  local row = manager:find_prev_popup_row("replace_in_file")
-  if not row then
-    return
-  end
+---@param diff_block senpai.IDiffBlock
+function M.execute(diff_block)
+  vim.cmd("wincmd h")
+  edit_or_switch(diff_block.path)
+  local original_bufnr = vim.api.nvim_get_current_buf()
+  local filetype =
+    vim.api.nvim_get_option_value("filetype", { buf = original_bufnr })
 
-  local diff_block = manager.popups[row]
-  if not diff_block then
-    return
-  end
-  ---@cast diff_block senpai.IDiffBlock
-
-  local original_win, original_buf, original_filetype =
-    setup_edit_window(diff_block.path)
-
-  local result = create_ai_buffer(
-    original_buf,
-    diff_block.path,
-    diff_block.diffs,
-    chat.thread_id .. "-" .. row,
-    original_filetype
+  local ai_bufnr = vim.api.nvim_create_buf(false, true)
+  local id = utils.create_random_id(20)
+  vim.api.nvim_buf_set_name(ai_bufnr, "[senpai] " .. id)
+  vim.api.nvim_set_option_value(
+    "filetype",
+    "senpai_ai_buffer",
+    { buf = ai_bufnr }
   )
-  if result.errors ~= "" then
-    vim.print(result.errors)
-    return
+  local ok, _ =
+    pcall(require("nvim-treesitter.highlight").attach, ai_bufnr, filetype)
+  if not ok then
+    vim.api.nvim_set_option_value("syntax", filetype, { buf = ai_bufnr })
   end
-  local ai_buf = result.bufnr
-  local ai_win = vim.api.nvim_open_win(
-    ai_buf,
-    false,
-    { vertical = true, win = original_win }
-  )
 
-  setup_diff_windows(original_win, ai_win)
-  set_diff_keymaps(original_buf, ai_buf, ai_win)
+  local original_lines =
+    vim.api.nvim_buf_get_lines(original_bufnr, 0, -1, false)
+  vim.api.nvim_buf_set_lines(ai_bufnr, 0, -1, false, original_lines)
+  local errors = ""
+  for _, diff in ipairs(diff_block.diffs) do
+    local range = utils.find_text(diff_block.path, diff.search)
+    if range.start_line == 0 then
+      errors = errors
+        .. string.format(
+          [[
+The SEARCH block:
+```
+%s
+```
+does not match anything in the file or was searched out of order in the provided blocks.
+]],
+          diff.search
+        )
+      goto continue
+    end
+    vim.api.nvim_buf_set_lines(
+      ai_bufnr,
+      range.start_line - 1,
+      range.end_line - 1,
+      false,
+      vim.split(diff.replace, "\n")
+    )
+    ::continue::
+  end
+  if errors ~= "" then
+    errors = "[replace_inf_file] \n" .. errors
+  end
+  return {
+    original_bufnr = original_bufnr,
+    ai_bufnr = ai_bufnr,
+    errors = errors,
+  }
 end
 
 return M
