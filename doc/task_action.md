@@ -88,15 +88,24 @@
     - 新しいメッセージタグ形式に対応
     - `<task>`・`<user_feedback>`以外は折りたたみで表示
 - [x] H-3: `execute_command`のパーサーをTypeScript側に移行
-- [ ] H-4: execute_command通ってないLuaテストの修正
+- [x] H-4: execute_command通ってないLuaテストの修正
+- [ ] H-5: ブロックのロジックをリファクタリング
+    - `diff_block`や`DiffBlock`を`replace_in_file_block`・`ReplaceInFileBlock`に変更(ファイル名含む)
+    - `terminal_block`や`TerminalBlock`を`execute_command_block`・`ExecuteCommandBlock`に変更(ファイル名含む)
+    - `add_XXXXXXXX_block`を`add_block(type, args)`に変更する
+        - type: `"replace_in_file"|"execute_command"`
+        - argsの型はanyにしておく。`FooBlock.new(args)`って`sticky_popup_manager`で渡せるようにする
+    - [ ] lua/senpai/presentation/chat/sticky_popup_manager.lua 
+    - [ ] lua/senpai/presentation/chat/window.lua の`add_XXXXXXXX_block`
+    - [ ] lua/senpai/domain/i_chat_window.lua の型も変更
 - [ ] I: アクションボタン押下時のメッセージ送信
     - Accept時: `[replace_in_file] Result:` + 成功メッセージ + ユーザー入力
     - Reject時: `[replace_in_file] Result:` + 拒否メッセージ + ユーザー入力
     - エラー時: `[replace_in_file] Result:` + エラー内容
 
 ### 5. apply_replace_file.luaの改修
-- [ ] J: 現在の即座に適用する処理を削除
-- [ ] K: diff_block内のhandle_actionから呼ばれる形に変更
+- [x] J: 現在の即座に適用する処理を削除
+- [x] K: diff_block内のhandle_actionから呼ばれる形に変更
 
 ### 6. テストとドキュメント
 - [ ] L: 新しいメッセージフォーマットのテストケース作成
