@@ -6,7 +6,7 @@ local IBlock = require("senpai.domain.i_block")
 local utils = require("senpai.usecase.utils")
 local Config = require("senpai.config")
 
----@class senpai.DiffBlock: senpai.IDiffBlock
+---@class senpai.ReplaceInFileBlock: senpai.IReplaceInFileBlock
 local M = {}
 M.__index = M
 setmetatable(M, { __index = IBlock })
@@ -36,7 +36,7 @@ local function get_codeblock_range(row, bufnr)
 end
 
 ---@param opts { winid:integer, bufnr:integer, row:integer|nil, path:string }
----@return senpai.DiffBlock
+---@return senpai.ReplaceInFileBlock
 function M.new(opts)
   local self = setmetatable({}, M)
   self.block_type = "replace_in_file"

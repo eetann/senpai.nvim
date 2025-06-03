@@ -23,7 +23,7 @@ local function render_base(chat, part)
   local last_block = manager.popups[last_row]
   if part.toolName == "ReplaceInFile" then
     ---@cast result senpai.chat.message.result.replace_in_file
-    ---@cast last_block senpai.IDiffBlock
+    ---@cast last_block senpai.IReplaceInFileBlock
     last_block:tool_result(result)
     return
   end

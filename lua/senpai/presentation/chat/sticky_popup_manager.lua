@@ -1,5 +1,5 @@
-local DiffBlock = require("senpai.presentation.chat.diff_block")
-local TerminalBlock = require("senpai.presentation.chat.terminal_block")
+local ReplaceInFileBlock = require("senpai.presentation.chat.replace_in_file_block")
+local ExecuteCommandBlock = require("senpai.presentation.chat.execute_command_block")
 
 ---@class senpai.StickyPopupManager: senpai.IStickyPopupManager
 local M = {}
@@ -117,8 +117,45 @@ function M:add_virtual_blank_line(start_row)
   )
 end
 
+---@param type "replace_in_file"|"execute_command"
+---@param args any
+---@param row? integer
+function M:add_block(type, args, row)
+  local popup
+  if type == "replace_in_file" then
+    popup = ReplaceInFileBlock.new({
+      winid = self.winid,
+      bufnr = self.bufnr,
+      row = row,
+      path = args.path,
+    })
+  elseif type == "execute_command" then
+    popup = ExecuteCommandBlock.new({
+      winid = self.winid,
+      bufnr = self.bufnr,
+      command = args.command,
+      row = row,
+    })
+  else
+    error("Unknown block type: " .. type)
+  end
+
+  row = popup.row
+  self:add_virtual_blank_line(row)
+
+  self.popups[row] = popup
+  local rows = {}
+  for p_row, _ in pairs(self.popups) do
+    table.insert(rows, p_row)
+  end
+  table.sort(rows)
+  self.rows = rows
+
+  return popup
+end
+
 function M:add_diff_block(path, row)
-  local popup = DiffBlock.new({
+  local popup = ReplaceInFileBlock.new({
     winid = self.winid,
     bufnr = self.bufnr,
     row = row,
@@ -139,7 +176,7 @@ function M:add_diff_block(path, row)
 end
 
 function M:add_terminal_block(command, row)
-  local popup = TerminalBlock.new({
+  local popup = ExecuteCommandBlock.new({
     winid = self.winid,
     bufnr = self.bufnr,
     command = command,

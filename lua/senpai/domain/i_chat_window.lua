@@ -15,8 +15,7 @@ local M = {}
 ---@field popups table<integer, senpai.IBlock> # { row: popup }
 ---@field rows integer[]
 ---@field group_id integer
----@field add_diff_block fun(self, path: string, row:integer|nil): senpai.IDiffBlock
----@field add_terminal_block fun(self, command:string, row:integer|nil): senpai.ITerminalBlock
+---@field add_block fun(self, type: "replace_in_file"|"execute_command", args: any, row?:integer): senpai.IBlock
 ---@field find_next_popup_row fun(self, block_type: senpai.block_type):integer|nil
 ---@field find_prev_popup_row fun(self, block_type: senpai.block_type):integer|nil
 ---@field update_float_position fun(self):nil
@@ -41,8 +40,7 @@ local M = {}
 ---@field hide fun(self)
 ---@field toggle fun(self)
 ---@field toggle_input fun(self)
----@field add_diff_block fun(self, path:string): senpai.IDiffBlock
----@field add_terminal_block fun(self, command:string): senpai.ITerminalBlock
+---@field add_block fun(self, type: "replace_in_file"|"execute_command", args: any, row?:integer): senpai.IBlock
 ---@field show_action_buttons fun(self)
 
 M.input_winbar_text = "Ask Senpai (?: help)"

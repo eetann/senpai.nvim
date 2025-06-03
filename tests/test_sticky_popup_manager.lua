@@ -34,7 +34,7 @@ end
 local function make_popup(c_child, row)
   local popup = c_child.lua(
     [[
-  local popup = _G.manager:add_diff_block(...)
+  local popup = _G.manager:add_block("replace_in_file", { path = select(1, ...) }, select(2, ...))
   popup:change_tab("diff")
   return {
     bufnr = popup.bufnr

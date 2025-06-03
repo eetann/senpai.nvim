@@ -9,13 +9,11 @@ local function render_base(chat, content)
     return
   end
   if content.toolName == "ReplaceInFile" and type(content.args) == "table" then
-    local path = content.args.path --[[@as string]]
-    chat:add_diff_block(path)
+    chat:add_block("replace_in_file", { path = content.args.path })
     return
   end
   if content.toolName == "ExecuteCommand" then
-    local command = content.args.command --[[@as string]]
-    chat:add_terminal_block(command)
+    chat:add_block("execute_command", { command = content.args.command })
     return
   end
   local render_text = "\n\nTool Call: `" .. content.toolName .. "`"

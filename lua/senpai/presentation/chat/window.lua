@@ -237,20 +237,15 @@ function M:toggle_input()
   end
 end
 
-function M:add_diff_block(path)
+---@param type "replace_in_file"|"execute_command"
+---@param args any
+---@param row? integer
+function M:add_block(type, args, row)
   if not self.sticky_popup_manager then
     self.sticky_popup_manager =
       StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
   end
-  return self.sticky_popup_manager:add_diff_block(path)
-end
-
-function M:add_terminal_block(command)
-  if not self.sticky_popup_manager then
-    self.sticky_popup_manager =
-      StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
-  end
-  return self.sticky_popup_manager:add_terminal_block(command)
+  return self.sticky_popup_manager:add_block(type, args, row)
 end
 
 ---Show action buttons for the last tool in AI message

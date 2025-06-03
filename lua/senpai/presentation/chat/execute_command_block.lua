@@ -6,13 +6,13 @@ local IBlock = require("senpai.domain.i_block")
 local utils = require("senpai.usecase.utils")
 local Popup = require("nui.popup")
 
----@class senpai.TerminalBlock: senpai.ITerminalBlock
+---@class senpai.ExecuteCommandBlock: senpai.IExecuteCommandBlock
 local M = {}
 M.__index = M
 setmetatable(M, { __index = IBlock })
 
 ---@param opts { winid:integer, bufnr:integer, command: string, row:integer|nil }
----@return senpai.TerminalBlock
+---@return senpai.ExecuteCommandBlock
 function M.new(opts)
   local self = setmetatable({}, M)
   self.block_type = "execute_command"

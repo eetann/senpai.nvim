@@ -154,7 +154,7 @@ local function setup_edit_window(path)
 end
 
 ---@param original_buf integer
----@param diff_block senpai.IDiffBlock
+---@param diff_block senpai.IReplaceInFileBlock
 ---@param filetype string
 ---@return {bufnr:integer, errors: string}
 local function create_ai_buffer(original_buf, diff_block, filetype)
@@ -171,7 +171,7 @@ local function setup_diff_windows(original_win, ai_win)
   vim.api.nvim_set_current_win(original_win)
 end
 
----@param diff_block senpai.IDiffBlock
+---@param diff_block senpai.IReplaceInFileBlock
 function M.execute(diff_block)
   vim.cmd("wincmd h")
   edit_or_switch(diff_block.path)

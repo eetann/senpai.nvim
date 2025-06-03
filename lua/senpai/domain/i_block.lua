@@ -160,7 +160,7 @@ end
 
 -- types ---
 
----@class senpai.IDiffBlock: senpai.IBlock
+---@class senpai.IReplaceInFileBlock: senpai.IBlock
 ---@field block_type "replace_in_file"
 ---@field signal { active_tab: NuiSignal<string> }
 ---@field path string
@@ -171,7 +171,7 @@ end
 ---@field change_tab fun(self, tab: "diff"|"replace"|"search"):nil
 ---@field tool_result fun(self, result: senpai.chat.message.result.replace_in_file):nil
 
----@class senpai.ITerminalBlock: senpai.IBlock
+---@class senpai.IExecuteCommandBlock: senpai.IBlock
 ---@field block_type "execute_command"
 ---@field command string
 ---@field result string
