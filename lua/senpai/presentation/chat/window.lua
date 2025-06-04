@@ -191,10 +191,10 @@ function M:show(winid)
     })
     self.input_area:show()
   end
-  self:show_action_buttons()
 
   vim.api.nvim_set_current_buf(self.input_area.bufnr)
   vim.cmd("normal G$")
+  self:show_action_buttons()
 end
 
 function M:hide()
@@ -227,6 +227,7 @@ end
 
 function M:toggle_input()
   local winid = self.input_area.winid
+  self:hide_action_buttons()
   if
     not self.input_area or not vim.api.nvim_buf_is_loaded(self.input_area.bufnr)
   then
@@ -238,6 +239,7 @@ function M:toggle_input()
   else
     self.input_area:show()
   end
+  self:show_action_buttons()
 end
 
 ---Reset current assistant message block when a new AI message starts
@@ -272,9 +274,17 @@ function M:show_action_buttons()
   local buttons = block:get_action_buttons()
   -- Send to AI if error
   if type(buttons) == "string" then
+    -- buttons as error
     send_text.execute(self, buttons)
     return
   end
+  local auto_accept = Config.agent.auto_accept
+  -- TODO: ↓これをタスクファイル化する
+  -- TODO: ここで auto_accept をサーバーに送り、「自動承認するか」を受け取る
+  --   サーバーではクライアントの設定とプロジェクト設定をマージして(プロジェクト優先)、
+  --   trueなら自動承認、文字列の配列ならツールごとにその判定をする
+  -- TODO: 自動承認ならそのまま送る
+  -- TODO: 自動承認じゃないならボタンを表示する
 
   -- Build button components
   local button_components = {}

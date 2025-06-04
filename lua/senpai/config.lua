@@ -2,6 +2,7 @@ local ProviderConfig = require("senpai.domain.config.provider")
 local ChatConfig = require("senpai.domain.config.chat")
 local RagConfig = require("senpai.domain.config.rag")
 local McpConfig = require("senpai.domain.config.mcp")
+local AgentConfig = require("senpai.domain.config.agent")
 local InternalLog = require("senpai.presentation.internal_log")
 
 ---@doc.type
@@ -43,6 +44,7 @@ local default_config = {
     },
   },
   mcp = McpConfig.default_config,
+  agent = AgentConfig.default_config,
   debug = false,
 }
 

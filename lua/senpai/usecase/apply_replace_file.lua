@@ -149,18 +149,6 @@ local function edit_or_switch(file)
   vim.cmd("edit " .. vim.fn.fnameescape(file))
 end
 
-local function setup_edit_window(path)
-  return original_win, original_buf, original_filetype
-end
-
----@param original_buf integer
----@param diff_block senpai.IReplaceInFileBlock
----@param filetype string
----@return {bufnr:integer, errors: string}
-local function create_ai_buffer(original_buf, diff_block, filetype)
-  return { bufnr = ai_buf, errors = errors }
-end
-
 local function setup_diff_windows(original_win, ai_win)
   vim.api.nvim_win_call(ai_win, function()
     vim.cmd("diffthis")
@@ -178,6 +166,7 @@ function M.execute(diff_block)
   local original_bufnr = vim.api.nvim_get_current_buf()
   local filetype =
     vim.api.nvim_get_option_value("filetype", { buf = original_bufnr })
+  vim.api.nvim_set_current_win(diff_block.winid)
 
   local ai_bufnr = vim.api.nvim_create_buf(false, true)
   local id = utils.create_random_id(20)

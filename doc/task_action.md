@@ -101,11 +101,12 @@
 - [x] H-6: `show_action_buttons`で表示するaction_buttonsは「最新の応答」にあるやつだけにしたい
     - 「送信1 → 返信1 →送信2 → 返信2」の場合。「返信2」にaction_buttonsがなくて「返信1」でaction_buttonsがあっても表示させたくない
     - AIメッセージ開始時に`current_assistant_message_block`をリセットして、最新のブロックだけを管理する実装を完了
-- [ ] H-7: `show_action_buttons`で表示したやつを、チャットを閉じる時に非表示にする
+- [x] H-7: `show_action_buttons`で表示したやつを、チャットを閉じる時に非表示にする
 - [ ] I: アクションボタン押下時のメッセージ送信
-    - Accept時: `[replace_in_file] Result:` + 成功メッセージ + ユーザー入力
-    - Reject時: `[replace_in_file] Result:` + 拒否メッセージ + ユーザー入力
-    - エラー時: `[replace_in_file] Result:` + エラー内容
+    - [x] エラー時: `[replace_in_file] Result:` + エラー内容
+    - [ ] 自動Accept時: `[replace_in_file] Result:` + 成功メッセージ
+    - [x] 手動Accept時: `[replace_in_file] Result:` + 成功メッセージ + ユーザー入力
+    - [x] 手動Reject時: `[replace_in_file] Result:` + 拒否メッセージ + ユーザー入力
 
 ### 5. apply_replace_file.luaの改修
 - [x] J: 現在の即座に適用する処理を削除
