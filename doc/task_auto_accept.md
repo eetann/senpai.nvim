@@ -13,8 +13,23 @@
         - プロジェクトごと設定を`.senpai/agent.json`から受け取る
         - 上記の設定をマージ(プロジェクト毎の方が優先)して、honoの変数として維持する
         - 上記の処理を`/agent_settings`みたいなAPI(適切な名前があれば提案どうぞ)を実行したときもやりたい(設定の再読み込み)
-        - 実装は src/index.ts の`/rules`が参考になるよ
-    - src/index.ts
+        - 実装は src/index.ts の`/rules`とか`mcp`が参考になるよ
+    - フロント側
+        - サーバー起動時にプラグイン設定をサーバーに渡す
+            - lua/senpai/presentation/client.lua の`mcp`が参考になりそう
+        - プラグイン設定は lua/senpai/domain/config/agent.lua で定義している
+            - `Config.agent`で設定を取得できる
+            - `local agent_settings = vim.json.encode(Config.agent or {})`みたいにしてからサーバーに渡せると思う
+- ツール実行の処理
+    - サーバー側
+        - `/tool_auto`みたいなAPIで、自動承認できるかどうかをクライアントに返す(渡す引数は後述)
+    - フロント側
+        - (メッセージの返答が帰ってきた後に実行される) lua/senpai/presentation/chat/window.lua の`show_action_buttons`にて、次の処理
+            - 自動承認するかをサーバーに聞く(実行するblockによって一緒に渡す引数が変わる)
+                - replace_in_fileならpath
+                - execute_commandならcommandなど。
+            - 自動承認するなら、ボタンを描画せずに実行する
+            - 自動承認しないならボタンを描画(すでに定義済み)
 - ツールの手動実行箇所: lua/senpai/presentation/chat/window.lua の`on_press`
 
 ## チェックリスト
@@ -23,12 +38,42 @@
 
 ### 1. タスク分解
 
-- [ ] A: タスク分解して2以降のチェックリストを書き換える
+- [x] A: タスク分解して2以降のチェックリストを書き換える
 
-### 2. ここを書き換える
+### 2. サーバー側の実装
 
-- [ ] A: ここを書き換える
+#### 2-1. 設定管理
+- [ ] A: `/agent_settings` APIエンドポイントを作成（設定の受信と更新）
+- [ ] B: プラグイン設定（クライアントから）を受け取る処理
+- [ ] C: `.senpai/agent.json`からプロジェクト設定を読み込む処理
+- [ ] D: 設定のマージ処理（プロジェクト設定優先）
+- [ ] E: マージした設定をhonoの変数として保持
 
-### 3. ここを書き換える
+#### 2-2. 自動承認判定API
+- [ ] F: `/tool_auto` APIエンドポイントを作成
+- [ ] G: ツールタイプごとの自動承認判定ロジック
+  - [ ] G-1: replace_in_fileの判定（pathを考慮）
+  - [ ] G-2: execute_commandの判定（commandを考慮）
+- [ ] H: 設定に基づいて自動承認の可否を返す処理
 
-- [ ] A: ここを書き換える...
+### 3. クライアント（Lua）側の実装
+
+#### 3-1. サーバー起動時の設定送信
+- [ ] I: client.luaでプラグイン設定をサーバーに送信する処理
+- [ ] J: Config.agentを取得してJSON形式に変換
+- [ ] K: サーバー起動時に設定を送信
+
+#### 3-2. 自動承認の実装
+- [ ] L: window.luaの`show_action_buttons`で自動承認APIを呼び出す
+- [ ] M: ツールタイプに応じた引数の準備
+  - [ ] M-1: replace_in_fileの場合はpathを渡す
+  - [ ] M-2: execute_commandの場合はcommandを渡す
+- [ ] N: 自動承認の場合はボタンを表示せずに実行
+- [ ] O: 手動承認の場合は既存のボタン表示処理
+
+### 4. テストとドキュメント
+
+- [ ] P: サーバー側のユニットテスト作成
+- [ ] Q: クライアント側のテスト作成
+- [ ] R: 設定ファイル（.senpai/agent.json）のサンプル作成
+- [ ] S: READMEへの機能説明追加
