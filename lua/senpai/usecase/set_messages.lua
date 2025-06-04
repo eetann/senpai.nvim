@@ -21,7 +21,6 @@ function M.execute(chat)
       elseif message.role == "assistant" then
         assistant:render_from_memory(chat, message)
       elseif message.role == "tool" then
-        chat:on_assistant_message_start()
         M.set_tool_message(chat, message)
       end
     end

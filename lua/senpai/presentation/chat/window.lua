@@ -191,6 +191,7 @@ function M:show(winid)
     })
     self.input_area:show()
   end
+  self:show_action_buttons()
 
   vim.api.nvim_set_current_buf(self.input_area.bufnr)
   vim.cmd("normal G$")
@@ -198,6 +199,7 @@ end
 
 function M:hide()
   self.sticky_popup_manager:close_all_popup()
+  self:hide_action_buttons()
   self.log_area:hide()
   self.input_area:hide()
 end
