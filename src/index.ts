@@ -2,6 +2,8 @@ import { parseArgs } from "node:util";
 import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import type { AgentSettings } from "./domain/agentSettingsSchema";
+import agent from "./presentation/agent";
 import chat from "./presentation/chat";
 import generateCommitMessage from "./presentation/generateCommitMessage";
 import hello from "./presentation/hello";
@@ -51,6 +53,7 @@ type Variables = {
 	cwd: string;
 	mcpTools: Record<string, unknown>;
 	rules: ProjectRule[];
+	agentSettings: AgentSettings;
 };
 
 const app = new OpenAPIHono<{ Variables: Variables }>();
@@ -82,6 +85,7 @@ app.route("/", chat);
 app.route("/", thread);
 app.route("/", rag);
 app.route("/", mcp);
+app.route("/", agent);
 
 serve({
 	port,
