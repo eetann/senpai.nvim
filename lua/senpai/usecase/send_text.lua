@@ -51,6 +51,10 @@ function M.execute(chat, user_input)
 
   chat.is_sending = true
   UserMessage.render_from_request(chat, lines)
+  
+  -- Reset current assistant message block for new message
+  chat:on_assistant_message_start()
+  
   local assistant = AssistantMessage.new(chat)
 
   local spinner = Spinner.new(
@@ -74,6 +78,7 @@ function M.execute(chat, user_input)
   local wrapped_input
   if chat.is_first_message then
     wrapped_input = "<task>" .. user_input .. "</task>"
+    chat.is_first_message = false
   else
     wrapped_input = "<user_feedback>" .. user_input .. "</user_feedback>"
   end

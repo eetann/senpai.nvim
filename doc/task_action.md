@@ -98,6 +98,10 @@
     - [x] lua/senpai/presentation/chat/sticky_popup_manager.lua 
     - [x] lua/senpai/presentation/chat/window.lua の`add_XXXXXXXX_block`
     - [x] lua/senpai/domain/i_chat_window.lua の型も変更
+- [x] H-6: `show_action_buttons`で表示するaction_buttonsは「最新の応答」にあるやつだけにしたい
+    - 「送信1 → 返信1 →送信2 → 返信2」の場合。「返信2」にaction_buttonsがなくて「返信1」でaction_buttonsがあっても表示させたくない
+    - AIメッセージ開始時に`current_assistant_message_block`をリセットして、最新のブロックだけを管理する実装を完了
+- [ ] H-7: `show_action_buttons`で表示したやつを、チャットを閉じる時に非表示にする
 - [ ] I: アクションボタン押下時のメッセージ送信
     - Accept時: `[replace_in_file] Result:` + 成功メッセージ + ユーザー入力
     - Reject時: `[replace_in_file] Result:` + 拒否メッセージ + ユーザー入力

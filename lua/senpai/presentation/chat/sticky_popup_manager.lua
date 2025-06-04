@@ -1,5 +1,7 @@
-local ReplaceInFileBlock = require("senpai.presentation.chat.replace_in_file_block")
-local ExecuteCommandBlock = require("senpai.presentation.chat.execute_command_block")
+local ReplaceInFileBlock =
+  require("senpai.presentation.chat.replace_in_file_block")
+local ExecuteCommandBlock =
+  require("senpai.presentation.chat.execute_command_block")
 
 ---@class senpai.StickyPopupManager: senpai.IStickyPopupManager
 local M = {}
@@ -121,21 +123,18 @@ end
 ---@param args any
 ---@param row? integer
 function M:add_block(type, args, row)
+  local common_params = {
+    winid = self.winid,
+    bufnr = self.bufnr,
+    row = row,
+  }
+  local params = vim.tbl_extend("force", common_params, args)
+
   local popup
   if type == "replace_in_file" then
-    popup = ReplaceInFileBlock.new({
-      winid = self.winid,
-      bufnr = self.bufnr,
-      row = row,
-      path = args.path,
-    })
+    popup = ReplaceInFileBlock.new(params)
   elseif type == "execute_command" then
-    popup = ExecuteCommandBlock.new({
-      winid = self.winid,
-      bufnr = self.bufnr,
-      command = args.command,
-      row = row,
-    })
+    popup = ExecuteCommandBlock.new(params)
   else
     error("Unknown block type: " .. type)
   end

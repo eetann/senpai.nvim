@@ -29,6 +29,7 @@ local win_options = {
 
 ---@class senpai.ChatWindow: senpai.IChatWindow
 ---@field is_new boolean
+---@field current_assistant_message_block any|nil The block from the current assistant message
 local M = {}
 M.__index = M
 
@@ -237,6 +238,11 @@ function M:toggle_input()
   end
 end
 
+---Reset current assistant message block when a new AI message starts
+function M:on_assistant_message_start()
+  self.current_assistant_message_block = nil
+end
+
 ---@param type "replace_in_file"|"execute_command"
 ---@param args any
 ---@param row? integer
@@ -245,31 +251,23 @@ function M:add_block(type, args, row)
     self.sticky_popup_manager =
       StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
   end
-  return self.sticky_popup_manager:add_block(type, args, row)
+  local block = self.sticky_popup_manager:add_block(type, args, row)
+  -- Record this as the current assistant message block
+  self.current_assistant_message_block = block
+  return block
 end
 
 ---Show action buttons for the last tool in AI message
 function M:show_action_buttons()
-  if not self.sticky_popup_manager then
+  -- Only show buttons for the current assistant message's block
+  local block = self.current_assistant_message_block
+  if not block or not block.get_action_buttons then
+    -- Hide action buttons if there's no block with action buttons
+    self:hide_action_buttons()
     return
   end
 
-  -- Find the last block that has action buttons
-  local last_block = nil
-  local last_row = -1
-
-  for row, block in pairs(self.sticky_popup_manager.popups) do
-    if block and block.get_action_buttons and row > last_row then
-      last_block = block
-      last_row = row
-    end
-  end
-
-  if not last_block then
-    return
-  end
-
-  local buttons = last_block:get_action_buttons()
+  local buttons = block:get_action_buttons()
   -- Send to AI if error
   if type(buttons) == "string" then
     send_text.execute(self, buttons)
@@ -305,12 +303,12 @@ function M:show_action_buttons()
 
             -- Handle the action
             local result =
-              last_block:handle_action(button_def.action_type, user_input)
+              block:handle_action(button_def.action_type, user_input)
 
             if result.success then
               -- Send the result message to AI
               local message = "["
-                .. last_block.block_type
+                .. block.block_type
                 .. "] Result:\n\n"
                 .. result.message
               send_text.execute(self, message)
