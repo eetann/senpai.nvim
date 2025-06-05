@@ -2,7 +2,10 @@ import { parseArgs } from "node:util";
 import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
-import type { AgentSettings } from "./domain/agentSettingsSchema";
+import {
+	type AgentSettings,
+	agentSettingsSchema,
+} from "./domain/agentSettingsSchema";
 import agent from "./presentation/agent";
 import chat from "./presentation/chat";
 import generateCommitMessage from "./presentation/generateCommitMessage";
@@ -16,6 +19,11 @@ import {
 	type ProjectRule,
 } from "./usecase/shared/GetProjectRules";
 
+import {
+	loadProjectAgentSettings,
+	mergeAgentSettings,
+} from "./usecase/agent/AgentSettingsUseCase";
+
 const { values } = parseArgs({
 	args: process.argv,
 	options: {
@@ -26,6 +34,9 @@ const { values } = parseArgs({
 			type: "string",
 		},
 		mcp: {
+			type: "string",
+		},
+		agent: {
 			type: "string",
 		},
 	},
@@ -48,6 +59,17 @@ let mcpTools: Record<string, unknown> = { loading: {} };
 })();
 
 let rules = await new GetProjectRules(cwd).execute();
+let pluginSettings: AgentSettings = {};
+try {
+	if (values.agent) {
+		pluginSettings = agentSettingsSchema.parse(JSON.parse(values.agent));
+	}
+} catch (error) {
+	console.error("Failed to parse agent settings from --agent:", error);
+	pluginSettings = {};
+}
+const projectSettings = loadProjectAgentSettings(cwd);
+const mergedSettings = mergeAgentSettings(pluginSettings, projectSettings);
 
 type Variables = {
 	cwd: string;
@@ -62,6 +84,7 @@ app.use(async (c, next) => {
 	c.set("cwd", cwd);
 	c.set("mcpTools", mcpTools);
 	c.set("rules", rules);
+	c.set("agentSettings", mergedSettings);
 	await next();
 });
 

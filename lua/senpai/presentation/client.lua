@@ -12,7 +12,7 @@ local function wait_to_setup_server()
   -- TODO: vim.wait?
   for _ = 1, 50 do
     local result =
-      vim.system({ "curl", "-s", "http://localhost:" .. M.port }):wait()
+        vim.system({ "curl", "-s", "http://localhost:" .. M.port }):wait()
     if result.code == 0 then
       -- Send agent settings after server is ready
       M.send_agent_settings()
@@ -35,6 +35,7 @@ function M.start_server()
     ":h:h"
   )
   local mcp = vim.json.encode(Config.mcp.servers or {})
+  local agent = vim.json.encode(Config.agent or {})
 
   local max_attempts = 10
   local attempts = 0
@@ -56,6 +57,8 @@ function M.start_server()
       tostring(M.port),
       "--mcp",
       mcp,
+      "--agent",
+      agent,
     }, {
       cwd = cwd,
       stdout = vim.schedule_wrap(function(_, data)
@@ -98,10 +101,10 @@ function M.send_agent_settings()
   if not M.port then
     return
   end
-  
+
   local agent_settings = vim.json.encode(Config.agent or {})
   local url = "http://localhost:" .. M.port .. "/agent/settings"
-  
+
   vim.system({
     "curl",
     "-s",

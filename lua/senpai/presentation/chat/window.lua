@@ -73,10 +73,10 @@ end
 function M:apply_keymaps(area, keymaps)
   for key, value in pairs(keymaps) do
     if type(value.mode) == "string" then
-      area:map(value.mode--[[@as string]], key, value[1])
+      area:map(value.mode --[[@as string]], key, value[1])
     else
       for _, mode in
-        pairs(value.mode--[=[@as string[]]=])
+        pairs(value.mode --[=[@as string[]]=])
       do
         area:map(mode, key, value[1])
       end
@@ -336,20 +336,14 @@ function M:_execute_action(button_def, block, user_input)
 
   if result.success then
     -- Send the result message to AI
-    local message = "["
-      .. block.block_type
-      .. "] Result:\n\n"
-      .. result.message
+    local message = "[" .. block.block_type .. "] Result:\n\n" .. result.message
     send_text.execute(self, message)
     vim.print(message)
 
     -- Hide action buttons after use
     self:hide_action_buttons()
   else
-    vim.notify(
-      "Action failed: " .. result.message,
-      vim.log.levels.ERROR
-    )
+    vim.notify("Action failed: " .. result.message, vim.log.levels.ERROR)
   end
 end
 
