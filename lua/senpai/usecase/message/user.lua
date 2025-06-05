@@ -16,7 +16,7 @@ local function extract_tag_content(text)
   local task_content = text:match("<task>(.-)</task>")
   if task_content then
     local other =
-      text:gsub("<task>.-</task>", ""):gsub("^%s+", ""):gsub("%s+$", "")
+        text:gsub("<task>.-</task>", ""):gsub("^%s+", ""):gsub("%s+$", "")
     return task_content, other ~= "" and other or nil
   end
 
@@ -24,9 +24,9 @@ local function extract_tag_content(text)
   local feedback_content = text:match("<user_feedback>(.-)</user_feedback>")
   if feedback_content then
     local other = text
-      :gsub("<user_feedback>.-</user_feedback>", "")
-      :gsub("^%s+", "")
-      :gsub("%s+$", "")
+        :gsub("<user_feedback>.-</user_feedback>", "")
+        :gsub("^%s+", "")
+        :gsub("%s+$", "")
     return feedback_content, other ~= "" and other or nil
   end
 
@@ -115,9 +115,7 @@ local function base_render(chat, user_input, other_content)
 ]],
     texts
   )
-  if chat.is_first_message then
-    chat.is_first_message = false
-  else
+  if not chat.is_first_message then
     render_text = "\n\n" .. render_text
     start_row = start_row + 2
   end
@@ -159,7 +157,7 @@ function M.render_from_memory(chat, message)
   if type(content) == "string" then
     -- Extract tag content and other content
     local tag_content, other_content =
-      extract_tag_content(removeReferenceSection(content))
+        extract_tag_content(removeReferenceSection(content))
     local lines = {}
     for _, text in pairs(vim.split(tag_content, "\n")) do
       table.insert(lines, text)
