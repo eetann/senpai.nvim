@@ -14,6 +14,8 @@ local function wait_to_setup_server()
     local result =
       vim.system({ "curl", "-s", "http://localhost:" .. M.port }):wait()
     if result.code == 0 then
+      -- Send agent settings after server is ready
+      M.send_agent_settings()
       return
     end
     vim.cmd("sleep 200ms")
@@ -89,6 +91,29 @@ local function stop_server()
   end
   M.job = nil
   M.port = nil
+end
+
+---Send agent settings to server
+function M.send_agent_settings()
+  if not M.port then
+    return
+  end
+  
+  local agent_settings = vim.json.encode(Config.agent or {})
+  local url = "http://localhost:" .. M.port .. "/agent/settings"
+  
+  vim.system({
+    "curl",
+    "-s",
+    "-X", "POST",
+    "-H", "Content-Type: application/json",
+    "-d", agent_settings,
+    url
+  }, {}, function(result)
+    if result.code ~= 0 then
+      vim.notify("[senpai] Failed to send agent settings: " .. (result.stderr or ""), vim.log.levels.ERROR)
+    end
+  end)
 end
 
 function M.shutdown()

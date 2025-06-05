@@ -59,21 +59,22 @@
 ### 3. クライアント（Lua）側の実装
 
 #### 3-1. サーバー起動時の設定送信
-- [ ] I: client.luaでプラグイン設定をサーバーに送信する処理
-- [ ] J: Config.agentを取得してJSON形式に変換
-- [ ] K: サーバー起動時に設定を送信
+- [x] I: client.luaでプラグイン設定をサーバーに送信する処理
+- [x] J: Config.agentを取得してJSON形式に変換
+- [x] K: サーバー起動時に設定を送信
 
 #### 3-2. 自動承認の実装
-- [ ] L: window.luaの`show_action_buttons`で自動承認APIを呼び出す
-- [ ] M: ツールタイプに応じた引数の準備
-  - [ ] M-1: replace_in_fileの場合はpathを渡す
-  - [ ] M-2: execute_commandの場合はcommandを渡す
-- [ ] N: 自動承認の場合はボタンを表示せずに実行
-- [ ] O: 手動承認の場合は既存のボタン表示処理
+- [x] L: window.luaの`show_action_buttons`で自動承認APIを呼び出す
+- [x] M: ツールタイプに応じた引数の準備
+  - [x] M-1: replace_in_fileの場合はpathを渡す
+  - [x] M-2: execute_commandの場合はcommandを渡す
+- [x] N: 自動承認の場合はボタンを表示せずに実行
+- [x] O: 手動承認の場合は既存のボタン表示処理
 
 ### 4. テストとドキュメント
 
-- [ ] P: サーバー側のユニットテスト作成
+- [x] P: サーバー側のユニットテスト作成
 - [ ] Q: クライアント側のテスト作成
-- [ ] R: 設定ファイル（.senpai/agent.json）のサンプル作成
-- [ ] S: READMEへの機能説明追加
+- [x] R: 設定ファイル（.senpai/agent.json）のサンプル作成
+- [ ] S: 初回メッセージで`task`じゃなくて`user_feedback`になってるのを修正
+- [ ] T: ファイル添付がないのに`\n---\n\nReference`がついてる問題を修正

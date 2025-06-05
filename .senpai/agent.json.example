@@ -1,0 +1,6 @@
+{
+  "auto_accept": {
+    "replace_in_file": ["*.md", "*.txt", "docs/**/*"],
+    "execute_command": ["npm run test", "npm run lint", "npm run format"]
+  }
+}

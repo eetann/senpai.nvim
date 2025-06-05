@@ -1,10 +1,13 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import {
 	type AgentSettings,
 	agentSettingsSchema,
 } from "../domain/agentSettingsSchema";
+import {
+	loadProjectAgentSettings,
+	mergeAgentSettings,
+	checkAutoApproval,
+} from "../usecase/agent/AgentSettingsUseCase";
 
 type Variables = {
 	cwd: string;
@@ -12,44 +15,6 @@ type Variables = {
 };
 
 const app = new OpenAPIHono<{ Variables: Variables }>().basePath("/agent");
-
-/**
- * Load agent settings from .senpai/agent.json
- */
-function loadProjectAgentSettings(cwd: string): AgentSettings | null {
-	const configPath = join(cwd, ".senpai", "agent.json");
-	if (!existsSync(configPath)) {
-		return null;
-	}
-
-	try {
-		const content = readFileSync(configPath, "utf-8");
-		const parsed = JSON.parse(content);
-		return agentSettingsSchema.parse(parsed);
-	} catch (error) {
-		console.error("Failed to load agent settings:", error);
-		return null;
-	}
-}
-
-/**
- * Merge agent settings (project settings take precedence)
- */
-function mergeAgentSettings(
-	pluginSettings: AgentSettings,
-	projectSettings: AgentSettings | null,
-): AgentSettings {
-	if (!projectSettings) {
-		return pluginSettings;
-	}
-
-	return {
-		auto_accept: {
-			...pluginSettings.auto_accept,
-			...projectSettings.auto_accept,
-		},
-	};
-}
 // Update agent settings endpoint
 app.openapi(
 	createRoute({

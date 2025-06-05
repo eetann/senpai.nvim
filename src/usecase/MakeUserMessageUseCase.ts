@@ -32,6 +32,12 @@ export class MakeUserMessageUseCase {
 		if (!headers) {
 			headers = this.extractFiles(text);
 		}
+		if (!headers || headers.length === 0) {
+			return {
+				role: "user",
+				content,
+			};
+		}
 		content += "\n---\n\nReference";
 		for (const header of headers) {
 			let absolute_path = header.filename;

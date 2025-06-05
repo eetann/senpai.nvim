@@ -278,9 +278,85 @@ function M:show_action_buttons()
     send_text.execute(self, buttons)
     return
   end
-  -- TODO: 自動承認なら実行するようにサーバーにお願いする
-  -- TODO: 自動承認じゃないならボタンを表示する
+  -- Check auto approval
+  local RequestHandler = require("senpai.usecase.request.request_handler")
 
+  -- Prepare request based on block type
+  local auto_request = {
+    tool_type = block.type,
+  }
+
+  if block.type == "replace_in_file" then
+    auto_request.path = block.args.path
+  elseif block.type == "execute_command" then
+    auto_request.command = block.args.command
+  end
+
+  -- Use RequestHandler for internal API call
+  local response = RequestHandler.request_without_callback({
+    method = "post",
+    route = "/agent/auto",
+    body = auto_request,
+  })
+
+  if response.exit ~= 0 or response.status ~= 200 then
+    -- API call failed, show buttons
+    self:_render_action_buttons(buttons, block)
+    return
+  end
+
+  local ok, body = pcall(vim.json.decode, response.body)
+  if not ok or type(body) ~= "table" then
+    -- Failed to parse response, show buttons
+    self:_render_action_buttons(buttons, block)
+    return
+  end
+
+  if body.auto_approve then
+    -- Auto approve - execute the first enabled action
+    for _, button_def in ipairs(buttons) do
+      if button_def.enabled ~= false then
+        self:_execute_action(button_def, block, "")
+        return
+      end
+    end
+  else
+    -- Manual approval - show buttons
+    self:_render_action_buttons(buttons, block)
+  end
+end
+
+---Execute action with given user input
+---@param button_def table
+---@param block any
+---@param user_input string
+function M:_execute_action(button_def, block, user_input)
+  -- Handle the action
+  local result = block:handle_action(button_def.action_type, user_input)
+
+  if result.success then
+    -- Send the result message to AI
+    local message = "["
+      .. block.block_type
+      .. "] Result:\n\n"
+      .. result.message
+    send_text.execute(self, message)
+    vim.print(message)
+
+    -- Hide action buttons after use
+    self:hide_action_buttons()
+  else
+    vim.notify(
+      "Action failed: " .. result.message,
+      vim.log.levels.ERROR
+    )
+  end
+end
+
+---Render action buttons
+---@param buttons table
+---@param block any
+function M:_render_action_buttons(buttons, block)
   -- Build button components
   local button_components = {}
   for i, button_def in ipairs(buttons) do
@@ -308,27 +384,8 @@ function M:show_action_buttons()
               )
             end
 
-            -- Handle the action
-            local result =
-              block:handle_action(button_def.action_type, user_input)
-
-            if result.success then
-              -- Send the result message to AI
-              local message = "["
-                .. block.block_type
-                .. "] Result:\n\n"
-                .. result.message
-              send_text.execute(self, message)
-              vim.print(message)
-
-              -- Hide action buttons after use
-              self:hide_action_buttons()
-            else
-              vim.notify(
-                "Action failed: " .. result.message,
-                vim.log.levels.ERROR
-              )
-            end
+            -- Execute the action
+            self:_execute_action(button_def, block, user_input)
           end,
         })
       )

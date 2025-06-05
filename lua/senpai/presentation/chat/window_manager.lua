@@ -99,6 +99,7 @@ function M.replace_new_thread(args)
     chat.sticky_popup_manager:close_all_popup()
     chat.log_area.winid = nil
     chat.log_area:hide()
+    chat.is_first_message = true
   end
   chat = M.add(args or {})
   M.show_current_chat(chat, current_win)
