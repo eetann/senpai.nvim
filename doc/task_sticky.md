@@ -69,7 +69,12 @@
   - ハイブリッド方式で実装：ターミナルバッファ（表示用）+ self.output_lines（データ蓄積用）
   - on_stdout/on_stderrで受け取ったデータをself.output_linesに確実に蓄積
   - handle_actionでself.output_linesから結果を取得するように修正
-- [ ] D: ツール結果の送信時にresultがユーザーメッセージとして表示されるので
+- [x] D: ツール結果の送信時にresultがユーザーメッセージとして表示されるので折りたたみ表示を実装
+  - action_result_renderer.luaとして共通ロジックを分離
+  - user.luaのrender_from_requestとrender_from_memory両方でアクション結果判定を追加
+  - APIリクエスト時も履歴読み込み時も同じロジックでアクション結果を折りたたみ表示
+  - highlight.luaにアクション結果用ハイライトグループを追加
+  - 折りたたみトグル機能（<CR>キー）を実装
 - [ ] E: 他の部分との統合テスト
 
 ### 6. ドキュメント更新とクリーンアップ

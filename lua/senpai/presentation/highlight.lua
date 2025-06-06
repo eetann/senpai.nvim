@@ -16,6 +16,31 @@ function M.execute()
     "NuiComponentsButtonActive",
     { link = "@markup.heading" }
   )
+
+  -- Tool result highlights
+  vim.api.nvim_set_hl(
+    0,
+    "SenpaiToolResultBorder",
+    vim.tbl_extend(
+      "force",
+      vim.api.nvim_get_hl(0, { name = "FloatBorder" }),
+      { fg = "#6c7086" } -- Slightly dimmed border for tool results
+    )
+  )
+  vim.api.nvim_set_hl(
+    0,
+    "SenpaiToolResultHeader",
+    vim.tbl_extend(
+      "force",
+      vim.api.nvim_get_hl(0, { name = "Comment" }),
+      { bold = true, italic = true }
+    )
+  )
+  vim.api.nvim_set_hl(
+    0,
+    "SenpaiToolResultFold",
+    { link = "Folded" }
+  )
 end
 
 return M

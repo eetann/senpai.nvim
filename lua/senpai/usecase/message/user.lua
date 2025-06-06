@@ -1,4 +1,5 @@
 local utils = require("senpai.usecase.utils")
+local ActionResultRenderer = require("senpai.usecase.message.action_result_renderer")
 local M = {}
 
 local function removeReferenceSection(text)
@@ -154,26 +155,29 @@ end
 ---@param message senpai.chat.message.user
 function M.render_from_memory(chat, message)
   local content = message.content
-  if type(content) == "string" then
-    -- Extract tag content and other content
-    local tag_content, other_content =
-        extract_tag_content(removeReferenceSection(content))
-    local lines = {}
-    for _, text in pairs(vim.split(tag_content, "\n")) do
-      table.insert(lines, text)
-    end
-    base_render(chat, lines, other_content)
-    return
-  end
-  -- content is `senpai.chat.message.user.part[]`
   local full_text = ""
-  for _, part in pairs(content) do
-    if part.type == "text" then
-      full_text = full_text .. removeReferenceSection(part.text)
+
+  if type(content) == "string" then
+    full_text = removeReferenceSection(content)
+  else
+    -- content is `senpai.chat.message.user.part[]`
+    for _, part in pairs(content) do
+      if part.type == "text" then
+        full_text = full_text .. removeReferenceSection(part.text)
+      end
     end
   end
 
-  -- Extract tag content and other content
+  -- Check if this is an action result first
+  if ActionResultRenderer.is_action_result(full_text) then
+    local header, content_part = ActionResultRenderer.extract_action_result(full_text)
+    if header and content_part then
+      ActionResultRenderer.render_action_result(chat, header, content_part)
+      return
+    end
+  end
+
+  -- Extract tag content and other content for normal user messages
   local tag_content, other_content = extract_tag_content(full_text)
   local lines = {}
   for _, text in pairs(vim.split(tag_content, "\n")) do
@@ -186,6 +190,17 @@ end
 ---@param user_input string[]
 function M.render_from_request(chat, user_input)
   vim.api.nvim_buf_set_lines(chat.input_area.bufnr, 0, -1, false, {})
+
+  -- Check if this is an action result
+  local full_text = table.concat(user_input, "\n")
+  if ActionResultRenderer.is_action_result(full_text) then
+    local header, content = ActionResultRenderer.extract_action_result(full_text)
+    if header and content then
+      ActionResultRenderer.render_action_result(chat, header, content)
+      return
+    end
+  end
+
   base_render(chat, user_input, nil) -- No other content for request rendering
 end
 
