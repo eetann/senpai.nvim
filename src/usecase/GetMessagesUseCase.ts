@@ -3,7 +3,6 @@ import type { Memory } from "@mastra/memory";
 import type {
 	AssistantContent,
 	FilePart,
-	TextPart,
 	ToolCallPart,
 	ToolResultPart,
 } from "ai";
@@ -12,6 +11,7 @@ import {
 	Part,
 	type PartType,
 } from "./getStreamProcessor/AbstractHandler";
+import { ExecuteCommandHandler } from "./getStreamProcessor/ExecuteCommandHandler";
 import { ReplaceInFileHandler } from "./getStreamProcessor/ReplaceInFileHandler";
 import { XmlStreamProcessor } from "./getStreamProcessor/XmlStreamProcessor";
 
@@ -76,6 +76,7 @@ export class GetMessagesUseCase {
 		};
 		const handlers: AbstractHandler[] = [
 			new ReplaceInFileHandler(writeText, this.cwd),
+			new ExecuteCommandHandler(writeText),
 		];
 		const processor = new XmlStreamProcessor(handlers, writeText);
 

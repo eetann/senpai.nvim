@@ -32,7 +32,7 @@ export class ExecuteCommandHandler extends AbstractHandler {
 		this.currentContent += chunk;
 	}
 
-	commandTag(_chunk?: string, line?: string): void {
+	private async commandTag(_chunk?: string, line?: string): Promise<void> {
 		if (!line) return;
 		this.command = line.replace(/<\/?command>/g, "").trim();
 		this.currentContent = "";

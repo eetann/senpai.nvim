@@ -1,6 +1,7 @@
 import type { processDataStream } from "ai";
 import type { StreamingApi } from "hono/utils/stream";
 import { type AbstractHandler, Part, type PartType } from "./AbstractHandler";
+import { ExecuteCommandHandler } from "./ExecuteCommandHandler";
 import { ReplaceInFileHandler } from "./ReplaceInFileHandler";
 import { XmlStreamProcessor } from "./XmlStreamProcessor";
 
@@ -14,6 +15,7 @@ export class GetStreamProcessor {
 		};
 		const handlers: AbstractHandler[] = [
 			new ReplaceInFileHandler(writeText, this.cwd),
+			new ExecuteCommandHandler(writeText),
 		];
 		const processor = new XmlStreamProcessor(handlers, writeText);
 
