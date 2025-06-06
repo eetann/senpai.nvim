@@ -31,6 +31,10 @@ end
 function M:setup_body() end
 
 function M:setup()
+  if not self:has_ui() then
+    return
+  end
+  
   self:setup_body()
   local width = M.get_adjust_width(self.winid)
   self.renderer = n.create_renderer({
@@ -68,10 +72,16 @@ end
 function M:setup_keymaps() end
 
 function M:mount()
+  if not self:has_ui() then
+    return
+  end
   self.renderer:render(self.body)
 end
 
 function M:unmount()
+  if not self:has_ui() then
+    return
+  end
   self.renderer:close()
 end
 
@@ -82,6 +92,9 @@ function M:renew(winid)
 end
 
 function M:show()
+  if not self:has_ui() then
+    return
+  end
   if not self.renderer.layout then
     self:mount()
   end
@@ -89,6 +102,9 @@ function M:show()
 end
 
 function M:hide()
+  if not self:has_ui() then
+    return
+  end
   if self.renderer.layout then
     self.renderer.layout:hide()
   end
@@ -96,7 +112,18 @@ end
 
 ---@return boolean
 function M:is_visible()
+  if not self:has_ui() then
+    return false
+  end
   return self.renderer.layout and self.renderer.layout.winid ~= nil
+end
+
+---Check if this block has UI components (body/renderer)
+---@return boolean
+function M:has_ui()
+  -- Default implementation returns true for backward compatibility
+  -- Subclasses can override this to return false for UI-less blocks
+  return true
 end
 
 ---@return { label: string, action_type: string, enabled?: boolean }[]|string
@@ -113,6 +140,9 @@ end
 
 ---@param to_last boolean|nil
 function M:focus(to_last)
+  if not self:has_ui() then
+    return
+  end
   if to_last then
     local focusable_components = self.renderer:get_focusable_components()
     local prev = focusable_components[#focusable_components]
@@ -131,6 +161,9 @@ function M:focus(to_last)
 end
 
 function M:is_focused()
+  if not self:has_ui() then
+    return false
+  end
   for _, component in pairs(self.renderer:get_focusable_components()) do
     if component:is_focused() then
       return true
@@ -141,12 +174,18 @@ end
 
 ---@param mapping NuiMapping
 function M:map(mapping)
+  if not self:has_ui() then
+    return
+  end
   self.renderer:add_mappings({ mapping })
 end
 
 ---@param width integer
 ---@param height integer
 function M:set_size(width, height)
+  if not self:has_ui() then
+    return
+  end
   self.renderer:set_size({
     width = width,
     height = height,
@@ -155,6 +194,9 @@ end
 
 ---@return integer
 function M:get_width()
+  if not self:has_ui() then
+    return 0
+  end
   return self.renderer:get_size().width
 end
 

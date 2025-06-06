@@ -12,10 +12,6 @@ local function render_base(chat, content)
     chat:add_block("replace_in_file", { path = content.args.path })
     return
   end
-  if content.toolName == "ExecuteCommand" then
-    chat:add_block("execute_command", { command = content.args.command })
-    return
-  end
   local render_text = "\n\nTool Call: `" .. content.toolName .. "`"
   if type(content.args) == "table" and next(content.args) ~= nil then
     render_text = render_text

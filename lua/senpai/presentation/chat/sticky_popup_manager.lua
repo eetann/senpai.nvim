@@ -140,7 +140,10 @@ function M:add_block(type, args, row)
   end
 
   row = popup.row
-  self:add_virtual_blank_line(row)
+  -- Only add virtual blank line for blocks with UI
+  if popup:has_ui() then
+    self:add_virtual_blank_line(row)
+  end
 
   self.popups[row] = popup
   local rows = {}
@@ -204,6 +207,11 @@ function M:update_float_position()
 
   local previous_row_count = 0
   for original_row, popup in pairs(self.popups) do
+    -- Skip UI-less blocks
+    if not popup:has_ui() then
+      goto continue
+    end
+    
     local target_screen_row = original_row - topline + previous_row_count
     if target_screen_row < 0 or split_height <= target_screen_row + 3 then
       popup:hide()
@@ -240,9 +248,14 @@ function M:find_next_popup_row(block_type)
     if row < current_line then
       goto continue
     end
+    local popup = self.popups[row]
+    -- Skip UI-less blocks
+    if not popup:has_ui() then
+      goto continue
+    end
     if
       not block_type
-      or (block_type and self.popups[row].block_type == block_type)
+      or (block_type and popup.block_type == block_type)
     then
       return row
     end
@@ -259,9 +272,14 @@ function M:find_prev_popup_row(block_type)
     if current_line <= row then
       goto continue
     end
+    local popup = self.popups[row]
+    -- Skip UI-less blocks
+    if not popup:has_ui() then
+      goto continue
+    end
     if
       not block_type
-      or (block_type and self.popups[row].block_type == block_type)
+      or (block_type and popup.block_type == block_type)
     then
       return row
     end
@@ -274,7 +292,9 @@ end
 ---@return integer? index The index in self.popups, or nil if not found
 function M:find_row_index_by_winid()
   for i, row in ipairs(self.rows) do
-    if self.popups[row]:is_focused() then
+    local popup = self.popups[row]
+    -- Skip UI-less blocks
+    if popup:has_ui() and popup:is_focused() then
       return i
     end
   end
@@ -284,14 +304,22 @@ end
 function M:jump_to_next()
   local next_row = self:find_next_popup_row()
   if next_row then
-    self.popups[next_row]:focus()
+    local popup = self.popups[next_row]
+    -- Only focus if the popup has UI
+    if popup:has_ui() then
+      popup:focus()
+    end
   end
 end
 
 function M:jump_to_prev()
   local prev_row = self:find_prev_popup_row()
   if prev_row then
-    self.popups[prev_row]:focus(true)
+    local popup = self.popups[prev_row]
+    -- Only focus if the popup has UI
+    if popup:has_ui() then
+      popup:focus(true)
+    end
   end
 end
 

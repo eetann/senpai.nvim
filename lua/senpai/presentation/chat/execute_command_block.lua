@@ -1,10 +1,5 @@
-local n = require("nui-components")
-local Columns = require("nui-components.columns")
-local Button = require("nui-components.button")
-local Gap = require("nui-components.gap")
 local IBlock = require("senpai.domain.i_block")
 local utils = require("senpai.usecase.utils")
-local Popup = require("nui.popup")
 
 ---@class senpai.ExecuteCommandBlock: senpai.IExecuteCommandBlock
 local M = {}
@@ -21,7 +16,7 @@ function M.new(opts)
   self.row = row
   self.winid = opts.winid
   self.bufnr = opts.bufnr
-  self:setup()
+  -- UI-less block, no need to setup or mount
   utils.replace_lines_at_last(self.bufnr, {
     "> [!NOTE] ExecuteCommand",
     "> ```sh",
@@ -29,112 +24,17 @@ function M.new(opts)
     "> ```",
     "",
   })
-  self:mount()
 
   return self
 end
 
-function M:setup_body()
-  local signal = n.create_signal({
-    hidden = true,
-  })
-  self.body = Columns({
-    flex = 1,
-    children = {
-      Button({
-        align = "center",
-        label = "Run",
-        flex = 1,
-        on_press = function()
-          vim.api.nvim_set_current_win(self.winid)
-          vim.print("run")
-          self:execute_command_in_term()
-          signal.hidden = false
-          self.renderer:redraw()
-        end,
-        mappings = function()
-          return {
-            {
-              mode = "n",
-              key = "<S-Tab>",
-              handler = function()
-                utils.safe_set_current_win(
-                  self.winid,
-                  { row = self.row, col = 0 }
-                )
-              end,
-            },
-          }
-        end,
-      }),
-      Gap({ size = 1 }, { zindex = 49 }),
-      Button({
-        label = "Open output",
-        hidden = signal.hidden,
-        flex = 1,
-        align = "center",
-        on_press = function()
-          self:open_result_popup()
-        end,
-      }),
-      Gap({ size = 1 }, { zindex = 49 }),
-      Button({
-        label = "Reject",
-        flex = 1,
-        align = "center",
-        on_press = function()
-          vim.api.nvim_set_current_win(self.winid)
-          vim.print("reject")
-        end,
-        mappings = function()
-          return {
-            {
-              mode = "n",
-              key = "<Tab>",
-              handler = function()
-                utils.safe_set_current_win(
-                  self.winid,
-                  { row = self.row + 1, col = 0 }
-                )
-              end,
-            },
-          }
-        end,
-      }),
-    },
-  }, {
-    zindex = 50,
-  })
+---Override has_ui to return false for UI-less block
+---@return boolean
+function M:has_ui()
+  return false
 end
 
-function M:open_result_popup()
-  local popup = Popup({
-    bufnr = self.term_bufnr,
-    relative = {
-      type = "buf",
-      position = {
-        row = self.row - 1,
-        col = 0,
-      },
-    },
-    position = 1,
-    size = {
-      width = M.get_adjust_width(self.winid),
-      height = 5,
-    },
-    border = {
-      style = "rounded",
-    },
-    enter = true,
-  })
-  popup:mount()
-  popup:map("n", "<esc>", function()
-    popup:unmount()
-  end)
-  popup:map("n", "q", function()
-    popup:unmount()
-  end)
-end
+-- Note: Result popup functionality should be handled by window.lua if needed
 
 function M:execute_command_in_term()
   if self.term_bufnr and vim.api.nvim_buf_is_valid(self.term_bufnr) then
@@ -190,10 +90,19 @@ function M:handle_action(action_type, user_input)
     -- Execute the command
     self:execute_command_in_term()
 
-    -- Wait a bit for command to complete (simple approach for now)
+    -- Wait for command to start
     vim.wait(100)
 
+    -- Get the initial output
+    local output_lines = {}
+    if self.term_bufnr and vim.api.nvim_buf_is_valid(self.term_bufnr) then
+      output_lines = vim.api.nvim_buf_get_lines(self.term_bufnr, 0, -1, false)
+    end
+
     local message = "Executed command: " .. self.command
+    if #output_lines > 0 then
+      message = message .. "\n\nOutput:\n" .. table.concat(output_lines, "\n")
+    end
     if user_input and user_input ~= "" then
       message = message .. "\n\n" .. user_input
     end
