@@ -46,12 +46,27 @@ function M:execute_command_in_term()
       pcall(vim.api.nvim_chan_send, self.job_id, data)
     end,
   })
+
+  self.output_lines = {}
+
   self.job_id = vim.fn.jobstart(self.command, {
     on_stdout = function(_, data)
       pcall(vim.api.nvim_chan_send, self.term_id, table.concat(data, "\r\n"))
+
+      for _, line in ipairs(data) do
+        if line ~= "" then
+          table.insert(self.output_lines, line)
+        end
+      end
     end,
     on_stderr = function(_, data)
       pcall(vim.api.nvim_chan_send, self.term_id, table.concat(data, "\r\n"))
+
+      for _, line in ipairs(data) do
+        if line ~= "" then
+          table.insert(self.output_lines, "STDERR: " .. line)
+        end
+      end
     end,
     on_exit = function(_, code)
       pcall(
@@ -59,6 +74,9 @@ function M:execute_command_in_term()
         self.term_id,
         string.format("\r\n[Process exited %d]\r\n", code)
       )
+
+      table.insert(self.output_lines, string.format("[Process exited %d]", code))
+
       self.job_id = nil
       self.exit_code = code
     end,
@@ -68,13 +86,11 @@ end
 ---@return { label: string, action_type: string, enabled?: boolean }[]
 function M:get_action_buttons()
   if not self.term_bufnr then
-    -- Command not executed yet
     return {
-      { label = "Run", action_type = "run", enabled = true },
+      { label = "Run",    action_type = "run",    enabled = true },
       { label = "Reject", action_type = "reject", enabled = true },
     }
   else
-    -- Command has been executed
     return {
       { label = "Accept", action_type = "accept", enabled = true },
       { label = "Reject", action_type = "reject", enabled = true },
@@ -90,18 +106,15 @@ function M:handle_action(action_type, user_input)
     -- Execute the command
     self:execute_command_in_term()
 
-    -- Wait for command to start
-    vim.wait(100)
+    -- Wait for command to complete
+    vim.wait(60 * 1000, function()
+      return self.exit_code ~= nil
+    end)
 
-    -- Get the initial output
-    local output_lines = {}
-    if self.term_bufnr and vim.api.nvim_buf_is_valid(self.term_bufnr) then
-      output_lines = vim.api.nvim_buf_get_lines(self.term_bufnr, 0, -1, false)
-    end
-
+    -- Get the output from accumulated lines
     local message = "Executed command: " .. self.command
-    if #output_lines > 0 then
-      message = message .. "\n\nOutput:\n" .. table.concat(output_lines, "\n")
+    if self.output_lines and #self.output_lines > 0 then
+      message = message .. "\n\nOutput:\n" .. table.concat(self.output_lines, "\n")
     end
     if user_input and user_input ~= "" then
       message = message .. "\n\n" .. user_input
@@ -109,14 +122,9 @@ function M:handle_action(action_type, user_input)
 
     return { success = true, message = message }
   elseif action_type == "accept" then
-    local result_lines = {}
-    if self.term_bufnr and vim.api.nvim_buf_is_valid(self.term_bufnr) then
-      result_lines = vim.api.nvim_buf_get_lines(self.term_bufnr, 0, -1, false)
-    end
-
     local message = "Accepted command execution results for: " .. self.command
-    if #result_lines > 0 then
-      message = message .. "\n\nOutput:\n" .. table.concat(result_lines, "\n")
+    if self.output_lines and #self.output_lines > 0 then
+      message = message .. "\n\nOutput:\n" .. table.concat(self.output_lines, "\n")
     end
     if self.exit_code then
       message = message .. "\n\nExit code: " .. tostring(self.exit_code)
