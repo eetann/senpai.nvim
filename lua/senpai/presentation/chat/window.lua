@@ -288,7 +288,7 @@ function M:show_action_buttons()
   -- Send to AI if error
   if type(buttons) == "string" then
     -- buttons as error
-    send_text.execute(self, buttons, false)
+    send_text.execute(self, nil, buttons)
     return
   end
   -- Check auto approval
@@ -344,13 +344,16 @@ end
 ---@param block any
 ---@param user_input string
 function M:_execute_action(button_def, block, user_input)
-  -- Handle the action
-  local result = block:handle_action(button_def.action_type, user_input)
+  -- Handle the action (without user_input, handle_action only returns tool result)
+  local result = block:handle_action(button_def.action_type)
 
   if result.success then
-    -- Send the result message to AI
-    local message = "[" .. block.block_type .. "] Result:\n\n" .. result.message
-    send_text.execute(self, message, false)
+    -- Build tool result message
+    local tool_message = "[" .. block.block_type .. "] Result:\n\n" .. result.message
+    
+    -- Send user input and tool result together
+    local user_part = (user_input and user_input ~= "") and user_input or nil
+    send_text.execute(self, user_part, tool_message)
 
     -- Hide action buttons after use
     self:hide_action_buttons()

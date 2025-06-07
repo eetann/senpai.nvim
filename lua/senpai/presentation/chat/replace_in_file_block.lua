@@ -218,9 +218,8 @@ function M:get_action_buttons()
 end
 
 ---@param action_type string
----@param user_input? string
 ---@return { success: boolean, message: string }
-function M:handle_action(action_type, user_input)
+function M:handle_action(action_type)
   if action_type == "accept" then
     if not self.ai_bufnr and not self.origin_bufnr then
       vim.print("バッファが作れなかった")
@@ -235,18 +234,9 @@ function M:handle_action(action_type, user_input)
       vim.cmd("write")
     end)
 
-    local message = "Successfully applied changes to " .. self.path
-    if user_input and user_input ~= "" then
-      message = message .. "\n\n" .. user_input
-    end
-
-    return { success = true, message = message }
+    return { success = true, message = "Successfully applied changes to " .. self.path }
   elseif action_type == "reject" then
-    local message = "Rejected changes to " .. self.path
-    if user_input and user_input ~= "" then
-      message = message .. "\n\n" .. user_input
-    end
-    return { success = true, message = message }
+    return { success = true, message = "Rejected changes to " .. self.path }
   else
     return { success = false, message = "Unknown action type: " .. action_type }
   end

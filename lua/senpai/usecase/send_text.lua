@@ -32,32 +32,70 @@ end
 
 ---send chat to LLM
 ---@param chat senpai.IChatWindow
----@param text? string Text to send (if nil, gets from input_area)
----@param include_user_input? boolean Whether to wrap text with task/user_feedback tags (default: true)
-function M.execute(chat, text, include_user_input)
+---@param user_input? string User input text (wrapped with task/user_feedback tags)
+---@param other_input? string Other input text (tool results, etc., sent as-is)
+function M.execute(chat, user_input, other_input)
   if chat.is_sending then
     return
   end
-  
-  -- Set default value for include_user_input
-  if include_user_input == nil then
-    include_user_input = true
-  end
-  
-  --@type string[]
-  local lines
-  if type(text) == "string" then
-    lines = vim.split(text, "\n")
-  else
-    lines = vim.api.nvim_buf_get_lines(chat.input_area.bufnr, 0, -1, false)
-    text = table.concat(lines, "\n")
-  end
-  if text == "" then
-    return
+
+  local message_parts = {}
+  local original_text = ""
+
+  -- Handle user input
+  if user_input and user_input ~= "" then
+    if chat.is_first_message then
+      table.insert(message_parts, "<task>" .. user_input .. "</task>")
+      chat.is_first_message = false
+    else
+      table.insert(
+        message_parts,
+        "<user_feedback>" .. user_input .. "</user_feedback>"
+      )
+    end
+    original_text = user_input
   end
 
+  -- Handle other input (tool results, etc.)
+  if other_input and other_input ~= "" then
+    table.insert(message_parts, other_input)
+    if original_text == "" then
+      original_text = other_input
+    end
+  end
+
+  -- If both inputs are empty, try to get from input area
+  if #message_parts == 0 then
+    local lines =
+      vim.api.nvim_buf_get_lines(chat.input_area.bufnr, 0, -1, false)
+    local text = table.concat(lines, "\n")
+    if text == "" then
+      return
+    end
+    if chat.is_first_message then
+      table.insert(message_parts, "<task>" .. text .. "</task>")
+      chat.is_first_message = false
+    else
+      table.insert(
+        message_parts,
+        "<user_feedback>" .. text .. "</user_feedback>"
+      )
+    end
+    original_text = text
+  end
+
+  local final_text = table.concat(message_parts, "\n\n")
+
   chat.is_sending = true
-  UserMessage.render_from_request(chat, lines)
+
+  -- Render user message display (use original user input for display)
+  local display_lines
+  if user_input and user_input ~= "" then
+    display_lines = vim.split(user_input, "\n")
+  else
+    display_lines = vim.split(original_text, "\n")
+  end
+  UserMessage.render_from_request(chat, display_lines)
 
   -- Reset current assistant message block for new message
   chat:on_assistant_message_start()
@@ -81,27 +119,14 @@ function M.execute(chat, text, include_user_input)
   )
   spinner:start()
 
-  -- Wrap text with appropriate tag if include_user_input is true
-  local wrapped_text
-  if include_user_input then
-    if chat.is_first_message then
-      wrapped_text = "<task>" .. text .. "</task>"
-      chat.is_first_message = false
-    else
-      wrapped_text = "<user_feedback>" .. text .. "</user_feedback>"
-    end
-  else
-    wrapped_text = text
-  end
-
   local body = {
     thread_id = chat.thread_id,
     provider = chat.provider,
-    text = wrapped_text,
+    text = final_text,
     system_prompt = chat.system_prompt,
     auto_rag = Config.rag.mode == "auto",
   }
-  local filelinks = utils.parse_filelinks(text)
+  local filelinks = utils.parse_filelinks(original_text)
   if #filelinks.headers > 0 then
     body.code_block_headers = filelinks.headers
     if Config.chat.input_area.keep_file_attachment then

@@ -74,13 +74,15 @@ T["tool_result: ExecuteCommand success message is rendered"] = function()
 
   -- Check that the action result is rendered as a block quote
   local lines = child.get_lines(bufnr)
-  
-  assert(#lines >= 10, "Expected at least 10 lines but got " .. #lines)
-  eq(lines[#lines - 4], "> [!NOTE] API Request")
-  eq(lines[#lines - 3], "> [execute_command] Result:")
-  eq(lines[#lines - 2], "> ")
-  eq(lines[#lines - 1], "> ")
-  eq(lines[#lines], "> Success")
+
+  assert(#lines >= 11, "Expected at least 11 lines but got " .. #lines)
+  eq(lines[#lines - 6], "> [!NOTE] API Request")
+  eq(lines[#lines - 5], "> [execute_command] Result:")
+  eq(lines[#lines - 4], "> ")
+  eq(lines[#lines - 3], "> ")
+  eq(lines[#lines - 2], "> Success")
+  eq(lines[#lines - 1], "")
+  eq(lines[#lines], "") -- Empty line after quote block
 end
 
 T["tool_result: ExecuteCommand error message is rendered"] = function()
@@ -113,11 +115,13 @@ T["tool_result: ExecuteCommand error message is rendered"] = function()
   )
 
   local lines = child.get_lines(bufnr)
-  eq(lines[#lines - 4], "> [!NOTE] API Request")
-  eq(lines[#lines - 3], "> [execute_command] Result:")
-  eq(lines[#lines - 2], "> ")
-  eq(lines[#lines - 1], "> ")
-  eq(lines[#lines], "> Error: permission denied")
+  eq(lines[#lines - 6], "> [!NOTE] API Request")
+  eq(lines[#lines - 5], "> [execute_command] Result:")
+  eq(lines[#lines - 4], "> ")
+  eq(lines[#lines - 3], "> ")
+  eq(lines[#lines - 2], "> Error: permission denied")
+  eq(lines[#lines - 1], "")
+  eq(lines[#lines], "") -- Empty line after quote block
 end
 
 return T

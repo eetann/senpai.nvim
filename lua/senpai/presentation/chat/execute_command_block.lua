@@ -75,7 +75,10 @@ function M:execute_command_in_term()
         string.format("\r\n[Process exited %d]\r\n", code)
       )
 
-      table.insert(self.output_lines, string.format("[Process exited %d]", code))
+      table.insert(
+        self.output_lines,
+        string.format("[Process exited %d]", code)
+      )
 
       self.job_id = nil
       self.exit_code = code
@@ -87,7 +90,7 @@ end
 function M:get_action_buttons()
   if not self.term_bufnr then
     return {
-      { label = "Run",    action_type = "run",    enabled = true },
+      { label = "Run", action_type = "run", enabled = true },
       { label = "Reject", action_type = "reject", enabled = true },
     }
   else
@@ -99,9 +102,8 @@ function M:get_action_buttons()
 end
 
 ---@param action_type string
----@param user_input? string
 ---@return { success: boolean, message: string }
-function M:handle_action(action_type, user_input)
+function M:handle_action(action_type)
   if action_type == "run" then
     -- Execute the command
     self:execute_command_in_term()
@@ -114,31 +116,26 @@ function M:handle_action(action_type, user_input)
     -- Get the output from accumulated lines
     local message = "Executed command: " .. self.command
     if self.output_lines and #self.output_lines > 0 then
-      message = message .. "\n\nOutput:\n" .. table.concat(self.output_lines, "\n")
-    end
-    if user_input and user_input ~= "" then
-      message = message .. "\n\n" .. user_input
+      message = message
+        .. "\nOutput:\n"
+        .. table.concat(self.output_lines, "\n")
     end
 
     return { success = true, message = message }
   elseif action_type == "accept" then
     local message = "Accepted command execution results for: " .. self.command
     if self.output_lines and #self.output_lines > 0 then
-      message = message .. "\n\nOutput:\n" .. table.concat(self.output_lines, "\n")
+      message = message
+        .. "\nOutput:\n"
+        .. table.concat(self.output_lines, "\n")
     end
     if self.exit_code then
-      message = message .. "\n\nExit code: " .. tostring(self.exit_code)
-    end
-    if user_input and user_input ~= "" then
-      message = message .. "\n\n" .. user_input
+      message = message .. "\nExit code: " .. tostring(self.exit_code)
     end
 
     return { success = true, message = message }
   elseif action_type == "reject" then
     local message = "Rejected command: " .. self.command
-    if user_input and user_input ~= "" then
-      message = message .. "\n\n" .. user_input
-    end
     return { success = true, message = message }
   else
     return { success = false, message = "Unknown action type: " .. action_type }

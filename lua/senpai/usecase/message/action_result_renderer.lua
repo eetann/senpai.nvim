@@ -40,9 +40,9 @@ function M.render_action_result(chat, header, content)
     table.insert(quote_lines, "> " .. line)
   end
 
-  local render_text = table.concat(quote_lines, "\n")
+  local render_text = table.concat(quote_lines, "\n") .. "\n\n"
   if not chat.is_first_message then
-    render_text = "\n\n" .. render_text
+    render_text = "\n" .. render_text
     start_row = start_row + 2
   end
 
