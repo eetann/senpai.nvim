@@ -43,24 +43,22 @@ function M.render_action_result(chat, header, content)
   local render_text = table.concat(quote_lines, "\n") .. "\n\n"
   if not chat.is_first_message then
     render_text = "\n" .. render_text
-    start_row = start_row + 2
+    start_row = start_row + 1 -- start from header
   end
 
   utils.set_text_at_last(chat.log_area.bufnr, render_text)
 
-  -- Initially collapse the content (skip first 2 lines of header)
   local namespace = vim.api.nvim_create_namespace("senpai-action-result-fold")
-  local content_start_row = start_row + 2 -- 0-based, skip "[!NOTE]" and header lines
-  local content_line_count = #vim.split(content, "\n") + 1 -- +1 for empty line
+  local line_count = 2 + #vim.split(content, "\n")
 
-  for i = 0, content_line_count - 1 do
+  for i = 0, line_count - 1 do
     vim.api.nvim_buf_set_extmark(
       chat.log_area.bufnr,
       namespace,
-      content_start_row + i,
+      start_row + i,
       0,
       {
-        conceal = "",
+        conceal_lines = "",
         hl_group = "SenpaiToolResultFold",
       }
     )
@@ -123,7 +121,7 @@ function M.toggle_action_result_fold(bufnr, quote_range)
   end
 
   -- Check current fold state by looking for conceal on content lines
-  local content_start = quote_range.start_line + 1
+  local content_start = quote_range.start_line + 1 -- Skip "[!NOTE]"
   local extmarks = vim.api.nvim_buf_get_extmarks(
     bufnr,
     namespace,
@@ -159,7 +157,6 @@ function M.toggle_action_result_fold(bufnr, quote_range)
   else
     -- Collapse: hide content with right arrow
     for i = content_start, quote_range.end_line do
-      vim.print("conceal: " .. i)
       vim.api.nvim_buf_set_extmark(bufnr, namespace, i, 0, {
         conceal_lines = "",
         hl_group = "SenpaiToolResultFold",
