@@ -14,79 +14,11 @@ end
 ---@return string|nil header
 ---@return string|nil content
 function M.extract_action_result(text)
-  local header, content = text:match("^(%[%w+%] Result:)\n(.*)$")
+  local header, content = text:match("^(%[[%w_]+%] Result:)\n(.*)$")
   if header and content then
     return header, content
   end
   return nil, nil
-end
-
----Render border for action results with different styling
----@param bufnr number
----@param start_row number
----@param header_row_length number
----@param is_expanded boolean
-function M.render_action_result_border(
-  bufnr,
-  start_row,
-  header_row_length,
-  is_expanded
-)
-  local namespace = vim.api.nvim_create_namespace("sepnai-chat")
-  local start_tag_index = start_row - 1 -- 0 based
-  local end_tag_index = start_tag_index + 1 + header_row_length + 2
-
-  -- Action result icon and expand/collapse indicator
-  local fold_icon = is_expanded and "▼" or "▶"
-  local action_icon = "🔧"
-
-  -- border top with action icon and fold indicator
-  vim.api.nvim_buf_set_extmark(
-    bufnr,
-    namespace,
-    start_tag_index + 1, -- 0-based
-    0,
-    {
-      sign_text = "╭",
-      sign_hl_group = "SenpaiToolResultBorder",
-      virt_text = {
-        { action_icon .. " ", "SenpaiToolResultHeader" },
-        { string.rep("─", 140), "SenpaiToolResultBorder" },
-        { " " .. fold_icon, "SenpaiToolResultHeader" },
-      },
-      virt_text_pos = "overlay",
-      virt_text_hide = true,
-    }
-  )
-
-  -- border left
-  for i = start_tag_index + 2, end_tag_index - 2 do
-    vim.api.nvim_buf_set_extmark(
-      bufnr,
-      namespace,
-      i, -- 0-based
-      0,
-      {
-        sign_text = "│",
-        sign_hl_group = "SenpaiToolResultBorder",
-      }
-    )
-  end
-
-  -- border bottom
-  vim.api.nvim_buf_set_extmark(
-    bufnr,
-    namespace,
-    end_tag_index - 1, -- 0-based
-    0,
-    {
-      sign_text = "╰",
-      sign_hl_group = "SenpaiToolResultBorder",
-      virt_text = { { string.rep("─", 150), "SenpaiToolResultBorder" } },
-      virt_text_pos = "overlay",
-      virt_text_hide = true,
-    }
-  )
 end
 
 ---Render action result with collapsible content
@@ -106,24 +38,17 @@ function M.render_action_result(chat, header, content)
   end
 
   utils.set_text_at_last(chat.log_area.bufnr, render_text)
-  M.render_action_result_border(
-    chat.log_area.bufnr,
-    start_row,
-    #header_lines,
-    false
-  )
 
   -- Render content (initially collapsed)
-  local content_start_row = vim.fn.line("$", chat.log_area.winid)
   utils.set_text_at_last(chat.log_area.bufnr, "\n\n" .. content)
 
   -- Add folding for content
   local namespace = vim.api.nvim_create_namespace("sepnai-chat")
-  for i = 0, #content_lines - 1 do
+  for i = 0, 1 + #content_lines - 1 do
     vim.api.nvim_buf_set_extmark(
       chat.log_area.bufnr,
       namespace,
-      content_start_row + 1 + i, -- 0-based, +1 for the empty line
+      start_row + 1 + i, -- 0-based, +1 for the empty line
       0,
       {
         conceal_lines = "",
@@ -133,6 +58,7 @@ function M.render_action_result(chat, header, content)
   end
 
   -- Add keymap for toggling fold on the header line
+  -- これだと複数のツールが有る時に対応できない
   vim.keymap.set("n", "<CR>", function()
     local current_line = vim.fn.line(".")
     if
@@ -141,7 +67,7 @@ function M.render_action_result(chat, header, content)
     then
       M.toggle_action_result_fold(
         chat.log_area.bufnr,
-        content_start_row + 1,
+        start_row + 1,
         #content_lines
       )
     end
