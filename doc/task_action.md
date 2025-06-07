@@ -86,7 +86,6 @@
     - 2回目以降は`<user_feedback>`タグで囲む
 - [x] H-2: lua/senpai/usecase/message/user.luaの改修
     - 新しいメッセージタグ形式に対応
-    - `<task>`・`<user_feedback>`以外は折りたたみで表示
 - [x] H-3: `execute_command`のパーサーをTypeScript側に移行
 - [x] H-4: execute_command通ってないLuaテストの修正
 - [x] H-5: ブロックのロジックをリファクタリング
@@ -107,6 +106,25 @@
     - [x] 自動Accept時: `[replace_in_file] Result:` + 成功メッセージ
     - [x] 手動Accept時: `[replace_in_file] Result:` + 成功メッセージ + ユーザー入力
     - [x] 手動Reject時: `[replace_in_file] Result:` + 拒否メッセージ + ユーザー入力
+- [ ] J: `<task>`・`<user_feedback>`以外は折りたたみで表示
+
+#### 折りたたみ表示について
+↓こういうブロックで`[ツール名] Result:`を表示する
+```
+> [!NOTE] API Request
+> [execute_command] Result:
+> 
+> ここに内容
+> ここに内容
+> ...
+```
+`<CR>`を入力したら次の処理
+
+1. Treesitterを使ってカーソル位置が引用(`block_quote`)なら次へ
+2. 1行目が`> [!NOTE] API Request`なら次へ
+3. (折りたたんでなければ)そのblock_quoteの2行目以降を折りたたんで1行目の最初に`>`をoverlayで描画
+4. (折りたたんであれば)そのblock_quoteの折りたたみを解除して1行目の最初に`▽`をoverlayで描画
+
 
 ### 5. apply_replace_file.luaの改修
 - [x] J: 現在の即座に適用する処理を削除

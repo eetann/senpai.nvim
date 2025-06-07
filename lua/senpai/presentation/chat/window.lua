@@ -99,6 +99,19 @@ function M:create_log_area(keymaps)
     },
   })
   self:apply_keymaps(self.log_area, keymaps)
+  
+  -- Add custom keymap for toggling action result fold
+  local action_result_renderer = require("senpai.usecase.message.action_result_renderer")
+  vim.keymap.set("n", "<CR>", function()
+    local row = vim.fn.line(".")
+    local quote_range = action_result_renderer.get_block_quote_range(row, self.log_area.bufnr)
+    if quote_range then
+      action_result_renderer.toggle_action_result_fold(self.log_area.bufnr, quote_range)
+    end
+  end, {
+    buffer = self.log_area.bufnr,
+    desc = "Toggle action result fold",
+  })
 end
 
 ---@param keymaps table<string, senpai.Config.chat.keymap>

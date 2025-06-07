@@ -72,11 +72,15 @@ T["tool_result: ExecuteCommand success message is rendered"] = function()
     { action_result_part }
   )
 
-  -- TODO: SenpaiUserInputを消す
-  eq(child.get_lines(bufnr), "")
-  eq(child.get_line(bufnr, -3), "[execute_command] Result:")
-  eq(child.get_line(bufnr, -2), "")
-  eq(child.get_line(bufnr, -1), "Success")
+  -- Check that the action result is rendered as a block quote
+  local lines = child.get_lines(bufnr)
+  
+  assert(#lines >= 10, "Expected at least 10 lines but got " .. #lines)
+  eq(lines[#lines - 4], "> [!NOTE] API Request")
+  eq(lines[#lines - 3], "> [execute_command] Result:")
+  eq(lines[#lines - 2], "> ")
+  eq(lines[#lines - 1], "> ")
+  eq(lines[#lines], "> Success")
 end
 
 T["tool_result: ExecuteCommand error message is rendered"] = function()
@@ -108,9 +112,12 @@ T["tool_result: ExecuteCommand error message is rendered"] = function()
     { action_result_part }
   )
 
-  eq(child.get_line(bufnr, -3), "[execute_command] Result:")
-  eq(child.get_line(bufnr, -2), "")
-  eq(child.get_line(bufnr, -1), "Error: permission denied")
+  local lines = child.get_lines(bufnr)
+  eq(lines[#lines - 4], "> [!NOTE] API Request")
+  eq(lines[#lines - 3], "> [execute_command] Result:")
+  eq(lines[#lines - 2], "> ")
+  eq(lines[#lines - 1], "> ")
+  eq(lines[#lines], "> Error: permission denied")
 end
 
 return T

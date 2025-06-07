@@ -27,11 +27,20 @@ end
 ---@param content string
 function M.render_action_result(chat, header, content)
   local start_row = vim.fn.line("$", chat.log_area.winid)
-  local header_lines = vim.split(header, "\n")
-  local content_lines = vim.split(content, "\n")
 
-  -- Render header (always visible)
-  local render_text = header
+  -- Build quote block text
+  local quote_lines = {
+    "> [!NOTE] API Request",
+    "> " .. header,
+    "> ",
+  }
+
+  -- Add content lines with proper quoting
+  for _, line in ipairs(vim.split(content, "\n")) do
+    table.insert(quote_lines, "> " .. line)
+  end
+
+  local render_text = table.concat(quote_lines, "\n")
   if not chat.is_first_message then
     render_text = "\n\n" .. render_text
     start_row = start_row + 2
@@ -39,100 +48,129 @@ function M.render_action_result(chat, header, content)
 
   utils.set_text_at_last(chat.log_area.bufnr, render_text)
 
-  -- Render content (initially collapsed)
-  utils.set_text_at_last(chat.log_area.bufnr, "\n\n" .. content)
+  -- Initially collapse the content (skip first 2 lines of header)
+  local namespace = vim.api.nvim_create_namespace("senpai-action-result-fold")
+  local content_start_row = start_row + 2 -- 0-based, skip "[!NOTE]" and header lines
+  local content_line_count = #vim.split(content, "\n") + 1 -- +1 for empty line
 
-  -- Add folding for content
-  local namespace = vim.api.nvim_create_namespace("sepnai-chat")
-  for i = 0, 1 + #content_lines - 1 do
+  for i = 0, content_line_count - 1 do
     vim.api.nvim_buf_set_extmark(
       chat.log_area.bufnr,
       namespace,
-      start_row + 1 + i, -- 0-based, +1 for the empty line
+      content_start_row + i,
       0,
       {
-        conceal_lines = "",
+        conceal = "",
         hl_group = "SenpaiToolResultFold",
       }
     )
   end
 
-  -- Add keymap for toggling fold on the header line
-  -- これだと複数のツールが有る時に対応できない
-  vim.keymap.set("n", "<CR>", function()
-    local current_line = vim.fn.line(".")
-    if
-      current_line >= start_row
-      and current_line <= start_row + #header_lines + 3
-    then
-      M.toggle_action_result_fold(
-        chat.log_area.bufnr,
-        start_row + 1,
-        #content_lines
-      )
-    end
-  end, {
-    buffer = chat.log_area.bufnr,
-    desc = "Toggle action result fold",
+  -- Add initial collapsed arrow overlay
+  vim.api.nvim_buf_set_extmark(chat.log_area.bufnr, namespace, start_row, 0, {
+    virt_text = { { "▷", "Comment" } },
+    virt_text_pos = "overlay",
+    id = 1000000 + start_row, -- Unique ID for arrow extmark
   })
 
   utils.scroll_when_invisible(chat)
 end
 
----Toggle fold state for action result content
----@param bufnr number
----@param start_line number
----@param line_count number
-function M.toggle_action_result_fold(bufnr, start_line, line_count)
-  local namespace = vim.api.nvim_create_namespace("sepnai-chat")
+---Get block quote range at cursor position
+---@param row integer 1-based row
+---@param bufnr integer
+---@return {start_line: integer, end_line: integer}|nil
+function M.get_block_quote_range(row, bufnr)
+  local parser = vim.treesitter.get_parser(bufnr, "markdown")
+  if not parser then
+    return nil
+  end
 
-  -- Check current fold state by looking at the first line's extmark
+  -- Force parser to update
+  parser:parse(true)
+  local tree = parser:parse()[1]
+  local root = tree:root()
+
+  local node = root:named_descendant_for_range(row - 1, 0, row - 1, 0)
+  while node do
+    if node:type() == "block_quote" then
+      local start_row, _, end_row, _ = node:range()
+      return { start_line = start_row, end_line = end_row - 1 }
+    end
+    node = node:parent()
+  end
+  return nil
+end
+
+---Check if current line is an API Request header
+---@param bufnr integer
+---@param line integer 0-based
+---@return boolean
+function M.is_api_request_header(bufnr, line)
+  local line_text = vim.api.nvim_buf_get_lines(bufnr, line, line + 1, false)[1]
+  return line_text and line_text:match("^> %[!NOTE%] API Request$") ~= nil
+end
+
+---Toggle fold state for action result block quote
+---@param bufnr integer
+---@param quote_range {start_line: integer, end_line: integer}
+function M.toggle_action_result_fold(bufnr, quote_range)
+  local namespace = vim.api.nvim_create_namespace("senpai-action-result-fold")
+
+  -- Check if first line is API Request header
+  if not M.is_api_request_header(bufnr, quote_range.start_line) then
+    return
+  end
+
+  -- Check current fold state by looking for conceal on content lines
+  local content_start = quote_range.start_line + 1
   local extmarks = vim.api.nvim_buf_get_extmarks(
     bufnr,
     namespace,
-    { start_line - 1, 0 }, -- 0-based
-    { start_line - 1, -1 },
+    { content_start, 0 },
+    { content_start, -1 },
     { details = true }
   )
 
   local is_folded = false
   for _, extmark in ipairs(extmarks) do
+    ---@diagnostic disable: undefined-field
     if extmark[4] and extmark[4].conceal_lines == "" then
       is_folded = true
       break
     end
   end
 
-  -- Toggle fold state
-  for i = 0, line_count - 1 do
-    local line_idx = start_line - 1 + i -- 0-based
+  -- Clear existing extmarks in the quote range
+  vim.api.nvim_buf_clear_namespace(
+    bufnr,
+    namespace,
+    quote_range.start_line,
+    quote_range.end_line + 1
+  )
 
-    -- Clear existing extmarks on this line
-    local existing_marks = vim.api.nvim_buf_get_extmarks(
-      bufnr,
-      namespace,
-      { line_idx, 0 },
-      { line_idx, -1 },
-      {}
-    )
-
-    for _, mark in ipairs(existing_marks) do
-      vim.api.nvim_buf_del_extmark(bufnr, namespace, mark[1])
-    end
-
-    -- Set new extmark based on toggle state
-    if is_folded then
-      -- Show content
-      vim.api.nvim_buf_set_extmark(bufnr, namespace, line_idx, 0, {
-        hl_group = "SenpaiToolResultFold",
-      })
-    else
-      -- Hide content
-      vim.api.nvim_buf_set_extmark(bufnr, namespace, line_idx, 0, {
+  if is_folded then
+    -- Expand: show content with down arrow
+    vim.api.nvim_buf_set_extmark(bufnr, namespace, quote_range.start_line, 0, {
+      virt_text = { { "▽", "Comment" } },
+      virt_text_pos = "overlay",
+      id = 1000000 + quote_range.start_line,
+    })
+  else
+    -- Collapse: hide content with right arrow
+    for i = content_start, quote_range.end_line do
+      vim.print("conceal: " .. i)
+      vim.api.nvim_buf_set_extmark(bufnr, namespace, i, 0, {
         conceal_lines = "",
         hl_group = "SenpaiToolResultFold",
       })
     end
+
+    vim.api.nvim_buf_set_extmark(bufnr, namespace, quote_range.start_line, 0, {
+      virt_text = { { "▷", "Comment" } },
+      virt_text_pos = "overlay",
+      id = 1000000 + quote_range.start_line,
+    })
   end
 end
 
