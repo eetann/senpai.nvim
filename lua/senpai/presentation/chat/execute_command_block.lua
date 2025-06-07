@@ -18,6 +18,7 @@ function M.new(opts)
   self.bufnr = opts.bufnr
   -- UI-less block, no need to setup or mount
   utils.replace_lines_at_last(self.bufnr, {
+    "",
     "> [!NOTE] ExecuteCommand",
     "> ```sh",
     "> " .. self.command,

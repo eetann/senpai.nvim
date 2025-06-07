@@ -377,7 +377,7 @@ end
 function M:_render_action_buttons(buttons, block)
   -- Build button components
   local button_components = {}
-  for i, button_def in ipairs(buttons) do
+  for _, button_def in ipairs(buttons) do
     if button_def.enabled ~= false then
       table.insert(
         button_components,

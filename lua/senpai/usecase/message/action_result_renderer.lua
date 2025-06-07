@@ -51,6 +51,15 @@ function M.render_action_result(chat, header, content)
   local namespace = vim.api.nvim_create_namespace("senpai-action-result-fold")
   local line_count = 2 + #vim.split(content, "\n")
 
+  -- Create manual fold using zf before concealing
+  local fold_start = start_row + 1 -- Skip the "[!NOTE] API Request" header (0-based to 1-based)
+  local fold_end = start_row + line_count -- End of content (0-based to 1-based)
+  
+  -- Execute fold command in the chat window
+  vim.api.nvim_win_call(chat.log_area.winid, function()
+    vim.cmd(string.format("%d,%dfold", fold_start, fold_end))
+  end)
+
   for i = 0, line_count - 1 do
     vim.api.nvim_buf_set_extmark(
       chat.log_area.bufnr,
@@ -148,14 +157,30 @@ function M.toggle_action_result_fold(bufnr, quote_range)
   )
 
   if is_folded then
-    -- Expand: show content with down arrow
+    -- Expand: show content with down arrow and open vim fold
     vim.api.nvim_buf_set_extmark(bufnr, namespace, quote_range.start_line, 0, {
       virt_text = { { "▽", "Comment" } },
       virt_text_pos = "overlay",
       id = 1000000 + quote_range.start_line,
     })
+    
+    -- Open the vim fold at the content area
+    local fold_line = quote_range.start_line + 2 -- 0-based to 1-based, skip header
+    vim.api.nvim_win_call(vim.fn.bufwinid(bufnr), function()
+      vim.api.nvim_win_set_cursor(0, {fold_line, 0})
+      vim.cmd("normal! zo")
+    end)
   else
-    -- Collapse: hide content with right arrow
+    -- Collapse: hide content with right arrow and create vim fold
+    local fold_start = quote_range.start_line + 2 -- Skip "[!NOTE] API Request" header (0-based to 1-based)
+    local fold_end = quote_range.end_line + 1 -- 0-based to 1-based
+    
+    -- Create vim fold first
+    vim.api.nvim_win_call(vim.fn.bufwinid(bufnr), function()
+      vim.cmd(string.format("%d,%dfold", fold_start, fold_end))
+    end)
+    
+    -- Then apply conceal
     for i = content_start, quote_range.end_line do
       vim.api.nvim_buf_set_extmark(bufnr, namespace, i, 0, {
         conceal_lines = "",
