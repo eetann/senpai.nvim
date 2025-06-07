@@ -26,6 +26,33 @@ function M.new(opts)
   return self
 end
 
+---Create multiple blocks for ask_followup_question
+---@param opts {winid:integer, bufnr:integer, question:string, followUp:table}
+---@return senpai.AskFollowupQuestionBlock[]
+function M.add_new_blocks(opts)
+  local blocks = {}
+
+  -- Add question to chat log
+  local lines = vim.api.nvim_buf_get_lines(opts.bufnr, 0, -1, false)
+  table.insert(lines, "")
+  table.insert(lines, "🤔 " .. opts.question)
+  table.insert(lines, "")
+  vim.api.nvim_buf_set_lines(opts.bufnr, 0, -1, false, lines)
+
+  -- Create a block for each suggestion
+  for _, suggestion in ipairs(opts.followUp) do
+    local block = M.new({
+      row = vim.api.nvim_buf_line_count(opts.bufnr),
+      winid = opts.winid,
+      bufnr = opts.bufnr,
+      suggestion = suggestion,
+    })
+    table.insert(blocks, block)
+  end
+
+  return blocks
+end
+
 ---@return boolean
 function M:has_ui()
   return true
@@ -37,14 +64,7 @@ end
 -- end
 
 function M:setup_body()
-  -- TODO: questionの描画は別のところでやる
-  -- Set question text in buffer
-  local lines = {
-    "Question:",
-    self.question,
-  }
-  vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, false, lines)
-
+  -- Display the suggestion text
   self.body = Columns({
     flex = 1,
     children = {

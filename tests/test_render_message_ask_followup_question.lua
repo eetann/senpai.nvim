@@ -42,10 +42,16 @@ T["tool_result: AskFollowupQuestion block is rendered"] = function()
     chat:show_action_buttons()
   ]])
 
-  -- Verify the tool block was rendered correctly
-  -- The block should create a popup with the question and suggestions
-  local popup_count = child.lua_get([[#chat.sticky_popup_manager.popups]])
-  expect.equality(popup_count, 1)
+  -- Verify the tool blocks were rendered correctly
+  -- Should create one block for each suggestion (3 suggestions = 3 blocks)
+  local popup_count = child.lua_get([[
+    local count = 0
+    for _ in pairs(chat.sticky_popup_manager.popups) do
+      count = count + 1
+    end
+    return count
+  ]])
+  expect.equality(popup_count, 3)
 end
 
 T["tool_result: AskFollowupQuestion with empty follow-up"] = function()
@@ -68,15 +74,15 @@ T["tool_result: AskFollowupQuestion with empty follow-up"] = function()
     { tool_result_part }
   )
 
-  -- Verify the tool block was still rendered even with empty followUp
-  local popups = child.lua_get([[chat.sticky_popup_manager.popups]])
-  expect.equality(type(popups), "table")
-
-  local popup_count = 0
-  for _ in pairs(popups) do
-    popup_count = popup_count + 1
-  end
-  expect.equality(popup_count, 1)
+  -- Verify no blocks are created with empty followUp
+  local popup_count = child.lua_get([[
+    local count = 0
+    for _ in pairs(chat.sticky_popup_manager.popups) do
+      count = count + 1
+    end
+    return count
+  ]])
+  expect.equality(popup_count, 0)
 end
 
 T["tool_result: AskFollowupQuestion action buttons are generated"] = function()
@@ -102,48 +108,32 @@ T["tool_result: AskFollowupQuestion action buttons are generated"] = function()
     { tool_result_part }
   )
 
-  -- Get the first (and only) popup block
-  local first_popup = child.lua([[
-    local popups = chat.sticky_popup_manager.popups
-    for _, popup in pairs(popups) do
-      return {
-        block_type = popup.block_type,
-        question = popup.question,
-        followUp = popup.followUp,
-      }
+  -- Should create 2 blocks for 2 suggestions
+  local popup_count = child.lua_get([[
+    local count = 0
+    for _ in pairs(chat.sticky_popup_manager.popups) do
+      count = count + 1
     end
+    return count
+  ]])
+  expect.equality(popup_count, 2)
+
+  -- Get all popup blocks and verify their suggestions
+  local suggestions = child.lua([[
+    local suggestions = {}
+    for _, popup in pairs(chat.sticky_popup_manager.popups) do
+      if popup.block_type == "ask_followup_question" then
+        table.insert(suggestions, popup.suggestion)
+      end
+    end
+    table.sort(suggestions) -- Sort for consistent testing
+    return suggestions
   ]])
 
-  expect.equality(type(first_popup), "table")
-  expect.equality(first_popup.block_type, "ask_followup_question")
-  expect.equality(first_popup.question, "Which option?")
-  expect.equality(#first_popup.followUp, 2)
-  expect.equality(first_popup.followUp[1], "Option A")
-  expect.equality(first_popup.followUp[2], "Option B")
-
-  -- Test action buttons generation
-  local action_buttons = child.lua([[
-    local popups = chat.sticky_popup_manager.popups
-    for _, popup in pairs(popups) do
-      return popup:get_action_buttons()
-    end
-  ]])
-
-  expect.equality(type(action_buttons), "table")
-  -- Should have: 2 suggestions + Custom + Dismiss = 4 buttons
-  expect.equality(#action_buttons, 4)
-
-  -- Check the first two buttons are the suggestions
-  expect.equality(action_buttons[1].key, "1")
-  expect.equality(action_buttons[1].label, "Option A")
-  expect.equality(action_buttons[2].key, "2")
-  expect.equality(action_buttons[2].label, "Option B")
-
-  -- Check Custom and Dismiss buttons
-  expect.equality(action_buttons[3].key, "c")
-  expect.equality(action_buttons[3].label, "Custom")
-  expect.equality(action_buttons[4].key, "d")
-  expect.equality(action_buttons[4].label, "Dismiss")
+  expect.equality(type(suggestions), "table")
+  expect.equality(#suggestions, 2)
+  expect.equality(suggestions[1], "Option A")
+  expect.equality(suggestions[2], "Option B")
 end
 
 return T

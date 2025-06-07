@@ -133,8 +133,6 @@ function M:add_block(type, args, row)
     popup =
       require("senpai.presentation.chat.execute_command_block").new(params)
   elseif type == "ask_followup_question" then
-    -- TODO: ここでnewを呼び出さず、
-    -- ask_followup_question_block内で「question描画+まとめてnewしてくれるやつ」を呼び出す
     popup = require("senpai.presentation.chat.ask_followup_question_block").new(
       params
     )

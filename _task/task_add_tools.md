@@ -73,6 +73,7 @@ blockの内容
 - [x] C: tool_result.luaにask_followup_questionの処理を追加
 - [x] D: UIデザインとアクションボタンの実装
 - [x] E: Luaテストファイルを作成（test_render_message_ask_followup_question.lua）
+- [x] F: `ask_followup_question_block`の実装を変更
 
 ### 5. 統合テストと動作確認
 
