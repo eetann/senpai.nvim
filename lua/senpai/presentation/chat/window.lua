@@ -5,10 +5,11 @@ local set_messages = require("senpai.usecase.set_messages")
 local Keymaps = require("senpai.presentation.chat.keymaps")
 local IChatWindow = require("senpai.domain.i_chat_window")
 local StickyPopupManager =
-    require("senpai.presentation.chat.sticky_popup_manager")
+  require("senpai.presentation.chat.sticky_popup_manager")
 local n = require("nui-components")
 local Gap = require("nui-components.gap")
 local Columns = require("nui-components.columns")
+local Rows = require("nui-components.rows")
 local send_text = require("senpai.usecase.send_text")
 
 local function create_winbar_text(text)
@@ -51,8 +52,8 @@ function M.new(args)
     self.is_new = args.thread_id:find("^test_render.*") and true or false
   else
     self.thread_id = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
-        .. "-"
-        .. os.date("%Y%m%d%H%M%S")
+      .. "-"
+      .. os.date("%Y%m%d%H%M%S")
     self.is_new = true
   end
 
@@ -76,7 +77,7 @@ function M:apply_keymaps(area, keymaps)
       area:map(value.mode --[[@as string]], key, value[1])
     else
       for _, mode in
-      pairs(value.mode --[=[@as string[]]=])
+        pairs(value.mode --[=[@as string[]]=])
       do
         area:map(mode, key, value[1])
       end
@@ -99,14 +100,19 @@ function M:create_log_area(keymaps)
     },
   })
   self:apply_keymaps(self.log_area, keymaps)
-  
+
   -- Add custom keymap for toggling action result fold
-  local action_result_renderer = require("senpai.usecase.message.action_result_renderer")
+  local action_result_renderer =
+    require("senpai.usecase.message.action_result_renderer")
   vim.keymap.set("n", "<CR>", function()
     local row = vim.fn.line(".")
-    local quote_range = action_result_renderer.get_block_quote_range(row, self.log_area.bufnr)
+    local quote_range =
+      action_result_renderer.get_block_quote_range(row, self.log_area.bufnr)
     if quote_range then
-      action_result_renderer.toggle_action_result_fold(self.log_area.bufnr, quote_range)
+      action_result_renderer.toggle_action_result_fold(
+        self.log_area.bufnr,
+        quote_range
+      )
     end
   end, {
     buffer = self.log_area.bufnr,
@@ -145,7 +151,7 @@ function M:setup_log_area(winid)
     vim.api.nvim_set_current_win(self.log_area.winid)
   end
   self.sticky_popup_manager =
-      StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
+    StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
 end
 
 function M:display_chat_info()
@@ -170,7 +176,7 @@ end
 function M:show(winid)
   local resolved_keymaps
   if
-      not self.log_area or not vim.api.nvim_buf_is_loaded(self.log_area.bufnr)
+    not self.log_area or not vim.api.nvim_buf_is_loaded(self.log_area.bufnr)
   then
     resolved_keymaps = Keymaps.new(self)
     self:create_log_area(resolved_keymaps.log_area)
@@ -179,7 +185,7 @@ function M:show(winid)
     end
     self.log_area:mount()
     self.sticky_popup_manager =
-        StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
+      StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
     self:display_chat_info()
     if not self.is_new then
       set_messages.execute(self)
@@ -190,7 +196,7 @@ function M:show(winid)
   end
 
   if
-      not self.input_area or not vim.api.nvim_buf_is_loaded(self.input_area.bufnr)
+    not self.input_area or not vim.api.nvim_buf_is_loaded(self.input_area.bufnr)
   then
     if not resolved_keymaps then
       resolved_keymaps = Keymaps.new(self)
@@ -242,7 +248,7 @@ function M:toggle_input()
   local winid = self.input_area.winid
   self:hide_action_buttons()
   if
-      not self.input_area or not vim.api.nvim_buf_is_loaded(self.input_area.bufnr)
+    not self.input_area or not vim.api.nvim_buf_is_loaded(self.input_area.bufnr)
   then
     local resolved_keymaps = Keymaps.new(self)
     self:create_input_area(resolved_keymaps.input_area)
@@ -266,7 +272,7 @@ end
 function M:add_block(type, args, row)
   if not self.sticky_popup_manager then
     self.sticky_popup_manager =
-        StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
+      StickyPopupManager.new(self.log_area.winid, self.log_area.bufnr)
   end
   local block = self.sticky_popup_manager:add_block(type, args, row)
   -- Record this as the current assistant message block
@@ -349,8 +355,11 @@ function M:_execute_action(button_def, block, user_input)
 
   if result.success then
     -- Build tool result message
-    local tool_message = "[" .. block.block_type .. "] Result:\n\n" .. result.message
-    
+    local tool_message = "["
+      .. block.block_type
+      .. "] Result:\n\n"
+      .. result.message
+
     -- Send user input and tool result together
     local user_part = (user_input and user_input ~= "") and user_input or nil
     send_text.execute(self, user_part, tool_message)
@@ -375,13 +384,13 @@ function M:_render_action_buttons(buttons, block)
         n.button({
           label = button_def.label,
           flex = 1,
-          align = "center",
+          align = "left",
           on_press = function()
             -- Get user input from input area
             local user_input = ""
             if self.input_area and self.input_area.bufnr then
               local lines =
-                  vim.api.nvim_buf_get_lines(self.input_area.bufnr, 0, -1, false)
+                vim.api.nvim_buf_get_lines(self.input_area.bufnr, 0, -1, false)
               user_input = table.concat(lines, "\n")
               -- Clear input area after getting text
               vim.api.nvim_buf_set_lines(
@@ -398,10 +407,6 @@ function M:_render_action_buttons(buttons, block)
           end,
         })
       )
-
-      if i < #buttons then
-        table.insert(button_components, Gap({ size = 1 }))
-      end
     end
   end
 
@@ -417,14 +422,16 @@ function M:_render_action_buttons(buttons, block)
       winid = self.log_area.winid,
     },
     position = {
-      row = vim.api.nvim_win_get_height(self.log_area.winid) - 1,
+      row = vim.api.nvim_win_get_height(self.log_area.winid)
+        - 1
+        - #button_components,
       col = 0,
     },
     -- width = vim.api.nvim_win_get_width(self.log_area.winid),
-    height = 1,
+    height = #button_components,
   })
 
-  self.action_buttons_renderer:render(Columns({
+  self.action_buttons_renderer:render(Rows({
     flex = 1,
     children = button_components,
   }))

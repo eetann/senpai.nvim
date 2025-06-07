@@ -21,13 +21,13 @@
 
 ### 2. window.luaにRowsをrequireする
 
-- [ ] B: `local Rows = require("nui-components.rows")` を追加する
+- [x] B: `local Rows = require("nui-components.rows")` を追加する
 
 ### 3. _render_action_buttonsでColumnsをRowsに変更
 
-- [ ] C: 427行目の `Columns` を `Rows` に変更する
+- [x] C: 427行目の `Columns` を `Rows` に変更する
 
 ### 4. レイアウト調整（rowとheight）
 
-- [ ] D: row計算を「ウィンドウ高さ - 1 - ボタン数」に変更する
-- [ ] E: heightをボタン数に変更する
+- [x] D: row計算を「ウィンドウ高さ - 1 - ボタン数」に変更する
+- [x] E: heightをボタン数に変更する
