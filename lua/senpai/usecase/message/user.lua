@@ -1,5 +1,6 @@
 local utils = require("senpai.usecase.utils")
-local ActionResultRenderer = require("senpai.usecase.message.action_result_renderer")
+local ActionResultRenderer =
+  require("senpai.usecase.message.action_result_renderer")
 local M = {}
 
 local function removeReferenceSection(text)
@@ -17,7 +18,7 @@ local function extract_tag_content(text)
   local task_content = text:match("<task>(.-)</task>")
   if task_content then
     local other =
-        text:gsub("<task>.-</task>", ""):gsub("^%s+", ""):gsub("%s+$", "")
+      text:gsub("<task>.-</task>", ""):gsub("^%s+", ""):gsub("%s+$", "")
     return task_content, other ~= "" and other or nil
   end
 
@@ -25,9 +26,9 @@ local function extract_tag_content(text)
   local feedback_content = text:match("<user_feedback>(.-)</user_feedback>")
   if feedback_content then
     local other = text
-        :gsub("<user_feedback>.-</user_feedback>", "")
-        :gsub("^%s+", "")
-        :gsub("%s+$", "")
+      :gsub("<user_feedback>.-</user_feedback>", "")
+      :gsub("^%s+", "")
+      :gsub("%s+$", "")
     return feedback_content, other ~= "" and other or nil
   end
 
@@ -136,7 +137,6 @@ local function base_render(chat, user_input, other_content)
   local namespace = vim.api.nvim_create_namespace("sepnai-chat")
   local other_lines = vim.split(other_content, "\n")
   for i = 0, #other_lines - 1 do
-    -- TODO: ここを<CR>でトグルさせたい
     vim.api.nvim_buf_set_extmark(
       chat.log_area.bufnr,
       namespace,
@@ -170,7 +170,8 @@ function M.render_from_memory(chat, message)
 
   -- Check if this is an action result first
   if ActionResultRenderer.is_action_result(full_text) then
-    local header, content_part = ActionResultRenderer.extract_action_result(full_text)
+    local header, content_part =
+      ActionResultRenderer.extract_action_result(full_text)
     if header and content_part then
       ActionResultRenderer.render_action_result(chat, header, content_part)
       return
@@ -194,7 +195,8 @@ function M.render_from_request(chat, user_input)
   -- Check if this is an action result
   local full_text = table.concat(user_input, "\n")
   if ActionResultRenderer.is_action_result(full_text) then
-    local header, content = ActionResultRenderer.extract_action_result(full_text)
+    local header, content =
+      ActionResultRenderer.extract_action_result(full_text)
     if header and content then
       ActionResultRenderer.render_action_result(chat, header, content)
       return

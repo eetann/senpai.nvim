@@ -9,6 +9,7 @@ local M = {}
 ---Getting the specified thread and restoring it to the chat.
 ---@param chat senpai.IChatWindow
 function M.execute(chat)
+  chat.is_first_message = false
   local assistant = AssistantMessage.new(chat)
   get_messages.execute(chat.thread_id, function(messages)
     if #messages == 0 then

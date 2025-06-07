@@ -15,7 +15,7 @@ local function launch(launcher)
   local resolved_launcher = resolve_prompt_launcher.execute(launcher)
   local chat = ChatWindowManager.replace_new_thread(resolved_launcher)
   if chat then
-    send_text.execute(chat, resolved_launcher.user_prompt)
+    send_text.execute(chat, resolved_launcher.user_prompt, true)
   end
 end
 

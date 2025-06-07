@@ -118,7 +118,7 @@ function M:execute_action(name)
       show_system_prompt.execute(self.chat)
     end,
     submit = function()
-      send_text.execute(self.chat)
+      send_text.execute(self.chat, nil, true)
     end,
     toggle_input = function()
       self.chat:toggle_input()

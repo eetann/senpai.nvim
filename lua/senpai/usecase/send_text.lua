@@ -32,20 +32,27 @@ end
 
 ---send chat to LLM
 ---@param chat senpai.IChatWindow
----@param user_input? string
-function M.execute(chat, user_input)
+---@param text? string Text to send (if nil, gets from input_area)
+---@param include_user_input? boolean Whether to wrap text with task/user_feedback tags (default: true)
+function M.execute(chat, text, include_user_input)
   if chat.is_sending then
     return
   end
+  
+  -- Set default value for include_user_input
+  if include_user_input == nil then
+    include_user_input = true
+  end
+  
   --@type string[]
   local lines
-  if type(user_input) == "string" then
-    lines = vim.split(user_input, "\n")
+  if type(text) == "string" then
+    lines = vim.split(text, "\n")
   else
     lines = vim.api.nvim_buf_get_lines(chat.input_area.bufnr, 0, -1, false)
-    user_input = table.concat(lines, "\n")
+    text = table.concat(lines, "\n")
   end
-  if user_input == "" then
+  if text == "" then
     return
   end
 
@@ -74,23 +81,27 @@ function M.execute(chat, user_input)
   )
   spinner:start()
 
-  -- Wrap user input with appropriate tag
-  local wrapped_input
-  if chat.is_first_message then
-    wrapped_input = "<task>" .. user_input .. "</task>"
-    chat.is_first_message = false
+  -- Wrap text with appropriate tag if include_user_input is true
+  local wrapped_text
+  if include_user_input then
+    if chat.is_first_message then
+      wrapped_text = "<task>" .. text .. "</task>"
+      chat.is_first_message = false
+    else
+      wrapped_text = "<user_feedback>" .. text .. "</user_feedback>"
+    end
   else
-    wrapped_input = "<user_feedback>" .. user_input .. "</user_feedback>"
+    wrapped_text = text
   end
 
   local body = {
     thread_id = chat.thread_id,
     provider = chat.provider,
-    text = wrapped_input,
+    text = wrapped_text,
     system_prompt = chat.system_prompt,
     auto_rag = Config.rag.mode == "auto",
   }
-  local filelinks = utils.parse_filelinks(user_input)
+  local filelinks = utils.parse_filelinks(text)
   if #filelinks.headers > 0 then
     body.code_block_headers = filelinks.headers
     if Config.chat.input_area.keep_file_attachment then

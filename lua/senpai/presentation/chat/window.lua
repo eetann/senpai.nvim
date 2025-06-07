@@ -275,7 +275,7 @@ function M:show_action_buttons()
   -- Send to AI if error
   if type(buttons) == "string" then
     -- buttons as error
-    send_text.execute(self, buttons)
+    send_text.execute(self, buttons, false)
     return
   end
   -- Check auto approval
@@ -337,7 +337,7 @@ function M:_execute_action(button_def, block, user_input)
   if result.success then
     -- Send the result message to AI
     local message = "[" .. block.block_type .. "] Result:\n\n" .. result.message
-    send_text.execute(self, message)
+    send_text.execute(self, message, false)
 
     -- Hide action buttons after use
     self:hide_action_buttons()
