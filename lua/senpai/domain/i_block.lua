@@ -3,7 +3,9 @@ local n = require("nui-components")
 ---@module "nui.layout"
 ---@module "nui-components.renderer"
 
----@alias senpai.block_type "replace_in_file"|"execute_command"|nil
+---@alias senpai.block_type "replace_in_file"|"execute_command"|"ask_followup_question"|nil
+
+---@alias senpai.action_block { label: string, action_type: string, approve: boolean }
 
 ---@class senpai.IBlock
 ---@field block_type senpai.block_type
@@ -12,6 +14,7 @@ local n = require("nui-components")
 ---@field bufnr integer
 ---@field body NuiComponent
 ---@field renderer NuiRenderer
+---@field get_action_buttons? fun():(senpai.action_block[]|string)
 local M = {}
 M.__index = M
 
@@ -126,11 +129,6 @@ function M:has_ui()
   return true
 end
 
----@return { label: string, action_type: string, enabled?: boolean }[]|string
-function M:get_action_buttons()
-  return "unimplemented error"
-end
-
 ---@param action_type string
 ---@param user_input? string
 ---@return { success: boolean, message: string }
@@ -212,5 +210,11 @@ end
 ---@field origin_bufnr integer|nil
 ---@field change_tab fun(self, tab: "diff"|"replace"|"search"):nil
 ---@field tool_result fun(self, result: senpai.chat.message.result.replace_in_file):nil
+
+---@class senpai.IAskFollowupQuestionBlock: senpai.IBlock
+---@field block_type "ask_followup_question"
+---@field question string
+---@field followUp string[]
+---@field tool_result fun(self, result: senpai.chat.message.result.ask_followup_question):nil
 
 return M

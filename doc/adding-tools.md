@@ -171,14 +171,13 @@ local M = {}
 M.__index = M
 setmetatable(M, { __index = IBlock })
 
----@param opts {row:integer, winid:integer, sticky_manager:senpai.StickyPopupManager, data:string}
+---@param opts {row:integer, winid:integer, data:string}
 ---@return senpai.[ToolName]Block
 function M.new(opts)
   local self = setmetatable({}, M)
   self.block_type = "tool_name"
   self.row = opts.row
   self.winid = opts.winid
-  self.sticky_manager = opts.sticky_manager
   self.data = opts.data
   
   self:setup()
@@ -190,11 +189,10 @@ function M:has_ui()
   return true  -- Set to false if no UI is needed
 end
 
----@return senpai.chat.action_button[]
 function M:get_action_buttons()
   return {
-    { key = "a", label = "Apply", description = "Apply this change" },
-    { key = "c", label = "Cancel", description = "Cancel operation" },
+    { label = "Apply", description = "Apply this change" },
+    { label = "Cancel", description = "Cancel operation" },
   }
 end
 
@@ -234,7 +232,17 @@ return M
 ---@field data string  -- Your specific fields
 ```
 
-### Step 7: Register in Frontend
+### Step 7: Add Tool Result Type Definition
+
+```lua
+-- lua/senpai/domain/message.lua
+-- Add the tool result type definition:
+---@class senpai.chat.message.result.[tool_name]
+---@field data string  -- Your specific fields
+---@field otherField string[]
+```
+
+### Step 8: Register in Frontend
 
 ```lua
 -- lua/senpai/usecase/message/tool_result.lua
@@ -251,7 +259,7 @@ if part.toolName == "ToolName" then
 end
 ```
 
-### Step 8: Write Lua Tests
+### Step 9: Write Lua Tests
 
 ```lua
 -- tests/test_render_message_[tool_name].lua
@@ -350,6 +358,47 @@ Some tools don't need a UI block (e.g., `execute_command`). For these:
    - Launch test Neovim: `mise run launch`
    - Trigger your tool and verify behavior
 
+## Important Implementation Notes
+
+### Tool Result Type Definitions
+When adding a new tool, you **must** add the tool result type definition to `lua/senpai/domain/message.lua`:
+
+```lua
+---@class senpai.chat.message.result.[tool_name]
+---@field field1 string
+---@field field2 string[]
+```
+
+This ensures proper type checking and IDE support throughout the Lua codebase.
+
+### Handler Registration Order
+The order of handlers in `GetStreamProcessor.ts` doesn't matter functionally, but keep them alphabetically sorted for maintainability.
+
+### UI vs UI-less Blocks
+- **UI-less blocks** (like `execute_command`): Set `has_ui()` to return `false`, skip UI setup
+- **UI blocks** (like `ask_followup_question`): Implement full UI lifecycle methods
+
+### Error Handling in Blocks
+Always handle potential errors in action handlers:
+
+```lua
+function M:handle_action(action_type)
+  local ok, result = pcall(function()
+    -- Your action logic here
+  end)
+  
+  if not ok then
+    vim.notify("Error: " .. tostring(result), vim.log.levels.ERROR)
+    return
+  end
+end
+```
+
+### Testing Considerations
+- Test both empty and populated data scenarios
+- Verify action button generation for edge cases
+- Test the full integration flow from tool result to UI interaction
+
 ## Common Patterns
 
 ### Handling Complex Content
@@ -371,12 +420,6 @@ async endTag(): Promise<void> {
   });
 }
 ```
-
-### Action Button Patterns
-- **Apply/Cancel**: For changes that need confirmation
-- **Copy**: For results that users might want to reuse
-- **Retry**: For operations that might fail
-- **Details**: For showing additional information
 
 ### Error Handling
 Always validate input and handle errors gracefully:

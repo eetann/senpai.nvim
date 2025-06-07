@@ -25,6 +25,23 @@ AIコーディングエージェントで、「プロンプトで指示した形
     - 定義するディレクトリの場所
     - 参考になるファイル(上記に記述したようなファイル群)
 
+### ask_followup_question_blockの詳細
+
+`<question>`の内容: チャットのログ(`self.bufnr`)に描画
+`<follow_up>`の内容: 1suggest毎に`ask_followup_question_block`として
+
+なぜか？
+→まず各suggestは複数行の可能性がある。でもblockの描画を管理するsticky_popup_managerでは、それぞれのBlockが1行であることを前提に作っている。
+そうじゃないと「スクロールに応じてBlockの描画位置をずらす」というのがNeovimで実装できない。
+なのでsuggest毎にblockを分ける。
+
+blockの内容
+`<suggest>`の内容をチャットのログ(`self.bufnr`)に描画
+ボタンの描画(すでに`setup_body`で`self.body`として定義済み)
+
+`M.add_new_blocks`みたいな感じで「questionの描画+各suggestごとにblockを作る」関数を実装し、返り値としてまとめてblockを返したい。
+なので lua/senpai/presentation/chat/sticky_popup_manager.lua の`add_block`側も変更が必要？
+
 
 ## チェックリスト
 
@@ -43,19 +60,19 @@ AIコーディングエージェントで、「プロンプトで指示した形
 
 ### 3. ask_followup_question ツールの実装（サーバー側）
 
-- [ ] A: getAskFollowupQuestionPrompt.tsの内容を確認してXMLタグ名を特定
-- [ ] B: AskFollowupQuestionHandler.tsを作成（AbstractHandlerを継承）
-- [ ] C: AskFollowupQuestionHandler.test.tsでユニットテストを作成
-- [ ] D: GetStreamProcessor.tsにハンドラーを登録
-- [ ] E: messageSchema.tsに必要な型定義を追加（必要に応じて）
+- [x] A: getAskFollowupQuestionPrompt.tsの内容を確認してXMLタグ名を特定
+- [x] B: AskFollowupQuestionHandler.tsを作成（AbstractHandlerを継承）
+- [x] C: AskFollowupQuestionHandler.test.tsでユニットテストを作成
+- [x] D: GetStreamProcessor.tsにハンドラーを登録
+- [x] E: messageSchema.tsに必要な型定義を追加（必要に応じて）
 
 ### 4. ask_followup_question ツールの実装（フロント側）
 
-- [ ] A: ask_followup_question_block.luaを作成（IBlockを継承）
-- [ ] B: i_block.luaにblock_typeと型定義を追加
-- [ ] C: tool_result.luaにask_followup_questionの処理を追加
-- [ ] D: UIデザインとアクションボタンの実装
-- [ ] E: Luaテストファイルを作成（test_render_message_ask_followup_question.lua）
+- [x] A: ask_followup_question_block.luaを作成（IBlockを継承）
+- [x] B: i_block.luaにblock_typeと型定義を追加
+- [x] C: tool_result.luaにask_followup_questionの処理を追加
+- [x] D: UIデザインとアクションボタンの実装
+- [x] E: Luaテストファイルを作成（test_render_message_ask_followup_question.lua）
 
 ### 5. 統合テストと動作確認
 

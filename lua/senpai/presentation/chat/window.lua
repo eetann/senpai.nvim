@@ -332,9 +332,8 @@ function M:show_action_buttons()
   end
 
   if body.auto_approve then
-    -- Auto approve - execute the first enabled action
     for _, button_def in ipairs(buttons) do
-      if button_def.enabled ~= false then
+      if button_def.approve then
         self:_execute_action(button_def, block, "")
         return
       end
@@ -378,36 +377,28 @@ function M:_render_action_buttons(buttons, block)
   -- Build button components
   local button_components = {}
   for _, button_def in ipairs(buttons) do
-    if button_def.enabled ~= false then
-      table.insert(
-        button_components,
-        n.button({
-          label = button_def.label,
-          flex = 1,
-          align = "left",
-          on_press = function()
-            -- Get user input from input area
-            local user_input = ""
-            if self.input_area and self.input_area.bufnr then
-              local lines =
-                vim.api.nvim_buf_get_lines(self.input_area.bufnr, 0, -1, false)
-              user_input = table.concat(lines, "\n")
-              -- Clear input area after getting text
-              vim.api.nvim_buf_set_lines(
-                self.input_area.bufnr,
-                0,
-                -1,
-                false,
-                {}
-              )
-            end
+    table.insert(
+      button_components,
+      n.button({
+        label = button_def.label,
+        flex = 1,
+        align = "left",
+        on_press = function()
+          -- Get user input from input area
+          local user_input = ""
+          if self.input_area and self.input_area.bufnr then
+            local lines =
+              vim.api.nvim_buf_get_lines(self.input_area.bufnr, 0, -1, false)
+            user_input = table.concat(lines, "\n")
+            -- Clear input area after getting text
+            vim.api.nvim_buf_set_lines(self.input_area.bufnr, 0, -1, false, {})
+          end
 
-            -- Execute the action
-            self:_execute_action(button_def, block, user_input)
-          end,
-        })
-      )
-    end
+          -- Execute the action
+          self:_execute_action(button_def, block, user_input)
+        end,
+      })
+    )
   end
 
   if #button_components == 0 then

@@ -92,6 +92,10 @@
 ---@class senpai.chat.message.result.execute_command
 ---@field command string
 
+---@class senpai.chat.message.result.ask_followup_question
+---@field question string
+---@field followUp string[]
+
 ---@alias senpai.chat.message.tool.content senpai.chat.message.part.tool_result[]
 
 ---@class senpai.chat.message.tool

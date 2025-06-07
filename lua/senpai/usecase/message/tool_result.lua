@@ -32,6 +32,15 @@ local function render_base(chat, part)
     chat:add_block("execute_command", { command = result.command })
     return
   end
+  if part.toolName == "AskFollowupQuestion" then
+    ---@cast result senpai.chat.message.result.ask_followup_question
+    chat:add_block("ask_followup_question", {
+      question = result.question,
+      followUp = result.followUp,
+      sticky_manager = chat.sticky_popup_manager,
+    })
+    return
+  end
 end
 
 ---@param chat senpai.IChatWindow

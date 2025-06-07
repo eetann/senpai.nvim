@@ -212,8 +212,8 @@ function M:get_action_buttons()
   self.origin_bufnr = result.original_bufnr
 
   return {
-    { label = "Accept", action_type = "accept", enabled = true },
-    { label = "Reject", action_type = "reject", enabled = true },
+    { label = "Accept", action_type = "accept", approve = true },
+    { label = "Reject", action_type = "reject", approve = false },
   }
 end
 
@@ -234,7 +234,10 @@ function M:handle_action(action_type)
       vim.cmd("write")
     end)
 
-    return { success = true, message = "Successfully applied changes to " .. self.path }
+    return {
+      success = true,
+      message = "Successfully applied changes to " .. self.path,
+    }
   elseif action_type == "reject" then
     return { success = true, message = "Rejected changes to " .. self.path }
   else

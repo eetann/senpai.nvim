@@ -1,8 +1,3 @@
-local ReplaceInFileBlock =
-  require("senpai.presentation.chat.replace_in_file_block")
-local ExecuteCommandBlock =
-  require("senpai.presentation.chat.execute_command_block")
-
 ---@class senpai.StickyPopupManager: senpai.IStickyPopupManager
 local M = {}
 M.__index = M
@@ -132,9 +127,17 @@ function M:add_block(type, args, row)
 
   local popup
   if type == "replace_in_file" then
-    popup = ReplaceInFileBlock.new(params)
+    popup =
+      require("senpai.presentation.chat.replace_in_file_block").new(params)
   elseif type == "execute_command" then
-    popup = ExecuteCommandBlock.new(params)
+    popup =
+      require("senpai.presentation.chat.execute_command_block").new(params)
+  elseif type == "ask_followup_question" then
+    -- TODO: ここでnewを呼び出さず、
+    -- ask_followup_question_block内で「question描画+まとめてnewしてくれるやつ」を呼び出す
+    popup = require("senpai.presentation.chat.ask_followup_question_block").new(
+      params
+    )
   else
     error("Unknown block type: " .. type)
   end
@@ -144,48 +147,6 @@ function M:add_block(type, args, row)
   if popup:has_ui() then
     self:add_virtual_blank_line(row)
   end
-
-  self.popups[row] = popup
-  local rows = {}
-  for p_row, _ in pairs(self.popups) do
-    table.insert(rows, p_row)
-  end
-  table.sort(rows)
-  self.rows = rows
-
-  return popup
-end
-
-function M:add_diff_block(path, row)
-  local popup = ReplaceInFileBlock.new({
-    winid = self.winid,
-    bufnr = self.bufnr,
-    row = row,
-    path = path,
-  })
-  row = popup.row
-  self:add_virtual_blank_line(row)
-
-  self.popups[row] = popup
-  local rows = {}
-  for p_row, _ in pairs(self.popups) do
-    table.insert(rows, p_row)
-  end
-  table.sort(rows)
-  self.rows = rows
-
-  return popup
-end
-
-function M:add_terminal_block(command, row)
-  local popup = ExecuteCommandBlock.new({
-    winid = self.winid,
-    bufnr = self.bufnr,
-    command = command,
-    row = row,
-  })
-  row = popup.row
-  self:add_virtual_blank_line(row)
 
   self.popups[row] = popup
   local rows = {}
@@ -211,7 +172,7 @@ function M:update_float_position()
     if not popup:has_ui() then
       goto continue
     end
-    
+
     local target_screen_row = original_row - topline + previous_row_count
     if target_screen_row < 0 or split_height <= target_screen_row + 3 then
       popup:hide()
@@ -253,10 +214,7 @@ function M:find_next_popup_row(block_type)
     if not popup:has_ui() then
       goto continue
     end
-    if
-      not block_type
-      or (block_type and popup.block_type == block_type)
-    then
+    if not block_type or (block_type and popup.block_type == block_type) then
       return row
     end
     ::continue::
@@ -277,10 +235,7 @@ function M:find_prev_popup_row(block_type)
     if not popup:has_ui() then
       goto continue
     end
-    if
-      not block_type
-      or (block_type and popup.block_type == block_type)
-    then
+    if not block_type or (block_type and popup.block_type == block_type) then
       return row
     end
     ::continue::
@@ -323,19 +278,4 @@ function M:jump_to_prev()
   end
 end
 
--- local Split = require("nui.split")
--- local split = Split({
---   relative = "editor",
---   position = "right",
---   size = "30%",
--- })
--- split:mount()
--- vim.cmd("wincmd h")
--- local arr = {}
--- for i = 1, 50 do
---   arr[i] = ""
--- end
--- vim.api.nvim_buf_set_lines(split.bufnr, 0, -1, false, arr)
--- local manager = M.new(split.winid, split.bufnr)
--- local popup = manager:add_diff_block(5)
 return M

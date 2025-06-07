@@ -94,19 +94,12 @@ function M:execute_command_in_term()
   })
 end
 
----@return { label: string, action_type: string, enabled?: boolean }[]
+---@return { label: string, action_type: string, approve: boolean }[]
 function M:get_action_buttons()
-  if not self.term_bufnr then
-    return {
-      { label = "Run", action_type = "run", enabled = true },
-      { label = "Reject", action_type = "reject", enabled = true },
-    }
-  else
-    return {
-      { label = "Accept", action_type = "accept", enabled = true },
-      { label = "Reject", action_type = "reject", enabled = true },
-    }
-  end
+  return {
+    { label = "Run", action_type = "run", approve = true },
+    { label = "Reject", action_type = "reject", approve = false },
+  }
 end
 
 ---@param action_type string
