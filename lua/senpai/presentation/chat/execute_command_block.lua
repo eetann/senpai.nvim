@@ -1,7 +1,14 @@
 local IBlock = require("senpai.domain.i_block")
 local utils = require("senpai.usecase.utils")
 
----@class senpai.ExecuteCommandBlock: senpai.IExecuteCommandBlock
+---@class senpai.ExecuteCommandBlock: senpai.IBlock
+---@field block_type "execute_command"
+---@field command string
+---@field result string
+---@field term_bufnr integer|nil
+---@field job_id integer
+---@field term_id integer
+---@field tool_result fun(self, result: senpai.chat.message.result.execute_command):nil
 local M = {}
 M.__index = M
 setmetatable(M, { __index = IBlock })

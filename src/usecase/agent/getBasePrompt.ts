@@ -1,3 +1,4 @@
+import { getAskFollowupQuestionPrompt } from "./tool_prompt/getAskFollowupQuestionPrompt";
 import { getExecuteCommandPrompt } from "./tool_prompt/getExecuteCommandPrompt";
 import { getReplaceInFilePrompt } from "./tool_prompt/getReplaceInFilePrompt";
 
@@ -37,5 +38,7 @@ Always adhere to this format for the tool use to ensure proper parsing and execu
 ${getExecuteCommandPrompt(cwd)}
 
 ${getReplaceInFilePrompt(cwd)}
+
+${getAskFollowupQuestionPrompt()}
 `;
 }

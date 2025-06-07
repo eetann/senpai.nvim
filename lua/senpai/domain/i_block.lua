@@ -34,7 +34,7 @@ function M:setup()
   if not self:has_ui() then
     return
   end
-  
+
   self:setup_body()
   local width = M.get_adjust_width(self.winid)
   self.renderer = n.create_renderer({
@@ -212,14 +212,5 @@ end
 ---@field origin_bufnr integer|nil
 ---@field change_tab fun(self, tab: "diff"|"replace"|"search"):nil
 ---@field tool_result fun(self, result: senpai.chat.message.result.replace_in_file):nil
-
----@class senpai.IExecuteCommandBlock: senpai.IBlock
----@field block_type "execute_command"
----@field command string
----@field result string
----@field term_bufnr integer|nil
----@field job_id integer
----@field term_id integer
----@field tool_result fun(self, result: senpai.chat.message.result.execute_command):nil
 
 return M
