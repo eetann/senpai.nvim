@@ -1,6 +1,7 @@
 import { getAskFollowupQuestionPrompt } from "./tool_prompt/getAskFollowupQuestionPrompt";
 import { getExecuteCommandPrompt } from "./tool_prompt/getExecuteCommandPrompt";
 import { getReplaceInFilePrompt } from "./tool_prompt/getReplaceInFilePrompt";
+import { getWriteToFilePrompt } from "./tool_prompt/getWriteToFilePrompt";
 
 export function getBasePrompt(cwd: string): string {
 	return `\
@@ -40,5 +41,7 @@ ${getExecuteCommandPrompt(cwd)}
 ${getReplaceInFilePrompt(cwd)}
 
 ${getAskFollowupQuestionPrompt()}
+
+${getWriteToFilePrompt(cwd)}
 `;
 }
