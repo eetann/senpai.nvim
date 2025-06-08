@@ -77,8 +77,23 @@ blockの内容
 
 ### 5. 統合テストと動作確認
 
-- [ ] A: 開発サーバーを起動して動作確認
-- [ ] B: AIがask_followup_questionタグを生成することを確認
+- [x] A: 開発サーバーを起動して動作確認
+- [x] B: AIがask_followup_questionタグを生成することを確認
 - [ ] C: UIブロックが正しく表示されることを確認
 - [ ] D: アクションボタンが期待通りに動作することを確認
 - [ ] E: エッジケースのテスト（エラー処理、空の内容など）
+
+次のように`question`が複数行の時に対応できてない
+```xml
+<ask_followup_question>
+<question>次のTypeScriptのコードの出力は何になるでしょう？  
+省略
+省略</question>
+<follow_up>
+<suggest>2. HELLO, TYPESCRIPT!</suggest>
+<suggest>1. Hello, TypeScript!</suggest>
+<suggest>3. Not a string</suggest>
+<suggest>4. エラーになる</suggest>
+</follow_up>
+</ask_followup_question>
+```

@@ -35,11 +35,12 @@ function M.add_new_block_params(opts)
   local block_params = {}
 
   -- Add question to chat log
-  local lines = vim.api.nvim_buf_get_lines(opts.bufnr, 0, -1, false)
-  table.insert(lines, "")
-  table.insert(lines, "🤔 " .. opts.question)
-  table.insert(lines, "")
-  vim.api.nvim_buf_set_lines(opts.bufnr, 0, -1, false, lines)
+  local text = "\n❓ "
+  for _, line in pairs(vim.split(opts.question, "\n")) do
+    text = text .. line .. "\n"
+  end
+  text = text .. "\n"
+  utils.replace_text_at_last(opts.bufnr, text)
 
   -- Create a block for each suggestion
   for _, suggestion in ipairs(opts.followUp) do
@@ -81,6 +82,20 @@ function M:setup_body()
             nil
           )
         end,
+        mappings = function()
+          return {
+            {
+              mode = "n",
+              key = "<S-Tab>",
+              handler = function()
+                utils.safe_set_current_win(
+                  self.winid,
+                  { row = self.row, col = 0 }
+                )
+              end,
+            },
+          }
+        end,
       }),
       Gap({ size = 1 }, { zindex = 49 }),
       n.paragraph({ lines = "──", align = "left", is_focusable = false }),
@@ -93,6 +108,20 @@ function M:setup_body()
             require("senpai.presentation.chat.window_manager")
           local chat = ChatWindowManager:get_current_chat() --[[@as senpai.IChatWindow]]
           utils.set_text_at_last(chat.input_area.bufnr, self.suggestion)
+        end,
+        mappings = function()
+          return {
+            {
+              mode = "n",
+              key = "<Tab>",
+              handler = function()
+                utils.safe_set_current_win(
+                  self.winid,
+                  { row = self.row + 1, col = 0 }
+                )
+              end,
+            },
+          }
         end,
       }),
     },

@@ -11,6 +11,7 @@ import {
 	Part,
 	type PartType,
 } from "./getStreamProcessor/AbstractHandler";
+import { AskFollowupQuestionHandler } from "./getStreamProcessor/AskFollowupQuestionHandler";
 import { ExecuteCommandHandler } from "./getStreamProcessor/ExecuteCommandHandler";
 import { ReplaceInFileHandler } from "./getStreamProcessor/ReplaceInFileHandler";
 import { XmlStreamProcessor } from "./getStreamProcessor/XmlStreamProcessor";
@@ -29,7 +30,6 @@ export class GetMessagesUseCase {
 	async execute(threadId: string): Promise<CoreMessage[]> {
 		const convertMessages: CoreMessage[] = [];
 		const pushAssistant = (part: AssistantContentParts) => {
-			console.log({ part });
 			convertMessages.push({
 				role: "assistant",
 				content: [part],
@@ -62,7 +62,6 @@ export class GetMessagesUseCase {
 					type: "tool-call",
 				});
 			} else if (type === Part.toolResult) {
-				console.log({ obj });
 				convertMessages.push({
 					role: "tool",
 					content: [
@@ -77,6 +76,7 @@ export class GetMessagesUseCase {
 		const handlers: AbstractHandler[] = [
 			new ReplaceInFileHandler(writeText, this.cwd),
 			new ExecuteCommandHandler(writeText),
+			new AskFollowupQuestionHandler(writeText),
 		];
 		const processor = new XmlStreamProcessor(handlers, writeText);
 
@@ -84,6 +84,7 @@ export class GetMessagesUseCase {
 			threadId,
 		});
 		for (const message of messages) {
+			console.log(message);
 			if (message.role !== "assistant" || typeof message.content === "string") {
 				convertMessages.push(message);
 				continue;
