@@ -114,7 +114,7 @@ function M:add_virtual_blank_line(start_row)
   )
 end
 
----@param type "replace_in_file"|"execute_command"
+---@param type senpai.block_type
 ---@param args any
 ---@param row? integer
 function M:add_block(type, args, row)

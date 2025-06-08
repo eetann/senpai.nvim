@@ -79,7 +79,7 @@ T["StickyPopupManager"] = MiniTest.new_set()
 
 T["StickyPopupManager"]["created popups"] = function()
   child.o.lines, child.o.columns = 30, 60
-  local split = make_split(child)
+  make_split(child)
   local row1 = 5
   make_popup(child, row1)
   local row2 = 12

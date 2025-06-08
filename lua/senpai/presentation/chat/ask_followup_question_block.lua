@@ -21,16 +21,18 @@ function M.new(opts)
   self.winid = opts.winid
   self.bufnr = opts.bufnr
   self.suggestion = opts.suggestion
+  -- add new line
+  utils.set_text_at_last(self.bufnr, self.suggestion .. "\n")
 
   self:setup()
   return self
 end
 
 ---Create multiple blocks for ask_followup_question
----@param opts {winid:integer, bufnr:integer, question:string, followUp:table}
----@return senpai.AskFollowupQuestionBlock[]
-function M.add_new_blocks(opts)
-  local blocks = {}
+---@param opts {bufnr:integer, question:string, followUp:string[]}
+---@return {suggestion: string}[]
+function M.add_new_block_params(opts)
+  local block_params = {}
 
   -- Add question to chat log
   local lines = vim.api.nvim_buf_get_lines(opts.bufnr, 0, -1, false)
@@ -41,16 +43,12 @@ function M.add_new_blocks(opts)
 
   -- Create a block for each suggestion
   for _, suggestion in ipairs(opts.followUp) do
-    local block = M.new({
-      row = vim.api.nvim_buf_line_count(opts.bufnr),
-      winid = opts.winid,
-      bufnr = opts.bufnr,
+    table.insert(block_params, {
       suggestion = suggestion,
     })
-    table.insert(blocks, block)
   end
 
-  return blocks
+  return block_params
 end
 
 ---@return boolean
@@ -66,10 +64,10 @@ end
 function M:setup_body()
   -- Display the suggestion text
   self.body = Columns({
-    flex = 1,
+    -- flex = 1,
     children = {
-      n.paragraph("╰"),
-      Gap({ flex = 1 }, { zindex = 49 }), -- left flex
+      n.paragraph({ lines = "╰─", align = "left", is_focusable = false }),
+      Gap({ size = 1 }, { zindex = 49 }),
       n.button({
         label = " 󰒊 ",
         align = "center",
@@ -84,6 +82,8 @@ function M:setup_body()
           )
         end,
       }),
+      Gap({ size = 1 }, { zindex = 49 }),
+      n.paragraph({ lines = "──", align = "left", is_focusable = false }),
       Gap({ size = 1 }, { zindex = 49 }),
       n.button({
         label = "  ",

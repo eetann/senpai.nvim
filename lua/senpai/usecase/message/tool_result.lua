@@ -34,16 +34,16 @@ local function render_base(chat, part)
   end
   if part.toolName == "AskFollowupQuestion" then
     ---@cast result senpai.chat.message.result.ask_followup_question
-    local AskFollowupQuestionBlock = require("senpai.presentation.chat.ask_followup_question_block")
-    local blocks = AskFollowupQuestionBlock.add_new_blocks({
-      winid = chat.log_area.winid,
+    local AskFollowupQuestionBlock =
+      require("senpai.presentation.chat.ask_followup_question_block")
+    local block_params = AskFollowupQuestionBlock.add_new_block_params({
       bufnr = chat.log_area.bufnr,
       question = result.question,
       followUp = result.followUp,
     })
     -- Add each block to sticky_popup_manager
-    for _, block in ipairs(blocks) do
-      chat.sticky_popup_manager:add_block(block)
+    for _, params in ipairs(block_params) do
+      chat.sticky_popup_manager:add_block("ask_followup_question", params)
     end
     return
   end

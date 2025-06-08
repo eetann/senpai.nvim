@@ -308,6 +308,18 @@ end
 return T
 ```
 
+The `child.lua_get` can only be used to get a variable.
+To get the return value after processing multiple lines, write `return` in `child.lua` as follows.
+```lua
+local popup_count = child.lua([[
+  local count = 0
+  for popup in pairs(chat.sticky_popup_manager.popups) do
+    count = count + 1
+  end
+  return count
+]])
+```
+
 To run a specific test file:
 ```sh
 nvim --headless --noplugin -u ./scripts/test/minimal_init.lua -c "lua MiniTest.run_file('tests/test_render_message_[tool_name].lua')"

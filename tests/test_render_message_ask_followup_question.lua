@@ -15,12 +15,13 @@ local T = MiniTest.new_set({
 T["<ask_followup_question>"] = MiniTest.new_set()
 
 T["tool_result: AskFollowupQuestion block is rendered"] = function()
+  child.o.lines, child.o.columns = 30, 60
   child.lua(
     [[chat=require("senpai.presentation.chat.window").new(...)]],
     { { thread_id = "test_render_message_ask_followup_question" } }
   )
   child.lua([[chat:show()]])
-  local bufnr = child.lua_get([[chat.log_area.bufnr]])
+  child.cmd("1close")
 
   local tool_result_part = {
     toolCallId = "AskFollowupQuestion-2025-01-01",
@@ -38,20 +39,19 @@ T["tool_result: AskFollowupQuestion block is rendered"] = function()
     'require("senpai.usecase.message.tool_result").render_from_memory(chat, ...)',
     { tool_result_part }
   )
-  child.lua([[
-    chat:show_action_buttons()
-  ]])
 
   -- Verify the tool blocks were rendered correctly
   -- Should create one block for each suggestion (3 suggestions = 3 blocks)
-  local popup_count = child.lua_get([[
+  local popup_count = child.lua([[
     local count = 0
-    for _ in pairs(chat.sticky_popup_manager.popups) do
+    for popup in pairs(chat.sticky_popup_manager.popups) do
       count = count + 1
     end
     return count
   ]])
   expect.equality(popup_count, 3)
+  child.lua("chat.sticky_popup_manager:update_float_position()")
+  -- expect.reference_screenshot(child.get_screenshot())
 end
 
 T["tool_result: AskFollowupQuestion with empty follow-up"] = function()
@@ -75,7 +75,7 @@ T["tool_result: AskFollowupQuestion with empty follow-up"] = function()
   )
 
   -- Verify no blocks are created with empty followUp
-  local popup_count = child.lua_get([[
+  local popup_count = child.lua([[
     local count = 0
     for _ in pairs(chat.sticky_popup_manager.popups) do
       count = count + 1
@@ -109,7 +109,7 @@ T["tool_result: AskFollowupQuestion action buttons are generated"] = function()
   )
 
   -- Should create 2 blocks for 2 suggestions
-  local popup_count = child.lua_get([[
+  local popup_count = child.lua([[
     local count = 0
     for _ in pairs(chat.sticky_popup_manager.popups) do
       count = count + 1
@@ -137,4 +137,3 @@ T["tool_result: AskFollowupQuestion action buttons are generated"] = function()
 end
 
 return T
-

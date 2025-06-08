@@ -15,7 +15,7 @@ local M = {}
 ---@field popups table<integer, senpai.IBlock> # { row: popup }
 ---@field rows integer[]
 ---@field group_id integer
----@field add_block fun(self, type: "replace_in_file"|"execute_command", args: any, row?:integer): senpai.IBlock
+---@field add_block fun(self, type: senpai.block_type, args: any, row?:integer): senpai.IBlock
 ---@field find_next_popup_row fun(self, block_type: senpai.block_type):integer|nil
 ---@field find_prev_popup_row fun(self, block_type: senpai.block_type):integer|nil
 ---@field update_float_position fun(self):nil

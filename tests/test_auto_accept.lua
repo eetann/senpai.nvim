@@ -15,7 +15,8 @@ local T = MiniTest.new_set({
 -- Dummy block generator for testing
 local function make_block(opts)
   opts = opts or {}
-  return string.format([[
+  return string.format(
+    [[
     setmetatable({
       type = "%s",
       args = %s,
@@ -30,7 +31,7 @@ local function make_block(opts)
   ]],
     opts.type or "replace_in_file",
     opts.args or "{ path = 'foo.lua' }",
-    opts.buttons or "{ { label = 'OK', enabled = true, action_type = 'do' } }",
+    opts.buttons or "{ { label = 'OK', approve = true, action_type = 'do' } }",
     opts.block_type or "replace_in_file",
     opts.block_type or "replace_in_file"
   )
