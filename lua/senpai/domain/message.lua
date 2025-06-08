@@ -96,6 +96,10 @@
 ---@field question string
 ---@field followUp string[]
 
+---@class senpai.chat.message.result.write_to_file
+---@field path string
+---@field content string
+
 ---@alias senpai.chat.message.tool.content senpai.chat.message.part.tool_result[]
 
 ---@class senpai.chat.message.tool

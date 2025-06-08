@@ -30,27 +30,27 @@
 
 ### 2. TypeScript側の実装（サーバー側）
 
-- [ ] A: WriteToFileHandler.ts を作成（XMLパーサー）
+- [x] A: WriteToFileHandler.ts を作成（XMLパーサー）
     - タグ名: `write_to_file`、ツール名: `WriteToFile`
     - `<path>`と`<content>`サブタグの処理
     - 結果として`{ path: string, content: string }`を返す
-- [ ] B: WriteToFileHandler.test.ts でテストを作成
-- [ ] C: GetStreamProcessor.ts にハンドラーを登録
-- [ ] D: ChatAgent.ts にgetWriteToFilePromptを追加
+- [x] B: WriteToFileHandler.test.ts でテストを作成
+- [x] C: GetStreamProcessor.ts にハンドラーを登録
+- [x] D: ChatAgent.ts にgetWriteToFilePromptを追加
 
 ### 3. Lua側の実装（クライアント側）
 
-- [ ] A: write_to_file_block.lua を作成
+- [x] A: write_to_file_block.lua を作成
     - UIなし（`has_ui()`は`false`）
     - コードブロックとして表示
     - action_buttonsは`Accept`と`Reject`
     - Acceptの処理実装
-- [ ] B: i_block.lua に`"write_to_file"`を型定義に追加
-- [ ] C: message.lua に`senpai.chat.message.result.write_to_file`型を追加
-- [ ] D: tool_result.lua にブロックを登録
+- [x] B: i_block.lua に`"write_to_file"`を型定義に追加
+- [x] C: message.lua に`senpai.chat.message.result.write_to_file`型を追加
+- [x] D: tool_result.lua にブロックを登録
 
 ### 4. テストとデバッグ
 
-- [ ] A: test_render_message_write_to_file.lua でLuaテストを作成
-- [ ] B: 全体的な動作確認（dev環境で実際に試す）
-- [ ] C: バグ修正と調整
+- [x] A: test_render_message_write_to_file.lua でLuaテストを作成
+- [x] B: 全体的な動作確認（dev環境で実際に試す）
+- [x] C: バグ修正と調整

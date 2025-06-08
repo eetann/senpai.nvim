@@ -47,6 +47,14 @@ local function render_base(chat, part)
     end
     return
   end
+  if part.toolName == "WriteToFile" then
+    ---@cast result senpai.chat.message.result.write_to_file
+    chat:add_block("write_to_file", {
+      path = result.path,
+      content = result.content,
+    })
+    return
+  end
 end
 
 ---@param chat senpai.IChatWindow

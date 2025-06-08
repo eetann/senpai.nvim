@@ -4,6 +4,7 @@ import { type AbstractHandler, Part, type PartType } from "./AbstractHandler";
 import { AskFollowupQuestionHandler } from "./AskFollowupQuestionHandler";
 import { ExecuteCommandHandler } from "./ExecuteCommandHandler";
 import { ReplaceInFileHandler } from "./ReplaceInFileHandler";
+import { WriteToFileHandler } from "./WriteToFileHandler";
 import { XmlStreamProcessor } from "./XmlStreamProcessor";
 
 type OnParts = Omit<Parameters<typeof processDataStream>[0], "stream">;
@@ -15,9 +16,10 @@ export class GetStreamProcessor {
 			stream.writeln(`${type}:${JSON.stringify(obj)}`);
 		};
 		const handlers: AbstractHandler[] = [
-			new ReplaceInFileHandler(writeText, this.cwd),
-			new ExecuteCommandHandler(writeText),
 			new AskFollowupQuestionHandler(writeText),
+			new ExecuteCommandHandler(writeText),
+			new ReplaceInFileHandler(writeText, this.cwd),
+			new WriteToFileHandler(writeText, this.cwd),
 		];
 		const processor = new XmlStreamProcessor(handlers, writeText);
 
