@@ -9,11 +9,20 @@
 - プロンプトは定義済み: src/usecase/agent/tool_prompt/getSearchFilesPrompt.ts
 - 上記のプロンプトと doc/adding-tools.md に基づいて、ツールを追加したい
 - blockで描画するもの
-    - uiなしで、単純に受け取った内容をチャットログにコードブロックで出力
-        - コードブロックの言語部分は`txt`で固定
+    - uiなしで、単純にパラメータをフォーマットして表示
+        - "Senpai search for `bar` in directory `foo`:\n"という感じ
     - action_buttonはreplace_in_file_blockと同じく`accept`か`reject`だけ
     - acceptなら次の通り
-<!-- TODO: ここを書いてから -->
+        - サーバー側に実際に検索を実行をしてもらうリクエストを投げて結果を受けとる
+            - lua/senpai/usecase/request/request_handler.lua の`request_without_callback`を使う
+            - 参考: lua/senpai/usecase/request/get_thread_by_id.lua
+        - サーバー側に結果を投げる
+        - uiなしで、単純に受け取った内容をチャットログにコードブロックで出力
+            - コードブロックの言語部分は`txt`で固定
+- サーバー側の実際の検索の実行について
+    - `/search_files`みたいなAPIで実行する
+    - ripgrepがあればripgrepを使う。なければgrepを使う。
+    - 500行以上あったら499行+`[truncated...]`とする
 
 ## チェックリスト
 
