@@ -5,6 +5,7 @@ local M = {}
 ---@field replace_in_file? boolean|string[]
 ---@field execute_command? boolean|string[]
 ---@field write_to_file? boolean|string[]
+---@field search_files? boolean|string[]
 
 ---@doc.type
 ---@class senpai.Config.agent
@@ -16,6 +17,7 @@ M.default_config = {
     replace_in_file = { "*.md" },
     execute_command = false,
     write_to_file = false,
+    search_files = false,
   },
 }
 

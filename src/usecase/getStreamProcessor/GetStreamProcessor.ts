@@ -4,6 +4,7 @@ import { type AbstractHandler, Part, type PartType } from "./AbstractHandler";
 import { AskFollowupQuestionHandler } from "./AskFollowupQuestionHandler";
 import { ExecuteCommandHandler } from "./ExecuteCommandHandler";
 import { ReplaceInFileHandler } from "./ReplaceInFileHandler";
+import { SearchFilesHandler } from "./SearchFilesHandler";
 import { WriteToFileHandler } from "./WriteToFileHandler";
 import { XmlStreamProcessor } from "./XmlStreamProcessor";
 
@@ -19,6 +20,7 @@ export class GetStreamProcessor {
 			new AskFollowupQuestionHandler(writeText),
 			new ExecuteCommandHandler(writeText),
 			new ReplaceInFileHandler(writeText, this.cwd),
+			new SearchFilesHandler(writeText),
 			new WriteToFileHandler(writeText, this.cwd),
 		];
 		const processor = new XmlStreamProcessor(handlers, writeText);

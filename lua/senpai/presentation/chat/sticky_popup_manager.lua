@@ -138,6 +138,8 @@ function M:add_block(type, args, row)
     )
   elseif type == "write_to_file" then
     popup = require("senpai.presentation.chat.write_to_file_block").new(params)
+  elseif type == "search_files" then
+    popup = require("senpai.presentation.chat.search_files_block").new(params)
   else
     error("Unknown block type: " .. type)
   end

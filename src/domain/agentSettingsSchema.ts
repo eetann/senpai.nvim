@@ -5,6 +5,7 @@ export const autoAcceptSchema = z.object({
   replace_in_file: z.union([z.boolean(), z.array(z.string())]).optional(),
   execute_command: z.union([z.boolean(), z.array(z.string())]).optional(),
   write_to_file: z.union([z.boolean(), z.array(z.string())]).optional(),
+  search_files: z.union([z.boolean(), z.array(z.string())]).optional(),
 });
 
 // Schema for agent settings

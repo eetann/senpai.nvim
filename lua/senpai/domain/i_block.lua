@@ -3,7 +3,12 @@ local n = require("nui-components")
 ---@module "nui.layout"
 ---@module "nui-components.renderer"
 
----@alias senpai.block_type "replace_in_file"|"execute_command"|"ask_followup_question"|"write_to_file"
+---@alias senpai.block_type
+---| "replace_in_file"
+---| "execute_command"
+---| "ask_followup_question"
+---| "write_to_file"
+---| "search_files"
 
 ---@alias senpai.action_block { label: string, action_type: string, approve: boolean }
 

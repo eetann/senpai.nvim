@@ -55,6 +55,15 @@ local function render_base(chat, part)
     })
     return
   end
+  if part.toolName == "SearchFiles" then
+    ---@cast result senpai.chat.message.result.search_files
+    chat:add_block("search_files", {
+      path = result.path,
+      regex = result.regex,
+      filePattern = result.filePattern,
+    })
+    return
+  end
 end
 
 ---@param chat senpai.IChatWindow

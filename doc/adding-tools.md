@@ -453,3 +453,184 @@ async endTag(): Promise<void> {
   }
 }
 ```
+
+## Advanced Pattern: Server-Side Tool Execution
+
+For tools that require server-side execution (like file operations, system commands, or external API calls), you can implement a pattern where the UI block makes a secondary API request to execute the actual operation.
+
+### Architecture Flow for Server-Side Tools
+
+```
+AI Response (XML) → Handler → UI Block → User Action → API Request → Server Execution → Result Display
+```
+
+1. **AI generates XML** with tool parameters
+2. **Handler parses** and sends parameters to UI block
+3. **UI block renders** with Accept/Reject buttons
+4. **User clicks Accept** → Block makes API request to server
+5. **Server executes** the actual operation (search, command, etc.)
+6. **Result is displayed** in the chat
+
+### Step-by-Step Implementation
+
+#### Step 1: Create Tool Handler (Same as Basic Pattern)
+
+The handler only parses parameters and sends them to the UI block:
+
+```typescript
+// src/usecase/getStreamProcessor/SearchFilesHandler.ts
+export class SearchFilesHandler extends AbstractHandler {
+  tagName = "search_files";
+  toolName = "SearchFiles";
+  
+  // Parse parameters from XML
+  async endTag(): Promise<void> {
+    this.writeText({
+      type: "toolResult",
+      toolName: this.toolName,
+      result: {
+        path: this.path,
+        regex: this.regex, 
+        filePattern: this.filePattern,
+      },
+    });
+  }
+}
+```
+
+#### Step 2: Create Server-Side API Endpoint
+
+Add the actual execution logic to an API endpoint:
+
+```typescript
+// src/presentation/agent.ts
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/search_files",
+    request: {
+      body: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: z.object({
+              path: z.string(),
+              regex: z.string(),
+              filePattern: z.string().default("*"),
+            }),
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: "Search results",
+        content: {
+          "application/json": {
+            schema: z.object({
+              results: z.string(),
+              count: z.number(),
+            }),
+          },
+        },
+      },
+    },
+  }),
+  async (c) => {
+    const { path, regex, filePattern } = c.req.valid("json");
+    const cwd = c.get("cwd");
+
+    // Execute the actual operation (ripgrep/grep search)
+    const { spawnSync } = await import("node:child_process");
+    const result = spawnSync("rg", [regex, path], { cwd, encoding: "utf8" });
+    
+    return c.json({ 
+      results: result.stdout || "",
+      count: result.stdout.split('\n').length 
+    });
+  },
+);
+```
+
+#### Step 3: Create UI Block with API Integration
+
+The block handles user interaction and makes the API request:
+
+```lua
+-- lua/senpai/presentation/chat/search_files_block.lua
+function M:handle_action(action_type)
+  if action_type == "accept" then
+    -- Make API request to execute the tool
+    local request_handler = require("senpai.usecase.request.request_handler")
+    local response = request_handler.request_without_callback({
+      method = "post",
+      route = "/agent/search_files",
+      body = {
+        path = self.path,
+        regex = self.regex,
+        filePattern = self.filePattern,
+      },
+    })
+
+    -- Handle response with proper error checking
+    if response.exit ~= 0 or response.status ~= 200 then
+      return { 
+        success = false, 
+        message = "Search failed: " .. (response.body or "Unknown error") 
+      }
+    end
+
+    local ok, body = pcall(vim.json.decode, response.body)
+    if not ok or type(body) ~= "table" then
+      return { 
+        success = false, 
+        message = "Search failed: Invalid response format" 
+      }
+    end
+
+    if body.error then
+      return { 
+        success = false, 
+        message = "Search failed: " .. body.error 
+      }
+    end
+
+    -- Format and return results
+    local message = "Search completed:\n" .. (body.results or "")
+    if body.count then
+      message = message .. "\n\nTotal matches: " .. tostring(body.count)
+    end
+
+    return { success = true, message = message }
+  end
+end
+```
+
+### When to Use This Pattern
+
+Use server-side execution when your tool needs to:
+
+- **Execute system commands** (ripgrep, git, npm, etc.)
+- **Perform file operations** (read, write, search)
+- **Make external API calls** (web requests, database queries)
+- **Access server-only resources** (environment variables, system info)
+- **Require security validation** (auto-approval checks)
+
+### Best Practices for Server-Side Tools
+
+1. **Robust Error Handling**: Always check `response.exit`, `response.status`, and validate JSON
+2. **Security**: Validate all inputs and implement auto-approval patterns
+3. **Performance**: Implement timeouts and result limits (e.g., max 499 lines)
+4. **User Experience**: Provide clear feedback for both success and error cases
+5. **API Organization**: Group related tool endpoints under `/agent/` path
+
+### Reference Implementation
+
+The `search_files` tool demonstrates this pattern:
+- **Handler**: `src/usecase/getStreamProcessor/SearchFilesHandler.ts`
+- **API**: `src/presentation/agent.ts` (`/agent/search_files`)
+- **Block**: `lua/senpai/presentation/chat/search_files_block.lua`
+- **Tests**: `tests/test_render_message_search_files.lua`
+
+This pattern provides a clean separation between XML parsing, user interaction, and actual execution, making tools more maintainable and secure.
+```

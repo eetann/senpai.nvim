@@ -100,6 +100,11 @@
 ---@field path string
 ---@field content string
 
+---@class senpai.chat.message.result.search_files
+---@field path string
+---@field regex string
+---@field filePattern string
+
 ---@alias senpai.chat.message.tool.content senpai.chat.message.part.tool_result[]
 
 ---@class senpai.chat.message.tool
