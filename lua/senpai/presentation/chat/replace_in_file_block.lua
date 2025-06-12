@@ -222,7 +222,6 @@ end
 function M:handle_action(action_type)
   if action_type == "accept" then
     if not self.ai_bufnr and not self.origin_bufnr then
-      vim.print("バッファが作れなかった")
       return { success = false, message = "buffer not" }
     end
     -- self.ai_bufnrの内容で original_bufを書き換える
