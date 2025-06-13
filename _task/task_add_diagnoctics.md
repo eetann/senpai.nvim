@@ -99,7 +99,7 @@ end, 500) -- 500ms待機
 
 ### 3. 実装手順の詳細化
 
-- [ ] A: replace_in_file_block.luaの修正箇所を特定
+- [x] A: replace_in_file_block.luaの修正箇所を特定
     - handle_action関数の修正（`vim.cmd("write")`の後に診断取得処理を追加）
     - diagnostics待機処理の追加（`vim.defer_fn`を使用）
     - ~~結果をサーバーに送る処理~~ → **不要**（同期的にmessageを返すだけ）
@@ -126,6 +126,8 @@ end, 500) -- 500ms待機
     - **決定**: "Line X: エラーメッセージ"形式で表示
 
 ### 6. 実装タスク
+
+- [ ] P: まだエラーが拾えてないので修正
 
 - [ ] A: handle_action関数の非同期化対応
     - 現在の同期的な戻り値を非同期に変更する必要があるか検討

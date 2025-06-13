@@ -208,7 +208,7 @@ function M:get_action_buttons()
   if result.errors ~= "" then
     return result.errors
   end
-  self.ai_bufnr = result.bufnr
+  self.ai_bufnr = result.ai_bufnr
   self.origin_bufnr = result.original_bufnr
 
   return {
@@ -233,9 +233,45 @@ function M:handle_action(action_type)
       vim.cmd("write")
     end)
 
+    -- Wait a short time for diagnostics to update, then check for errors
+    local bufnr = self.origin_bufnr
+    local path = self.path
+
+    -- Use vim.wait to block for diagnostics
+    vim.wait(500, function()
+      -- This will be called repeatedly until it returns true or timeout
+      return false -- Always wait the full 500ms
+    end)
+
+    -- TODO: まだエラーが拾えてない
+    -- Now get the diagnostics after waiting
+    local diagnostics = vim.diagnostic.get(bufnr, {
+      severity = { min = vim.diagnostic.severity.ERROR },
+    })
+
+    local message = "Successfully applied changes to " .. path
+
+    -- If there are diagnostics, include them in the message
+    if #diagnostics > 0 then
+      local error_messages = {}
+      for _, diag in ipairs(diagnostics) do
+        table.insert(
+          error_messages,
+          string.format("Line %d: %s", diag.lnum + 1, diag.message)
+        )
+      end
+      message = message
+        .. string.format(
+          "\n\nFound %d error%s:\n%s",
+          #diagnostics,
+          #diagnostics > 1 and "s" or "",
+          table.concat(error_messages, "\n")
+        )
+    end
+
     return {
       success = true,
-      message = "Successfully applied changes to " .. self.path,
+      message = message,
     }
   elseif action_type == "reject" then
     return { success = true, message = "Rejected changes to " .. self.path }
