@@ -12,24 +12,6 @@ local IChatWindow = require("senpai.domain.i_chat_window")
 local M = {}
 M.__index = M
 
----@param winid integer
----@param bufnr integer
----@param links string[]
-local function keep_file_attachment(winid, bufnr, links)
-  local text = table.concat(links, " ")
-  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, { text, "" })
-  vim.api.nvim_buf_set_extmark(
-    bufnr,
-    vim.api.nvim_create_namespace("sepnai-chat"),
-    0,
-    0,
-    {
-      conceal_lines = "",
-    }
-  )
-  vim.api.nvim_win_set_cursor(winid, { 2, 1 })
-end
-
 ---send chat to LLM
 ---@param chat senpai.IChatWindow
 ---@param user_input? string User input text (wrapped with task/user_feedback tags)
@@ -129,13 +111,6 @@ function M.execute(chat, user_input, other_input)
   local filelinks = utils.parse_filelinks(original_text)
   if #filelinks.headers > 0 then
     body.code_block_headers = filelinks.headers
-    if Config.chat.input_area.keep_file_attachment then
-      keep_file_attachment(
-        chat.input_area.winid,
-        chat.input_area.bufnr,
-        filelinks.links
-      )
-    end
   end
   chat.job = RequestHandler.streamRequest({
     method = "post",

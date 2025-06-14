@@ -238,9 +238,9 @@ function M:handle_action(action_type)
     local path = self.path
 
     -- Use vim.wait to block for diagnostics
-    vim.wait(500, function()
+    vim.wait(2000, function()
       -- This will be called repeatedly until it returns true or timeout
-      return false -- Always wait the full 500ms
+      return false -- Always wait the full 2000ms
     end)
 
     -- TODO: まだエラーが拾えてない
