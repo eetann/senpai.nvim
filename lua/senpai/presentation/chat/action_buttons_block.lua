@@ -7,7 +7,7 @@ local utils = require("senpai.usecase.utils")
 ---@field block_type "action_buttons"
 ---@field buttons table[]
 ---@field target_block senpai.IBlock The block that these action buttons are for
----@field chat_window any The chat window instance
+---@field chat_window senpai.IChatWindow The chat window instance
 local M = {}
 M.__index = M
 setmetatable(M, { __index = IBlock })
@@ -76,7 +76,7 @@ function M:setup_body()
         align = "center",
         on_press = function()
           -- Execute the action through the chat window
-          self.chat_window:_execute_action(button_def, self.target_block)
+          self.chat_window:execute_action(button_def, self.target_block)
           self:hide()
           self.target_block = nil
         end,
@@ -99,4 +99,3 @@ function M:has_ui()
 end
 
 return M
-

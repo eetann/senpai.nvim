@@ -349,7 +349,7 @@ function M:show_action_buttons()
   if body.auto_approve then
     for _, button_def in ipairs(buttons) do
       if button_def.approve then
-        self:_execute_action(button_def, block)
+        self:execute_action(button_def, block)
         return
       end
     end
@@ -365,7 +365,7 @@ end
 ---Execute action with given user input
 ---@param button_def table
 ---@param block any
-function M:_execute_action(button_def, block)
+function M:execute_action(button_def, block)
   local result = block:handle_action(button_def.action_type)
 
   if result.success then

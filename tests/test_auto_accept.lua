@@ -39,7 +39,7 @@ end
 
 T["show_action_buttons()"] = MiniTest.new_set()
 
-T["show_action_buttons()"]["_execute_action is called when auto_approve=true"] = function()
+T["show_action_buttons()"]["execute_action is called when auto_approve=true"] = function()
   child.lua([[
     package.loaded["senpai.usecase.request.request_handler"] = {
       request_without_callback = function(req)
@@ -48,7 +48,7 @@ T["show_action_buttons()"]["_execute_action is called when auto_approve=true"] =
     }
     _G.called = { execute_action = false }
     local win = setmetatable({}, { __index = M })
-    function win:_execute_action(button_def, block)
+    function win:execute_action(button_def, block)
       _G.called.execute_action = true
     end
     win.sticky_popup_manager = {
@@ -76,7 +76,7 @@ T["show_action_buttons()"]["_render_action_buttons is called when auto_approve=f
     }
     local win = setmetatable({}, { __index = M })
     _G.called = { execute_action = false }
-    function win:_execute_action(button_def, block)
+    function win:execute_action(button_def, block)
       _G.called.execute_action = true
     end
     win.sticky_popup_manager = {
@@ -104,7 +104,7 @@ T["show_action_buttons()"]["_render_action_buttons is called when API request fa
     }
     local win = setmetatable({}, { __index = M })
     _G.called = { execute_action = false }
-    function win:_execute_action(button_def, block)
+    function win:execute_action(button_def, block)
       _G.called.execute_action = true
     end
     win.sticky_popup_manager = {
@@ -132,7 +132,7 @@ T["show_action_buttons()"]["_render_action_buttons is called when API response i
     }
     local win = setmetatable({}, { __index = M })
     _G.called = { execute_action = false }
-    function win:_execute_action(button_def, block)
+    function win:execute_action(button_def, block)
       _G.called.execute_action = true
     end
     win.sticky_popup_manager = {

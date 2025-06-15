@@ -43,6 +43,7 @@ local M = {}
 ---@field add_block fun(self, type: "replace_in_file"|"execute_command", args: any, row?:integer): senpai.IBlock
 ---@field show_action_buttons fun(self)
 ---@field on_assistant_message_start fun(self)
+---@field execute_action fun(self, button:table[], block:senpai.IBlock)
 
 M.input_winbar_text = "Ask Senpai (?: help)"
 
