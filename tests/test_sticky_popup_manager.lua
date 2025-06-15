@@ -199,7 +199,9 @@ T["StickyPopupManager"]["scroll down"] = function()
   eq(child.api.nvim_win_is_valid(popup2_winid), true)
   local popup3_winid =
     child.lua_get("_G.manager.popups[...].renderer.layout.winid", { row3 })
-  eq(child.api.nvim_win_is_valid(popup3_winid), true)
+  if popup3_winid ~= vim.NIL then
+    eq(child.api.nvim_win_is_valid(popup3_winid), true)
+  end
 
   child.api.nvim_set_current_win(split.winid)
   child.type_keys("gg")

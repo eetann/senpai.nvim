@@ -6,10 +6,6 @@ local Keymaps = require("senpai.presentation.chat.keymaps")
 local IChatWindow = require("senpai.domain.i_chat_window")
 local StickyPopupManager =
   require("senpai.presentation.chat.sticky_popup_manager")
-local n = require("nui-components")
-local Gap = require("nui-components.gap")
-local Columns = require("nui-components.columns")
-local Rows = require("nui-components.rows")
 local send_text = require("senpai.usecase.send_text")
 
 local function create_winbar_text(text)
@@ -31,6 +27,7 @@ local win_options = {
 ---@class senpai.ChatWindow: senpai.IChatWindow
 ---@field is_new boolean
 ---@field current_assistant_message_block any|nil The block from the current assistant message
+---@field current_action_buttons_block any|nil The current action buttons block
 local M = {}
 M.__index = M
 
@@ -218,7 +215,6 @@ end
 
 function M:hide()
   self.sticky_popup_manager:close_all_popup()
-  self:hide_action_buttons()
   self.log_area:hide()
   self.input_area:hide()
 end
@@ -246,7 +242,6 @@ end
 
 function M:toggle_input()
   local winid = self.input_area.winid
-  self:hide_action_buttons()
   if
     not self.input_area or not vim.api.nvim_buf_is_loaded(self.input_area.bufnr)
   then
@@ -282,11 +277,26 @@ end
 
 ---Show action buttons for the last tool in AI message
 function M:show_action_buttons()
+  -- Remove existing action buttons if any
+  if self.current_action_buttons_block then
+    local row = self.current_action_buttons_block.row
+    self.sticky_popup_manager.popups[row] = nil
+    -- Update rows array
+    local new_rows = {}
+    for _, r in ipairs(self.sticky_popup_manager.rows) do
+      if r ~= row then
+        table.insert(new_rows, r)
+      end
+    end
+    self.sticky_popup_manager.rows = new_rows
+    self.current_action_buttons_block:unmount()
+    self.current_action_buttons_block = nil
+  end
+
   -- Only show buttons for the current assistant message's block
   local block = self.current_assistant_message_block
   if not block or not block.get_action_buttons then
-    -- Hide action buttons if there's no block with action buttons
-    self:hide_action_buttons()
+    -- No block with action buttons
     return
   end
 
@@ -298,8 +308,6 @@ function M:show_action_buttons()
     return
   end
   -- Check auto approval
-  local RequestHandler = require("senpai.usecase.request.request_handler")
-
   -- Prepare request based on block type
   local auto_request = {
     tool_type = block.type,
@@ -312,44 +320,52 @@ function M:show_action_buttons()
   end
 
   -- Use RequestHandler for internal API call
-  local response = RequestHandler.request_without_callback({
-    method = "post",
-    route = "/agent/auto",
-    body = auto_request,
-  })
+  local response =
+    require("senpai.usecase.request.request_handler").request_without_callback({
+      method = "post",
+      route = "/agent/auto",
+      body = auto_request,
+    })
 
   if response.exit ~= 0 or response.status ~= 200 then
     -- API call failed, show buttons
-    self:_render_action_buttons(buttons, block)
+    self.current_action_buttons_block = self.sticky_popup_manager:add_block(
+      "action_buttons",
+      { buttons = buttons, target_block = block, chat_window = self }
+    )
     return
   end
 
   local ok, body = pcall(vim.json.decode, response.body)
   if not ok or type(body) ~= "table" then
     -- Failed to parse response, show buttons
-    self:_render_action_buttons(buttons, block)
+    self.current_action_buttons_block = self.sticky_popup_manager:add_block(
+      "action_buttons",
+      { buttons = buttons, target_block = block, chat_window = self }
+    )
     return
   end
 
   if body.auto_approve then
     for _, button_def in ipairs(buttons) do
       if button_def.approve then
-        self:_execute_action(button_def, block, "")
+        self:_execute_action(button_def, block)
         return
       end
     end
   else
     -- Manual approval - show buttons
-    self:_render_action_buttons(buttons, block)
+    self.current_action_buttons_block = self.sticky_popup_manager:add_block(
+      "action_buttons",
+      { buttons = buttons, target_block = block, chat_window = self }
+    )
   end
 end
 
 ---Execute action with given user input
 ---@param button_def table
 ---@param block any
----@param user_input string
-function M:_execute_action(button_def, block, user_input)
-  -- Handle the action (without user_input, handle_action only returns tool result)
+function M:_execute_action(button_def, block)
   local result = block:handle_action(button_def.action_type)
 
   if result.success then
@@ -359,80 +375,39 @@ function M:_execute_action(button_def, block, user_input)
       .. "] Result:\n\n"
       .. result.message
 
-    -- Send user input and tool result together
-    local user_part = (user_input and user_input ~= "") and user_input or nil
+    local user_input = ""
+    if self.input_area and self.input_area.bufnr then
+      local lines =
+        vim.api.nvim_buf_get_lines(self.input_area.bufnr, 0, -1, false)
+      user_input = table.concat(lines, "\n")
+      -- Clear input area after getting text
+      vim.api.nvim_buf_set_lines(self.input_area.bufnr, 0, -1, false, {})
+    end
+    local user_part = user_input ~= "" and user_input or nil
     send_text.execute(self, user_part, tool_message)
 
-    -- Hide action buttons after use
-    self:hide_action_buttons()
+    -- Remove action buttons after use
+    if self.current_action_buttons_block then
+      -- Find and remove the block from sticky popup manager
+      for row, popup in pairs(self.sticky_popup_manager.popups) do
+        if popup == self.current_action_buttons_block then
+          self.sticky_popup_manager.popups[row] = nil
+          -- Update rows array
+          local new_rows = {}
+          for _, r in ipairs(self.sticky_popup_manager.rows) do
+            if r ~= row then
+              table.insert(new_rows, r)
+            end
+          end
+          self.sticky_popup_manager.rows = new_rows
+          break
+        end
+      end
+      self.current_action_buttons_block:unmount()
+      self.current_action_buttons_block = nil
+    end
   else
     vim.notify("Action failed: " .. result.message, vim.log.levels.ERROR)
-  end
-end
-
----Render action buttons
----@param buttons table
----@param block any
-function M:_render_action_buttons(buttons, block)
-  -- Build button components
-  local button_components = {}
-  for _, button_def in ipairs(buttons) do
-    table.insert(
-      button_components,
-      n.button({
-        label = button_def.label,
-        flex = 1,
-        align = "left",
-        on_press = function()
-          -- Get user input from input area
-          local user_input = ""
-          if self.input_area and self.input_area.bufnr then
-            local lines =
-              vim.api.nvim_buf_get_lines(self.input_area.bufnr, 0, -1, false)
-            user_input = table.concat(lines, "\n")
-            -- Clear input area after getting text
-            vim.api.nvim_buf_set_lines(self.input_area.bufnr, 0, -1, false, {})
-          end
-
-          -- Execute the action
-          self:_execute_action(button_def, block, user_input)
-        end,
-      })
-    )
-  end
-
-  if #button_components == 0 then
-    return
-  end
-
-  -- Create the action button renderer
-  self.action_buttons_renderer = n.create_renderer({
-    bufnr = self.log_area.bufnr,
-    relative = {
-      type = "win",
-      winid = self.log_area.winid,
-    },
-    position = {
-      row = vim.api.nvim_win_get_height(self.log_area.winid)
-        - 1
-        - #button_components,
-      col = 0,
-    },
-    -- width = vim.api.nvim_win_get_width(self.log_area.winid),
-    height = #button_components,
-  })
-
-  self.action_buttons_renderer:render(Rows({
-    flex = 1,
-    children = button_components,
-  }))
-end
-
----Hide action buttons
-function M:hide_action_buttons()
-  if self.action_buttons_renderer then
-    self.action_buttons_renderer:close()
-    self.action_buttons_renderer = nil
   end
 end
 

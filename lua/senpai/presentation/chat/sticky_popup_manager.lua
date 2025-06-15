@@ -140,6 +140,8 @@ function M:add_block(type, args, row)
     popup = require("senpai.presentation.chat.write_to_file_block").new(params)
   elseif type == "search_files" then
     popup = require("senpai.presentation.chat.search_files_block").new(params)
+  elseif type == "action_buttons" then
+    popup = require("senpai.presentation.chat.action_buttons_block").new(params)
   else
     error("Unknown block type: " .. type)
   end
@@ -178,7 +180,7 @@ function M:update_float_position()
     end
 
     local target_screen_row = original_row - topline + previous_row_count
-    if target_screen_row < 0 or split_height <= target_screen_row + 4 then
+    if target_screen_row < 0 or split_height <= target_screen_row + 1 then
       popup:hide()
       goto continue
     end

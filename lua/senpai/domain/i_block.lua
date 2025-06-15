@@ -9,6 +9,7 @@ local n = require("nui-components")
 ---| "ask_followup_question"
 ---| "write_to_file"
 ---| "search_files"
+---| "action_buttons"
 
 ---@alias senpai.action_block { label: string, action_type: string, approve: boolean }
 
@@ -137,6 +138,7 @@ end
 ---@param action_type string
 ---@param user_input? string
 ---@return { success: boolean, message: string }
+---@diagnostic disable-next-line: unused-local
 function M:handle_action(action_type, user_input)
   return { success = false, message = "Not implemented" }
 end

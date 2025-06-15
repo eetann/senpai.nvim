@@ -138,8 +138,8 @@ function M.execute(chat, user_input, other_input)
     callback = function()
       spinner:stop()
       -- Show action buttons after AI message is complete
-      chat.sticky_popup_manager:update_float_position()
       chat:show_action_buttons()
+      chat.sticky_popup_manager:update_float_position()
     end,
   })
 end

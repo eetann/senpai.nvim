@@ -23,7 +23,7 @@ local function make_block(opts)
       get_action_buttons = function()
         return %s
       end,
-      handle_action = function(action_type, user_input)
+      handle_action = function(action_type)
         return { success = true, message = "done", block_type = "%s" }
       end,
       block_type = "%s",
@@ -48,12 +48,17 @@ T["show_action_buttons()"]["_execute_action is called when auto_approve=true"] =
     }
     _G.called = { execute_action = false }
     local win = setmetatable({}, { __index = M })
-    function win:_execute_action(button_def, block, user_input)
+    function win:_execute_action(button_def, block)
       _G.called.execute_action = true
     end
-    function win:_render_action_buttons(buttons, block)
-      _G.called.render_action_buttons = true
-    end
+    win.sticky_popup_manager = {
+      add_block = function(self, type, args)
+        _G.called.render_action_buttons = true
+        return {}
+      end,
+      popups = {},
+      rows = {}
+    }
     win.current_assistant_message_block = (]] .. make_block() .. [[)
     win:show_action_buttons()
   ]])
@@ -71,12 +76,17 @@ T["show_action_buttons()"]["_render_action_buttons is called when auto_approve=f
     }
     local win = setmetatable({}, { __index = M })
     _G.called = { execute_action = false }
-    function win:_execute_action(button_def, block, user_input)
+    function win:_execute_action(button_def, block)
       _G.called.execute_action = true
     end
-    function win:_render_action_buttons(buttons, block)
-      _G.called.render_action_buttons = true
-    end
+    win.sticky_popup_manager = {
+      add_block = function(self, type, args)
+        _G.called.render_action_buttons = true
+        return {}
+      end,
+      popups = {},
+      rows = {}
+    }
     win.current_assistant_message_block = (]] .. make_block() .. [[)
     win:show_action_buttons()
   ]])
@@ -94,12 +104,17 @@ T["show_action_buttons()"]["_render_action_buttons is called when API request fa
     }
     local win = setmetatable({}, { __index = M })
     _G.called = { execute_action = false }
-    function win:_execute_action(button_def, block, user_input)
+    function win:_execute_action(button_def, block)
       _G.called.execute_action = true
     end
-    function win:_render_action_buttons(buttons, block)
-      _G.called.render_action_buttons = true
-    end
+    win.sticky_popup_manager = {
+      add_block = function(self, type, args)
+        _G.called.render_action_buttons = true
+        return {}
+      end,
+      popups = {},
+      rows = {}
+    }
     win.current_assistant_message_block = (]] .. make_block() .. [[)
     win:show_action_buttons()
   ]])
@@ -117,12 +132,17 @@ T["show_action_buttons()"]["_render_action_buttons is called when API response i
     }
     local win = setmetatable({}, { __index = M })
     _G.called = { execute_action = false }
-    function win:_execute_action(button_def, block, user_input)
+    function win:_execute_action(button_def, block)
       _G.called.execute_action = true
     end
-    function win:_render_action_buttons(buttons, block)
-      _G.called.render_action_buttons = true
-    end
+    win.sticky_popup_manager = {
+      add_block = function(self, type, args)
+        _G.called.render_action_buttons = true
+        return {}
+      end,
+      popups = {},
+      rows = {}
+    }
     win.current_assistant_message_block = (]] .. make_block() .. [[)
     win:show_action_buttons()
   ]])
@@ -131,18 +151,23 @@ T["show_action_buttons()"]["_render_action_buttons is called when API response i
   eq(called.render_action_buttons, true)
 end
 
-T["show_action_buttons()"]["hide_action_buttons is called when block is nil"] = function()
+T["show_action_buttons()"]["does nothing when block is nil"] = function()
   child.lua([[
     local win = setmetatable({}, { __index = M })
-    _G.called = { hide_action_buttons = false }
-    function win:hide_action_buttons()
-      _G.called.hide_action_buttons = true
-    end
+    win.sticky_popup_manager = {
+      add_block = function(self, type, args)
+        _G.called_add_block = true
+        return {}
+      end,
+      popups = {},
+      rows = {}
+    }
     win.current_assistant_message_block = nil
+    _G.called_add_block = false
     win:show_action_buttons()
   ]])
-  local called = child.lua_get("_G.called")
-  eq(called.hide_action_buttons, true)
+  local called = child.lua_get("_G.called_add_block")
+  eq(called, false)
 end
 
 T["show_action_buttons()"]["send_text is called when get_action_buttons returns an error string"] = function()
@@ -160,7 +185,7 @@ T["show_action_buttons()"]["send_text is called when get_action_buttons returns 
       type = "replace_in_file",
       args = { path = "foo.lua" },
       get_action_buttons = function() return "error message" end,
-      handle_action = function(action_type, user_input)
+      handle_action = function(action_type)
         return { success = true, message = "done", block_type = "replace_in_file" }
       end,
       block_type = "replace_in_file",
